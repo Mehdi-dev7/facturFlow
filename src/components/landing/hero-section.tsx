@@ -32,7 +32,7 @@ export function HeroSection() {
             </div>
 
             {/* Titre principal */}
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold font-display leading-tight">
+            <h1 className="text-4xl  md:text-5xl lg:text-6xl 2xl:text-7xl  font-display leading-tight">
               <span className="text-gradient">
                 Gérez vos factures
               </span>
@@ -43,7 +43,7 @@ export function HeroSection() {
             </h1>
 
             {/* Sous-titre */}
-            <p className="text-xl text-slate-600 leading-relaxed max-w-xl">
+            <p className="text-lg xs:text-xl text-slate-600 leading-relaxed max-w-xl">
               Créez, envoyez et suivez vos factures professionnelles en quelques clics. 
               FacturFlow automatise votre facturation pour que vous puissiez vous concentrer sur votre business.
             </p>

@@ -1,10 +1,11 @@
-import { Navbar, HeroSection } from "@/components/landing"
+import { Navbar, HeroSection, FeaturesSection } from "@/components/landing"
 
 export default function Home() {
   return (
     <>
       <Navbar />
       <HeroSection />
+      <FeaturesSection />
     </>
   )
 }
