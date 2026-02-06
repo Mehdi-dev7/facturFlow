@@ -20,24 +20,24 @@ export function Navbar() {
           </Link>
 
           {/* Navigation centrale */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-20">
             <Link 
               href="#features" 
-              className="relative text-slate-700 hover:text-primary transition-colors font-medium font-heading group"
+              className="relative text-slate-700 hover:text-primary transition-colors font-semibold font-heading group"
             >
               Fonctionnalités
               <span className="absolute left-1/2 -bottom-1 w-0 h-px bg-primary transition-all duration-300 group-hover:w-full group-hover:left-0" />
             </Link>
             <Link 
               href="#pricing" 
-              className="relative text-slate-700 hover:text-primary transition-colors font-medium font-heading group"
+              className="relative text-slate-700 hover:text-primary transition-colors font-semibold font-heading group"
             >
               Tarifs
               <span className="absolute left-1/2 -bottom-1 w-0 h-px bg-primary transition-all duration-300 group-hover:w-full group-hover:left-0" />
             </Link>
             <Link 
               href="#faq" 
-              className="relative text-slate-700 hover:text-primary transition-colors font-medium font-heading group"
+              className="relative text-slate-700 hover:text-primary transition-colors font-semibold font-heading group"
             >
               FAQ
               <span className="absolute left-1/2 -bottom-1 w-0 h-px bg-primary transition-all duration-300 group-hover:w-full group-hover:left-0" />
