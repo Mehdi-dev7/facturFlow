@@ -1,0 +1,360 @@
+# FacturFlow - SaaS de Facturation Intelligente
+
+## Stack Technique COMPLÈTE
+- Next.js 15 + TypeScript (strict mode) + App Router
+- Supabase PostgreSQL
+- Prisma ORM
+- Better Auth (Google, GitHub, Microsoft OAuth + Email OTP)
+- Tailwind CSS + Shadcn/ui
+- TanStack Query (React Query) pour data fetching
+- Zustand pour état global
+- jsPDF ou @react-pdf/renderer pour génération PDF
+- Zod pour validation
+- React Hook Form pour formulaires
+- date-fns pour manipulation dates
+
+## Architecture du Projet
+
+### Structure des Dossiers
+```
+app/
+├── (auth)/              # Routes publiques (login, signup)
+├── (dashboard)/         # Routes protégées (dashboard, clients, factures)
+├── api/                 # API Routes & Server Actions
+components/
+├── ui/                  # Shadcn components
+├── forms/               # Formulaires réutilisables
+├── layouts/             # Layouts (DashboardLayout, etc.)
+lib/
+├── auth.ts              # Configuration Better Auth
+├── auth-client.ts       # Client Better Auth pour React
+├── prisma.ts            # Prisma client singleton
+├── validations/         # Schémas Zod
+hooks/                   # Custom hooks
+stores/                  # Zustand stores
+types/                   # Types TypeScript globaux
+prisma/
+└── schema.prisma        # Schéma DB
+```
+
+### Principes d'Architecture
+1. **Server Components par défaut** - Client Components uniquement si nécessaire
+2. **Server Actions** pour mutations (create, update, delete)
+3. **TanStack Query** pour fetching côté client
+4. **Zustand** pour état global (user settings, UI state, draft invoice)
+5. **Validation** Zod côté serveur ET client
+
+## Règles de Code STRICTES
+
+### Performance & Optimisation
+- TOUJOURS utiliser `useCallback` pour fonctions passées en props
+- TOUJOURS utiliser `useMemo` pour calculs coûteux ou listes filtrées
+- Lazy loading des composants lourds avec `dynamic()` (ex: PDF viewer)
+- Utiliser `loading.tsx` et `error.tsx` pour chaque route
+- Débouncer les inputs de recherche (300ms minimum)
+
+### React Query (TanStack Query)
+- TOUJOURS préfixer les query keys par entité : `['clients']`, `['invoices']`, `['products']`
+- Utiliser `useMutation` avec `onSuccess` pour invalider le cache
+- Configurer `staleTime` et `cacheTime` selon besoin
+- Utiliser `optimisticUpdates` pour meilleure UX
+
+Exemple :
+```typescript
+// Query
+const { data: clients } = useQuery({
+  queryKey: ['clients'],
+  queryFn: () => getClients()
+})
+
+// Mutation
+const mutation = useMutation({
+  mutationFn: createClient,
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ['clients'] })
+  }
+})
+```
+
+### Zustand Stores
+- Un store par domaine : `useUserStore`, `useInvoiceStore`, `useUIStore`
+- TOUJOURS utiliser des selectors pour éviter re-renders
+- Persister les données importantes avec `persist` middleware
+
+Exemple :
+```typescript
+const useInvoiceStore = create<InvoiceStore>()(
+  persist(
+    (set) => ({
+      draftInvoice: null,
+      setDraftInvoice: (invoice) => set({ draftInvoice: invoice }),
+    }),
+    { name: 'invoice-storage' }
+  )
+)
+```
+
+### TypeScript
+- JAMAIS `any` - Utiliser `unknown` si nécessaire
+- TOUJOURS typer les props des composants
+- Utiliser `satisfies` pour vérifier les types sans perdre l'inférence
+- Exporter les types depuis `/types` pour réutilisation
+
+### Composants
+- PascalCase pour noms : `InvoiceForm`, `ClientList`
+- Fichiers en kebab-case : `invoice-form.tsx`
+- `"use client"` uniquement si :
+  * Hooks React (useState, useEffect, etc.)
+  * Event handlers (onClick, onChange)
+  * Context providers
+  * TanStack Query hooks
+- Props interface toujours explicite :
+```typescript
+interface InvoiceFormProps {
+  initialData?: Invoice
+  onSuccess?: () => void
+}
+```
+
+### Server Actions
+- Fichier `actions.ts` dans chaque feature folder
+- TOUJOURS valider avec Zod
+- TOUJOURS try/catch avec messages d'erreur clairs
+- Retourner `{ success: boolean, data?, error? }`
+
+Exemple :
+```typescript
+'use server'
+
+export async function createInvoice(data: unknown) {
+  try {
+    const validated = invoiceSchema.parse(data)
+    const invoice = await prisma.document.create({ data: validated })
+    revalidatePath('/dashboard/invoices')
+    return { success: true, data: invoice }
+  } catch (error) {
+    return { success: false, error: 'Failed to create invoice' }
+  }
+}
+```
+
+### Gestion des Erreurs
+- TOUJOURS afficher des messages utilisateur clairs
+- Utiliser toast/sonner pour feedback
+- Logger les erreurs serveur avec détails
+- Fallback UI avec error boundaries
+
+## Schéma de Données (Prisma)
+
+### Models Principaux
+- **User** : Infos entreprise, settings facturation, templates
+- **Client** : B2B (SIRET) ou B2C (particulier)
+- **Product** : Services ou produits avec prix/TVA
+- **Document** : Factures, devis, avoirs, etc.
+- **DocumentLineItem** : Lignes de documents
+- **RecurringInvoice** : Abonnements
+- **Template** : Templates par métier
+- **Reminder** : Relances automatiques
+
+### Relations Importantes
+- User → Clients (1-n)
+- User → Products (1-n)
+- User → Documents (1-n)
+- Client → Documents (1-n)
+- Document → LineItems (1-n) avec CASCADE delete
+- Document → Template (n-1)
+
+## Flows Applicatifs Clés
+
+### 1. Authentification
+```
+1. User arrive sur /login
+2. Choix : Email/Password OU OAuth (Google/GitHub/Microsoft)
+3. Si Email/Password :
+   - Inscription → Email envoyé avec code OTP
+   - Vérification code → Compte activé
+4. Si OAuth :
+   - Redirect vers provider → Callback → Auto-login
+5. Session créée → Redirect /dashboard
+6. Middleware protège routes /dashboard/*
+```
+
+### 2. Création de Facture
+```
+1. User clique "Nouvelle facture"
+2. Sélection client (existant ou création rapide)
+3. Ajout lignes :
+   - Produit existant (auto-fill prix/TVA) OU
+   - Ligne custom (description manuelle)
+4. Calculs automatiques :
+   - Sous-total = sum(quantity × unitPrice)
+   - TVA = sum(subtotal × vatRate)
+   - Total TTC = subtotal + TVA
+   - Remise optionnelle
+5. Aperçu temps réel du PDF
+6. Choix : Brouillon / Envoyer / Télécharger
+7. Génération numéro auto (prefix + counter)
+8. Save DB + Génération PDF + (optionnel) Email client
+```
+
+### 3. Génération PDF
+```
+1. Template sélectionné (par défaut ou custom)
+2. Données facture + user + client injectées
+3. Calculs vérifiés server-side
+4. PDF généré avec @react-pdf/renderer ou jsPDF
+5. Upload Supabase Storage OU génération à la volée
+6. URL retournée et stockée dans document.pdfUrl
+```
+
+### 4. Relances Automatiques
+```
+1. Cron job quotidien (Vercel Cron ou externe)
+2. Query factures OVERDUE (status != PAID && dueDate < today)
+3. Pour chaque facture :
+   - Check dernière relance envoyée
+   - Déterminer niveau (FRIENDLY → FIRM → FORMAL)
+   - Générer email avec template
+   - Envoyer + Log dans Reminder
+   - Update status si besoin
+```
+
+## Conventions de Nommage
+
+### Fichiers
+- Components: `InvoiceForm.tsx`, `ClientCard.tsx`
+- Pages: `page.tsx`
+- Layouts: `layout.tsx`
+- API routes: `route.ts`
+- Actions: `actions.ts`
+- Types: `types.ts`
+- Stores: `use-invoice-store.ts`
+
+### Variables
+- camelCase : `invoiceTotal`, `clientList`
+- Constantes : `UPPER_SNAKE_CASE` : `MAX_ITEMS_PER_PAGE`
+- Types/Interfaces : `PascalCase` : `InvoiceFormData`
+- Enums Prisma : `UPPER_SNAKE_CASE` : `DocumentType.INVOICE`
+
+### Fonctions
+- Handlers : `handleSubmit`, `handleDelete`
+- Getters : `getInvoices`, `getClientById`
+- Actions : `createInvoice`, `updateClient`, `deleteProduct`
+- Utils : `formatCurrency`, `calculateTax`, `generateInvoiceNumber`
+
+## Librairies & Outils
+
+### UI/UX
+- Shadcn/ui pour composants base (Button, Dialog, Form, etc.)
+- Lucide React pour icônes
+- Sonner pour toasts
+- Recharts pour graphiques dashboard
+
+### Formulaires
+- React Hook Form + Zod resolver
+- Validation temps réel
+- Error messages clairs
+
+### Dates
+- date-fns pour toutes manipulations
+- Format ISO stocké en DB
+- Format localisé côté client
+
+### PDF
+- @react-pdf/renderer (préféré - React components)
+- OU jsPDF (si besoin de plus de contrôle bas niveau)
+
+### Emails (à configurer)
+- Resend (recommandé - DX excellente)
+- OU Brevo (Sendinblue)
+- Templates avec React Email
+
+## Points d'Attention Spécifiques
+
+### Calculs Financiers
+- TOUJOURS utiliser Decimal ou stocker en centimes (integer)
+- Arrondir à 2 décimales pour affichage
+- Vérifier calculs server-side avant save
+- Formatter avec formatCurrency() helper
+
+### Numérotation Documents
+- Incrémenter atomiquement (transaction Prisma)
+- Format : `{prefix}-{year}-{number}` ex: `INV-2025-0001`
+- Séquence par type de document
+- Pas de gaps acceptables
+
+### Sécurité
+- Valider TOUJOURS côté serveur
+- Vérifier ownership (user peut accéder à ses données uniquement)
+- Sanitizer inputs utilisateur
+- Rate limiting sur API routes sensibles
+
+### Performance
+- Pagination pour listes (20 items/page)
+- Infinite scroll sur mobile
+- Virtual scrolling si >100 items
+- Index DB sur userId, clientId, status, date
+
+## Exemples de Code
+
+### Query avec TanStack Query
+```typescript
+'use client'
+
+export function InvoiceList() {
+  const { data, isLoading } = useQuery({
+    queryKey: ['invoices', { status: 'PAID' }],
+    queryFn: () => getInvoices({ status: 'PAID' }),
+    staleTime: 5 * 60 * 1000, // 5 min
+  })
+
+  if (isLoading) return <Skeleton />
+  
+  return <div>{data?.map(invoice => <InvoiceCard key={invoice.id} {...invoice} />)}</div>
+}
+```
+
+### Server Action avec validation
+```typescript
+'use server'
+
+import { z } from 'zod'
+import { prisma } from '@/lib/prisma'
+
+const schema = z.object({
+  companyName: z.string().min(2),
+  email: z.string().email(),
+  // ...
+})
+
+export async function createClient(formData: FormData) {
+  const session = await getSession()
+  if (!session) return { error: 'Unauthorized' }
+
+  try {
+    const data = schema.parse(Object.fromEntries(formData))
+    
+    const client = await prisma.client.create({
+      data: {
+        ...data,
+        userId: session.user.id,
+      }
+    })
+    
+    revalidatePath('/dashboard/clients')
+    return { success: true, data: client }
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return { error: 'Validation failed', details: error.errors }
+    }
+    return { error: 'Failed to create client' }
+  }
+}
+```
+
+## Rappels Importants
+- Penser mobile-first (responsive design)
+- Accessibilité (ARIA labels, keyboard navigation)
+- SEO (metadata, Open Graph)
+- Analytics (Plausible ou Vercel Analytics)
+- Monitoring erreurs (Sentry optionnel)

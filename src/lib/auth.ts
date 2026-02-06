@@ -15,9 +15,11 @@ export const auth = betterAuth({
   
   // Vérification par code OTP
   emailVerification: {
-    sendVerificationEmail: async ({ user, code }) => {
+    sendVerificationEmail: async ({ user, url, token }) => {
       // TODO: Configurer l'envoi d'email (Resend, Brevo, etc.)
-      console.log(`Code de vérification pour ${user.email}: ${code}`)
+      console.log(`Email de vérification pour ${user.email}`)
+      console.log(`URL de vérification: ${url}`)
+      console.log(`Token: ${token}`)
     },
   },
   
