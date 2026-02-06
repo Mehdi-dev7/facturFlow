@@ -23,6 +23,7 @@
     "next": "16.1.6",
     "radix-ui": "^1.4.3",
     "react": "^19.2.4",
+    "react-countup": "^6.5.3",
     "react-dom": "^19.2.4",
     "react-hook-form": "^7.71.1",
     "resend": "^6.9.1",

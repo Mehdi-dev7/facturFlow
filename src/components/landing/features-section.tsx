@@ -57,7 +57,7 @@ const features = [
 
 export function FeaturesSection() {
   return (
-    <section id="features" className="relative py-20 bg-white">
+    <section id="features" className="relative py-10 lg:py-20 bg-white">
       <div className="w-full px-4 sm:px-[8%] lg:px-[12%] py-18 xl:py-10">
         {/* Titre de section */}
         <div className="text-center mb-16">
@@ -66,7 +66,7 @@ export function FeaturesSection() {
             <br />
             <span className="text-slate-900">pour gérer vos factures</span>
           </h2>
-          <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+          <p className="text-lg xs:text-xl text-slate-600 max-w-2xl mx-auto">
             Une solution complète qui automatise votre facturation de A à Z
           </p>
         </div>
@@ -78,7 +78,7 @@ export function FeaturesSection() {
             return (
               <div
                 key={index}
-                className={`group relative border  rounded-2xl p-8 shadow-xl border-primary/50 transition-all duration-300 ${
+                className={`group relative border  rounded-2xl p-4 xs:p-6 sm:p-8 shadow-xl border-primary/50 transition-all duration-300 ${
                   feature.featured ? 'md:col-span-2 lg:col-span-3 lg:max-w-2xl lg:mx-auto' : ''
                 }`}
                 style={{
@@ -104,7 +104,7 @@ export function FeaturesSection() {
                 </h3>
 
                 {/* Description */}
-                <p className="text-slate-600 leading-relaxed">
+                <p className="text-slate-600 leading-relaxed text-sm xs:text-base">
                   {feature.description}
                 </p>
 

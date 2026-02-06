@@ -13,6 +13,7 @@ const inter = Inter({
 const golosText = Golos_Text({
   variable: "--font-golos-text",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 

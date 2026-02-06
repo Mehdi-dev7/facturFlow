@@ -12,6 +12,7 @@
 - Zod pour validation
 - React Hook Form pour formulaires
 - date-fns pour manipulation dates
+- **Paiements** : Stripe (CB, Apple Pay, Google Pay) + PayPal + GoCardless (SEPA)
 
 ## Architecture du Projet
 
@@ -268,6 +269,21 @@ export async function createInvoice(data: unknown) {
 - Resend (recommandé - DX excellente)
 - OU Brevo (Sendinblue)
 - Templates avec React Email
+
+### Paiements & Intégrations
+- **Stripe** : Paiements CB, Apple Pay, Google Pay, Stripe Link
+  - Webhooks pour mise à jour statut factures
+  - Stripe Connect pour multi-comptes (optionnel)
+  - Configuration : API keys dans .env
+- **PayPal** : Alternative populaire freelances
+  - Compte Business REQUIS pour API/webhooks
+  - Synchronisation automatique des paiements
+  - Fallback : marquage manuel si compte Standard
+- **GoCardless** : Prélèvements SEPA automatiques
+  - Idéal pour abonnements et factures récurrentes B2B
+  - Frais réduits vs cartes bancaires (1% vs 1,5-3%)
+  - Mandats SEPA gérés automatiquement
+  - Configuration : API keys + webhook endpoints
 
 ## Points d'Attention Spécifiques
 
