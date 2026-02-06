@@ -23,11 +23,8 @@ export function HeroSection() {
           <div className="space-y-8">
             {/* Badge "Nouveau" */}
             <div 
-              className="inline-flex items-center px-4 py-2 rounded-full border"
-              style={{ 
-                backgroundColor: 'rgba(79, 70, 229, 0.1)', 
-                borderColor: 'rgba(79, 70, 229, 0.2)' 
-              }}
+              className="inline-flex items-center px-4 py-2 rounded-full border border-primary"
+              
             >
               <span className="text-sm font-semibold font-ui text-primary">
                 ✨ Nouvelle génération de facturation
@@ -84,7 +81,7 @@ export function HeroSection() {
               <Link href="/signup">
                 <Button 
                   size="lg" 
-                  className="w-full sm:w-auto h-12 px-8 bg-gradient-primary hover:opacity-90 transition-opacity font-semibold font-ui text-base"
+                  className="w-full sm:w-auto h-12 px-8 bg-gradient-accent hover:opacity-90 transition-opacity font-semibold font-ui text-white text-base cursor-pointer"
                 >
                   Commencer gratuitement
                   <ArrowRight className="ml-2 h-5 w-5" />
@@ -93,7 +90,7 @@ export function HeroSection() {
               <Button 
                 size="lg" 
                 variant="outline"
-                className="w-full sm:w-auto h-12 px-8 border-slate-300 hover:border-primary hover:bg-primary/5 font-semibold font-ui text-base"
+                className="w-full sm:w-auto h-12 px-8 border-slate-300 hover:border-primary hover:bg-primary/10 font-semibold font-ui text-base cursor-pointer"
                 onClick={() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })}
               >
                 Voir la démo
@@ -102,7 +99,7 @@ export function HeroSection() {
 
             {/* Sous-texte */}
             <p className="text-sm text-slate-500">
-              Sans carte bancaire • Essai gratuit 14 jours • Annulation à tout moment
+              Sans carte bancaire • Essai gratuit 7 jours • Annulation à tout moment
             </p>
           </div>
 
@@ -160,10 +157,7 @@ export function HeroSection() {
                   >
                     💳 Paiement sécurisé
                   </div>
-                  <div 
-                    className="absolute -left-2 top-1/2 -translate-y-1/2 w-0 h-0 border-t-8 border-t-transparent border-b-8 border-b-transparent border-r-8"
-                    style={{ borderRightColor: 'rgb(6, 182, 212)' }}
-                  />
+                  
                 </div>
               </div>
 

@@ -23,21 +23,24 @@ export function Navbar() {
           <div className="hidden md:flex items-center space-x-8">
             <Link 
               href="#features" 
-              className="text-slate-600 hover:text-primary transition-colors font-medium font-ui"
+              className="relative text-slate-700 hover:text-primary transition-colors font-medium font-heading group"
             >
               Fonctionnalités
+              <span className="absolute left-1/2 -bottom-1 w-0 h-px bg-primary transition-all duration-300 group-hover:w-full group-hover:left-0" />
             </Link>
             <Link 
               href="#pricing" 
-              className="text-slate-600 hover:text-primary transition-colors font-medium font-ui"
+              className="relative text-slate-700 hover:text-primary transition-colors font-medium font-heading group"
             >
               Tarifs
+              <span className="absolute left-1/2 -bottom-1 w-0 h-px bg-primary transition-all duration-300 group-hover:w-full group-hover:left-0" />
             </Link>
             <Link 
               href="#faq" 
-              className="text-slate-600 hover:text-primary transition-colors font-medium font-ui"
+              className="relative text-slate-700 hover:text-primary transition-colors font-medium font-heading group"
             >
               FAQ
+              <span className="absolute left-1/2 -bottom-1 w-0 h-px bg-primary transition-all duration-300 group-hover:w-full group-hover:left-0" />
             </Link>
           </div>
 
@@ -45,9 +48,9 @@ export function Navbar() {
           <Link href="/login">
             <Button 
               variant="outline" 
-              className="font-ui font-semibold border-slate-300 hover:border-primary hover:bg-primary/5"
+              className="font-ui font-semibold border-slate-300 cursor-pointer hover:border-primary hover:bg-primary/5"
             >
-              <LogIn className="mr-2 h-4 w-4" />
+              <LogIn className="mr-2 h-4 w-4 cursor-pointer" />
               Connexion
             </Button>
           </Link>
