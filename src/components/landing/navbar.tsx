@@ -14,7 +14,7 @@ export function Navbar() {
             <div className="h-8 w-8 rounded-lg bg-gradient-primary flex items-center justify-center">
               <span className="text-lg font-bold  text-white font-heading">F</span>
             </div>
-            <span className="text-xl lg:text-2xl font-semibold golos-text font-heading text-gradient">
+            <span className="text-xl lg:text-2xl font-semibold golos-text font-heading text-gradient ">
               FacturFlow
             </span>
           </Link>

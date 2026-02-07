@@ -125,11 +125,11 @@ export default function SignUpPage() {
 
 			<Card className="w-full max-w-md shadow-2xl border-slate-200/50 backdrop-blur-sm bg-white/95 relative z-10">
 				<CardHeader className="space-y-3 pb-8">
-					<div className="flex justify-center mb-2">
-						<div className="h-14 w-14 rounded-xl bg-gradient-primary flex items-center justify-center shadow-lg">
+					<Link href="/" className="flex justify-center mb-2 group">
+						<div className="h-14 w-14 rounded-xl bg-gradient-primary flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
 							<span className="text-2xl font-bold text-white">F</span>
 						</div>
-					</div>
+					</Link>
 					<CardTitle className="text-3xl font-bold text-center text-gradient">
 						Créer un compte
 					</CardTitle>

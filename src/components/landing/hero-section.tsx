@@ -84,7 +84,7 @@ export function HeroSection() {
 								<Button
 									variant="gradient"
 									size="lg"
-									className="w-full sm:w-auto h-12 px-8 font-ui text-base"
+									className="w-full sm:w-auto h-12 px-8 font-ui text-base transition-all duration-300 cursor-pointer"
 								>
 									Commencer gratuitement
 									<ArrowRight className="ml-2 h-5 w-5" />
@@ -93,7 +93,7 @@ export function HeroSection() {
 							<Button
 								size="lg"
 								variant="outline"
-								className="w-full sm:w-auto h-12 px-8 border-slate-300 hover:border-primary hover:bg-primary/10 font-semibold font-ui text-base cursor-pointer"
+								className="w-full sm:w-auto h-12 px-8 border-slate-300 hover:border-primary hover:bg-primary/10 font-semibold font-ui text-base transition-all duration-300 cursor-pointer"
 								onClick={() =>
 									document
 										.getElementById("demo")
