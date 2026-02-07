@@ -50,7 +50,7 @@ export function Navbar() {
               variant="outline" 
               className="kanit text-lg text-primary border-primary/30 bg-primary/5 hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 cursor-pointer"
             >
-              <LogIn className="mr-2 h-5 w-5" strokeWidth={2} />
+              <LogIn className="mr-2 h-5 w-5" strokeWidth={2.7} />
               Connexion
             </Button>
           </Link>

@@ -1,4 +1,12 @@
-import { Navbar, HeroSection, FeaturesSection, SecurePaymentsSection } from "@/components/landing"
+import { 
+  Navbar, 
+  HeroSection, 
+  FeaturesSection, 
+  SecurePaymentsSection,
+  HowItWorksSection,
+  ProblemSolutionSection,
+  PricingSection
+} from "@/components/landing"
 
 export default function Home() {
   return (
@@ -7,6 +15,9 @@ export default function Home() {
       <HeroSection />
       <FeaturesSection />
       <SecurePaymentsSection />
+      <HowItWorksSection />
+      <ProblemSolutionSection />
+      <PricingSection />
     </>
   )
 }
