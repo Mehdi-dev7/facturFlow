@@ -32,7 +32,7 @@ export function HeroSection() {
             </div>
 
             {/* Titre principal */}
-            <h1 className="text-4xl  md:text-5xl lg:text-6xl 2xl:text-7xl  font-display leading-tight">
+            <h1 className="text-4xl  md:text-5xl lg:text-6xl 2xl:text-7xl leading-tight">
               <span className="text-gradient">
                 Gérez vos factures
               </span>
