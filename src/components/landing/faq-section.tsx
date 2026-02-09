@@ -97,7 +97,7 @@ export function FaqSection() {
                 {/* Question */}
                 <button
                   onClick={() => toggleItem(index)}
-                  className="w-full px-6 py-5 text-left flex items-center justify-between hover:bg-slate-50 rounded-xl transition-colors"
+                  className="w-full px-6 py-5 text-left flex items-center justify-between hover:bg-slate-50 rounded-xl transition-colors cursor-pointer duration-300"
                 >
                   <span className="text-lg font-semibold text-slate-900 pr-4">
                     {faq.question}
@@ -131,7 +131,7 @@ export function FaqSection() {
           <div className="text-center mt-8">
             <button
               onClick={() => setShowAll(!showAll)}
-              className="inline-flex items-center space-x-2 px-6 py-3 border border-slate-300 rounded-xl text-slate-700 hover:bg-slate-50 transition-colors"
+              className="inline-flex items-center space-x-2 px-6 py-3 border border-slate-300 rounded-xl text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer duration-300"
             >
               <span className="font-semibold">
                 {showAll ? `Voir moins` : `Voir ${faqs.length - 5} questions supplémentaires`}

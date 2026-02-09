@@ -51,7 +51,7 @@ export function PricingSection() {
     },
     {
       name: "Pro",
-      subtitle: "Freelances • Auto-entrepreneurs",
+      subtitle: "Freelances • Auto-entrepreneurs • PME",
       price: "14",
       period: "par mois",
       description: "Tout illimité + SEPA + récurrentes",
@@ -66,7 +66,7 @@ export function PricingSection() {
     },
     {
       name: "Business",
-      subtitle: "PME & Entreprises",
+      subtitle: "Entreprises B2B",
       price: "29",
       period: "par mois",
       description: "Tout Pro + multi-users + API",
@@ -116,7 +116,7 @@ export function PricingSection() {
           <h2 className="text-4xl md:text-5xl  text-slate-900 mb-4">
             Tarifs <span className="text-gradient">transparents</span>
           </h2>
-          <p className="text-xl text-slate-600 max-w-2xl mx-auto mb-8">
+          <p className="text-xl text-slate-600 max-w-2xl mx-auto mb-8 ">
             Choisissez le plan qui correspond à vos besoins. 
             Changez ou annulez à tout moment.
           </p>
@@ -169,7 +169,7 @@ export function PricingSection() {
                     <IconComponent className={`w-6 h-6 ${plan.iconColor}`} />
                   </div>
                   
-                  <h3 className="text-2xl font-bold text-slate-900 mb-2">
+                  <h3 className="text-2xl golos-text text-slate-900 font-semibold mb-2">
                     {plan.name}
                   </h3>
                   <p className="text-sm text-slate-600 mb-6">
@@ -177,7 +177,7 @@ export function PricingSection() {
                   </p>
                   
                   <div className="mb-4">
-                    <span className="text-4xl font-bold text-slate-900">
+                    <span className="text-4xl font-bold text-gradient">
                       {plan.price}€
                     </span>
                     <span className="text-slate-600 ml-1">
@@ -198,10 +198,10 @@ export function PricingSection() {
                       <div key={featureIndex} className="flex items-start space-x-3">
                         {renderFeatureIcon(value, planIndex)}
                         <div className="flex-1">
-                          <span className="text-sm text-slate-700 font-medium">
+                          <span className="text-sm text-slate-700 golos-text font-medium">
                             {feature.name}
                           </span>
-                          <div className="text-xs text-slate-500 mt-0.5">
+                          <div className="text-xs text-slate-500 mt-0.5 golos-text">
                             {renderFeatureText(value)}
                           </div>
                         </div>
