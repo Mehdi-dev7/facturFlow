@@ -79,11 +79,15 @@ enum ReminderLevel {
 // ============================================
 
 model User {
-  id            String    @id @default(cuid())
+  id            String    @id
   email         String    @unique
-  emailVerified DateTime?
-  name          String?
+  emailVerified Boolean   @default(false)
+  name          String
   image         String?
+
+  // Better Auth relations
+  sessions Session[]
+  accounts Account[]
 
   // Company Information
   companyName       String?
@@ -136,6 +140,51 @@ model User {
   updatedAt DateTime @updatedAt
 
   @@index([email])
+}
+
+model Session {
+  id        String   @id
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([token])
+}
+
+model Account {
+  id                    String    @id
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accountId             String
+  providerId            String
+  accessToken           String?
+  refreshToken          String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  idToken               String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+}
+
+model Verification {
+  id         String    @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime? @updatedAt
+
+  @@index([identifier])
 }
 
 model Client {

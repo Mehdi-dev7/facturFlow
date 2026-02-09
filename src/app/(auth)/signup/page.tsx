@@ -69,6 +69,15 @@ export default function SignUpPage() {
 		}
 	};
 
+	const validatePassword = (pwd: string): string | null => {
+		if (pwd.length < 8) return "Le mot de passe doit contenir au moins 8 caractères";
+		if (!/[a-z]/.test(pwd)) return "Le mot de passe doit contenir au moins une minuscule";
+		if (!/[A-Z]/.test(pwd)) return "Le mot de passe doit contenir au moins une majuscule";
+		if (!/[0-9]/.test(pwd)) return "Le mot de passe doit contenir au moins un chiffre";
+		if (!/[!@#$%^&*(),.?":{}|<>_\-+=;'\/\[\]\\`~]/.test(pwd)) return "Le mot de passe doit contenir au moins un caractère spécial (!@#$%...)";
+		return null;
+	};
+
 	const handleEmailSignUp = async (e: React.FormEvent) => {
 		e.preventDefault();
 		setError("");
@@ -79,8 +88,9 @@ export default function SignUpPage() {
 			return;
 		}
 
-		if (password.length < 8) {
-			setError("Le mot de passe doit contenir au moins 8 caractères");
+		const passwordError = validatePassword(password);
+		if (passwordError) {
+			setError(passwordError);
 			return;
 		}
 
@@ -205,7 +215,7 @@ export default function SignUpPage() {
 						<div className="space-y-2">
 							<Input
 								type="password"
-								placeholder="Mot de passe (min. 8 caractères)"
+								placeholder="Mot de passe (Aa1! min. 8 car.)"
 								value={password}
 								onChange={(e) => setPassword(e.target.value)}
 								required

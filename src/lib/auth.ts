@@ -1,16 +1,21 @@
 import { betterAuth } from "better-auth"
 import { prismaAdapter } from "better-auth/adapters/prisma"
 import { prisma } from "@/lib/prisma"
+import bcrypt from "bcryptjs"
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
-  
+
   // Email avec vérification par code
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,
+    password: {
+      hash: (password) => bcrypt.hash(password, 12),
+      verify: ({ hash, password }) => bcrypt.compare(password, hash),
+    },
   },
   
   // Vérification par code OTP
