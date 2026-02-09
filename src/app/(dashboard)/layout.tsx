@@ -226,7 +226,7 @@ export default function DashboardLayout({
 									signOut({
 										fetchOptions: {
 											onSuccess: () => {
-												window.location.href = "/login";
+												window.location.href = "/";
 											},
 										},
 									})

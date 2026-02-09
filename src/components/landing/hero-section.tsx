@@ -106,7 +106,7 @@ export function HeroSection() {
 
 						{/* Sous-texte */}
 						<p className="text-sm text-slate-500">
-							Sans carte bancaire • Essai gratuit 7 jours • Annulation à tout
+							Sans carte bancaire • Essai gratuit 14 jours • Annulation à tout
 							moment
 						</p>
 					</div>

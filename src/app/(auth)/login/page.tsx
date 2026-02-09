@@ -68,7 +68,7 @@ export default function LoginPage() {
 	};
 
 	return (
-		<div className="flex min-h-screen items-center justify-center p-4 bg-gradient-to-br from-slate-50 via-white to-slate-50 relative overflow-hidden">
+		<div className="flex min-h-screen items-center justify-center p-4 bg-linear-to-br from-slate-50 via-white to-slate-50 relative overflow-hidden">
 			{/* Effet de fond élégant */}
 			<div className="absolute inset-0 overflow-hidden pointer-events-none">
 				<div
