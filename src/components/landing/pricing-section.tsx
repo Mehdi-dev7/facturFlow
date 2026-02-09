@@ -24,8 +24,10 @@ export function PricingSection() {
     { name: "Factures récurrentes", free: false, pro: true, business: true },
     { name: "Relances automatiques", free: false, pro: true, business: true },
     { name: "Templates métiers", free: false, pro: "9 templates", business: "9 templates" },
+    { name: "Suivi des paiements", free: false, pro: true, business: true },
     
     // BONUS FEATURES
+
     { name: "Paiement CB & PayPal", free: false, pro: true, business: true },
     { name: "Bilan annuel & URSSAF", free: false, pro: true, business: true },
     { name: "API & Webhooks", free: false, pro: false, business: true },
@@ -111,7 +113,7 @@ export function PricingSection() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-16">
-          <h2 className="text-4xl lg:text-5xl font-bold text-slate-900 mb-6">
+          <h2 className="text-4xl md:text-5xl  text-slate-900 mb-4">
             Tarifs <span className="text-gradient">transparents</span>
           </h2>
           <p className="text-xl text-slate-600 max-w-2xl mx-auto mb-8">
@@ -132,8 +134,8 @@ export function PricingSection() {
                   Facturation électronique obligatoire
                 </h3>
                 <div className="text-sm text-amber-700 space-y-1">
-                  <p><strong>PME & Entreprises :</strong> Obligatoire septembre 2026 (inclus dans Business)</p>
-                  <p><strong>Freelances & Auto-entrepreneurs :</strong> Obligatoire septembre 2027</p>
+                  <p><strong>Entreprises B2B :</strong> Obligatoire septembre 2026 (inclus dans Business)</p>
+                  <p><strong>Freelances & Auto-entrepreneurs & PME B2C :</strong> Obligatoire septembre 2027</p>
                   <p className="text-xs mt-2 text-amber-600">
                     Mise à jour prévue pour le plan Pro en juin 2027
                   </p>

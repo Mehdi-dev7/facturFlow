@@ -26,7 +26,7 @@ export function SecurePaymentsSection() {
               <Shield className="h-8 w-8 text-green-600" />
             </div>
           </div>
-          <h2 className="text-4xl md:text-5xl  font-display mb-4">
+          <h2 className="text-4xl md:text-5xl text-slate-900 mb-4">
             <span className="text-gradient">Paiements instantanés</span>
             <br />
             <span className="text-slate-900">et ultra-sécurisés</span>

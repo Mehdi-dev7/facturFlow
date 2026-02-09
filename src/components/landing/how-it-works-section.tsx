@@ -33,7 +33,7 @@ export function HowItWorksSection() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-16">
-          <h2 className="text-4xl lg:text-5xl font-bold font-heading text-slate-900 mb-6">
+          <h2 className="text-4xl md:text-5xl text-slate-900 mb-4">
             Comment ça <span className="text-gradient">marche</span> ?
           </h2>
           <p className="text-xl text-slate-600 font-ui max-w-2xl mx-auto">

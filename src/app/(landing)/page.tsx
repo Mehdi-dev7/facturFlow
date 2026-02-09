@@ -5,7 +5,9 @@ import {
   SecurePaymentsSection,
   HowItWorksSection,
   ProblemSolutionSection,
-  PricingSection
+  PricingSection,
+  FaqSection,
+  Footer
 } from "@/components/landing"
 
 export default function Home() {
@@ -18,6 +20,8 @@ export default function Home() {
       <HowItWorksSection />
       <ProblemSolutionSection />
       <PricingSection />
+      <FaqSection />
+      <Footer />
     </>
   )
 }
