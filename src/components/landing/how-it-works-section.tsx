@@ -1,6 +1,7 @@
 "use client"
 
 import { FileText, Send, CreditCard } from "lucide-react"
+import { Button } from "../ui/button"
 
 export function HowItWorksSection() {
   const steps = [
@@ -33,7 +34,7 @@ export function HowItWorksSection() {
         {/* Header */}
         <div className="text-center mb-16">
           <h2 className="text-4xl lg:text-5xl font-bold font-heading text-slate-900 mb-6">
-            Comment ça marche ?
+            Comment ça <span className="text-gradient">marche</span> ?
           </h2>
           <p className="text-xl text-slate-600 font-ui max-w-2xl mx-auto">
             Créez, envoyez et recevez vos paiements en 3 étapes simples. 
@@ -49,7 +50,7 @@ export function HowItWorksSection() {
               <div key={index} className="relative">
                 {/* Connector line (hidden on last item) */}
                 {index < steps.length - 1 && (
-                  <div className="hidden md:block absolute top-16 left-full w-full h-0.5 bg-gradient-to-r from-slate-300 to-transparent transform translate-x-6 -translate-y-1/2" />
+                  <div className="hidden md:block absolute top-16 left-full w-full h-0.5 bg-linear-to-r from-slate-300 to-transparent transform translate-x-6 -translate-y-1/2" />
                 )}
                 
                 {/* Step card */}
@@ -95,12 +96,20 @@ export function HowItWorksSection() {
             Prêt à simplifier votre facturation ?
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-primary text-white px-8 py-4 rounded-xl font-semibold font-ui hover:bg-primary/90 transition-colors">
+            <Button
+              size="lg"
+              variant="gradient"
+              className="w-full sm:w-auto h-12 px-8 font-ui text-base transition-all duration-300 cursor-pointer"
+            >
               Commencer gratuitement
-            </button>
-            <button className="border border-slate-300 text-slate-700 px-8 py-4 rounded-xl font-semibold font-ui hover:bg-slate-50 transition-colors">
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              className="w-full sm:w-auto h-12 px-8 border-slate-300 hover:border-primary hover:bg-primary/10 font-semibold font-ui text-base transition-all duration-300 cursor-pointer"
+            >
               Voir la démo
-            </button>
+            </Button>
           </div>
         </div>
       </div>
