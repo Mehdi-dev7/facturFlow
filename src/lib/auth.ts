@@ -1,5 +1,6 @@
 import { betterAuth } from "better-auth"
 import { prismaAdapter } from "better-auth/adapters/prisma"
+import { emailOTP } from "better-auth/plugins"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 
@@ -17,17 +18,18 @@ export const auth = betterAuth({
       verify: ({ hash, password }) => bcrypt.compare(password, hash),
     },
   },
-  
-  // Vérification par code OTP
-  emailVerification: {
-    sendVerificationEmail: async ({ user, url, token }) => {
-      // TODO: Configurer l'envoi d'email (Resend, Brevo, etc.)
-      console.log(`Email de vérification pour ${user.email}`)
-      console.log(`URL de vérification: ${url}`)
-      console.log(`Token: ${token}`)
-    },
-  },
-  
+
+  plugins: [
+    emailOTP({
+      otpLength: 6,
+      expiresIn: 300, // 5 minutes
+      sendVerificationOTP: async ({ email, otp }) => {
+        // TODO: Remplacer par Resend en production
+        console.log(`[OTP] Code de vérification pour ${email}: ${otp}`)
+      },
+    }),
+  ],
+
   // OAuth Providers
   socialProviders: {
     google: {

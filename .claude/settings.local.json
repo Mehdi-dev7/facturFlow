@@ -2,7 +2,11 @@
   "permissions": {
     "allow": [
       "Bash(ls:*)",
-      "Bash(npm ls:*)"
+      "Bash(npm ls:*)",
+      "WebSearch",
+      "WebFetch(domain:lordicon.com)",
+      "Bash(npx tsc:*)",
+      "Bash(npm install:*)"
     ]
   }
 }
