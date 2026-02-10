@@ -275,7 +275,7 @@ export default function DashboardPage() {
             <h2 className="text-lg lg:text-2xl font-bold text-slate-900 dark:text-slate-100">Factures récentes</h2>
             <p className="text-xs text-slate-400 mt-0.5">Les 10 dernières factures</p>
           </div>
-          <button className="text-sm font-semibold text-violet-600 hover:text-violet-800 dark:text-violet-400 transition-colors px-3 py-1.5 rounded-lg hover:bg-violet-50 dark:hover:bg-violet-900/20 cursor-pointer">
+          <button className="text-sm font-semibold text-violet-600 hover:text-violet-800 dark:text-violet-300 transition-colors px-3 py-1.5 rounded-lg hover:bg-violet-500/10 dark:hover:bg-violet-500/20 cursor-pointer">
             Voir tout →
           </button>
         </div>
