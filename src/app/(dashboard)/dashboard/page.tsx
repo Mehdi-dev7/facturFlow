@@ -1,6 +1,9 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useCallback } from "react";
+import Link from "next/link";
+import { Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useSession } from "@/lib/auth-client";
 
 interface KpiData {
@@ -202,31 +205,45 @@ export default function DashboardPage() {
     <div>
       {/* ── Header + CA Hero ── */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
-          Bonjour, {firstName} 👋
+        <h1 className="text-2xl lg:text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
+          Bonjour,<span className="text-gradient"> {firstName}
+						</span>  👋
         </h1>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-          Voici un aperçu de votre activité
+        <p className="mt-1 text-sm lg:text-base text-slate-500 dark:text-slate-400">
+          "Facturation, devis et suivi clients — tout est ici"
         </p>
 
-        {/* CA Annuel — Hero card seule */}
-        <div
-          className="mt-5 relative overflow-hidden rounded-2xl border border-violet-200/50 dark:border-violet-800/50 p-6"
-          style={{ background: "linear-gradient(135deg, rgba(139,92,246,0.08) 0%, rgba(168,85,247,0.05) 50%, rgba(255,255,255,0.8) 100%)", backdropFilter: "blur(16px)" }}
-        >
-          <div className="absolute -top-12 -right-12 h-32 w-32 rounded-full bg-violet-500 opacity-10 blur-3xl" />
-          <div className="relative flex flex-col sm:flex-row sm:items-center gap-4">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-500 text-white shadow-lg shadow-violet-500/25 shrink-0">
-              <ChartIcon />
+        {/* CA + Nouvelle facture */}
+        <div className="mt-5 flex items-center gap-5">
+          {/* CA Annuel */}
+          <div
+            className="relative overflow-hidden rounded-2xl border border-violet-200/50 dark:border-violet-800/50 p-6 w-1/2"
+            style={{ background: "linear-gradient(135deg, rgba(139,92,246,0.08) 0%, rgba(168,85,247,0.05) 50%, rgba(255,255,255,0.8) 100%)", backdropFilter: "blur(16px)" }}
+          >
+            <div className="absolute -top-12 -right-12 h-32 w-32 rounded-full bg-violet-500 opacity-10 blur-3xl" />
+            <div className="relative flex flex-col sm:flex-row sm:items-center gap-4">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-500 text-white shadow-lg shadow-violet-500/25 shrink-0">
+                <ChartIcon />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-0.5">Chiffre d&apos;affaires 2026</p>
+                <p className="text-4xl font-bold tracking-tight text-slate-900 dark:text-slate-100">24 850,00 €</p>
+              </div>
+              <div className="sm:ml-auto flex items-center gap-1.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 px-3 py-1.5 text-sm font-semibold text-emerald-700 dark:text-emerald-400 w-fit">
+                <TrendUpIcon />
+                +12.5% vs 2025
+              </div>
             </div>
-            <div>
-              <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-0.5">Chiffre d'affaires 2026</p>
-              <p className="text-4xl font-bold tracking-tight text-slate-900 dark:text-slate-100">24 850,00 €</p>
-            </div>
-            <div className="sm:ml-auto flex items-center gap-1.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 px-3 py-1.5 text-sm font-semibold text-emerald-700 dark:text-emerald-400 w-fit">
-              <TrendUpIcon />
-              +12.5% vs 2025
-            </div>
+          </div>
+
+          {/* Nouvelle facture */}
+          <div className="ml-auto">
+            <Button variant="gradient" size="lg" className="h-12 px-8 font-ui text-base transition-all duration-300 cursor-pointer" asChild>
+              <Link href="/dashboard/invoices/new">
+                <Plus className="h-5 w-5" strokeWidth={2.5} />
+                Nouvelle facture
+              </Link>
+            </Button>
           </div>
         </div>
       </div>
@@ -240,12 +257,12 @@ export default function DashboardPage() {
 
       {/* ── Tableau factures récentes ── */}
       <div
-        className={`rounded-2xl border border-slate-200/70 dark:border-slate-700/60 overflow-hidden transition-all duration-700 ease-out ${tableVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
+        className={`rounded-2xl border border-slate-300/80 dark:border-slate-700/60 shadow-lg shadow-slate-200/50 dark:shadow-slate-900/30 overflow-hidden transition-all duration-700 ease-out ${tableVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
         style={{ background: "rgba(255,255,255,0.75)", backdropFilter: "blur(18px)" }}
       >
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800">
           <div >
-            <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">Factures récentes</h2>
+            <h2 className="text-lg lg:text-2xl font-bold text-slate-900 dark:text-slate-100">Factures récentes</h2>
             <p className="text-xs text-slate-400 mt-0.5">Les 10 dernières factures</p>
           </div>
           <button className="text-sm font-semibold text-violet-600 hover:text-violet-800 dark:text-violet-400 transition-colors px-3 py-1.5 rounded-lg hover:bg-violet-50 dark:hover:bg-violet-900/20 cursor-pointer">
