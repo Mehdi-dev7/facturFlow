@@ -79,10 +79,10 @@ function MinusIcon() {
 
 const iconMap: Record<string, () => React.JSX.Element> = { file: FileIcon, check: CheckIcon, alert: AlertIcon, clock: ClockIcon };
 
-const statusConfig: Record<InvoiceStatus, { bg: string; text: string; dot: string; label: string }> = {
-  "payée": { bg: "bg-emerald-50", text: "text-emerald-700", dot: "bg-emerald-500", label: "Payée" },
-  "impayée": { bg: "bg-red-50", text: "text-red-700", dot: "bg-red-500", label: "Impayée" },
-  "en attente": { bg: "bg-amber-50", text: "text-amber-700", dot: "bg-amber-500", label: "En attente" },
+const statusConfig: Record<InvoiceStatus, { bg: string; text: string; dot: string; border: string; label: string }> = {
+  "payée": { bg: "bg-emerald-100 dark:bg-emerald-500/20", text: "text-emerald-800 dark:text-emerald-300", dot: "bg-emerald-500 dark:bg-emerald-400 animate-pulse", border: "border border-emerald-300 dark:border-emerald-500/40", label: "Payée" },
+  "impayée": { bg: "bg-red-100 dark:bg-red-500/20", text: "text-red-800 dark:text-red-300", dot: "bg-red-500 dark:bg-red-400 animate-pulse", border: "border border-red-300 dark:border-red-500/40", label: "Impayée" },
+  "en attente": { bg: "bg-amber-100 dark:bg-amber-500/20", text: "text-amber-800 dark:text-amber-300", dot: "bg-amber-500 dark:bg-amber-400 animate-pulse", border: "border border-amber-300 dark:border-amber-500/40", label: "En attente" },
 };
 
 /* ─── KPI Card Component ─── */
@@ -152,8 +152,16 @@ function parseAmount(a: string): number {
 function StatusBadge({ status }: { status: InvoiceStatus }) {
   const cfg = statusConfig[status] || statusConfig["en attente"];
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${cfg.bg} ${cfg.text}`}>
-      <span className={`h-1.5 w-1.5 rounded-full ${cfg.dot}`} />
+    <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold ${cfg.bg} ${cfg.text} ${cfg.border}`}>
+      {status === "payée" && (
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-500 dark:text-emerald-400 animate-pulse"><polyline points="20 6 9 17 4 12" /></svg>
+      )}
+      {status === "impayée" && (
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-red-500 dark:text-red-400 animate-pulse"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+      )}
+      {status === "en attente" && (
+        <span className={`h-2 w-2 rounded-full ${cfg.dot}`} />
+      )}
       {cfg.label}
     </span>
   );
