@@ -14,11 +14,9 @@ import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
-	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import {
 	Menu,
 	LayoutDashboard,
@@ -29,6 +27,10 @@ import {
 	Settings,
 	LogOut,
 	ChevronDown,
+	PanelLeftClose,
+	PanelLeftOpen,
+	Crown,
+	Sparkles,
 } from "lucide-react";
 
 const navItems = [
@@ -43,9 +45,11 @@ const navItems = [
 function SidebarNav({
 	pathname,
 	onNavigate,
+	collapsed = false,
 }: {
 	pathname: string;
 	onNavigate?: () => void;
+	collapsed?: boolean;
 }) {
 	return (
 		<nav className="flex flex-col gap-1 px-3" aria-label="Menu principal">
@@ -60,14 +64,19 @@ function SidebarNav({
 						key={item.href}
 						href={item.href}
 						onClick={onNavigate}
-						className={`flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-colors ${
+						title={collapsed ? item.label : undefined}
+						className={`flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-colors cursor-pointer ${
+							collapsed ? "justify-center" : ""
+						} ${
 							isActive
 								? "border-l-4 border-primary bg-primary/10 font-semibold text-primary"
 								: "border-l-4 border-transparent text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
 						}`}
 					>
 						<item.icon className="h-5 w-5 shrink-0" />
-						{item.label}
+						{!collapsed && (
+							<span className="truncate">{item.label}</span>
+						)}
 					</Link>
 				);
 			})}
@@ -114,6 +123,7 @@ export default function DashboardLayout({
 	children: React.ReactNode;
 }) {
 	const [sidebarOpen, setSidebarOpen] = useState(false);
+	const [collapsed, setCollapsed] = useState(false);
 	const pathname = usePathname();
 	const { data: session } = useSession();
 
@@ -122,22 +132,41 @@ export default function DashboardLayout({
 	return (
 		<div className="flex h-screen overflow-hidden bg-slate-50 dark:bg-slate-950">
 			{/* Desktop Sidebar */}
-			<aside className="hidden w-60 shrink-0 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 md:flex">
+			<aside
+				className={`hidden shrink-0 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 md:flex transition-all duration-300 ${
+					collapsed ? "w-18" : "w-70"
+				}`}
+			>
 				{/* Logo */}
-				<div className="flex h-16 items-center px-6">
-					<Link
-						href="/dashboard"
-						className="text-xl font-bold text-primary"
+				<div className="flex h-16 items-center justify-between px-4">
+					{!collapsed && (
+						<Link
+							href="/dashboard"
+							className="text-xl lg:text-2xl font-semibold text-gradient golos-text cursor-pointer"
+						>
+							FacturFlow
+						</Link>
+						
+					)}
+					<span className=""></span>
+					<button
+						onClick={() => setCollapsed((prev) => !prev)}
+						className="p-1.5 rounded-md text-secondary hover:text-primary hover:bg-slate-100 transition-colors cursor-pointer"
+						aria-label={collapsed ? "Ouvrir la sidebar" : "Fermer la sidebar"}
 					>
-						FacturFlow
-					</Link>
+						{collapsed ? (
+							<PanelLeftOpen className="h-5 w-5" />
+						) : (
+							<PanelLeftClose className="h-5 w-5" />
+						)}
+					</button>
 				</div>
 
-				<Separator />
+				<div className="mx-4 h-px bg-linear-to-r from-transparent via-primary/30 to-transparent" />
 
 				{/* Navigation */}
 				<div className="flex-1 overflow-y-auto py-4">
-					<SidebarNav pathname={pathname} />
+					<SidebarNav pathname={pathname} collapsed={collapsed} />
 				</div>
 			</aside>
 
@@ -150,28 +179,26 @@ export default function DashboardLayout({
 						{/* Mobile menu */}
 						<Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
 							<SheetTrigger asChild>
-								<Button
-									variant="ghost"
-									size="icon"
-									className="md:hidden"
+								<button
+									className="md:hidden p-2 text-slate-500 hover:text-primary transition-colors cursor-pointer"
 									aria-label="Ouvrir le menu"
 								>
-									<Menu className="h-5 w-5" />
-								</Button>
+									<Menu className="h-5 w-5" strokeWidth={2.5} />
+								</button>
 							</SheetTrigger>
 							<SheetContent
 								side="left"
-								className="w-72 p-0"
+								className="w-78 p-0 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800"
 							>
 								<SheetTitle className="sr-only">
 									Menu de navigation
 								</SheetTitle>
 								<div className="flex h-16 items-center px-6">
-									<span className="text-xl font-bold text-primary">
+									<span className="text-xl font-semibold text-gradient golos-text font-heading">
 										FacturFlow
 									</span>
 								</div>
-								<Separator />
+								<div className="mx-6 h-px bg-linear-to-r from-transparent via-primary/30 to-transparent" />
 								<div className="py-4">
 									<SidebarNav
 										pathname={pathname}
@@ -198,44 +225,73 @@ export default function DashboardLayout({
 						<DropdownMenuTrigger asChild>
 							<Button
 								variant="ghost"
-								className="flex items-center gap-2 px-2"
+								className="flex items-center hover:bg-primary/10 gap-2 p-2  cursor-pointer"
 								aria-label="Menu utilisateur"
 							>
 								<UserAvatar
 									name={user?.name}
 									image={user?.image}
 								/>
-								<span className="hidden max-w-30 truncate text-sm font-medium sm:inline-block">
+								<span className="hidden max-w-30 truncate hover:text-primary text-sm font-medium sm:inline-block">
 									{user?.name ?? "Utilisateur"}
 								</span>
 								<ChevronDown className="h-4 w-4 text-slate-500" />
 							</Button>
 						</DropdownMenuTrigger>
-						<DropdownMenuContent align="end" className="w-56">
-							<div className="px-3 py-2">
-								<p className="text-sm font-medium">
+						<DropdownMenuContent align="end" className="w-64 bg-linear-to-b from-violet-50 via-white to-white dark:from-slate-800 dark:via-slate-900 dark:to-slate-900 border border-primary/20 shadow-lg rounded-xl p-0 overflow-hidden">
+							{/* User info */}
+							<div className="px-4 py-3">
+								<p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
 									{user?.name ?? "Utilisateur"}
 								</p>
-								<p className="text-xs text-muted-foreground">
+								<p className="text-xs text-muted-foreground truncate">
 									{user?.email ?? ""}
 								</p>
 							</div>
-							<DropdownMenuSeparator />
-							<DropdownMenuItem
-								onClick={() =>
-									signOut({
-										fetchOptions: {
-											onSuccess: () => {
-												window.location.href = "/";
+
+							{/* Séparateur gradient */}
+							<div className="mx-3 h-px bg-linear-to-r from-transparent via-primary/30 to-transparent" />
+
+							{/* Abonnement */}
+							<div className="px-4 py-3">
+								<div className="flex items-center justify-between">
+									<div className="flex items-center gap-2">
+										<Crown className="h-4 w-4 text-primary" />
+										<span className="text-xs font-medium text-slate-700 dark:text-slate-300">
+											Plan Gratuit
+										</span>
+									</div>
+									<Link
+										href="/dashboard/settings"
+										className="flex items-center gap-1 text-xs font-semibold text-primary hover:text-secondary transition-colors cursor-pointer"
+									>
+										<Sparkles className="h-3 w-3" />
+										Upgrade
+									</Link>
+								</div>
+							</div>
+
+							{/* Séparateur gradient */}
+							<div className="mx-3 h-px bg-linear-to-r from-transparent via-primary/30 to-transparent" />
+
+							{/* Déconnexion */}
+							<div className="p-1">
+								<DropdownMenuItem
+									onClick={() =>
+										signOut({
+											fetchOptions: {
+												onSuccess: () => {
+													window.location.href = "/";
+												},
 											},
-										},
-									})
-								}
-								className="text-red-600 focus:text-red-600"
-							>
-								<LogOut className="mr-2 h-4 w-4" />
-								Déconnexion
-							</DropdownMenuItem>
+										})
+									}
+									className="text-red-600 focus:bg-red-50 focus:text-red-600 dark:focus:bg-red-950 cursor-pointer rounded-lg"
+								>
+									<LogOut className="mr-2 h-4 w-4" />
+									Déconnexion
+								</DropdownMenuItem>
+							</div>
 						</DropdownMenuContent>
 					</DropdownMenu>
 				</header>

@@ -25,7 +25,7 @@ export function HeroSection() {
 				/>
 			</div>
 
-			<div className="relative z-10 w-full px-4 sm:px-[8%] lg:px-[12%] py-18 xl:py-10">
+			<div className="relative z-10 w-full px-4 sm:px-[8%] xl:px-[12%] py-18 xl:py-10">
 				<div className="grid lg:grid-cols-2 gap-12 items-center">
 					{/* Contenu gauche */}
 					<div className="space-y-8">
