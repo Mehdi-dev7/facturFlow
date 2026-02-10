@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { Plus, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSession } from "@/lib/auth-client";
 
@@ -172,6 +172,7 @@ export default function DashboardPage() {
   const [tableVisible, setTableVisible] = useState(false);
   const [sortKey, setSortKey] = useState<SortKey | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>("asc");
+  const [expandedId, setExpandedId] = useState<string | null>(null);
   const { data: session } = useSession();
 
   useEffect(() => {
@@ -280,7 +281,52 @@ export default function DashboardPage() {
           </button>
         </div>
 
-        <div className="overflow-x-auto">
+        {/* ── Mobile: Accordion View ── */}
+        <div className="md:hidden divide-y divide-slate-200 dark:divide-violet-500/20">
+          {sortedInvoices.map((inv) => {
+            const isExpanded = expandedId === inv.id;
+            return (
+              <div key={inv.id}>
+                <button
+                  onClick={() => setExpandedId(isExpanded ? null : inv.id)}
+                  className="w-full flex items-center justify-between px-4 py-3.5 hover:bg-violet-200/30 dark:hover:bg-violet-500/10 transition-colors cursor-pointer"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span className="text-sm font-semibold text-violet-600 dark:text-violet-400 shrink-0">{inv.id}</span>
+                    <span className="text-sm text-slate-700 dark:text-slate-300 truncate">{inv.client}</span>
+                  </div>
+                  <div className="flex items-center gap-2.5 shrink-0 ml-2">
+                    <StatusBadge status={inv.status} />
+                    <ChevronDown className={`h-4 w-4 text-slate-400 transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`} />
+                  </div>
+                </button>
+                <div
+                  className={`grid transition-all duration-200 ease-in-out ${isExpanded ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
+                >
+                  <div className="overflow-hidden">
+                    <div className="px-4 pb-3.5 pt-0 flex flex-col gap-2 bg-violet-50/50 dark:bg-violet-950/30">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-500 dark:text-slate-400">Émission</span>
+                        <span className="text-slate-700 dark:text-slate-300">{inv.date}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-500 dark:text-slate-400">Échéance</span>
+                        <span className="text-slate-700 dark:text-slate-300">{inv.echeance}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-500 dark:text-slate-400">Montant</span>
+                        <span className="font-semibold text-slate-900 dark:text-slate-100">{inv.amount}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* ── Desktop: Table View ── */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="border-b border-slate-200 dark:border-violet-500/20 bg-violet-200/90 dark:bg-violet-950/50">
