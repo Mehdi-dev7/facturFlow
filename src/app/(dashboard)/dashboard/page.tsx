@@ -16,6 +16,8 @@ interface KpiData {
   borderAccent: string;
   gradientFrom: string;
   gradientTo: string;
+  darkGradientFrom: string;
+  darkGradientTo: string;
 }
 
 type InvoiceStatus = "payée" | "impayée" | "en attente";
@@ -30,10 +32,10 @@ interface Invoice {
 }
 
 const kpiData: KpiData[] = [
-  { label: "Factures ce mois", value: "12", change: "+3 vs mois dernier", changeType: "up", icon: "file", iconBg: "bg-blue-500", borderAccent: "border-blue-500/30", gradientFrom: "#eff6ff", gradientTo: "#bfdbfe" },
-  { label: "Payées", value: "7", change: "58.3%", changeType: "up", icon: "check", iconBg: "bg-emerald-500", borderAccent: "border-emerald-500/30", gradientFrom: "#ecfdf5", gradientTo: "#a7f3d0" },
-  { label: "En attente", value: "2", change: "1 800,00 €", changeType: "neutral", icon: "clock", iconBg: "bg-amber-500", borderAccent: "border-amber-500/30", gradientFrom: "#fffbeb", gradientTo: "#fde68a" },
-  { label: "Impayées", value: "3", change: "2 150,00 €", changeType: "down", icon: "alert", iconBg: "bg-red-500", borderAccent: "border-red-500/30", gradientFrom: "#fef2f2", gradientTo: "#fecaca" },
+  { label: "Factures ce mois", value: "12", change: "+3 vs mois dernier", changeType: "up", icon: "file", iconBg: "bg-blue-500", borderAccent: "border-blue-500/30", gradientFrom: "#eff6ff", gradientTo: "#bfdbfe", darkGradientFrom: "#1e1b4b", darkGradientTo: "#1e3a5f" },
+  { label: "Payées", value: "7", change: "58.3%", changeType: "up", icon: "check", iconBg: "bg-emerald-500", borderAccent: "border-emerald-500/30", gradientFrom: "#ecfdf5", gradientTo: "#a7f3d0", darkGradientFrom: "#1e1b4b", darkGradientTo: "#064e3b" },
+  { label: "En attente", value: "2", change: "1 800,00 €", changeType: "neutral", icon: "clock", iconBg: "bg-amber-500", borderAccent: "border-amber-500/30", gradientFrom: "#fffbeb", gradientTo: "#fde68a", darkGradientFrom: "#1e1b4b", darkGradientTo: "#78350f" },
+  { label: "Impayées", value: "3", change: "2 150,00 €", changeType: "down", icon: "alert", iconBg: "bg-red-500", borderAccent: "border-red-500/30", gradientFrom: "#fef2f2", gradientTo: "#fecaca", darkGradientFrom: "#1e1b4b", darkGradientTo: "#7f1d1d" },
 ];
 
 const recentInvoices: Invoice[] = [
@@ -96,8 +98,9 @@ function KpiCard({ data, index }: { data: KpiData; index: number }) {
   return (
     <div
       className={`group relative overflow-hidden rounded-2xl border ${data.borderAccent} shadow-lg hover:shadow-xl transition-all duration-500 ease-out cursor-default hover:-translate-y-1 hover:scale-[1.02] ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
-      style={{ background: `linear-gradient(135deg, ${data.gradientFrom} 0%, ${data.gradientTo} 100%)` }}
     >
+      <div className="absolute inset-0 dark:hidden" style={{ background: `linear-gradient(135deg, ${data.gradientFrom} 0%, ${data.gradientTo} 100%)` }} />
+      <div className="absolute inset-0 hidden dark:block" style={{ background: `linear-gradient(135deg, ${data.darkGradientFrom} 0%, ${data.darkGradientTo} 100%)` }} />
       <div className="relative p-5">
         <div className="flex items-center justify-between mb-4">
           <div className={`flex h-11 w-11 items-center justify-center rounded-xl text-white ${data.iconBg} shadow-lg transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3`}>
@@ -113,7 +116,7 @@ function KpiCard({ data, index }: { data: KpiData; index: number }) {
           </div>
         </div>
         <p className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100 mb-1">{data.value}</p>
-        <p className="text-sm font-medium text-slate-500">{data.label}</p>
+        <p className="text-sm font-medium text-slate-500 dark:text-violet-300">{data.label}</p>
       </div>
       <div className={`h-1 w-full ${data.iconBg} opacity-60 transition-opacity duration-300 group-hover:opacity-100`} />
     </div>
@@ -257,10 +260,9 @@ export default function DashboardPage() {
 
       {/* ── Tableau factures récentes ── */}
       <div
-        className={`rounded-2xl border border-slate-300/80 dark:border-slate-700/60 shadow-lg shadow-slate-200/50 dark:shadow-slate-900/30 overflow-hidden transition-all duration-700 ease-out ${tableVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
-        style={{ background: "rgba(255,255,255,0.75)", backdropFilter: "blur(18px)" }}
+        className={`rounded-2xl border border-slate-300/80 dark:border-violet-500/20 shadow-lg shadow-slate-200/50 dark:shadow-violet-950/40 bg-white/75 dark:bg-[#1a1438] backdrop-blur-lg overflow-hidden transition-all duration-700 ease-out ${tableVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
       >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-violet-500/20 dark:bg-[#1a1438]">
           <div >
             <h2 className="text-lg lg:text-2xl font-bold text-slate-900 dark:text-slate-100">Factures récentes</h2>
             <p className="text-xs text-slate-400 mt-0.5">Les 10 dernières factures</p>
@@ -273,25 +275,25 @@ export default function DashboardPage() {
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-slate-200 dark:border-slate-700 bg-violet-200/90 dark:bg-slate-800/30">
-                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider border-r border-slate-200 dark:border-slate-700">N° Facture</th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider border-r border-slate-200 dark:border-slate-700">Client</th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider border-r border-slate-200 dark:border-slate-700">
+              <tr className="border-b border-slate-200 dark:border-violet-500/20 bg-violet-200/90 dark:bg-violet-950/50">
+                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 dark:text-violet-300 uppercase tracking-wider border-r border-slate-200 dark:border-violet-500/20">N° Facture</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 dark:text-violet-300 uppercase tracking-wider border-r border-slate-200 dark:border-violet-500/20">Client</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 dark:text-violet-300 uppercase tracking-wider border-r border-slate-200 dark:border-violet-500/20">
                   <button onClick={() => handleSort("date")} className="inline-flex items-center gap-1.5 cursor-pointer hover:text-primary transition-colors">
                     Émission <SortIcon direction={sortKey === "date" ? sortDir : null} />
                   </button>
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider border-r border-slate-200 dark:border-slate-700">
+                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 dark:text-violet-300 uppercase tracking-wider border-r border-slate-200 dark:border-violet-500/20">
                   <button onClick={() => handleSort("echeance")} className="inline-flex items-center gap-1.5 cursor-pointer hover:text-primary transition-colors">
                     Échéance <SortIcon direction={sortKey === "echeance" ? sortDir : null} />
                   </button>
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider border-r border-slate-200 dark:border-slate-700">
+                <th className="px-6 py-3 text-right text-xs font-semibold text-slate-500 dark:text-violet-300 uppercase tracking-wider border-r border-slate-200 dark:border-violet-500/20">
                   <button onClick={() => handleSort("amount")} className="inline-flex items-center gap-1.5 cursor-pointer hover:text-primary transition-colors ml-auto">
                     Montant <SortIcon direction={sortKey === "amount" ? sortDir : null} />
                   </button>
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs font-semibold text-slate-500 dark:text-violet-300 uppercase tracking-wider">
                   <button onClick={() => handleSort("status")} className="inline-flex items-center gap-1.5 cursor-pointer hover:text-primary transition-colors mx-auto">
                     Statut <SortIcon direction={sortKey === "status" ? sortDir : null} />
                   </button>
@@ -300,20 +302,20 @@ export default function DashboardPage() {
             </thead>
             <tbody>
               {sortedInvoices.map((inv) => (
-                <tr key={inv.id} className="border-b border-slate-200 dark:border-slate-700 hover:bg-violet-200/30 dark:hover:bg-violet-900/30 transition-colors cursor-pointer group">
-                  <td className="px-6 py-3.5 border-r border-slate-200 dark:border-slate-800">
+                <tr key={inv.id} className="border-b border-slate-200 dark:border-violet-500/20 hover:bg-violet-200/30 dark:hover:bg-violet-500/10 transition-colors cursor-pointer group">
+                  <td className="px-6 py-3.5 border-r border-slate-200 dark:border-violet-500/15">
                     <span className="text-sm font-semibold text-violet-600 dark:text-violet-400 group-hover:text-violet-800 transition-colors">{inv.id}</span>
                   </td>
-                  <td className="px-6 py-3.5 border-r border-slate-200 dark:border-slate-800">
+                  <td className="px-6 py-3.5 border-r border-slate-200 dark:border-violet-500/15">
                     <span className="text-sm text-slate-700 dark:text-slate-300">{inv.client}</span>
                   </td>
-                  <td className="px-6 py-3.5 border-r border-slate-200 dark:border-slate-800">
-                    <span className="text-sm text-slate-500">{inv.date}</span>
+                  <td className="px-6 py-3.5 border-r border-slate-200 dark:border-violet-500/15">
+                    <span className="text-sm text-slate-500 dark:text-slate-400">{inv.date}</span>
                   </td>
-                  <td className="px-6 py-3.5 border-r border-slate-200 dark:border-slate-800">
-                    <span className="text-sm text-slate-500">{inv.echeance}</span>
+                  <td className="px-6 py-3.5 border-r border-slate-200 dark:border-violet-500/15">
+                    <span className="text-sm text-slate-500 dark:text-slate-400">{inv.echeance}</span>
                   </td>
-                  <td className="px-6 py-3.5 text-right border-r border-slate-200 dark:border-slate-800">
+                  <td className="px-6 py-3.5 text-right border-r border-slate-200 dark:border-violet-500/15">
                     <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">{inv.amount}</span>
                   </td>
                   <td className="px-6 py-3.5 text-center">

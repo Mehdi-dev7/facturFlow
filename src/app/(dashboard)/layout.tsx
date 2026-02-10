@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useSession, signOut } from "@/lib/auth-client";
@@ -31,6 +31,8 @@ import {
 	PanelLeftOpen,
 	Crown,
 	Sparkles,
+	Sun,
+	Moon,
 } from "lucide-react";
 
 const navItems = [
@@ -124,8 +126,23 @@ export default function DashboardLayout({
 }) {
 	const [sidebarOpen, setSidebarOpen] = useState(false);
 	const [collapsed, setCollapsed] = useState(false);
+	const [dark, setDark] = useState(false);
 	const pathname = usePathname();
 	const { data: session } = useSession();
+
+	useEffect(() => {
+		const saved = localStorage.getItem("theme");
+		const isDark = saved === "dark" || (!saved && window.matchMedia("(prefers-color-scheme: dark)").matches);
+		setDark(isDark);
+		document.documentElement.classList.toggle("dark", isDark);
+	}, []);
+
+	const toggleDark = useCallback(() => {
+		const next = !dark;
+		setDark(next);
+		document.documentElement.classList.toggle("dark", next);
+		localStorage.setItem("theme", next ? "dark" : "light");
+	}, [dark]);
 
 	const user = session?.user;
 
@@ -162,7 +179,7 @@ export default function DashboardLayout({
 					</button>
 				</div>
 
-				<div className="mx-4 h-px bg-linear-to-r from-transparent via-primary/30 to-transparent" />
+				<div className="mx-4 h-px bg-linear-to-r from-transparent via-primary/30 dark:via-violet-400/30 to-transparent" />
 
 				{/* Navigation */}
 				<div className="flex-1 overflow-y-auto py-4">
@@ -198,7 +215,7 @@ export default function DashboardLayout({
 										FacturFlow
 									</span>
 								</div>
-								<div className="mx-6 h-px bg-linear-to-r from-transparent via-primary/30 to-transparent" />
+								<div className="mx-6 h-px bg-linear-to-r from-transparent via-primary/30 dark:via-violet-400/30 to-transparent" />
 								<div className="py-4">
 									<SidebarNav
 										pathname={pathname}
@@ -220,7 +237,16 @@ export default function DashboardLayout({
 						</h1>
 					</div>
 
-					{/* Right: User menu */}
+					{/* Right: Dark mode + User menu */}
+					<div className="flex items-center gap-2">
+					<button
+						onClick={toggleDark}
+						className="relative p-2 rounded-lg text-slate-500 hover:text-primary hover:bg-primary/10 transition-all duration-300 cursor-pointer"
+						aria-label={dark ? "Mode clair" : "Mode sombre"}
+					>
+						<Sun className={`h-5 w-5 transition-all duration-300 ${dark ? "rotate-90 scale-0 opacity-0" : "rotate-0 scale-100 opacity-100"}`} />
+						<Moon className={`absolute inset-0 m-auto h-5 w-5 text-slate-200 transition-all duration-300 ${dark ? "rotate-0 scale-100 opacity-100" : "-rotate-90 scale-0 opacity-0"}`} />
+					</button>
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
 							<Button
@@ -232,38 +258,38 @@ export default function DashboardLayout({
 									name={user?.name}
 									image={user?.image}
 								/>
-								<span className="hidden max-w-30 truncate hover:text-primary text-sm font-medium sm:inline-block">
+								<span className="hidden max-w-30 truncate hover:text-primary dark:text-slate-200 dark:hover:text-white  text-sm font-medium sm:inline-block">
 									{user?.name ?? "Utilisateur"}
 								</span>
-								<ChevronDown className="h-4 w-4 text-slate-500" />
+								<ChevronDown className="h-4 w-4 text-slate-500 dark:text-slate-200 dark:hover:text-white" />
 							</Button>
 						</DropdownMenuTrigger>
-						<DropdownMenuContent align="end" className="w-64 bg-linear-to-b from-violet-50 via-white to-white dark:from-slate-800 dark:via-slate-900 dark:to-slate-900 border border-primary/20 shadow-lg rounded-xl p-0 overflow-hidden">
+						<DropdownMenuContent align="end" className="w-64 bg-linear-to-b from-violet-50 via-white to-white dark:from-[#1e1b4b] dark:via-[#1a1438] dark:to-[#1a1438] border border-primary/20 dark:border-violet-500/20 shadow-lg dark:shadow-violet-950/40 rounded-xl p-0 overflow-hidden">
 							{/* User info */}
 							<div className="px-4 py-3">
 								<p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
 									{user?.name ?? "Utilisateur"}
 								</p>
-								<p className="text-xs text-muted-foreground truncate">
+								<p className="text-xs text-muted-foreground truncate dark:text-slate-100">
 									{user?.email ?? ""}
 								</p>
 							</div>
 
 							{/* Séparateur gradient */}
-							<div className="mx-3 h-px bg-linear-to-r from-transparent via-primary/30 to-transparent" />
+							<div className="mx-3 h-px bg-linear-to-r from-transparent via-primary/30 dark:via-violet-200/30 to-transparent " />
 
 							{/* Abonnement */}
 							<div className="px-4 py-3">
 								<div className="flex items-center justify-between">
 									<div className="flex items-center gap-2">
-										<Crown className="h-4 w-4 text-primary" />
-										<span className="text-xs font-medium text-slate-700 dark:text-slate-300">
+										<Crown className="h-4 w-4 text-primary dark:text-violet-400" />
+										<span className="text-xs font-medium text-slate-700 dark:text-violet-200">
 											Plan Gratuit
 										</span>
 									</div>
 									<Link
 										href="/dashboard/settings"
-										className="flex items-center gap-1 text-xs font-semibold text-primary hover:text-secondary transition-colors cursor-pointer"
+										className="flex items-center gap-1 text-xs font-semibold text-primary hover:text-secondary dark:text-violet-400 dark:hover:text-violet-500 transition-colors cursor-pointer"
 									>
 										<Sparkles className="h-3 w-3" />
 										Upgrade
@@ -272,7 +298,7 @@ export default function DashboardLayout({
 							</div>
 
 							{/* Séparateur gradient */}
-							<div className="mx-3 h-px bg-linear-to-r from-transparent via-primary/30 to-transparent" />
+							<div className="mx-3 h-px bg-linear-to-r from-transparent via-primary/30 dark:via-violet-200/30 to-transparent" />
 
 							{/* Déconnexion */}
 							<div className="p-1">
@@ -286,7 +312,7 @@ export default function DashboardLayout({
 											},
 										})
 									}
-									className="text-red-600 focus:bg-red-50 focus:text-red-600 dark:focus:bg-red-950 cursor-pointer rounded-lg"
+									className="text-red-600 focus:bg-red-50 focus:text-red-600 dark:text-red-400 dark:focus:bg-red-500/10 dark:focus:text-red-400 cursor-pointer rounded-lg"
 								>
 									<LogOut className="mr-2 h-4 w-4" />
 									Déconnexion
@@ -294,6 +320,7 @@ export default function DashboardLayout({
 							</div>
 						</DropdownMenuContent>
 					</DropdownMenu>
+					</div>
 				</header>
 
 				{/* Main content */}
