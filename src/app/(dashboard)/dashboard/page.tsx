@@ -11,6 +11,8 @@ interface KpiData {
   icon: string;
   iconBg: string;
   borderAccent: string;
+  gradientFrom: string;
+  gradientTo: string;
 }
 
 type InvoiceStatus = "payée" | "impayée" | "en attente";
@@ -25,10 +27,10 @@ interface Invoice {
 }
 
 const kpiData: KpiData[] = [
-  { label: "Factures ce mois", value: "12", change: "+3 vs mois dernier", changeType: "up", icon: "file", iconBg: "bg-blue-500", borderAccent: "border-blue-500/30" },
-  { label: "Payées", value: "7", change: "58.3%", changeType: "up", icon: "check", iconBg: "bg-emerald-500", borderAccent: "border-emerald-500/30" },
-  { label: "En attente", value: "2", change: "1 800,00 €", changeType: "neutral", icon: "clock", iconBg: "bg-amber-500", borderAccent: "border-amber-500/30" },
-  { label: "Impayées", value: "3", change: "2 150,00 €", changeType: "down", icon: "alert", iconBg: "bg-red-500", borderAccent: "border-red-500/30" },
+  { label: "Factures ce mois", value: "12", change: "+3 vs mois dernier", changeType: "up", icon: "file", iconBg: "bg-blue-500", borderAccent: "border-blue-500/30", gradientFrom: "#eff6ff", gradientTo: "#bfdbfe" },
+  { label: "Payées", value: "7", change: "58.3%", changeType: "up", icon: "check", iconBg: "bg-emerald-500", borderAccent: "border-emerald-500/30", gradientFrom: "#ecfdf5", gradientTo: "#a7f3d0" },
+  { label: "En attente", value: "2", change: "1 800,00 €", changeType: "neutral", icon: "clock", iconBg: "bg-amber-500", borderAccent: "border-amber-500/30", gradientFrom: "#fffbeb", gradientTo: "#fde68a" },
+  { label: "Impayées", value: "3", change: "2 150,00 €", changeType: "down", icon: "alert", iconBg: "bg-red-500", borderAccent: "border-red-500/30", gradientFrom: "#fef2f2", gradientTo: "#fecaca" },
 ];
 
 const recentInvoices: Invoice[] = [
@@ -91,9 +93,8 @@ function KpiCard({ data, index }: { data: KpiData; index: number }) {
   return (
     <div
       className={`group relative overflow-hidden rounded-2xl border ${data.borderAccent} shadow-lg hover:shadow-xl transition-all duration-500 ease-out cursor-default hover:-translate-y-1 hover:scale-[1.02] ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
-      style={{ background: "rgba(255, 255, 255, 0.65)", backdropFilter: "blur(20px) saturate(1.8)", WebkitBackdropFilter: "blur(20px) saturate(1.8)" }}
+      style={{ background: `linear-gradient(135deg, ${data.gradientFrom} 0%, ${data.gradientTo} 100%)` }}
     >
-      <div className={`absolute -top-4 -right-4 h-full w-2/3 opacity-[0.25] blur-xl transition-opacity duration-500 group-hover:opacity-[0.35] ${data.iconBg}`} />
       <div className="relative p-5">
         <div className="flex items-center justify-between mb-4">
           <div className={`flex h-11 w-11 items-center justify-center rounded-xl text-white ${data.iconBg} shadow-lg transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3`}>
@@ -119,10 +120,10 @@ function KpiCard({ data, index }: { data: KpiData; index: number }) {
 /* ─── Sort Icons ─── */
 function SortIcon({ direction }: { direction: "asc" | "desc" | null }) {
   if (direction === "asc") {
-    return (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="M12 5v14" /><path d="m5 12 7-7 7 7" /></svg>);
+    return (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-slate-400"><path d="M12 5v14" /><path d="m5 12 7-7 7 7" /></svg>);
   }
   if (direction === "desc") {
-    return (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="M12 5v14" /><path d="m5 12 7 7 7-7" /></svg>);
+    return (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-slate-400"><path d="M12 5v14" /><path d="m5 12 7 7 7-7" /></svg>);
   }
   return (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="opacity-60"><path d="m7 15 5 5 5-5" /><path d="m7 9 5-5 5 5" /></svg>);
 }
