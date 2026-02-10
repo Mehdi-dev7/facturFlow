@@ -17,8 +17,8 @@ const paymentProviders = [
 
 export function SecurePaymentsSection() {
   return (
-    <section id="payments" className="relative py-10 lg:py-20 bg-linear-to-br from-slate-50 via-white to-slate-50">
-      <div className="w-full px-4 sm:px-[8%] xl:px-[12%] py-18 xl:py-10">
+    <section id="payments" className="relative  bg-linear-to-br from-slate-50 via-white to-slate-50">
+      <div className="w-full px-4 sm:px-[8%] xl:px-[12%] py-16 xl:py-20">
         {/* Titre de section */}
         <div className="text-center mb-16">
           <div className="inline-flex items-center justify-center mb-4">

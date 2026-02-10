@@ -1,6 +1,12 @@
 "use client"
 
 import { AlertTriangle, CheckCircle, Clock, CreditCard, FileX, Mail } from "lucide-react"
+import dynamic from "next/dynamic"
+
+const CountUp = dynamic(() => import("react-countup"), {
+  ssr: false,
+  loading: () => <span>0</span>
+})
 
 export function ProblemSolutionSection() {
   const problems = [
@@ -135,15 +141,45 @@ export function ProblemSolutionSection() {
         <div className="mt-16 p-8 rounded-2xl bg-gradient-to-r from-primary/5 to-accent/5 border border-primary/10">
           <div className="grid md:grid-cols-3 gap-8 text-center">
             <div>
-              <p className="text-3xl font-bold font-display text-slate-900 mb-2">87%</p>
+              <p className="text-3xl font-bold font-display text-slate-900 mb-2">
+                <CountUp
+                  start={0}
+                  end={87}
+                  duration={2.5}
+                  enableScrollSpy
+                  scrollSpyOnce
+                >
+                  {({ countUpRef }) => <span ref={countUpRef} />}
+                </CountUp>%
+              </p>
               <p className="text-slate-600 font-ui">de factures payées plus rapidement</p>
             </div>
             <div>
-              <p className="text-3xl font-bold font-display text-slate-900 mb-2">5h</p>
+              <p className="text-3xl font-bold font-display text-slate-900 mb-2">
+                <CountUp
+                  start={0}
+                  end={5}
+                  duration={2.5}
+                  enableScrollSpy
+                  scrollSpyOnce
+                >
+                  {({ countUpRef }) => <span ref={countUpRef} />}
+                </CountUp>h
+              </p>
               <p className="text-slate-600 font-ui">économisées par semaine</p>
             </div>
             <div>
-              <p className="text-3xl font-bold font-display text-slate-900 mb-2">0</p>
+              <p className="text-3xl font-bold font-display text-slate-900 mb-2">
+                <CountUp
+                  start={0}
+                  end={0}
+                  duration={2.5}
+                  enableScrollSpy
+                  scrollSpyOnce
+                >
+                  {({ countUpRef }) => <span ref={countUpRef} />}
+                </CountUp>
+              </p>
               <p className="text-slate-600 font-ui">relance nécessaire</p>
             </div>
           </div>

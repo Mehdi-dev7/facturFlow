@@ -29,7 +29,7 @@ export function HowItWorksSection() {
   ]
 
   return (
-    <section className="w-full px-4 sm:px-[8%] xl:px-[12%] py-18 xl:py-20 bg-slate-50">
+    <section className="w-full px-4 sm:px-[8%] xl:px-[12%] py-16 xl:py-20 bg-slate-50">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-16">

@@ -109,7 +109,7 @@ export function PricingSection() {
   }
 
   return (
-    <section className="w-full px-4 sm:px-[8%] xl:px-[12%] py-18 xl:py-20 bg-slate-50">
+    <section className="w-full px-4 sm:px-[8%] xl:px-[12%] py-16 xl:py-20 bg-slate-50">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-16">
@@ -152,12 +152,12 @@ export function PricingSection() {
             return (
               <div 
                 key={planIndex} 
-                className={`relative rounded-2xl p-8 ${plan.bgColor} border-2 ${plan.borderColor} transition-all duration-300 hover:shadow-lg ${plan.popular ? 'scale-105 shadow-xl ring-2 ring-primary/20' : ''}`}
+                className={`relative rounded-2xl mb-14 p-8 ${plan.bgColor} border-2 ${plan.borderColor} transition-all duration-300 hover:shadow-lg ${plan.popular ? 'scale-105 shadow-xl ring-2 ring-primary/20' : ''}`}
               >
                 {/* Popular badge */}
                 {plan.popular && (
                   <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                    <div className="bg-primary text-white px-4 py-2 rounded-full text-sm font-semibold">
+                    <div className="bg-primary text-white px-4 py-2 rounded-full text-xs xs:text-sm font-semibold">
                       {plan.badge}
                     </div>
                   </div>

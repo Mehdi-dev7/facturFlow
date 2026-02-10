@@ -17,7 +17,7 @@ export function HeroSection() {
 			{/* Gradient radial au centre - effet "boule qui éclate" */}
 			<div className="absolute inset-0 bg-linear-to-br from-slate-50 via-white to-slate-50">
 				<div
-					className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[1200px] rounded-full blur-3xl opacity-60 animate-pulse"
+					className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-300 h-300 rounded-full blur-3xl opacity-60 animate-pulse"
 					style={{
 						background:
 							"radial-gradient(circle, rgba(79, 70, 229, 0.3), rgba(99, 102, 241, 0.4), rgba(99, 102, 241, 0.3), rgba(6, 182, 212, 0.15))",
