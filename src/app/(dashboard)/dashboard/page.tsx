@@ -101,12 +101,12 @@ function KpiCard({ data, index }: { data: KpiData; index: number }) {
     >
       <div className="absolute inset-0 dark:hidden" style={{ background: `linear-gradient(135deg, ${data.gradientFrom} 0%, ${data.gradientTo} 100%)` }} />
       <div className="absolute inset-0 hidden dark:block" style={{ background: `linear-gradient(135deg, ${data.darkGradientFrom} 0%, ${data.darkGradientTo} 100%)` }} />
-      <div className="relative p-5">
-        <div className="flex items-center justify-between mb-4">
-          <div className={`flex h-11 w-11 items-center justify-center rounded-xl text-white ${data.iconBg} shadow-lg transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3`}>
+      <div className="relative p-4 sm:p-5">
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
+          <div className={`flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl text-white ${data.iconBg} shadow-lg transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3`}>
             <IconComponent />
           </div>
-          <div className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ${
+          <div className={`flex items-center gap-1 rounded-full px-2 sm:px-2.5 py-1 text-[11px] sm:text-xs font-semibold ${
             data.changeType === "up" ? "bg-emerald-100 text-emerald-700"
             : data.changeType === "down" ? "bg-red-100 text-red-700"
             : "bg-amber-100 text-amber-700"
@@ -115,8 +115,8 @@ function KpiCard({ data, index }: { data: KpiData; index: number }) {
             {data.change}
           </div>
         </div>
-        <p className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100 mb-1">{data.value}</p>
-        <p className="text-sm font-medium text-slate-500 dark:text-violet-300">{data.label}</p>
+        <p className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100 mb-1">{data.value}</p>
+        <p className="text-xs sm:text-sm font-medium text-slate-500 dark:text-violet-300">{data.label}</p>
       </div>
       <div className={`h-1 w-full ${data.iconBg} opacity-60 transition-opacity duration-300 group-hover:opacity-100`} />
     </div>
@@ -152,15 +152,15 @@ function parseAmount(a: string): number {
 function StatusBadge({ status }: { status: InvoiceStatus }) {
   const cfg = statusConfig[status] || statusConfig["en attente"];
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold ${cfg.bg} ${cfg.text} ${cfg.border}`}>
+    <span className={`inline-flex items-center gap-1 lg:gap-1.5 rounded-full px-2 py-1 lg:px-3 lg:py-1.5 text-[10px] lg:text-xs font-bold ${cfg.bg} ${cfg.text} ${cfg.border}`}>
       {status === "payée" && (
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-500 dark:text-emerald-400 animate-pulse"><polyline points="20 6 9 17 4 12" /></svg>
+        <svg className="w-2.5 h-2.5 lg:w-3 lg:h-3 text-emerald-500 dark:text-emerald-400 animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
       )}
       {status === "impayée" && (
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-red-500 dark:text-red-400 animate-pulse"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+        <svg className="w-2.5 h-2.5 lg:w-3 lg:h-3 text-red-500 dark:text-red-400 animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
       )}
       {status === "en attente" && (
-        <span className={`h-2 w-2 rounded-full ${cfg.dot}`} />
+        <span className={`h-1.5 w-1.5 lg:h-2 lg:w-2 rounded-full ${cfg.dot}`} />
       )}
       {cfg.label}
     </span>
@@ -217,31 +217,31 @@ export default function DashboardPage() {
     <div>
       {/* ── Header + CA Hero ── */}
       <div className="mb-8">
-        <h1 className="text-2xl lg:text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
+        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
           Bonjour,<span className="text-gradient"> {firstName}
 						</span>  👋
         </h1>
-        <p className="mt-1 text-sm lg:text-base text-slate-500 dark:text-slate-400">
+        <p className="mt-1 text-xs sm:text-sm lg:text-base text-slate-500 dark:text-slate-400">
           "Facturation, devis et suivi clients — tout est ici"
         </p>
 
         {/* CA + Nouvelle facture */}
-        <div className="mt-5 flex items-center gap-5">
+        <div className="mt-5 flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-5">
           {/* CA Annuel */}
           <div
-            className="relative overflow-hidden rounded-2xl border border-violet-200/50 dark:border-violet-800/50 p-6 w-1/2"
+            className="relative overflow-hidden rounded-2xl border border-violet-200/50 dark:border-violet-800/50 p-4 sm:p-6 w-full lg:w-1/2"
             style={{ background: "linear-gradient(135deg, rgba(139,92,246,0.08) 0%, rgba(168,85,247,0.05) 50%, rgba(255,255,255,0.8) 100%)", backdropFilter: "blur(16px)" }}
           >
             <div className="absolute -top-12 -right-12 h-32 w-32 rounded-full bg-violet-500 opacity-10 blur-3xl" />
-            <div className="relative flex flex-col sm:flex-row sm:items-center gap-4">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-500 text-white shadow-lg shadow-violet-500/25 shrink-0">
+            <div className="relative flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+              <div className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl bg-violet-500 text-white shadow-lg shadow-violet-500/25 shrink-0">
                 <ChartIcon />
               </div>
               <div>
-                <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-0.5">Chiffre d&apos;affaires 2026</p>
-                <p className="text-4xl font-bold tracking-tight text-slate-900 dark:text-slate-100">24 850,00 €</p>
+                <p className="text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400 mb-0.5">Chiffre d&apos;affaires 2026</p>
+                <p className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight text-slate-900 dark:text-slate-100">24 850,00 €</p>
               </div>
-              <div className="sm:ml-auto flex items-center gap-1.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 px-3 py-1.5 text-sm font-semibold text-emerald-700 dark:text-emerald-400 w-fit">
+              <div className="sm:ml-auto flex items-center gap-1.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 px-2.5 py-1 sm:px-3 sm:py-1.5 text-xs sm:text-sm font-semibold text-emerald-700 dark:text-emerald-400 w-fit">
                 <TrendUpIcon />
                 +12.5% vs 2025
               </div>
@@ -249,8 +249,8 @@ export default function DashboardPage() {
           </div>
 
           {/* Nouvelle facture */}
-          <div className="ml-auto">
-            <Button variant="gradient" size="lg" className="h-12 px-8 font-ui text-base transition-all duration-300 cursor-pointer" asChild>
+          <div className="lg:ml-auto">
+            <Button variant="gradient" size="lg" className="h-11 sm:h-12 px-6 sm:px-8 font-ui text-sm sm:text-base transition-all duration-300 cursor-pointer w-auto" asChild>
               <Link href="/dashboard/invoices/new">
                 <Plus className="h-5 w-5" strokeWidth={2.5} />
                 Nouvelle facture
@@ -271,12 +271,12 @@ export default function DashboardPage() {
       <div
         className={`rounded-2xl border border-slate-300/80 dark:border-violet-500/20 shadow-lg shadow-slate-200/50 dark:shadow-violet-950/40 bg-white/75 dark:bg-[#1a1438] backdrop-blur-lg overflow-hidden transition-all duration-700 ease-out ${tableVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
       >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-violet-500/20 dark:bg-[#1a1438]">
-          <div >
-            <h2 className="text-lg lg:text-2xl font-bold text-slate-900 dark:text-slate-100">Factures récentes</h2>
-            <p className="text-xs text-slate-400 mt-0.5">Les 10 dernières factures</p>
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-200 dark:border-violet-500/20 dark:bg-[#1a1438]">
+          <div>
+            <h2 className="text-base sm:text-lg lg:text-2xl font-bold text-slate-900 dark:text-slate-100">Factures récentes</h2>
+            <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">Les 10 dernières factures</p>
           </div>
-          <button className="text-sm font-semibold text-violet-600 hover:text-violet-800 dark:text-violet-300 transition-colors px-3 py-1.5 rounded-lg hover:bg-violet-500/10 dark:hover:bg-violet-500/20 cursor-pointer">
+          <button className="text-xs sm:text-sm font-semibold text-violet-600 hover:text-violet-800 dark:text-violet-300 transition-colors px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg hover:bg-violet-500/10 dark:hover:bg-violet-500/20 cursor-pointer">
             Voir tout →
           </button>
         </div>
@@ -292,8 +292,8 @@ export default function DashboardPage() {
                   className="w-full flex items-center justify-between px-4 py-3.5 hover:bg-violet-200/30 dark:hover:bg-violet-500/10 transition-colors cursor-pointer"
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <span className="text-sm font-semibold text-violet-600 dark:text-violet-400 shrink-0">{inv.id}</span>
-                    <span className="text-sm text-slate-700 dark:text-slate-300 truncate">{inv.client}</span>
+                    <span className="text-xs font-semibold text-violet-600 dark:text-violet-400 shrink-0">{inv.id}</span>
+                    <span className="text-xs text-slate-700 dark:text-slate-300 truncate">{inv.client}</span>
                   </div>
                   <div className="flex items-center gap-2.5 shrink-0 ml-2">
                     <StatusBadge status={inv.status} />
@@ -330,24 +330,24 @@ export default function DashboardPage() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-slate-200 dark:border-violet-500/20 bg-violet-200/90 dark:bg-violet-950/50">
-                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 dark:text-violet-300 uppercase tracking-wider border-r border-slate-200 dark:border-violet-500/20">N° Facture</th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 dark:text-violet-300 uppercase tracking-wider border-r border-slate-200 dark:border-violet-500/20">Client</th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 dark:text-violet-300 uppercase tracking-wider border-r border-slate-200 dark:border-violet-500/20">
+                <th className="px-3 lg:px-6 py-3 text-left text-xs font-semibold text-slate-500 dark:text-violet-300 uppercase tracking-wider border-r border-slate-200 dark:border-violet-500/20">N° Facture</th>
+                <th className="px-3 lg:px-6 py-3 text-left text-xs font-semibold text-slate-500 dark:text-violet-300 uppercase tracking-wider border-r border-slate-200 dark:border-violet-500/20">Client</th>
+                <th className="px-3 lg:px-6 py-3 text-left text-xs font-semibold text-slate-500 dark:text-violet-300 uppercase tracking-wider border-r border-slate-200 dark:border-violet-500/20">
                   <button onClick={() => handleSort("date")} className="inline-flex items-center gap-1.5 cursor-pointer hover:text-primary transition-colors">
                     Émission <SortIcon direction={sortKey === "date" ? sortDir : null} />
                   </button>
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 dark:text-violet-300 uppercase tracking-wider border-r border-slate-200 dark:border-violet-500/20">
+                <th className="px-3 lg:px-6 py-3 text-left text-xs font-semibold text-slate-500 dark:text-violet-300 uppercase tracking-wider border-r border-slate-200 dark:border-violet-500/20">
                   <button onClick={() => handleSort("echeance")} className="inline-flex items-center gap-1.5 cursor-pointer hover:text-primary transition-colors">
                     Échéance <SortIcon direction={sortKey === "echeance" ? sortDir : null} />
                   </button>
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-semibold text-slate-500 dark:text-violet-300 uppercase tracking-wider border-r border-slate-200 dark:border-violet-500/20">
+                <th className="px-3 lg:px-6 py-3 text-right text-xs font-semibold text-slate-500 dark:text-violet-300 uppercase tracking-wider border-r border-slate-200 dark:border-violet-500/20">
                   <button onClick={() => handleSort("amount")} className="inline-flex items-center gap-1.5 cursor-pointer hover:text-primary transition-colors ml-auto">
                     Montant <SortIcon direction={sortKey === "amount" ? sortDir : null} />
                   </button>
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-semibold text-slate-500 dark:text-violet-300 uppercase tracking-wider">
+                <th className="px-3 lg:px-6 py-3 text-center text-xs font-semibold text-slate-500 dark:text-violet-300 uppercase tracking-wider">
                   <button onClick={() => handleSort("status")} className="inline-flex items-center gap-1.5 cursor-pointer hover:text-primary transition-colors mx-auto">
                     Statut <SortIcon direction={sortKey === "status" ? sortDir : null} />
                   </button>
@@ -357,22 +357,22 @@ export default function DashboardPage() {
             <tbody>
               {sortedInvoices.map((inv) => (
                 <tr key={inv.id} className="border-b border-slate-200 dark:border-violet-500/20 hover:bg-violet-200/30 dark:hover:bg-violet-500/10 transition-colors cursor-pointer group">
-                  <td className="px-6 py-3.5 border-r border-slate-200 dark:border-violet-500/15">
-                    <span className="text-sm font-semibold text-violet-600 dark:text-violet-400 group-hover:text-violet-800 transition-colors">{inv.id}</span>
+                  <td className="px-3 lg:px-6 py-3.5 border-r border-slate-200 dark:border-violet-500/15">
+                    <span className="text-xs lg:text-sm font-semibold text-violet-600 dark:text-violet-400 group-hover:text-violet-800 transition-colors">{inv.id}</span>
                   </td>
-                  <td className="px-6 py-3.5 border-r border-slate-200 dark:border-violet-500/15">
-                    <span className="text-sm text-slate-700 dark:text-slate-300">{inv.client}</span>
+                  <td className="px-3 lg:px-6 py-3.5 border-r border-slate-200 dark:border-violet-500/15">
+                    <span className="text-xs lg:text-sm text-slate-700 dark:text-slate-300">{inv.client}</span>
                   </td>
-                  <td className="px-6 py-3.5 border-r border-slate-200 dark:border-violet-500/15">
-                    <span className="text-sm text-slate-500 dark:text-slate-400">{inv.date}</span>
+                  <td className="px-3 lg:px-6 py-3.5 border-r border-slate-200 dark:border-violet-500/15">
+                    <span className="text-xs lg:text-sm text-slate-500 dark:text-slate-400">{inv.date}</span>
                   </td>
-                  <td className="px-6 py-3.5 border-r border-slate-200 dark:border-violet-500/15">
-                    <span className="text-sm text-slate-500 dark:text-slate-400">{inv.echeance}</span>
+                  <td className="px-3 lg:px-6 py-3.5 border-r border-slate-200 dark:border-violet-500/15">
+                    <span className="text-xs lg:text-sm text-slate-500 dark:text-slate-400">{inv.echeance}</span>
                   </td>
-                  <td className="px-6 py-3.5 text-right border-r border-slate-200 dark:border-violet-500/15">
-                    <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">{inv.amount}</span>
+                  <td className="px-3 lg:px-6 py-3.5 text-right border-r border-slate-200 dark:border-violet-500/15">
+                    <span className="text-xs lg:text-sm font-semibold text-slate-900 dark:text-slate-100">{inv.amount}</span>
                   </td>
-                  <td className="px-6 py-3.5 text-center">
+                  <td className="px-3 lg:px-6 py-3.5 text-center">
                     <StatusBadge status={inv.status} />
                   </td>
                 </tr>
