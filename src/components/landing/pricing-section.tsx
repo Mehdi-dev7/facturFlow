@@ -215,7 +215,7 @@ export function PricingSection() {
                   <Button
                     variant="gradient"
                     size="lg"
-                    className="w-full h-12 px-8 text-base transition-all duration-300 cursor-pointer"
+                    className="w-full h-12 px-8 text-base transition-all hover:scale-105 duration-300 cursor-pointer"
                   >
                     {plan.cta}
                   </Button>
@@ -223,8 +223,8 @@ export function PricingSection() {
                   <button 
                     className={`w-full py-3 px-6 rounded-xl font-semibold transition-all duration-300 ${
                       planIndex === 0 
-                        ? 'border-2 border-slate-400 text-slate-700 hover:bg-slate-100 hover:border-slate-500' 
-                        : 'border-2 border-blue-500 text-blue-700 hover:bg-blue-50 hover:border-blue-600'
+                        ? 'border-2 border-slate-400 text-slate-700 hover:bg-slate-100 hover:border-slate-500 cursor-pointer hover:scale-105 transition-all duration-300' 
+                        : 'border-2 border-blue-400 text-blue-700 hover:bg-blue-50 hover:border-blue-600 cursor-pointer hover:scale-105 transition-all duration-300'
                     }`}
                   >
                     {plan.cta}

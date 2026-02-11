@@ -99,7 +99,7 @@ export function HowItWorksSection() {
             <Button
               size="lg"
               variant="gradient"
-              className="w-full sm:w-auto h-12 px-8 font-ui text-base transition-all duration-300 cursor-pointer"
+              className="w-full sm:w-auto h-12 px-8 font-ui text-base hover:scale-105 transition-all duration-300 cursor-pointer"
             >
               Commencer gratuitement
             </Button>

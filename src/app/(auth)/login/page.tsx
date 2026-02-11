@@ -20,7 +20,7 @@ const GITHUB_ICON = require("@/assets/icons/github.json");
 
 // Icône Microsoft colorée
 const MicrosoftIcon = () => (
-	<svg className="h-6 w-6" viewBox="0 0 23 23">
+	<svg className="h-6 w-6 group-hover:rotate-180 transition-transform duration-500" viewBox="0 0 23 23">
 		<path fill="#f35325" d="M0 0h11v11H0z" />
 		<path fill="#81bc06" d="M12 0h11v11H12z" />
 		<path fill="#05a6f0" d="M0 12h11v11H0z" />
@@ -89,7 +89,7 @@ export default function LoginPage() {
 
 			<Card className="w-full max-w-md shadow-2xl border-slate-200/50 backdrop-blur-sm bg-white/95 relative z-10">
 				<CardHeader className="space-y-3 pb-8">
-					<Link href="/" className="flex justify-center mb-2 group">
+					<Link href="/" className="flex justify-center mb-2 group w-fit mx-auto">
 						<div className="h-14 w-14 rounded-xl bg-gradient-primary flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
 							<span className="text-2xl font-bold text-white">F</span>
 						</div>
@@ -124,7 +124,7 @@ export default function LoginPage() {
 						</Button>
 						<Button
 							variant="outline"
-							className="w-full h-12 border-slate-300 hover:border-primary hover:bg-slate-50 transition-all shadow-sm cursor-pointer"
+							className="group w-full h-12 border-slate-300 hover:border-primary hover:bg-slate-50 transition-all shadow-sm cursor-pointer"
 							onClick={() => handleOAuthSignIn("microsoft")}
 						>
 							<MicrosoftIcon />
@@ -173,7 +173,7 @@ export default function LoginPage() {
 							type="submit"
 							variant="gradient"
 							size="lg"
-							className="w-full h-12 font-semibold cursor-pointer"
+							className="w-full h-12 font-semibold hover:scale-103 transition-all duration-300 cursor-pointer"
 							disabled={isLoading}
 						>
 							{isLoading ? "Connexion en cours..." : "Se connecter"}

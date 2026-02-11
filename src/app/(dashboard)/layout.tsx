@@ -243,7 +243,7 @@ function UserAvatar({
 		: "?";
 
 	return (
-		<div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-semibold text-white">
+		<div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-semibold text-white transition-colors dark:group-hover:bg-white dark:group-hover:text-primary">
 			{initials}
 		</div>
 	);
@@ -298,7 +298,7 @@ export default function DashboardLayout({
 					<span className=""></span>
 					<button
 						onClick={() => setCollapsed((prev) => !prev)}
-						className="p-1.5 rounded-md text-secondary hover:text-primary hover:bg-primary/10 dark:text-slate-200 dark:hover:text-white transition-colors cursor-pointer"
+						className="p-1.5 rounded-md text-secondary hover:text-primary hover:bg-primary/20 dark:text-slate-200 dark:hover:text-white dark:hover:bg-primary/80 transition-colors cursor-pointer"
 						aria-label={collapsed ? "Ouvrir la sidebar" : "Fermer la sidebar"}
 					>
 						{collapsed ? (
@@ -369,7 +369,7 @@ export default function DashboardLayout({
 					<div className="flex items-center gap-2">
 					<button
 						onClick={toggleDark}
-						className="relative p-2 rounded-lg text-slate-500 hover:text-primary hover:bg-primary/10 transition-all duration-300 cursor-pointer"
+						className="relative p-2 rounded-lg text-slate-500 hover:text-primary hover:bg-primary/20 dark:hover:bg-primary/80 transition-all duration-300 cursor-pointer"
 						aria-label={dark ? "Mode clair" : "Mode sombre"}
 					>
 						<Sun className={`h-5 w-5 transition-all duration-300 ${dark ? "rotate-90 scale-0 opacity-0" : "rotate-0 scale-100 opacity-100"}`} />
@@ -377,9 +377,8 @@ export default function DashboardLayout({
 					</button>
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
-							<Button
-								variant="ghost"
-								className="flex items-center hover:bg-primary/10 gap-2 p-2  cursor-pointer"
+							<button
+								className="group flex items-center gap-2 rounded-md p-1.5 text-secondary hover:text-primary hover:bg-primary/20 dark:text-slate-200 dark:hover:text-white dark:hover:bg-primary/80 transition-colors cursor-pointer"
 								aria-label="Menu utilisateur"
 							>
 								<UserAvatar
@@ -390,7 +389,7 @@ export default function DashboardLayout({
 									{user?.name ?? "Utilisateur"}
 								</span>
 								<ChevronDown className="h-4 w-4 text-slate-500 dark:text-slate-200 dark:hover:text-white" />
-							</Button>
+							</button>
 						</DropdownMenuTrigger>
 						<DropdownMenuContent align="end" className="w-64 bg-linear-to-b from-violet-50 via-white to-white dark:from-[#1e1b4b] dark:via-[#1a1438] dark:to-[#1a1438] border border-primary/20 dark:border-violet-500/20 shadow-lg dark:shadow-violet-950/40 rounded-xl p-0 overflow-hidden">
 							{/* User info */}
