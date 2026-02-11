@@ -6,7 +6,9 @@
       "WebSearch",
       "WebFetch(domain:lordicon.com)",
       "Bash(npx tsc:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(cat:*)",
+      "Bash(npx shadcn@latest add:*)"
     ]
   }
 }

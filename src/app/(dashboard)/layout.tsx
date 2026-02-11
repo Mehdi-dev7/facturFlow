@@ -18,13 +18,26 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import {
+	Tooltip,
+	TooltipContent,
+	TooltipProvider,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
+import type { LucideIcon } from "lucide-react";
+import {
 	Menu,
 	LayoutDashboard,
 	Users,
-	Package,
 	FileText,
 	FileCheck,
-	Settings,
+	Receipt,
+	FolderOpen,
+	Repeat,
+	BarChart3,
+	Building2,
+	CreditCard,
+	LayoutTemplate,
+	Paintbrush,
 	LogOut,
 	ChevronDown,
 	PanelLeftClose,
@@ -35,14 +48,120 @@ import {
 	Moon,
 } from "lucide-react";
 
-const navItems = [
-	{ label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-	{ label: "Clients", href: "/dashboard/clients", icon: Users },
-	{ label: "Produits", href: "/dashboard/products", icon: Package },
-	{ label: "Factures", href: "/dashboard/invoices", icon: FileText },
-	{ label: "Devis", href: "/dashboard/quotes", icon: FileCheck },
-	{ label: "Paramètres", href: "/dashboard/settings", icon: Settings },
+interface NavItem {
+	label: string;
+	href: string;
+	icon: LucideIcon;
+}
+
+interface NavSection {
+	title: string;
+	color: string;
+	activeColor: string;
+	items: NavItem[];
+}
+
+const dashboardItem: NavItem = {
+	label: "Dashboard",
+	href: "/dashboard",
+	icon: LayoutDashboard,
+};
+
+const navSections: NavSection[] = [
+	{
+		title: "Facturation",
+		color: "text-violet-500 dark:text-violet-400",
+		activeColor: "border-violet-500 bg-violet-500/10 text-violet-700 dark:text-violet-300",
+		items: [
+			{ label: "Factures", href: "/dashboard/invoices", icon: FileText },
+			{ label: "Devis", href: "/dashboard/quotes", icon: FileCheck },
+			{ label: "Reçus", href: "/dashboard/receipts", icon: Receipt },
+			{ label: "Documents", href: "/dashboard/documents", icon: FolderOpen },
+			{ label: "Récurrences", href: "/dashboard/recurring", icon: Repeat },
+		],
+	},
+	{
+		title: "Gestion",
+		color: "text-accent dark:text-accent",
+		activeColor: "border-accent bg-accent/10 text-accent",
+		items: [
+			{ label: "Clients", href: "/dashboard/clients", icon: Users },
+			{ label: "Statistiques", href: "/dashboard/reports", icon: BarChart3 },
+		],
+	},
+	{
+		title: "Mon Compte",
+		color: "text-quinary dark:text-quinary",
+		activeColor: "border-quinary bg-quinary/10 text-quinary",
+		items: [
+			{ label: "Mon entreprise", href: "/dashboard/company", icon: Building2 },
+			{ label: "Paiements", href: "/dashboard/payments", icon: CreditCard },
+			{ label: "Abonnement", href: "/dashboard/subscription", icon: Crown },
+		],
+	},
+	{
+		title: "Personnalisation",
+		color: "text-tertiary dark:text-tertiary",
+		activeColor: "border-tertiary bg-tertiary/10 text-tertiary",
+		items: [
+			{ label: "Templates", href: "/dashboard/templates", icon: LayoutTemplate },
+			{ label: "Apparence", href: "/dashboard/appearance", icon: Paintbrush },
+		],
+	},
 ];
+
+function isItemActive(href: string, pathname: string) {
+	return href === "/dashboard"
+		? pathname === "/dashboard"
+		: pathname.startsWith(href);
+}
+
+function NavLink({
+	item,
+	collapsed,
+	onNavigate,
+	isActive,
+	activeClassName,
+}: {
+	item: NavItem;
+	collapsed: boolean;
+	onNavigate?: () => void;
+	isActive: boolean;
+	activeClassName: string;
+}) {
+	const link = (
+		<Link
+			href={item.href}
+			onClick={onNavigate}
+			className={`flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-colors cursor-pointer ${
+				collapsed ? "justify-center" : ""
+			} ${
+				isActive
+					? `border-l-4 font-semibold ${activeClassName}`
+					: "border-l-4 border-transparent text-slate-600 hover:bg-primary/10 hover:text-primary dark:text-slate-400 dark:hover:text-white"
+			}`}
+		>
+			<item.icon className="h-5 w-5 shrink-0" />
+			{!collapsed && <span className="truncate">{item.label}</span>}
+		</Link>
+	);
+
+	if (!collapsed) return link;
+
+	return (
+		<Tooltip>
+			<TooltipTrigger asChild>{link}</TooltipTrigger>
+			<TooltipContent
+				side="right"
+				sideOffset={8}
+				className="bg-primary text-white dark:bg-violet-600 dark:text-white font-medium"
+				arrowClassName="bg-primary fill-primary dark:bg-violet-600 dark:fill-violet-600"
+			>
+				{item.label}
+			</TooltipContent>
+		</Tooltip>
+	);
+}
 
 function SidebarNav({
 	pathname,
@@ -53,36 +172,47 @@ function SidebarNav({
 	onNavigate?: () => void;
 	collapsed?: boolean;
 }) {
-	return (
-		<nav className="flex flex-col gap-1 px-3" aria-label="Menu principal">
-			{navItems.map((item) => {
-				const isActive =
-					item.href === "/dashboard"
-						? pathname === "/dashboard"
-						: pathname.startsWith(item.href);
+	const isDashboardActive = pathname === "/dashboard";
 
-				return (
-					<Link
-						key={item.href}
-						href={item.href}
-						onClick={onNavigate}
-						title={collapsed ? item.label : undefined}
-						className={`flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-colors cursor-pointer ${
-							collapsed ? "justify-center" : ""
-						} ${
-							isActive
-								? "border-l-4 border-primary bg-primary/10 font-semibold text-primary"
-								: "border-l-4 border-transparent text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
-						}`}
-					>
-						<item.icon className="h-5 w-5 shrink-0" />
-						{!collapsed && (
-							<span className="truncate">{item.label}</span>
+	return (
+		<TooltipProvider delayDuration={100}>
+			<nav className="flex flex-col gap-1 px-3" aria-label="Menu principal">
+				{/* Dashboard standalone */}
+				<NavLink
+					item={dashboardItem}
+					collapsed={collapsed}
+					onNavigate={onNavigate}
+					isActive={isDashboardActive}
+					activeClassName="border-primary bg-primary/10 text-primary"
+				/>
+
+				{/* Sections */}
+				{navSections.map((section, sectionIndex) => (
+					<div key={section.title} className="flex flex-col gap-1">
+						{/* Section header / divider */}
+						{collapsed ? (
+							<div className={`mx-auto my-2 h-px w-6 bg-slate-200 dark:bg-slate-700 ${sectionIndex === 0 ? "mt-3" : ""}`} />
+						) : (
+							<p className={`mt-4 mb-1 px-3 text-[11px] font-semibold uppercase tracking-wider ${section.color}`}>
+								{section.title}
+							</p>
 						)}
-					</Link>
-				);
-			})}
-		</nav>
+
+						{/* Section items */}
+						{section.items.map((item) => (
+							<NavLink
+								key={item.href}
+								item={item}
+								collapsed={collapsed}
+								onNavigate={onNavigate}
+								isActive={isItemActive(item.href, pathname)}
+								activeClassName={section.activeColor}
+							/>
+						))}
+					</div>
+				))}
+			</nav>
+		</TooltipProvider>
 	);
 }
 
@@ -168,7 +298,7 @@ export default function DashboardLayout({
 					<span className=""></span>
 					<button
 						onClick={() => setCollapsed((prev) => !prev)}
-						className="p-1.5 rounded-md text-secondary hover:text-primary hover:bg-slate-100 transition-colors cursor-pointer"
+						className="p-1.5 rounded-md text-secondary hover:text-primary hover:bg-primary/10 dark:text-slate-200 dark:hover:text-white transition-colors cursor-pointer"
 						aria-label={collapsed ? "Ouvrir la sidebar" : "Fermer la sidebar"}
 					>
 						{collapsed ? (
@@ -216,7 +346,7 @@ export default function DashboardLayout({
 									</span>
 								</div>
 								<div className="mx-6 h-px bg-linear-to-r from-transparent via-primary/30 dark:via-violet-400/30 to-transparent" />
-								<div className="py-4">
+								<div className="flex-1 overflow-y-auto py-4">
 									<SidebarNav
 										pathname={pathname}
 										onNavigate={() =>
@@ -229,11 +359,9 @@ export default function DashboardLayout({
 
 						{/* Page title */}
 						<h1 className="text-lg lg:text-2xl font-semibold text-slate-900 dark:text-slate-100">
-							{navItems.find((item) =>
-								item.href === "/dashboard"
-									? pathname === "/dashboard"
-									: pathname.startsWith(item.href),
-							)?.label ?? "Dashboard"}
+							{pathname === "/dashboard"
+								? "Dashboard"
+								: navSections.flatMap((s) => s.items).find((item) => pathname.startsWith(item.href))?.label ?? "Dashboard"}
 						</h1>
 					</div>
 

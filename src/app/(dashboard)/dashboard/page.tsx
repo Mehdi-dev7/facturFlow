@@ -250,7 +250,7 @@ export default function DashboardPage() {
 
           {/* Nouvelle facture */}
           <div className="lg:ml-auto">
-            <Button variant="gradient" size="lg" className="h-11 sm:h-12 px-6 sm:px-8 font-ui text-sm sm:text-base transition-all duration-300 cursor-pointer w-auto" asChild>
+            <Button variant="gradient" size="lg" className="h-11 sm:h-12 px-6 sm:px-8 font-ui text-sm sm:text-base transition-all duration-300 cursor-pointer hover:scale-105 w-auto" asChild>
               <Link href="/dashboard/invoices/new">
                 <Plus className="h-5 w-5" strokeWidth={2.5} />
                 Nouvelle facture

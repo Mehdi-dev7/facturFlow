@@ -84,7 +84,7 @@ export function HeroSection() {
 								<Button
 									variant="gradient"
 									size="lg"
-									className="w-full sm:w-auto h-12 px-8 font-ui text-base transition-all duration-300 cursor-pointer"
+									className="w-full sm:w-auto h-12 hover:scale-105 px-8 font-ui text-base transition-all duration-300 cursor-pointer"
 								>
 									Commencer gratuitement
 									<ArrowRight className="ml-2 h-5 w-5" />
