@@ -32,17 +32,20 @@ export function PageHeader({
         )}
       </div>
       {ctaLabel && ctaHref && (
+        <div className="lg:ml-auto">
+
         <Button
           variant={ctaVariant}
           size="lg"
           className="h-11 sm:h-12 px-6 sm:px-8 font-ui text-sm sm:text-base transition-all duration-300 cursor-pointer hover:scale-105 w-auto"
           asChild
-        >
+          >
           <Link href={ctaHref}>
             {ctaIcon}
             {ctaLabel}
           </Link>
         </Button>
+          </div>
       )}
     </div>
   );

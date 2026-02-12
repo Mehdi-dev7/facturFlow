@@ -35,14 +35,14 @@ export function ActionMenuMobile({ onEdit, onDelete, deleteMessage = "Êtes-vous
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 text-slate-400 hover:text-slate-600 dark:text-violet-400 dark:hover:text-violet-300 cursor-pointer"
+            className="h-8 w-8 text-slate-400 hover:text-primary hover:bg-primary/20 dark:text-violet-400 dark:hover:text-violet-300 dark:hover:bg-primary/80 transition-all duration-300 cursor-pointer"
           >
             <MoreHorizontal className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-40">
+        <DropdownMenuContent align="end" className="w-40 bg-linear-to-b from-violet-50 via-white to-white dark:from-[#1e1b4b] dark:via-[#1a1438] dark:to-[#1a1438] border border-primary/20 dark:border-violet-500/20 shadow-lg dark:shadow-violet-950/40 rounded-xl p-1 overflow-hidden">
           {onEdit && (
-            <DropdownMenuItem onClick={onEdit} className="gap-2 cursor-pointer">
+            <DropdownMenuItem onClick={onEdit} className="gap-2 cursor-pointer rounded-lg focus:bg-violet-100 focus:text-violet-700 dark:focus:bg-violet-500/15 dark:focus:text-violet-300">
               <Pencil className="h-4 w-4" />
               Modifier
             </DropdownMenuItem>
@@ -50,7 +50,7 @@ export function ActionMenuMobile({ onEdit, onDelete, deleteMessage = "Êtes-vous
           {onDelete && (
             <DropdownMenuItem
               onClick={() => setShowConfirm(true)}
-              className="gap-2 cursor-pointer text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400"
+              className="gap-2 cursor-pointer rounded-lg text-red-600 dark:text-red-400 focus:bg-red-50 focus:text-red-600 dark:focus:bg-red-500/10 dark:focus:text-red-400"
             >
               <Trash2 className="h-4 w-4" />
               Supprimer
@@ -60,22 +60,23 @@ export function ActionMenuMobile({ onEdit, onDelete, deleteMessage = "Êtes-vous
       </DropdownMenu>
 
       <Dialog open={showConfirm} onOpenChange={setShowConfirm}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md bg-linear-to-b from-violet-50 via-white to-white dark:from-[#1e1b4b] dark:via-[#1a1438] dark:to-[#1a1438] border border-primary/20 dark:border-violet-500/20 shadow-lg dark:shadow-violet-950/40 rounded-xl">
           <DialogHeader>
-            <DialogTitle>Confirmer la suppression</DialogTitle>
-            <DialogDescription>{deleteMessage}</DialogDescription>
+            <DialogTitle className="text-slate-900 dark:text-slate-100">Confirmer la suppression</DialogTitle>
+            <DialogDescription className="text-slate-500 dark:text-slate-400">{deleteMessage}</DialogDescription>
           </DialogHeader>
+          <div className="mx-0 h-px bg-linear-to-r from-transparent via-primary/30 dark:via-violet-200/30 to-transparent" />
           <DialogFooter className="gap-2 sm:gap-0">
-            <Button variant="outline" onClick={() => setShowConfirm(false)} className="cursor-pointer">
+            <Button variant="outline" onClick={() => setShowConfirm(false)} className="cursor-pointer border-primary/20 dark:border-violet-500/30 hover:bg-violet-50 dark:hover:bg-violet-500/10 dark:text-slate-200">
               Annuler
             </Button>
             <Button
-              variant="destructive"
+              variant="outline"
               onClick={() => {
                 setShowConfirm(false);
                 onDelete?.();
               }}
-              className="cursor-pointer"
+              className="cursor-pointer border-red-500 text-red-600 hover:bg-red-600 hover:text-white dark:border-red-500 dark:text-red-400 dark:hover:bg-red-600 dark:hover:text-white"
             >
               Supprimer
             </Button>
@@ -96,7 +97,7 @@ export function ActionButtons({ onEdit, onDelete, deleteMessage = "Êtes-vous s�
         {onEdit && (
           <button
             onClick={(e) => { e.stopPropagation(); onEdit(); }}
-            className="p-1.5 rounded-md text-slate-400 hover:text-violet-600 hover:bg-violet-100 dark:text-violet-400 dark:hover:text-violet-300 dark:hover:bg-violet-500/20 transition-colors cursor-pointer"
+            className="p-1.5 rounded-md text-slate-400 hover:text-primary hover:bg-primary/20 dark:text-violet-400 dark:hover:text-violet-300 dark:hover:bg-primary/80 transition-all duration-300 cursor-pointer"
             aria-label="Modifier"
           >
             <Pencil className="h-3.5 w-3.5" />
@@ -105,7 +106,7 @@ export function ActionButtons({ onEdit, onDelete, deleteMessage = "Êtes-vous s�
         {onDelete && (
           <button
             onClick={(e) => { e.stopPropagation(); setShowConfirm(true); }}
-            className="p-1.5 rounded-md text-slate-400 hover:text-red-600 hover:bg-red-100 dark:text-red-400/60 dark:hover:text-red-400 dark:hover:bg-red-500/20 transition-colors cursor-pointer"
+            className="p-1.5 rounded-md text-slate-400 hover:text-red-600 hover:bg-red-100 dark:text-red-400/60 dark:hover:text-red-400 dark:hover:bg-red-500/20 transition-all duration-300 cursor-pointer"
             aria-label="Supprimer"
           >
             <Trash2 className="h-3.5 w-3.5" />
@@ -114,22 +115,23 @@ export function ActionButtons({ onEdit, onDelete, deleteMessage = "Êtes-vous s�
       </div>
 
       <Dialog open={showConfirm} onOpenChange={setShowConfirm}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md bg-linear-to-b from-violet-50 via-white to-white dark:from-[#1e1b4b] dark:via-[#1a1438] dark:to-[#1a1438] border border-primary/20 dark:border-violet-500/20 shadow-lg dark:shadow-violet-950/40 rounded-xl">
           <DialogHeader>
-            <DialogTitle>Confirmer la suppression</DialogTitle>
-            <DialogDescription>{deleteMessage}</DialogDescription>
+            <DialogTitle className="text-slate-900 dark:text-slate-100">Confirmer la suppression</DialogTitle>
+            <DialogDescription className="text-slate-500 dark:text-slate-400">{deleteMessage}</DialogDescription>
           </DialogHeader>
+          <div className="mx-0 h-px bg-linear-to-r from-transparent via-primary/30 dark:via-violet-200/30 to-transparent" />
           <DialogFooter className="gap-2 sm:gap-0">
-            <Button variant="outline" onClick={() => setShowConfirm(false)} className="cursor-pointer">
+            <Button variant="outline" onClick={() => setShowConfirm(false)} className="cursor-pointer border-primary/20 dark:border-violet-500/30 hover:bg-violet-50 dark:hover:bg-violet-500/20 dark:text-slate-200 mx-4">
               Annuler
             </Button>
             <Button
-              variant="destructive"
+              variant="outline"
               onClick={() => {
                 setShowConfirm(false);
                 onDelete?.();
               }}
-              className="cursor-pointer"
+              className="cursor-pointer border-red-500 text-red-600 hover:bg-red-600 hover:text-white dark:border-red-500 dark:text-red-400 dark:hover:bg-red-500/50 dark:hover:text-slate-200"
             >
               Supprimer
             </Button>

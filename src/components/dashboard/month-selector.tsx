@@ -32,7 +32,7 @@ export function MonthSelector({ value, onChange }: MonthSelectorProps) {
       <Button
         variant="ghost"
         size="icon"
-        className="h-8 w-8 text-slate-500 hover:text-primary hover:bg-primary/20 dark:hover:bg-primary/80 dark:text-violet-400 dark:hover:text-violet-300 cursor-pointer"
+        className="h-8 w-8 text-slate-500 hover:text-primary hover:bg-primary/20 dark:hover:bg-primary/80 dark:text-violet-400 dark:hover:text-violet-300 transition-all duration-300 cursor-pointer"
         onClick={() => onChange(subMonths(value, 1))}
       >
         <ChevronLeft className="h-4 w-4" />
@@ -48,11 +48,11 @@ export function MonthSelector({ value, onChange }: MonthSelectorProps) {
             {currentLabel}
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="center" className="w-44">
+        <DropdownMenuContent align="center" className="w-44 bg-linear-to-b from-violet-50 via-white to-white dark:from-[#1e1b4b] dark:via-[#1a1438] dark:to-[#1a1438] border border-primary/20 dark:border-violet-500/20 shadow-lg dark:shadow-violet-950/40 rounded-xl p-1 overflow-hidden">
           {months.map((m) => (
             <DropdownMenuItem
               key={m.label}
-              className={`capitalize cursor-pointer ${
+              className={`capitalize cursor-pointer rounded-lg text-slate-700 dark:text-slate-200 focus:bg-violet-100 focus:text-violet-700 dark:focus:bg-violet-500/15 dark:focus:text-violet-300 ${
                 m.date.getMonth() === value.getMonth()
                   ? "bg-violet-100 dark:bg-violet-500/20 text-violet-700 dark:text-violet-300 font-semibold"
                   : ""
@@ -71,7 +71,7 @@ export function MonthSelector({ value, onChange }: MonthSelectorProps) {
       <Button
         variant="ghost"
         size="icon"
-        className="h-8 w-8 text-slate-500 hover:text-primary hover:bg-primary/20 dark:hover:bg-primary/80 dark:text-violet-400 dark:hover:text-violet-300 cursor-pointer"
+        className="h-8 w-8 text-slate-500 hover:text-primary hover:bg-primary/20 dark:hover:bg-primary/80 dark:text-violet-400 dark:hover:text-violet-300 transition-all duration-300 cursor-pointer"
         onClick={() => onChange(addMonths(value, 1))}
       >
         <ChevronRight className="h-4 w-4" />
