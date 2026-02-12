@@ -5,22 +5,16 @@ import Link from "next/link";
 import { Plus, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSession } from "@/lib/auth-client";
-
-interface KpiData {
-  label: string;
-  value: string;
-  change: string;
-  changeType: "up" | "down" | "neutral";
-  icon: string;
-  iconBg: string;
-  borderAccent: string;
-  gradientFrom: string;
-  gradientTo: string;
-  darkGradientFrom: string;
-  darkGradientTo: string;
-}
-
-type InvoiceStatus = "payée" | "impayée" | "en attente";
+import {
+  ChartIcon,
+  TrendUpIcon,
+  KpiCard,
+  StatusBadge,
+  SortIcon,
+  parseDate,
+  parseAmount,
+} from "@/components/dashboard";
+import type { KpiData, InvoiceStatus } from "@/components/dashboard";
 
 interface Invoice {
   id: string;
@@ -51,121 +45,10 @@ const recentInvoices: Invoice[] = [
   { id: "FAC-2026-038", client: "Librairie Voltaire", date: "20/01/2026", echeance: "19/02/2026", amount: "290,00 €", status: "impayée" },
 ];
 
-/* ─── SVG Icons ─── */
-function ChartIcon() {
-  return (<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18" /><path d="M7 16l4-8 4 4 6-6" /></svg>);
-}
-function FileIcon() {
-  return (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /></svg>);
-}
-function CheckIcon() {
-  return (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>);
-}
-function AlertIcon() {
-  return (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>);
-}
-function ClockIcon() {
-  return (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>);
-}
-function TrendUpIcon() {
-  return (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18" /><polyline points="17 6 23 6 23 12" /></svg>);
-}
-function TrendDownIcon() {
-  return (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6" /><polyline points="17 18 23 18 23 12" /></svg>);
-}
-function MinusIcon() {
-  return (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /></svg>);
-}
-
-const iconMap: Record<string, () => React.JSX.Element> = { file: FileIcon, check: CheckIcon, alert: AlertIcon, clock: ClockIcon };
-
-const statusConfig: Record<InvoiceStatus, { bg: string; text: string; dot: string; border: string; label: string }> = {
-  "payée": { bg: "bg-emerald-100 dark:bg-emerald-500/20", text: "text-emerald-800 dark:text-emerald-300", dot: "bg-emerald-500 dark:bg-emerald-400 animate-pulse", border: "border border-emerald-300 dark:border-emerald-500/40", label: "Payée" },
-  "impayée": { bg: "bg-red-100 dark:bg-red-500/20", text: "text-red-800 dark:text-red-300", dot: "bg-red-500 dark:bg-red-400 animate-pulse", border: "border border-red-300 dark:border-red-500/40", label: "Impayée" },
-  "en attente": { bg: "bg-amber-100 dark:bg-amber-500/20", text: "text-amber-800 dark:text-amber-300", dot: "bg-amber-500 dark:bg-amber-400 animate-pulse", border: "border border-amber-300 dark:border-amber-500/40", label: "En attente" },
-};
-
-/* ─── KPI Card Component ─── */
-function KpiCard({ data, index }: { data: KpiData; index: number }) {
-  const [visible, setVisible] = useState(false);
-  const IconComponent = iconMap[data.icon];
-
-  useEffect(() => {
-    const timer = setTimeout(() => setVisible(true), 150 + index * 120);
-    return () => clearTimeout(timer);
-  }, [index]);
-
-  return (
-    <div
-      className={`group relative overflow-hidden rounded-2xl border ${data.borderAccent} shadow-lg hover:shadow-xl transition-all duration-500 ease-out cursor-default hover:-translate-y-1 hover:scale-[1.02] ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
-    >
-      <div className="absolute inset-0 dark:hidden" style={{ background: `linear-gradient(135deg, ${data.gradientFrom} 0%, ${data.gradientTo} 100%)` }} />
-      <div className="absolute inset-0 hidden dark:block" style={{ background: `linear-gradient(135deg, ${data.darkGradientFrom} 0%, ${data.darkGradientTo} 100%)` }} />
-      <div className="relative p-4 sm:p-5">
-        <div className="flex items-center justify-between mb-3 sm:mb-4">
-          <div className={`flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl text-white ${data.iconBg} shadow-lg transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3`}>
-            <IconComponent />
-          </div>
-          <div className={`flex items-center gap-1 rounded-full px-2 sm:px-2.5 py-1 text-[11px] sm:text-xs font-semibold ${
-            data.changeType === "up" ? "bg-emerald-100 text-emerald-700"
-            : data.changeType === "down" ? "bg-red-100 text-red-700"
-            : "bg-amber-100 text-amber-700"
-          }`}>
-            {data.changeType === "up" ? <TrendUpIcon /> : data.changeType === "down" ? <TrendDownIcon /> : <MinusIcon />}
-            {data.change}
-          </div>
-        </div>
-        <p className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100 mb-1">{data.value}</p>
-        <p className="text-xs sm:text-sm font-medium text-slate-500 dark:text-violet-300">{data.label}</p>
-      </div>
-      <div className={`h-1 w-full ${data.iconBg} opacity-60 transition-opacity duration-300 group-hover:opacity-100`} />
-    </div>
-  );
-}
-
-/* ─── Sort Icons ─── */
-function SortIcon({ direction }: { direction: "asc" | "desc" | null }) {
-  if (direction === "asc") {
-    return (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-slate-400"><path d="M12 5v14" /><path d="m5 12 7-7 7 7" /></svg>);
-  }
-  if (direction === "desc") {
-    return (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-slate-400"><path d="M12 5v14" /><path d="m5 12 7 7 7-7" /></svg>);
-  }
-  return (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="opacity-60"><path d="m7 15 5 5 5-5" /><path d="m7 9 5-5 5 5" /></svg>);
-}
-
 type SortKey = "date" | "echeance" | "amount" | "status";
 type SortDir = "asc" | "desc";
 
 const statusOrder: Record<InvoiceStatus, number> = { "impayée": 0, "en attente": 1, "payée": 2 };
-
-function parseDate(d: string): number {
-  const [day, month, year] = d.split("/");
-  return new Date(`${year}-${month}-${day}`).getTime();
-}
-
-function parseAmount(a: string): number {
-  return parseFloat(a.replace(/[^\d,]/g, "").replace(",", "."));
-}
-
-/* ─── Status Badge ─── */
-function StatusBadge({ status }: { status: InvoiceStatus }) {
-  const cfg = statusConfig[status] || statusConfig["en attente"];
-  return (
-    <span className={`inline-flex items-center gap-1 lg:gap-1.5 rounded-full px-2 py-1 lg:px-3 lg:py-1.5 text-[10px] lg:text-xs font-bold ${cfg.bg} ${cfg.text} ${cfg.border}`}>
-      {status === "payée" && (
-        <svg className="w-2.5 h-2.5 lg:w-3 lg:h-3 text-emerald-500 dark:text-emerald-400 animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
-      )}
-      {status === "impayée" && (
-        <svg className="w-2.5 h-2.5 lg:w-3 lg:h-3 text-red-500 dark:text-red-400 animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-      )}
-      {status === "en attente" && (
-        <span className={`h-1.5 w-1.5 lg:h-2 lg:w-2 rounded-full ${cfg.dot}`} />
-      )}
-      {cfg.label}
-    </span>
-  );
-}
 
 /* ─── Dashboard Page ─── */
 export default function DashboardPage() {
@@ -219,10 +102,10 @@ export default function DashboardPage() {
       <div className="mb-8">
         <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
           Bonjour,<span className="text-gradient"> {firstName}
-						</span>  👋
+					</span>  👋
         </h1>
         <p className="mt-1 text-xs sm:text-sm lg:text-base text-slate-500 dark:text-slate-400">
-          "Facturation, devis et suivi clients — tout est ici"
+          &quot;Facturation, devis et suivi clients — tout est ici&quot;
         </p>
 
         {/* CA + Nouvelle facture */}
