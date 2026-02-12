@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useMemo } from "react";
-import type { UseFormReturn } from "react-hook-form";
+import React from "react";
+import { useWatch, type UseFormReturn } from "react-hook-form";
 import type { InvoiceFormData, CompanyInfo } from "@/lib/validations/invoice";
 import { mockClients } from "@/lib/mock-data/clients";
 
@@ -12,36 +12,38 @@ interface InvoicePreviewProps {
 }
 
 export function InvoicePreview({ form, invoiceNumber, companyInfo }: InvoicePreviewProps) {
-	const values = form.watch();
+	// useWatch se subscribe proprement au form control pour la réactivité
+	const clientId = useWatch({ control: form.control, name: "clientId" });
+	const newClient = useWatch({ control: form.control, name: "newClient" });
+	const lines = useWatch({ control: form.control, name: "lines" });
+	const vatRate = useWatch({ control: form.control, name: "vatRate" });
+	const date = useWatch({ control: form.control, name: "date" });
+	const dueDate = useWatch({ control: form.control, name: "dueDate" });
+	const notes = useWatch({ control: form.control, name: "notes" });
+	const paymentLinks = useWatch({ control: form.control, name: "paymentLinks" });
 
-	const client = useMemo(() => {
-		if (values.clientId && values.clientId !== "__new__") {
-			const found = mockClients.find((c) => c.id === values.clientId);
+	const client = (() => {
+		if (clientId && clientId !== "__new__") {
+			const found = mockClients.find((c) => c.id === clientId);
 			if (found) return { name: found.name, email: found.email, city: found.city };
 		}
-		if (values.newClient) {
+		if (newClient) {
 			return {
-				name: values.newClient.name,
-				email: values.newClient.email,
-				city: values.newClient.city,
+				name: newClient.name,
+				email: newClient.email,
+				city: newClient.city,
 			};
 		}
 		return null;
-	}, [values.clientId, values.newClient]);
+	})();
 
-	const totals = useMemo(() => {
-		const lines = values.lines || [];
-		const subtotal = lines.reduce(
-			(s, l) => s + (l.quantity || 0) * (l.unitPrice || 0),
-			0,
-		);
-		const taxTotal = lines.reduce(
-			(s, l) =>
-				s + (l.quantity || 0) * (l.unitPrice || 0) * ((l.vatRate || 0) / 100),
-			0,
-		);
-		return { subtotal, taxTotal, total: subtotal + taxTotal };
-	}, [values.lines]);
+	const safeLines = lines || [];
+	const subtotal = safeLines.reduce(
+		(s, l) => s + (l.quantity || 0) * (l.unitPrice || 0),
+		0,
+	);
+	const taxTotal = subtotal * ((vatRate || 0) / 100);
+	const total = subtotal + taxTotal;
 
 	const fmt = (n: number) =>
 		n.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -56,7 +58,6 @@ export function InvoicePreview({ form, invoiceNumber, companyInfo }: InvoicePrev
 		});
 	};
 
-	// Preview toujours en mode "papier blanc" — même en dark mode
 	return (
 		<div className="bg-white rounded-2xl border border-slate-300/80 shadow-lg shadow-slate-200/50 overflow-hidden">
 			{/* Header band */}
@@ -67,8 +68,8 @@ export function InvoicePreview({ form, invoiceNumber, companyInfo }: InvoicePrev
 						<p className="text-violet-200 text-sm mt-0.5">{invoiceNumber}</p>
 					</div>
 					<div className="text-right text-sm">
-						<p>Date : {formatDate(values.date)}</p>
-						<p>Échéance : {formatDate(values.dueDate)}</p>
+						<p>Date : {formatDate(date)}</p>
+						<p>Échéance : {formatDate(dueDate)}</p>
 					</div>
 				</div>
 			</div>
@@ -124,16 +125,13 @@ export function InvoicePreview({ form, invoiceNumber, companyInfo }: InvoicePrev
 								<th className="text-right py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider w-24">
 									Prix unit.
 								</th>
-								<th className="text-right py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider w-14">
-									TVA
-								</th>
 								<th className="text-right py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider w-24">
 									Total HT
 								</th>
 							</tr>
 						</thead>
 						<tbody>
-							{(values.lines || []).map((line, i) => {
+							{safeLines.map((line, i) => {
 								const ht = (line.quantity || 0) * (line.unitPrice || 0);
 								return (
 									<tr key={i} className="border-b border-slate-100">
@@ -150,19 +148,16 @@ export function InvoicePreview({ form, invoiceNumber, companyInfo }: InvoicePrev
 										<td className="py-2.5 text-right text-slate-600">
 											{fmt(line.unitPrice || 0)} €
 										</td>
-										<td className="py-2.5 text-right text-slate-600">
-											{line.vatRate || 0}%
-										</td>
 										<td className="py-2.5 text-right font-medium text-slate-800">
 											{fmt(ht)} €
 										</td>
 									</tr>
 								);
 							})}
-							{(!values.lines || values.lines.length === 0) && (
+							{safeLines.length === 0 && (
 								<tr>
 									<td
-										colSpan={5}
+										colSpan={4}
 										className="py-8 text-center text-sm text-slate-400 italic"
 									>
 										Aucune ligne ajoutée
@@ -178,49 +173,49 @@ export function InvoicePreview({ form, invoiceNumber, companyInfo }: InvoicePrev
 					<div className="w-60 space-y-1.5">
 						<div className="flex justify-between text-sm">
 							<span className="text-slate-500">Sous-total HT</span>
-							<span className="text-slate-800 font-medium">{fmt(totals.subtotal)} €</span>
+							<span className="text-slate-800 font-medium">{fmt(subtotal)} €</span>
 						</div>
 						<div className="flex justify-between text-sm">
-							<span className="text-slate-500">TVA</span>
-							<span className="text-slate-800 font-medium">{fmt(totals.taxTotal)} €</span>
+							<span className="text-slate-500">TVA ({vatRate || 0}%)</span>
+							<span className="text-slate-800 font-medium">{fmt(taxTotal)} €</span>
 						</div>
 						<div className="h-px bg-slate-200 my-1" />
 						<div className="flex justify-between text-base font-bold">
 							<span className="text-slate-900">Total TTC</span>
-							<span className="text-violet-600">{fmt(totals.total)} €</span>
+							<span className="text-violet-600">{fmt(total)} €</span>
 						</div>
 					</div>
 				</div>
 
 				{/* Notes */}
-				{values.notes && (
+				{notes && (
 					<div className="rounded-lg bg-slate-50 border border-slate-100 p-3 text-xs text-slate-600">
 						<p className="font-medium text-slate-700 mb-1">Notes</p>
-						<p className="whitespace-pre-line">{values.notes}</p>
+						<p className="whitespace-pre-line">{notes}</p>
 					</div>
 				)}
 
 				{/* Payment links */}
-				{values.paymentLinks &&
-					(values.paymentLinks.stripe ||
-						values.paymentLinks.paypal ||
-						values.paymentLinks.gocardless) && (
+				{paymentLinks &&
+					(paymentLinks.stripe ||
+						paymentLinks.paypal ||
+						paymentLinks.gocardless) && (
 						<div className="rounded-lg border border-violet-200 bg-violet-50 p-3">
 							<p className="text-xs font-medium text-violet-700 mb-2">
 								Liens de paiement
 							</p>
 							<div className="flex flex-wrap gap-2">
-								{values.paymentLinks.stripe && (
+								{paymentLinks.stripe && (
 									<span className="text-xs bg-violet-100 text-violet-700 px-2.5 py-1 rounded-full font-medium">
 										Stripe
 									</span>
 								)}
-								{values.paymentLinks.paypal && (
+								{paymentLinks.paypal && (
 									<span className="text-xs bg-blue-100 text-blue-700 px-2.5 py-1 rounded-full font-medium">
 										PayPal
 									</span>
 								)}
-								{values.paymentLinks.gocardless && (
+								{paymentLinks.gocardless && (
 									<span className="text-xs bg-teal-100 text-teal-700 px-2.5 py-1 rounded-full font-medium">
 										GoCardless
 									</span>

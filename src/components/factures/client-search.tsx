@@ -1,13 +1,22 @@
 "use client";
 
-import React, { useState, useMemo, useCallback, useRef, useEffect } from "react";
+import React, {
+	useState,
+	useMemo,
+	useCallback,
+	useRef,
+	useEffect,
+} from "react";
 import { Search, Plus, X, User, Building2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { quickClientSchema, type QuickClientData } from "@/lib/validations/invoice";
+import {
+	quickClientSchema,
+	type QuickClientData,
+} from "@/lib/validations/invoice";
 import { mockClients, type Client } from "@/lib/mock-data/clients";
 
 interface ClientSearchProps {
@@ -46,7 +55,10 @@ export function ClientSearch({
 
 	useEffect(() => {
 		function handleClickOutside(e: MouseEvent) {
-			if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+			if (
+				containerRef.current &&
+				!containerRef.current.contains(e.target as Node)
+			) {
 				setIsOpen(false);
 			}
 		}
@@ -82,7 +94,7 @@ export function ClientSearch({
 	);
 
 	// Client sélectionné — affichage
-	if (selectedClient) {
+	if (selectedClientId && selectedClient) {
 		return (
 			<div className="flex items-center gap-3 rounded-xl border border-violet-200 dark:border-violet-400/25 bg-violet-50/80 dark:bg-[#251e4d] p-3 transition-all duration-300 shadow-sm">
 				<div className="flex size-9 items-center justify-center rounded-xl bg-violet-100 dark:bg-violet-900/40 shadow-sm">
@@ -113,7 +125,7 @@ export function ClientSearch({
 	}
 
 	// Nouveau client créé (__new__)
-	if (selectedClientId === "__new__") {
+	if (selectedClientId && selectedClientId === "__new__") {
 		return (
 			<div className="flex items-center gap-3 rounded-xl border border-violet-200 dark:border-violet-400/25 bg-violet-50/80 dark:bg-[#251e4d] p-3 transition-all duration-300 shadow-sm">
 				<div className="flex size-9 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/40 shadow-sm">
@@ -213,7 +225,7 @@ export function ClientSearch({
 					type="button"
 					variant="outline"
 					size="sm"
-					className="w-full border-primary/20 dark:border-violet-500/30 hover:bg-violet-50 dark:hover:bg-violet-500/10 dark:text-slate-200 transition-all duration-300 cursor-pointer rounded-xl"
+					className="w-full border-primary/20 dark:border-violet-400/50 hover:bg-violet-50 dark:hover:bg-violet-500/10 dark:text-slate-200 transition-all duration-300 cursor-pointer rounded-xl"
 					onClick={() => setShowNewForm(true)}
 				>
 					<Plus className="size-4" />
@@ -241,7 +253,12 @@ export function ClientSearch({
 					<div className="mx-0 h-px bg-linear-to-r from-transparent via-primary/30 dark:via-violet-200/30 to-transparent" />
 					<div className="grid gap-3">
 						<div>
-							<Label htmlFor="newClientName" className="text-slate-700 dark:text-violet-200">Nom / Raison sociale *</Label>
+							<Label
+								htmlFor="newClientName"
+								className="text-slate-700 dark:text-violet-200"
+							>
+								Nom / Raison sociale *
+							</Label>
 							<Input
 								id="newClientName"
 								{...registerNew("name")}
@@ -249,11 +266,18 @@ export function ClientSearch({
 								aria-invalid={!!newErrors.name}
 							/>
 							{newErrors.name && (
-								<p className="text-xs text-red-500 dark:text-red-400 mt-1">{newErrors.name.message}</p>
+								<p className="text-xs text-red-500 dark:text-red-400 mt-1">
+									{newErrors.name.message}
+								</p>
 							)}
 						</div>
 						<div>
-							<Label htmlFor="newClientEmail" className="text-slate-700 dark:text-violet-200">Email *</Label>
+							<Label
+								htmlFor="newClientEmail"
+								className="text-slate-700 dark:text-violet-200"
+							>
+								Email *
+							</Label>
 							<Input
 								id="newClientEmail"
 								type="email"
@@ -262,12 +286,19 @@ export function ClientSearch({
 								aria-invalid={!!newErrors.email}
 							/>
 							{newErrors.email && (
-								<p className="text-xs text-red-500 dark:text-red-400 mt-1">{newErrors.email.message}</p>
+								<p className="text-xs text-red-500 dark:text-red-400 mt-1">
+									{newErrors.email.message}
+								</p>
 							)}
 						</div>
 						<div className="grid grid-cols-2 gap-3">
 							<div>
-								<Label htmlFor="newClientAddress" className="text-slate-700 dark:text-violet-200">Adresse *</Label>
+								<Label
+									htmlFor="newClientAddress"
+									className="text-slate-700 dark:text-violet-200"
+								>
+									Adresse *
+								</Label>
 								<Input
 									id="newClientAddress"
 									{...registerNew("address")}
@@ -275,11 +306,18 @@ export function ClientSearch({
 									aria-invalid={!!newErrors.address}
 								/>
 								{newErrors.address && (
-									<p className="text-xs text-red-500 dark:text-red-400 mt-1">{newErrors.address.message}</p>
+									<p className="text-xs text-red-500 dark:text-red-400 mt-1">
+										{newErrors.address.message}
+									</p>
 								)}
 							</div>
 							<div>
-								<Label htmlFor="newClientCity" className="text-slate-700 dark:text-violet-200">Ville *</Label>
+								<Label
+									htmlFor="newClientCity"
+									className="text-slate-700 dark:text-violet-200"
+								>
+									Ville *
+								</Label>
 								<Input
 									id="newClientCity"
 									{...registerNew("city")}
@@ -287,26 +325,38 @@ export function ClientSearch({
 									aria-invalid={!!newErrors.city}
 								/>
 								{newErrors.city && (
-									<p className="text-xs text-red-500 dark:text-red-400 mt-1">{newErrors.city.message}</p>
+									<p className="text-xs text-red-500 dark:text-red-400 mt-1">
+										{newErrors.city.message}
+									</p>
 								)}
 							</div>
 						</div>
 						<div>
-							<Label htmlFor="newClientSiret" className="text-slate-700 dark:text-violet-200">SIRET (optionnel)</Label>
+							<Label
+								htmlFor="newClientSiret"
+								className="text-slate-700 dark:text-violet-200"
+							>
+								SIRET (optionnel)
+							</Label>
 							<Input
 								id="newClientSiret"
 								{...registerNew("siret")}
 								className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50"
 							/>
 						</div>
-						<Button
-							type="button"
-							size="sm"
-							onClick={handleSubmitNew(onSubmitNew)}
-							className="cursor-pointer transition-all duration-300 hover:scale-105"
-						>
-							Ajouter le client
-						</Button>
+						<div className="lg:ml-auto">
+							<Button
+								type="button"
+								size="sm"
+								onClick={(e) => {
+									e.stopPropagation();
+									handleSubmitNew(onSubmitNew)();
+								}}
+								className="cursor-pointer transition-all duration-300 dark:text-slate-200 hover:scale-101"
+							>
+								Ajouter le client
+							</Button>
+						</div>
 					</div>
 				</div>
 			)}

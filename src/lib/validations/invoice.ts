@@ -7,9 +7,6 @@ export const invoiceLineSchema = z.object({
 	description: z.string().min(1, "La description est requise"),
 	quantity: z.number().min(1, "La quantité doit être au moins 1"),
 	unitPrice: z.number().min(0, "Le prix unitaire doit être positif"),
-	vatRate: z.union([z.literal(0), z.literal(5.5), z.literal(10), z.literal(20)], {
-		message: "Taux de TVA invalide",
-	}),
 });
 
 export const quickClientSchema = z.object({
@@ -35,6 +32,9 @@ export const invoiceFormSchema = z.object({
 	date: z.string().min(1, "La date est requise"),
 	dueDate: z.string().min(1, "La date d'échéance est requise"),
 	lines: z.array(invoiceLineSchema).min(1, "Au moins une ligne est requise"),
+	vatRate: z.union([z.literal(0), z.literal(5.5), z.literal(10), z.literal(20)], {
+		message: "Taux de TVA invalide",
+	}),
 	notes: z.string().optional(),
 	paymentLinks: z
 		.object({
@@ -60,6 +60,7 @@ export interface DraftInvoice {
 	date: string;
 	dueDate: string;
 	lines: InvoiceLine[];
+	vatRate: VatRate;
 	subtotal: number;
 	taxTotal: number;
 	total: number;

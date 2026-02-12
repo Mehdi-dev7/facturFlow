@@ -1,7 +1,13 @@
 "use client";
 
 import React, { useState, useMemo, useCallback } from "react";
-import { useFieldArray, type UseFormReturn } from "react-hook-form";
+import {
+	useFieldArray,
+	useWatch,
+	Controller,
+	type UseFormReturn,
+	type FieldErrors,
+} from "react-hook-form";
 import {
 	Plus,
 	Trash2,
@@ -30,21 +36,10 @@ import {
 	type QuickClientData,
 } from "@/lib/validations/invoice";
 
-function generateInvoiceNumber(): string {
-	const year = new Date().getFullYear();
-	const count = Math.floor(Math.random() * 900) + 100;
-	return `FAC-${year}-${String(count).padStart(3, "0")}`;
-}
-
-function todayISO(): string {
-	return new Date().toISOString().split("T")[0];
-}
-
-function dueDateISO(): string {
-	const d = new Date();
-	d.setDate(d.getDate() + 30);
-	return d.toISOString().split("T")[0];
-}
+const dividerClass =
+	"mx-0 h-px bg-linear-to-r from-transparent via-primary/30 dark:via-violet-300/30 to-transparent";
+const inputClass =
+	"bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-violet-300/50 autofill:shadow-[inset_0_0_0_30px_white] dark:autofill:shadow-[inset_0_0_0_30px_#2a2254] autofill:[-webkit-text-fill-color:theme(--color-slate-900)] dark:autofill:[-webkit-text-fill-color:theme(--color-slate-50)]";
 
 interface InvoiceFormProps {
 	form: UseFormReturn<InvoiceFormData>;
@@ -54,13 +49,18 @@ interface InvoiceFormProps {
 	onCompanyChange: (data: CompanyInfo) => void;
 }
 
-export function InvoiceForm({ form, onSubmit, invoiceNumber, companyInfo, onCompanyChange }: InvoiceFormProps) {
+export function InvoiceForm({
+	form,
+	onSubmit,
+	invoiceNumber,
+	companyInfo,
+	onCompanyChange,
+}: InvoiceFormProps) {
 	const {
 		register,
 		control,
 		handleSubmit,
 		setValue,
-		watch,
 		formState: { errors },
 	} = form;
 
@@ -72,50 +72,40 @@ export function InvoiceForm({ form, onSubmit, invoiceNumber, companyInfo, onComp
 	const [showCompanyModal, setShowCompanyModal] = useState(false);
 	const [showPaymentLinks, setShowPaymentLinks] = useState(false);
 
-	const lines = watch("lines");
+	// useWatch pour la réactivité
+	const lines = useWatch({ control, name: "lines" });
+	const vatRate = useWatch({ control, name: "vatRate" });
+	const clientId = useWatch({ control, name: "clientId" });
 
 	const totals = useMemo(() => {
 		const subtotal = (lines || []).reduce(
-			(sum, line) => sum + (line.quantity || 0) * (line.unitPrice || 0),
+			(sum, line) => sum + (Number(line.quantity) || 0) * (Number(line.unitPrice) || 0),
 			0,
 		);
-		const taxTotal = (lines || []).reduce(
-			(sum, line) =>
-				sum +
-				(line.quantity || 0) *
-					(line.unitPrice || 0) *
-					((line.vatRate || 0) / 100),
-			0,
-		);
+		const taxTotal = subtotal * ((vatRate || 0) / 100);
 		return { subtotal, taxTotal, total: subtotal + taxTotal };
-	}, [lines]);
+	}, [lines, vatRate]);
 
 	const handleSelectClient = useCallback(
-		(clientId: string, clientData?: QuickClientData) => {
-			setValue("clientId", clientId, { shouldValidate: true });
+		(id: string, clientData?: QuickClientData) => {
+			setValue("clientId", id, { shouldValidate: true, shouldDirty: true });
 			if (clientData) {
-				setValue("newClient", clientData);
+				setValue("newClient", clientData, { shouldDirty: true });
 			} else {
-				setValue("newClient", undefined);
+				setValue("newClient", undefined, { shouldDirty: true });
 			}
 		},
 		[setValue],
 	);
 
 	const handleClearClient = useCallback(() => {
-		setValue("clientId", undefined, { shouldValidate: true });
-		setValue("newClient", undefined);
+		setValue("clientId", "", { shouldValidate: true, shouldDirty: true });
+		setValue("newClient", undefined, { shouldDirty: true });
 	}, [setValue]);
 
-	const Divider = () => (
-		<div className="mx-0 h-px bg-linear-to-r from-transparent via-primary/30 dark:via-violet-300/30 to-transparent" />
-	);
-
-	// Inputs : fond plus contrasté en dark pour bien se détacher du bg card
-	const inputClass = "bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-violet-300/50";
-
-	// Date inputs : idem + couleur du calendar icon
-	const dateInputClass = `${inputClass} [&::-webkit-calendar-picker-indicator]:dark:invert`;
+	const onError = useCallback((formErrors: FieldErrors<InvoiceFormData>) => {
+		console.warn("[InvoiceForm] Validation errors:", formErrors);
+	}, []);
 
 	return (
 		<>
@@ -126,7 +116,7 @@ export function InvoiceForm({ form, onSubmit, invoiceNumber, companyInfo, onComp
 				onSave={onCompanyChange}
 			/>
 
-			<form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+			<form onSubmit={handleSubmit(onSubmit, onError)} className="space-y-6">
 				{/* Émetteur */}
 				<section className="space-y-3">
 					<div className="flex items-center justify-between">
@@ -177,7 +167,7 @@ export function InvoiceForm({ form, onSubmit, invoiceNumber, companyInfo, onComp
 					)}
 				</section>
 
-				<Divider />
+				<div className={dividerClass} />
 
 				{/* Destinataire */}
 				<section className="space-y-3">
@@ -185,14 +175,14 @@ export function InvoiceForm({ form, onSubmit, invoiceNumber, companyInfo, onComp
 						Destinataire
 					</h3>
 					<ClientSearch
-						selectedClientId={watch("clientId")}
+						selectedClientId={clientId}
 						onSelectClient={handleSelectClient}
 						onClear={handleClearClient}
 						error={errors.clientId?.message}
 					/>
 				</section>
 
-				<Divider />
+				<div className={dividerClass} />
 
 				{/* Infos facture */}
 				<section className="space-y-3">
@@ -201,39 +191,67 @@ export function InvoiceForm({ form, onSubmit, invoiceNumber, companyInfo, onComp
 					</h3>
 					<div className="grid grid-cols-3 gap-3">
 						<div>
-							<Label className="text-slate-600 dark:text-violet-200">N° Facture</Label>
-							<Input value={invoiceNumber} disabled className="bg-slate-100 dark:bg-[#1e1845] border-slate-300 dark:border-violet-400/70 rounded-xl text-slate-500 dark:text-violet-100/80" />
+							<Label className="text-slate-600 dark:text-violet-200">
+								N° Facture
+							</Label>
+							<Input
+								value={invoiceNumber}
+								disabled
+								className="bg-slate-100 dark:bg-[#1e1845] border-slate-300 dark:border-violet-400/70 rounded-xl text-slate-500 dark:text-violet-100/80"
+							/>
 						</div>
 						<div>
-							<Label htmlFor="invoiceDate" className="text-slate-600 dark:text-violet-200">Date</Label>
-							<Input
-								id="invoiceDate"
-								type="date"
-								{...register("date")}
-								className={dateInputClass}
-								aria-invalid={!!errors.date}
+							<Label className="text-slate-600 dark:text-violet-200">
+								Date
+							</Label>
+							<Controller
+								name="date"
+								control={control}
+								render={({ field }) => (
+									<Input
+										type="date"
+										value={field.value}
+										onChange={field.onChange}
+										onBlur={field.onBlur}
+										className={`${inputClass} dark:[&::-webkit-calendar-picker-indicator]:invert`}
+										aria-invalid={!!errors.date}
+									/>
+								)}
 							/>
 							{errors.date && (
-								<p className="text-xs text-red-500 dark:text-red-400 mt-1">{errors.date.message}</p>
+								<p className="text-xs text-red-500 dark:text-red-400 mt-1">
+									{errors.date.message}
+								</p>
 							)}
 						</div>
 						<div>
-							<Label htmlFor="invoiceDueDate" className="text-slate-600 dark:text-violet-200">Échéance</Label>
-							<Input
-								id="invoiceDueDate"
-								type="date"
-								{...register("dueDate")}
-								className={dateInputClass}
-								aria-invalid={!!errors.dueDate}
+							<Label className="text-slate-600 dark:text-violet-200">
+								Échéance
+							</Label>
+							<Controller
+								name="dueDate"
+								control={control}
+								render={({ field }) => (
+									<Input
+										type="date"
+										value={field.value}
+										onChange={field.onChange}
+										onBlur={field.onBlur}
+										className={`${inputClass} dark:[&::-webkit-calendar-picker-indicator]:invert`}
+										aria-invalid={!!errors.dueDate}
+									/>
+								)}
 							/>
 							{errors.dueDate && (
-								<p className="text-xs text-red-500 dark:text-red-400 mt-1">{errors.dueDate.message}</p>
+								<p className="text-xs text-red-500 dark:text-red-400 mt-1">
+									{errors.dueDate.message}
+								</p>
 							)}
 						</div>
 					</div>
 				</section>
 
-				<Divider />
+				<div className={dividerClass} />
 
 				{/* Lignes */}
 				<section className="space-y-3">
@@ -246,7 +264,11 @@ export function InvoiceForm({ form, onSubmit, invoiceNumber, companyInfo, onComp
 							variant="outline"
 							size="xs"
 							onClick={() =>
-								append({ description: "", quantity: 1, unitPrice: 0, vatRate: 20 })
+								append({
+									description: "",
+									quantity: 1,
+									unitPrice: 0,
+								})
 							}
 							className="border-primary/20 dark:border-violet-400/30 hover:bg-violet-50 dark:hover:bg-violet-500/15 dark:text-slate-100 transition-all duration-300 cursor-pointer"
 						>
@@ -256,21 +278,22 @@ export function InvoiceForm({ form, onSubmit, invoiceNumber, companyInfo, onComp
 					</div>
 
 					{errors.lines?.root && (
-						<p className="text-xs text-red-500 dark:text-red-400">{errors.lines.root.message}</p>
+						<p className="text-xs text-red-500 dark:text-red-400">
+							{errors.lines.root.message}
+						</p>
 					)}
 					{errors.lines?.message && (
-						<p className="text-xs text-red-500 dark:text-red-400">{errors.lines.message}</p>
+						<p className="text-xs text-red-500 dark:text-red-400">
+							{errors.lines.message}
+						</p>
 					)}
 
 					<div className="space-y-3">
 						{fields.map((field, index) => {
 							const lineErrors = errors.lines?.[index];
-							const qty = lines?.[index]?.quantity || 0;
-							const price = lines?.[index]?.unitPrice || 0;
-							const vat = lines?.[index]?.vatRate || 0;
+							const qty = Number(lines?.[index]?.quantity) || 0;
+							const price = Number(lines?.[index]?.unitPrice) || 0;
 							const lineHT = qty * price;
-							const lineTVA = lineHT * (vat / 100);
-							const lineTTC = lineHT + lineTVA;
 
 							return (
 								<div
@@ -303,70 +326,73 @@ export function InvoiceForm({ form, onSubmit, invoiceNumber, companyInfo, onComp
 											</Button>
 										)}
 									</div>
-									<div className="grid grid-cols-4 gap-2">
+									<div className="grid grid-cols-3 gap-2">
 										<div>
-											<Label className="text-xs text-slate-500 dark:text-violet-200">Qté</Label>
-											<Input
-												type="number"
-												min={1}
-												step={1}
-												{...register(`lines.${index}.quantity`, {
-													valueAsNumber: true,
-												})}
-												className={inputClass}
-												aria-invalid={!!lineErrors?.quantity}
+											<Label className="text-xs text-slate-500 dark:text-violet-200">
+												Qté
+											</Label>
+											<Controller
+												name={`lines.${index}.quantity`}
+												control={control}
+												render={({ field: f }) => (
+													<Input
+														type="number"
+														min={1}
+														step={1}
+														value={f.value || ""}
+														onChange={(e) => {
+															const v = e.target.value;
+															f.onChange(v === "" ? 0 : Number(v));
+														}}
+														onBlur={(e) => {
+															if (!e.target.value || Number(e.target.value) < 1) f.onChange(1);
+															f.onBlur();
+														}}
+														className={inputClass}
+														aria-invalid={!!lineErrors?.quantity}
+													/>
+												)}
 											/>
 										</div>
 										<div>
-											<Label className="text-xs text-slate-500 dark:text-violet-200">Prix unit. (€)</Label>
-											<Input
-												type="number"
-												min={0}
-												step={0.01}
-												{...register(`lines.${index}.unitPrice`, {
-													valueAsNumber: true,
-												})}
-												className={inputClass}
-												aria-invalid={!!lineErrors?.unitPrice}
+											<Label className="text-xs text-slate-500 dark:text-violet-200">
+												Prix unit. (€)
+											</Label>
+											<Controller
+												name={`lines.${index}.unitPrice`}
+												control={control}
+												render={({ field: f }) => (
+													<Input
+														type="number"
+														min={0}
+														step={0.01}
+														value={f.value || ""}
+														onChange={(e) => {
+															const v = e.target.value;
+															f.onChange(v === "" ? 0 : Number(v));
+														}}
+														onBlur={(e) => {
+															if (!e.target.value) f.onChange(0);
+															f.onBlur();
+														}}
+														className={inputClass}
+														aria-invalid={!!lineErrors?.unitPrice}
+													/>
+												)}
 											/>
 										</div>
 										<div>
-											<Label className="text-xs text-slate-500 dark:text-violet-200">TVA</Label>
-											<Select
-												value={String(vat)}
-												onValueChange={(v) =>
-													setValue(`lines.${index}.vatRate`, Number(v) as 0 | 5.5 | 10 | 20, {
-														shouldValidate: true,
-													})
-												}
-											>
-												<SelectTrigger className="h-9 w-full bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50">
-													<SelectValue />
-												</SelectTrigger>
-												<SelectContent className="bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/30">
-													{VAT_RATES.map((rate) => (
-														<SelectItem key={rate} value={String(rate)} className="cursor-pointer hover:bg-violet-200/30 dark:hover:bg-violet-500/15 dark:text-slate-100">
-															{rate}%
-														</SelectItem>
-													))}
-												</SelectContent>
-											</Select>
-										</div>
-										<div>
-											<Label className="text-xs text-slate-500 dark:text-violet-200">Total TTC</Label>
+											<Label className="text-xs text-slate-500 dark:text-violet-200">
+												Total HT
+											</Label>
 											<div className="h-9 flex items-center text-sm font-bold text-violet-700 dark:text-violet-300">
-												{lineTTC.toLocaleString("fr-FR", {
+												{lineHT.toLocaleString("fr-FR", {
 													minimumFractionDigits: 2,
 													maximumFractionDigits: 2,
 												})}{" "}
 												€
 											</div>
 										</div>
-									</div>
-									{/* Détail HT + TVA par ligne */}
-									<div className="flex gap-4 text-[11px] text-slate-500 dark:text-violet-300/70 pt-0.5 border-t border-slate-100 dark:border-violet-400/10">
-										<span className="pt-1.5">HT : {lineHT.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €</span>
-										<span className="pt-1.5">TVA ({vat}%) : {lineTVA.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €</span>
 									</div>
 								</div>
 							);
@@ -379,7 +405,11 @@ export function InvoiceForm({ form, onSubmit, invoiceNumber, companyInfo, onComp
 							variant="outline"
 							className="w-full border-primary/20 dark:border-violet-400/30 hover:bg-violet-50 dark:hover:bg-violet-500/15 dark:text-slate-100 transition-all duration-300 cursor-pointer rounded-xl"
 							onClick={() =>
-								append({ description: "", quantity: 1, unitPrice: 0, vatRate: 20 })
+								append({
+									description: "",
+									quantity: 1,
+									unitPrice: 0,
+								})
 							}
 						>
 							<Plus className="size-4" />
@@ -388,12 +418,14 @@ export function InvoiceForm({ form, onSubmit, invoiceNumber, companyInfo, onComp
 					)}
 				</section>
 
-				<Divider />
+				<div className={dividerClass} />
 
-				{/* Totaux */}
+				{/* Totaux + TVA globale */}
 				<section className="rounded-xl border border-violet-200 dark:border-violet-400/25 bg-violet-50/80 dark:bg-[#251e4d] p-4 space-y-2 shadow-sm">
 					<div className="flex justify-between text-sm">
-						<span className="text-slate-500 dark:text-violet-200">Sous-total HT</span>
+						<span className="text-slate-500 dark:text-violet-200">
+							Sous-total HT
+						</span>
 						<span className="font-medium text-slate-800 dark:text-slate-100">
 							{totals.subtotal.toLocaleString("fr-FR", {
 								minimumFractionDigits: 2,
@@ -401,8 +433,35 @@ export function InvoiceForm({ form, onSubmit, invoiceNumber, companyInfo, onComp
 							€
 						</span>
 					</div>
-					<div className="flex justify-between text-sm">
-						<span className="text-slate-500 dark:text-violet-200">TVA</span>
+					<div className="flex justify-between items-center text-sm">
+						<div className="flex items-center gap-2">
+							<span className="text-slate-500 dark:text-violet-200">TVA</span>
+							<Select
+								value={String(vatRate ?? 20)}
+								onValueChange={(v) =>
+									setValue(
+										"vatRate",
+										Number(v) as 0 | 5.5 | 10 | 20,
+										{ shouldValidate: true, shouldDirty: true },
+									)
+								}
+							>
+								<SelectTrigger className="h-7 w-20 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-lg text-xs text-slate-900 dark:text-slate-50">
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent className="bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/30">
+									{VAT_RATES.map((rate) => (
+										<SelectItem
+											key={rate}
+											value={String(rate)}
+											className="cursor-pointer hover:bg-violet-200/30 dark:hover:bg-violet-500/15 dark:text-slate-100 text-xs"
+										>
+											{rate}%
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</div>
 						<span className="font-medium text-slate-800 dark:text-slate-100">
 							{totals.taxTotal.toLocaleString("fr-FR", {
 								minimumFractionDigits: 2,
@@ -442,7 +501,10 @@ export function InvoiceForm({ form, onSubmit, invoiceNumber, companyInfo, onComp
 							checked={showPaymentLinks}
 							onCheckedChange={(v) => setShowPaymentLinks(!!v)}
 						/>
-						<Label htmlFor="togglePayments" className="flex items-center gap-1.5 cursor-pointer text-slate-700 dark:text-violet-200">
+						<Label
+							htmlFor="togglePayments"
+							className="flex items-center gap-1.5 cursor-pointer text-slate-700 dark:text-violet-200"
+						>
 							<LinkIcon className="size-3.5" />
 							Liens de paiement
 						</Label>
@@ -450,7 +512,9 @@ export function InvoiceForm({ form, onSubmit, invoiceNumber, companyInfo, onComp
 					{showPaymentLinks && (
 						<div className="space-y-2 pl-6">
 							<div>
-								<Label className="text-xs text-slate-500 dark:text-violet-200">Stripe</Label>
+								<Label className="text-xs text-slate-500 dark:text-violet-200">
+									Stripe
+								</Label>
 								<Input
 									placeholder="https://checkout.stripe.com/..."
 									{...register("paymentLinks.stripe")}
@@ -458,7 +522,9 @@ export function InvoiceForm({ form, onSubmit, invoiceNumber, companyInfo, onComp
 								/>
 							</div>
 							<div>
-								<Label className="text-xs text-slate-500 dark:text-violet-200">PayPal</Label>
+								<Label className="text-xs text-slate-500 dark:text-violet-200">
+									PayPal
+								</Label>
 								<Input
 									placeholder="https://paypal.me/..."
 									{...register("paymentLinks.paypal")}
@@ -466,7 +532,9 @@ export function InvoiceForm({ form, onSubmit, invoiceNumber, companyInfo, onComp
 								/>
 							</div>
 							<div>
-								<Label className="text-xs text-slate-500 dark:text-violet-200">GoCardless</Label>
+								<Label className="text-xs text-slate-500 dark:text-violet-200">
+									GoCardless
+								</Label>
 								<Input
 									placeholder="https://pay.gocardless.com/..."
 									{...register("paymentLinks.gocardless")}
@@ -477,12 +545,23 @@ export function InvoiceForm({ form, onSubmit, invoiceNumber, companyInfo, onComp
 					)}
 				</section>
 
-				<Button type="submit" variant="gradient" className="w-full h-11 cursor-pointer transition-all duration-300 hover:scale-105">
-					Créer la facture
-				</Button>
+				{/* Erreur globale (refine) */}
+				{errors.clientId?.message && (
+					<p className="text-xs text-red-500 dark:text-red-400 text-center">
+						{errors.clientId.message}
+					</p>
+				)}
+
+				<div className="lg:ml-auto lg:w-1/3">
+					<Button
+						type="submit"
+						variant="gradient"
+						className="w-full h-11 cursor-pointer transition-all duration-300 hover:scale-101"
+					>
+						Créer la facture
+					</Button>
+				</div>
 			</form>
 		</>
 	);
 }
-
-export { generateInvoiceNumber, todayISO, dueDateISO };
