@@ -42,7 +42,7 @@ export function ActionMenuMobile({ onEdit, onDelete, deleteMessage = "Êtes-vous
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-40 bg-linear-to-b from-violet-50 via-white to-white dark:from-[#1e1b4b] dark:via-[#1a1438] dark:to-[#1a1438] border border-primary/20 dark:border-violet-500/20 shadow-lg dark:shadow-violet-950/40 rounded-xl p-1 overflow-hidden">
           {onEdit && (
-            <DropdownMenuItem onClick={onEdit} className="gap-2 cursor-pointer rounded-lg focus:bg-violet-100 focus:text-violet-700 dark:focus:bg-violet-500/15 dark:focus:text-violet-300">
+            <DropdownMenuItem onClick={onEdit} className="gap-2 cursor-pointer rounded-lg dark:text-slate-200 focus:bg-violet-100 focus:text-violet-700 dark:focus:bg-violet-500/15 dark:focus:text-violet-300">
               <Pencil className="h-4 w-4" />
               Modifier
             </DropdownMenuItem>
