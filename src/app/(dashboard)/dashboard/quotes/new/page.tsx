@@ -7,53 +7,52 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { InvoiceForm } from "@/components/factures/invoice-form";
-import { InvoicePreview } from "@/components/factures/invoice-preview";
-import { InvoiceStepper } from "@/components/factures/invoice-stepper";
+import { QuoteForm } from "@/components/devis/quote-form";
+import { QuotePreview } from "@/components/devis/quote-preview";
+import { QuoteStepper } from "@/components/devis/quote-stepper";
 import {
-	invoiceFormSchema,
-	type InvoiceFormData,
+	quoteFormSchema,
+	type QuoteFormData,
 	type CompanyInfo,
-	type DraftInvoice,
-} from "@/lib/validations/invoice";
+	type DraftQuote,
+} from "@/lib/validations/quote";
 import { calcInvoiceTotals } from "@/lib/utils/calculs-facture";
 import { mockClients } from "@/lib/mock-data/clients";
 
-const DRAFT_KEY = "facturflow_invoice_draft";
+const DRAFT_KEY = "facturflow_quote_draft";
 const AUTOSAVE_INTERVAL = 30_000;
 
-function generateInvoiceNumber(): string {
+function generateQuoteNumber(): string {
 	const year = new Date().getFullYear();
 	const count = Math.floor(Math.random() * 900) + 100;
-	return `FAC-${year}-${String(count).padStart(3, "0")}`;
+	return `DEV-${year}-${String(count).padStart(3, "0")}`;
 }
 
 function todayISO(): string {
 	return new Date().toISOString().split("T")[0];
 }
 
-function dueDateISO(): string {
+function validUntilISO(): string {
 	const d = new Date();
 	d.setDate(d.getDate() + 30);
 	return d.toISOString().split("T")[0];
 }
 
-export default function NewInvoicePage() {
+export default function NewQuotePage() {
 	const router = useRouter();
 
-	// Tout le state client-only initialisé dans useEffect pour éviter les hydration mismatches
 	const [mounted, setMounted] = useState(false);
-	const [invoiceNumber, setInvoiceNumber] = useState("");
+	const [quoteNumber, setQuoteNumber] = useState("");
 	const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
 
-	const form = useForm<InvoiceFormData>({
-		resolver: zodResolver(invoiceFormSchema),
+	const form = useForm<QuoteFormData>({
+		resolver: zodResolver(quoteFormSchema),
 		mode: "onChange",
 		defaultValues: {
 			clientId: "",
 			date: "",
-			dueDate: "",
-			invoiceType: "basic",
+			validUntil: "",
+			quoteType: "basic",
 			lines: [{ description: "", quantity: 1, unitPrice: 0 }],
 			vatRate: 20,
 			discountType: undefined,
@@ -65,7 +64,7 @@ export default function NewInvoicePage() {
 
 	// Client-only init
 	useEffect(() => {
-		setInvoiceNumber(generateInvoiceNumber());
+		setQuoteNumber(generateQuoteNumber());
 
 		// Load company info
 		try {
@@ -77,20 +76,18 @@ export default function NewInvoicePage() {
 
 		// Set dates
 		form.setValue("date", todayISO());
-		form.setValue("dueDate", dueDateISO());
+		form.setValue("validUntil", validUntilISO());
 
 		// Load draft
 		try {
 			const savedDraft = localStorage.getItem(DRAFT_KEY);
 			if (savedDraft) {
-				const draft = JSON.parse(savedDraft) as Partial<InvoiceFormData>;
+				const draft = JSON.parse(savedDraft) as Partial<QuoteFormData>;
 				if (draft.lines && draft.lines.length > 0) {
-					// Nettoyer les lignes : supprimer les champs obsolètes (vatRate per-line)
 					const cleanLines = draft.lines.map((l) => ({
 						description: l.description || "",
 						quantity: l.quantity || 1,
 						unitPrice: l.unitPrice || 0,
-						category: l.category,
 					}));
 					form.reset({
 						...form.getValues(),
@@ -123,8 +120,7 @@ export default function NewInvoicePage() {
 	}, [form, mounted]);
 
 	const onSubmit = useCallback(
-		(data: InvoiceFormData) => {
-			// Calculs centralisés via l'utilitaire
+		(data: QuoteFormData) => {
 			const totals = calcInvoiceTotals({
 				lines: data.lines || [],
 				vatRate: data.vatRate,
@@ -133,7 +129,6 @@ export default function NewInvoicePage() {
 				depositAmount: data.depositAmount,
 			});
 
-			// Résoudre les données client
 			const resolvedClient = (() => {
 				if (data.newClient) return data.newClient;
 				const found = mockClients.find((c) => c.id === data.clientId);
@@ -141,13 +136,13 @@ export default function NewInvoicePage() {
 				return { name: "", email: "", address: "", city: "" };
 			})();
 
-			const draft: DraftInvoice = {
-				id: invoiceNumber,
+			const draft: DraftQuote = {
+				id: quoteNumber,
 				emitter: companyInfo || { name: "", siret: "", address: "", city: "", email: "" },
 				client: resolvedClient,
 				date: data.date,
-				dueDate: data.dueDate,
-				invoiceType: data.invoiceType ?? "basic",
+				validUntil: data.validUntil,
+				quoteType: data.quoteType ?? "basic",
 				lines: data.lines,
 				vatRate: data.vatRate,
 				subtotal: totals.subtotal,
@@ -158,23 +153,22 @@ export default function NewInvoicePage() {
 				depositAmount: totals.depositAmount,
 				netAPayer: totals.netAPayer,
 				notes: data.notes,
-				paymentLinks: data.paymentLinks,
 				status: "brouillon",
 			};
 
 			const existing = JSON.parse(
-				localStorage.getItem("facturflow_invoices") || "[]",
-			) as DraftInvoice[];
+				localStorage.getItem("facturflow_quotes") || "[]",
+			) as DraftQuote[];
 			existing.push(draft);
-			localStorage.setItem("facturflow_invoices", JSON.stringify(existing));
+			localStorage.setItem("facturflow_quotes", JSON.stringify(existing));
 			localStorage.removeItem(DRAFT_KEY);
 
-			router.push("/dashboard/invoices");
+			router.push("/dashboard/quotes");
 		},
-		[invoiceNumber, router, companyInfo],
+		[quoteNumber, router, companyInfo],
 	);
 
-	// Skeleton de chargement pendant le montage client
+	// Skeleton pendant le montage client
 	if (!mounted) {
 		return (
 			<div className="animate-pulse space-y-6">
@@ -194,16 +188,16 @@ export default function NewInvoicePage() {
 					asChild
 					className="text-slate-400 hover:text-primary hover:bg-primary/20 dark:text-violet-400 dark:hover:text-violet-300 dark:hover:bg-primary/80 transition-all duration-300 cursor-pointer"
 				>
-					<Link href="/dashboard/invoices">
+					<Link href="/dashboard/quotes">
 						<ArrowLeft className="size-5" />
 					</Link>
 				</Button>
 				<div>
 					<h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
-						Nouvelle facture
+						Nouveau devis
 					</h1>
 					<p className="text-sm text-slate-500 dark:text-violet-400/60">
-						{invoiceNumber}
+						{quoteNumber}
 					</p>
 				</div>
 			</div>
@@ -212,26 +206,26 @@ export default function NewInvoicePage() {
 			<div className="hidden lg:grid lg:grid-cols-2 lg:gap-6">
 				<div className="space-y-4">
 					<div className="rounded-2xl border border-slate-300/80 dark:border-violet-500/20 shadow-lg shadow-slate-200/50 dark:shadow-violet-950/40 bg-white/75 dark:bg-[#1a1438] backdrop-blur-lg p-6">
-						<InvoiceForm
+						<QuoteForm
 							form={form}
 							onSubmit={onSubmit}
-							invoiceNumber={invoiceNumber}
+							quoteNumber={quoteNumber}
 							companyInfo={companyInfo}
 							onCompanyChange={handleCompanyChange}
 						/>
 					</div>
 				</div>
 				<div className="sticky top-6 self-start">
-					<InvoicePreview form={form} invoiceNumber={invoiceNumber} companyInfo={companyInfo} />
+					<QuotePreview form={form} quoteNumber={quoteNumber} companyInfo={companyInfo} />
 				</div>
 			</div>
 
 			{/* Mobile: stepper */}
 			<div className="lg:hidden rounded-2xl border border-slate-300/80 dark:border-violet-500/20 bg-white/75 dark:bg-[#1a1438] backdrop-blur-lg shadow-lg shadow-slate-200/50 dark:shadow-violet-950/40 min-h-[70vh]">
-				<InvoiceStepper
+				<QuoteStepper
 					form={form}
 					onSubmit={onSubmit}
-					invoiceNumber={invoiceNumber}
+					quoteNumber={quoteNumber}
 					companyInfo={companyInfo}
 					onCompanyChange={handleCompanyChange}
 				/>

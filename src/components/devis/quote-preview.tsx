@@ -2,95 +2,104 @@
 
 import React from "react";
 import { useWatch, type UseFormReturn } from "react-hook-form";
-import type { InvoiceFormData, CompanyInfo, InvoiceType } from "@/lib/validations/invoice";
-import { INVOICE_TYPE_LABELS, INVOICE_TYPE_CONFIG } from "@/lib/validations/invoice";
+import { CheckCircle2, XCircle, Lock } from "lucide-react";
+import type { QuoteFormData, CompanyInfo, InvoiceType } from "@/lib/validations/quote";
+import { INVOICE_TYPE_LABELS, INVOICE_TYPE_CONFIG } from "@/lib/validations/quote";
 import { mockClients } from "@/lib/mock-data/clients";
 import { calcInvoiceTotals } from "@/lib/utils/calculs-facture";
 
-interface InvoicePreviewProps {
-	form: UseFormReturn<InvoiceFormData>;
-	invoiceNumber: string;
+interface QuotePreviewProps {
+	form: UseFormReturn<QuoteFormData>;
+	quoteNumber: string;
 	companyInfo: CompanyInfo | null;
+	/** URL d'acceptation — disponible uniquement après sauvegarde du devis */
+	acceptUrl?: string;
+	/** URL de refus — disponible uniquement après sauvegarde du devis */
+	refuseUrl?: string;
 }
 
-export function InvoicePreview({ form, invoiceNumber, companyInfo }: InvoicePreviewProps) {
-	const clientId     = useWatch({ control: form.control, name: "clientId" });
-	const newClient    = useWatch({ control: form.control, name: "newClient" });
-	const lines        = useWatch({ control: form.control, name: "lines" });
-	const vatRate      = useWatch({ control: form.control, name: "vatRate" });
-	const date         = useWatch({ control: form.control, name: "date" });
-	const dueDate      = useWatch({ control: form.control, name: "dueDate" });
-	const notes        = useWatch({ control: form.control, name: "notes" });
-	const paymentLinks = useWatch({ control: form.control, name: "paymentLinks" });
-	const invoiceType  = (useWatch({ control: form.control, name: "invoiceType" }) ?? "basic") as InvoiceType;
+export function QuotePreview({ form, quoteNumber, companyInfo, acceptUrl, refuseUrl }: QuotePreviewProps) {
+	const clientId      = useWatch({ control: form.control, name: "clientId" });
+	const newClient     = useWatch({ control: form.control, name: "newClient" });
+	const lines         = useWatch({ control: form.control, name: "lines" });
+	const vatRate       = useWatch({ control: form.control, name: "vatRate" });
+	const date          = useWatch({ control: form.control, name: "date" });
+	const validUntil    = useWatch({ control: form.control, name: "validUntil" });
+	const notes         = useWatch({ control: form.control, name: "notes" });
+	const quoteType     = (useWatch({ control: form.control, name: "quoteType" }) ?? "basic") as InvoiceType;
 	const discountType  = useWatch({ control: form.control, name: "discountType" });
 	const discountValue = useWatch({ control: form.control, name: "discountValue" }) ?? 0;
-	const depositAmt    = useWatch({ control: form.control, name: "depositAmount" }) ?? 0;
+	const depositAmt    = (useWatch({ control: form.control, name: "depositAmount" }) ?? 0) as number;
 
-	// ── Client ─────────────────────────────────────────────────────────────
 	const client = (() => {
 		if (clientId && clientId !== "__new__") {
 			const found = mockClients.find((c) => c.id === clientId);
 			if (found) return { name: found.name, email: found.email, city: found.city };
 		}
-		if (newClient) return { name: newClient.name, email: newClient.email, city: newClient.city };
+		if (newClient) {
+			return { name: newClient.name, email: newClient.email, city: newClient.city };
+		}
 		return null;
 	})();
 
-	// ── Calculs ────────────────────────────────────────────────────────────
-	const safeLines = lines || [];
+	const safeLines  = lines || [];
+	const typeConfig = INVOICE_TYPE_CONFIG[quoteType];
+	const isForfait  = typeConfig.quantityLabel === null;
+	const isArtisan  = quoteType === "artisan";
+
 	const totals = calcInvoiceTotals({
-		lines: safeLines,
+		lines: safeLines.map((l) => ({
+			quantity: isForfait ? 1 : (l.quantity || 0),
+			unitPrice: l.unitPrice || 0,
+		})),
 		vatRate: vatRate ?? 20,
 		discountType,
 		discountValue,
-		depositAmount: depositAmt,
+		// depositAmt n'est pas passé : l'acompte est informatif, ne change pas le total
 	});
 
-	const typeConfig = INVOICE_TYPE_CONFIG[invoiceType];
-
-	// ── Helpers ────────────────────────────────────────────────────────────
 	const fmt = (n: number) =>
 		n.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 	const formatDate = (dateStr: string) => {
 		if (!dateStr) return "—";
-		return new Date(dateStr).toLocaleDateString("fr-FR", {
+		const d = new Date(dateStr);
+		return d.toLocaleDateString("fr-FR", {
 			day: "2-digit",
 			month: "long",
 			year: "numeric",
 		});
 	};
 
-	// ── Groupement artisan ─────────────────────────────────────────────────
-	const isArtisan = invoiceType === "artisan";
-	const mainOeuvreLines = safeLines.filter((l) => !l.category || l.category === "main_oeuvre");
-	const materiauLines   = safeLines.filter((l) => l.category === "materiel");
-	const isForfait       = typeConfig.quantityLabel === null;
+	const mainOeuvreLines = isArtisan
+		? safeLines.filter((l) => !l.category || l.category === "main_oeuvre")
+		: safeLines;
+	const materiauLines = isArtisan
+		? safeLines.filter((l) => l.category === "materiel")
+		: [];
 
-	// ── Render ─────────────────────────────────────────────────────────────
 	return (
 		<div className="bg-white rounded-2xl border border-slate-300/80 shadow-lg shadow-slate-200/50 overflow-hidden">
-			{/* Header */}
-			<div className="bg-linear-to-r from-violet-600 to-indigo-600 px-6 py-5 text-white">
+			{/* Header band — vert émeraude pour différencier du devis */}
+			<div className="bg-linear-to-r from-emerald-600 to-teal-600 px-6 py-5 text-white">
 				<div className="flex items-start justify-between">
 					<div>
-						<h2 className="text-lg font-bold tracking-tight font-heading">FACTURE</h2>
-						<p className="text-violet-200 text-sm mt-0.5">{invoiceNumber}</p>
-						{invoiceType !== "basic" && (
+						<h2 className="text-lg font-bold tracking-tight font-heading">DEVIS</h2>
+						<p className="text-emerald-200 text-sm mt-0.5">{quoteNumber}</p>
+						{quoteType !== "basic" && (
 							<span className="inline-block mt-1.5 text-[10px] bg-white/20 px-2 py-0.5 rounded-full font-medium tracking-wide">
-								{INVOICE_TYPE_LABELS[invoiceType]}
+								{INVOICE_TYPE_LABELS[quoteType]}
 							</span>
 						)}
 					</div>
 					<div className="text-right text-sm">
 						<p>Date : {formatDate(date)}</p>
-						<p>Échéance : {formatDate(dueDate)}</p>
+						<p>Validité : {formatDate(validUntil)}</p>
 					</div>
 				</div>
 			</div>
 
-			<div className="p-6 space-y-5">
+			<div className="p-6 space-y-6">
 				{/* Émetteur & Destinataire */}
 				<div className="grid grid-cols-2 gap-6">
 					<div>
@@ -124,6 +133,7 @@ export function InvoicePreview({ form, invoiceNumber, companyInfo }: InvoicePrev
 					</div>
 				</div>
 
+				{/* Separator */}
 				<div className="h-px bg-slate-200" />
 
 				{/* Lignes — artisan : 2 sections, autres : tableau simple */}
@@ -192,24 +202,16 @@ export function InvoicePreview({ form, invoiceNumber, companyInfo }: InvoicePrev
 						{/* Total TTC */}
 						<div className="flex justify-between text-base font-bold">
 							<span className="text-slate-900">Total TTC</span>
-							<span className="text-violet-600">{fmt(totals.totalTTC)} €</span>
+							<span className="text-emerald-600">{fmt(totals.totalTTC)} €</span>
 						</div>
 
-						{/* Acompte */}
-						{totals.depositAmount > 0 && (
-							<div className="flex justify-between text-sm">
-								<span className="text-slate-500">Acompte versé</span>
-								<span className="text-rose-600 font-medium">−{fmt(totals.depositAmount)} €</span>
-							</div>
-						)}
-
-						{/* NET À PAYER */}
-						{(totals.depositAmount > 0 || totals.discountAmount > 0) && (
-							<div className="flex justify-between items-center pt-2 border-t-2 border-violet-300 mt-1">
+						{/* NET À PAYER si réduction */}
+						{totals.discountAmount > 0 && (
+							<div className="flex justify-between items-center pt-2 border-t-2 border-emerald-400/50 mt-1">
 								<span className="text-sm font-extrabold text-slate-900 tracking-tight">
 									NET À PAYER
 								</span>
-								<span className="text-base font-extrabold text-violet-700">
+								<span className="text-base font-extrabold text-emerald-700">
 									{fmt(totals.netAPayer)} €
 								</span>
 							</div>
@@ -225,30 +227,70 @@ export function InvoicePreview({ form, invoiceNumber, companyInfo }: InvoicePrev
 					</div>
 				)}
 
-				{/* Liens de paiement */}
-				{paymentLinks &&
-					(paymentLinks.stripe || paymentLinks.paypal || paymentLinks.gocardless) && (
-						<div className="rounded-lg border border-violet-200 bg-violet-50 p-3">
-							<p className="text-xs font-medium text-violet-700 mb-2">Liens de paiement</p>
-							<div className="flex flex-wrap gap-2">
-								{paymentLinks.stripe && (
-									<span className="text-xs bg-violet-100 text-violet-700 px-2.5 py-1 rounded-full font-medium">
-										Stripe
-									</span>
-								)}
-								{paymentLinks.paypal && (
-									<span className="text-xs bg-blue-100 text-blue-700 px-2.5 py-1 rounded-full font-medium">
-										PayPal
-									</span>
-								)}
-								{paymentLinks.gocardless && (
-									<span className="text-xs bg-teal-100 text-teal-700 px-2.5 py-1 rounded-full font-medium">
-										GoCardless
-									</span>
-								)}
-							</div>
+				{/* Acompte à verser — callout informatif */}
+			{depositAmt > 0 && (
+				<div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 flex items-center justify-between gap-3">
+					<div>
+						<p className="text-xs font-semibold text-emerald-800 uppercase tracking-wide">
+							Acompte à verser
+						</p>
+						<p className="text-[11px] text-emerald-600 mt-0.5">
+							À régler avant le démarrage du projet
+						</p>
+					</div>
+					<span className="text-base font-bold text-emerald-700 shrink-0">
+						{fmt(depositAmt)} €
+					</span>
+				</div>
+			)}
+
+			{/* Actions accepter / refuser */}
+				{acceptUrl && refuseUrl ? (
+					<div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+						<p className="text-xs text-slate-500 text-center mb-3 font-medium">
+							En tant que client, vous pouvez répondre à ce devis :
+						</p>
+						<div className="flex gap-3">
+							<a
+								href={acceptUrl}
+								target="_blank"
+								rel="noopener noreferrer"
+								className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold transition-colors"
+							>
+								<CheckCircle2 className="size-4" />
+								Accepter le devis
+							</a>
+							<a
+								href={refuseUrl}
+								target="_blank"
+								rel="noopener noreferrer"
+								className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-white hover:bg-rose-50 border border-rose-200 text-rose-600 hover:text-rose-700 text-sm font-semibold transition-colors"
+							>
+								<XCircle className="size-4" />
+								Refuser
+							</a>
 						</div>
-					)}
+					</div>
+				) : (
+					<div className="rounded-xl border border-dashed border-slate-200 bg-slate-50/50 p-4">
+						<div className="flex flex-col items-center gap-2 text-center">
+							<div className="flex gap-3 w-full opacity-40 pointer-events-none select-none">
+								<div className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-emerald-600 text-white text-sm font-semibold">
+									<CheckCircle2 className="size-4" />
+									Accepter le devis
+								</div>
+								<div className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-rose-200 text-rose-600 text-sm font-semibold">
+									<XCircle className="size-4" />
+									Refuser
+								</div>
+							</div>
+							<p className="text-[11px] text-slate-400 flex items-center gap-1 mt-1">
+								<Lock className="size-3" />
+								Liens disponibles après sauvegarde du devis
+							</p>
+						</div>
+					</div>
+				)}
 
 				{/* Footer */}
 				<div className="text-center text-[10px] text-slate-400 pt-4 border-t border-slate-100">
@@ -273,7 +315,7 @@ function LinesTable({ title, lines, isForfait, typeConfig, fmt }: LinesTableProp
 	return (
 		<div>
 			{title && (
-				<p className="text-[10px] uppercase tracking-wider text-violet-500 font-semibold mb-1.5">
+				<p className="text-[10px] uppercase tracking-wider text-emerald-600 font-semibold mb-1.5">
 					{title}
 				</p>
 			)}
