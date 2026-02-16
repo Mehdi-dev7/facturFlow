@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useMemo, useCallback } from "react";
-import { Plus } from "lucide-react";
+import { useState, useMemo, useCallback, useEffect, useRef, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { Plus, Trash2 } from "lucide-react";
 import {
   PageHeader,
   KpiCard,
@@ -12,13 +13,34 @@ import {
   ActionMenuMobile,
   ArchiveSection,
   StatusBadge,
-  parseDate,
-  parseAmount,
 } from "@/components/dashboard";
 import type { KpiData, Column } from "@/components/dashboard";
 import type { InvoiceStatus } from "@/components/dashboard/status-badge";
-import { mockInvoices } from "@/lib/mock-data/invoices";
-import type { Invoice } from "@/lib/mock-data/invoices";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { useInvoices, useDeleteInvoice, type SavedInvoice } from "@/hooks/use-invoices";
+import { InvoicePreviewModal } from "@/components/factures/invoice-preview-modal";
+
+// ─── Types & helpers ──────────────────────────────────────────────────────────
+
+// Ligne de tableau simplifiée pour DataTable
+interface InvoiceRow {
+  id: string;      // UUID DB (pour les actions)
+  number: string;  // N° facture affiché (FAC-2025-0001)
+  client: string;
+  date: string;    // DD/MM/YYYY
+  echeance: string;
+  amount: string;
+  status: InvoiceStatus;
+}
 
 const statusOrder: Record<InvoiceStatus, number> = {
   impayée: 0,
@@ -26,73 +48,141 @@ const statusOrder: Record<InvoiceStatus, number> = {
   payée: 2,
 };
 
-function getMonthKey(dateStr: string): string {
-  const [day, month, year] = dateStr.split("/");
-  return `${year}-${month}`;
+function mapDocStatus(status: string): InvoiceStatus {
+  switch (status) {
+    case "PAID": return "payée";
+    case "OVERDUE": return "impayée";
+    default: return "en attente";
+  }
 }
 
-export default function InvoicesPage() {
+function getClientName(client: SavedInvoice["client"]): string {
+  if (client.companyName) return client.companyName;
+  const parts = [client.firstName, client.lastName].filter(Boolean);
+  return parts.join(" ") || client.email;
+}
+
+function formatDateFR(dateStr: string | null): string {
+  if (!dateStr) return "—";
+  return new Date(dateStr).toLocaleDateString("fr-FR");
+}
+
+function formatAmountFR(amount: number): string {
+  return amount.toLocaleString("fr-FR", { minimumFractionDigits: 2 }) + " \u20AC";
+}
+
+function toRow(inv: SavedInvoice): InvoiceRow {
+  return {
+    id: inv.id,
+    number: inv.number,
+    client: getClientName(inv.client),
+    date: formatDateFR(inv.date),
+    echeance: formatDateFR(inv.dueDate),
+    amount: formatAmountFR(inv.total),
+    status: mapDocStatus(inv.status),
+  };
+}
+
+function getMonthKey(dateStr: string): string {
+  const d = new Date(dateStr);
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  return `${d.getFullYear()}-${m}`;
+}
+
+// ─── Composant interne qui lit searchParams ────────────────────────────────
+
+function InvoicesPageContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const previewId = searchParams.get("preview");
+
   const [search, setSearch] = useState("");
   const [selectedMonth, setSelectedMonth] = useState(() => new Date());
+  const [previewInvoice, setPreviewInvoice] = useState<SavedInvoice | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
 
-  const handleSearch = useCallback((value: string) => {
-    setSearch(value);
-  }, []);
+  // Fetch real data
+  const { data: allInvoices = [], isLoading } = useInvoices();
+  const deleteMutation = useDeleteInvoice();
 
-  const handleMonthChange = useCallback((date: Date) => {
-    setSelectedMonth(date);
-  }, []);
+  // Map DB id → SavedInvoice pour accès rapide
+  const invoiceMap = useMemo(() => {
+    const m = new Map<string, SavedInvoice>();
+    for (const inv of allInvoices) m.set(inv.id, inv);
+    return m;
+  }, [allInvoices]);
 
-  const handleEdit = useCallback((invoice: Invoice) => {
-    // TODO: navigate to edit page
-    console.log("Edit invoice:", invoice.id);
-  }, []);
+  // Ouvrir la modal si ?preview=<id> dans l'URL (après chargement des données)
+  const previewOpenedRef = useRef(false);
+  useEffect(() => {
+    if (!previewId || isLoading || previewOpenedRef.current) return;
+    const inv = invoiceMap.get(previewId);
+    if (inv) {
+      previewOpenedRef.current = true;
+      setPreviewInvoice(inv);
+      setPreviewOpen(true);
+    }
+  }, [previewId, invoiceMap, isLoading]);
 
-  const handleDelete = useCallback((invoice: Invoice) => {
-    // TODO: handle delete
-    console.log("Delete invoice:", invoice.id);
-  }, []);
+  // Nettoyer ?preview= de l'URL quand la modal se ferme
+  const handlePreviewClose = useCallback((open: boolean) => {
+    setPreviewOpen(open);
+    if (!open && previewId) {
+      previewOpenedRef.current = false;
+      router.replace("/dashboard/invoices", { scroll: false });
+    }
+  }, [previewId, router]);
+
+  const handleSearch = useCallback((value: string) => setSearch(value), []);
+  const handleMonthChange = useCallback((date: Date) => setSelectedMonth(date), []);
 
   const selectedMonthKey = useMemo(() => {
-    const m = (selectedMonth.getMonth() + 1).toString().padStart(2, "0");
-    const y = selectedMonth.getFullYear().toString();
-    return `${y}-${m}`;
+    const m = String(selectedMonth.getMonth() + 1).padStart(2, "0");
+    return `${selectedMonth.getFullYear()}-${m}`;
   }, [selectedMonth]);
 
-  // Filter invoices by selected month
-  const monthInvoices = useMemo(() => {
-    return mockInvoices.filter((inv) => getMonthKey(inv.date) === selectedMonthKey);
-  }, [selectedMonthKey]);
+  // Conversion en lignes de tableau
+  const allRows = useMemo(() => allInvoices.map(toRow), [allInvoices]);
 
-  // Search filtering
-  const filteredInvoices = useMemo(() => {
-    if (!search.trim()) return monthInvoices;
+  // Filtrage par mois
+  const monthRows = useMemo(
+    () => allRows.filter((row) => {
+      const inv = invoiceMap.get(row.id);
+      return inv ? getMonthKey(inv.date) === selectedMonthKey : false;
+    }),
+    [allRows, invoiceMap, selectedMonthKey],
+  );
+
+  // Filtrage par recherche
+  const filteredRows = useMemo(() => {
+    if (!search.trim()) return monthRows;
     const q = search.toLowerCase();
-    return monthInvoices.filter(
-      (inv) =>
-        inv.id.toLowerCase().includes(q) ||
-        inv.client.toLowerCase().includes(q) ||
-        inv.status.toLowerCase().includes(q)
+    return monthRows.filter(
+      (row) =>
+        row.number.toLowerCase().includes(q) ||
+        row.client.toLowerCase().includes(q) ||
+        row.status.toLowerCase().includes(q),
     );
-  }, [monthInvoices, search]);
+  }, [monthRows, search]);
 
-  // KPI values computed from current month invoices
+  // KPIs calculés sur le mois courant
   const kpis = useMemo((): KpiData[] => {
-    const total = monthInvoices.length;
-    const paid = monthInvoices.filter((i) => i.status === "payée").length;
-    const pending = monthInvoices.filter((i) => i.status === "en attente").length;
-    const unpaid = monthInvoices.filter((i) => i.status === "impayée").length;
+    const total = monthRows.length;
+    const paid = monthRows.filter((r) => r.status === "payée").length;
+    const pending = monthRows.filter((r) => r.status === "en attente").length;
+    const unpaid = monthRows.filter((r) => r.status === "impayée").length;
 
-    const pendingAmount = monthInvoices
-      .filter((i) => i.status === "en attente")
-      .reduce((sum, i) => sum + parseAmount(i.amount), 0);
-    const unpaidAmount = monthInvoices
-      .filter((i) => i.status === "impayée")
-      .reduce((sum, i) => sum + parseAmount(i.amount), 0);
+    const pendingAmount = monthRows
+      .filter((r) => r.status === "en attente")
+      .reduce((s, r) => s + (invoiceMap.get(r.id)?.total ?? 0), 0);
+    const unpaidAmount = monthRows
+      .filter((r) => r.status === "impayée")
+      .reduce((s, r) => s + (invoiceMap.get(r.id)?.total ?? 0), 0);
 
     const paidPct = total > 0 ? ((paid / total) * 100).toFixed(1) + "%" : "0%";
-    const fmtPending = pendingAmount.toLocaleString("fr-FR", { minimumFractionDigits: 2 }) + " \u20AC";
-    const fmtUnpaid = unpaidAmount.toLocaleString("fr-FR", { minimumFractionDigits: 2 }) + " \u20AC";
+    const fmtPending = formatAmountFR(pendingAmount);
+    const fmtUnpaid = formatAmountFR(unpaidAmount);
 
     return [
       {
@@ -148,42 +238,42 @@ export default function InvoicesPage() {
         darkGradientTo: "#7f1d1d",
       },
     ];
-  }, [monthInvoices]);
+  }, [monthRows, invoiceMap]);
 
-  // Table columns
-  const columns = useMemo((): Column<Invoice>[] => [
+  // Colonnes du tableau
+  const columns = useMemo((): Column<InvoiceRow>[] => [
     {
-      key: "id",
+      key: "number",
       label: "N\u00B0 Facture",
-      render: (inv) => (
+      render: (row) => (
         <span className="text-xs lg:text-sm font-semibold text-violet-600 dark:text-violet-400 group-hover:text-violet-800 transition-colors">
-          {inv.id}
+          {row.number}
         </span>
       ),
     },
     {
       key: "client",
       label: "Client",
-      render: (inv) => (
-        <span className="text-xs lg:text-sm text-slate-700 dark:text-slate-300">{inv.client}</span>
+      render: (row) => (
+        <span className="text-xs lg:text-sm text-slate-700 dark:text-slate-300">{row.client}</span>
       ),
     },
     {
       key: "date",
       label: "\u00C9mission",
       sortable: true,
-      getValue: (inv) => parseDate(inv.date),
-      render: (inv) => (
-        <span className="text-xs lg:text-sm text-slate-500 dark:text-slate-400">{inv.date}</span>
+      getValue: (row) => new Date(row.date.split("/").reverse().join("-")).getTime(),
+      render: (row) => (
+        <span className="text-xs lg:text-sm text-slate-500 dark:text-slate-400">{row.date}</span>
       ),
     },
     {
       key: "echeance",
       label: "\u00C9ch\u00E9ance",
       sortable: true,
-      getValue: (inv) => parseDate(inv.echeance),
-      render: (inv) => (
-        <span className="text-xs lg:text-sm text-slate-500 dark:text-slate-400">{inv.echeance}</span>
+      getValue: (row) => row.echeance !== "—" ? new Date(row.echeance.split("/").reverse().join("-")).getTime() : 0,
+      render: (row) => (
+        <span className="text-xs lg:text-sm text-slate-500 dark:text-slate-400">{row.echeance}</span>
       ),
     },
     {
@@ -191,9 +281,9 @@ export default function InvoicesPage() {
       label: "Montant",
       align: "right" as const,
       sortable: true,
-      getValue: (inv) => parseAmount(inv.amount),
-      render: (inv) => (
-        <span className="text-xs lg:text-sm font-semibold text-slate-900 dark:text-slate-100">{inv.amount}</span>
+      getValue: (row) => invoiceMap.get(row.id)?.total ?? 0,
+      render: (row) => (
+        <span className="text-xs lg:text-sm font-semibold text-slate-900 dark:text-slate-100">{row.amount}</span>
       ),
     },
     {
@@ -201,12 +291,12 @@ export default function InvoicesPage() {
       label: "Statut",
       align: "center" as const,
       sortable: true,
-      getValue: (inv) => statusOrder[inv.status],
-      render: (inv) => <StatusBadge status={inv.status} />,
+      getValue: (row) => statusOrder[row.status],
+      render: (row) => <StatusBadge status={row.status} />,
     },
-  ], []);
+  ], [invoiceMap]);
 
-  // Archive data computed from all invoices
+  // Archive
   const archiveData = useMemo(() => {
     const monthNames = [
       "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
@@ -214,17 +304,16 @@ export default function InvoicesPage() {
     ];
 
     const grouped: Record<number, Record<number, number>> = {};
-    for (const inv of mockInvoices) {
-      const [, month, year] = inv.date.split("/");
-      const y = parseInt(year, 10);
-      const m = parseInt(month, 10);
+    for (const inv of allInvoices) {
+      const d = new Date(inv.date);
+      const y = d.getFullYear();
+      const m = d.getMonth() + 1;
       if (!grouped[y]) grouped[y] = {};
       grouped[y][m] = (grouped[y][m] || 0) + 1;
     }
 
-    // Exclude current month from archives
-    const currentYear = selectedMonth.getFullYear();
-    const currentMonthNum = selectedMonth.getMonth() + 1;
+    const cy = selectedMonth.getFullYear();
+    const cm = selectedMonth.getMonth() + 1;
 
     return Object.entries(grouped)
       .map(([yearStr, months]) => ({
@@ -233,7 +322,7 @@ export default function InvoicesPage() {
           .filter(([mStr]) => {
             const y = parseInt(yearStr, 10);
             const m = parseInt(mStr, 10);
-            return !(y === currentYear && m === currentMonthNum);
+            return !(y === cy && m === cm);
           })
           .map(([mStr, count]) => ({
             month: monthNames[parseInt(mStr, 10) - 1],
@@ -243,18 +332,32 @@ export default function InvoicesPage() {
       }))
       .filter((y) => y.months.length > 0)
       .sort((a, b) => b.year - a.year);
-  }, [selectedMonth]);
+  }, [allInvoices, selectedMonth]);
 
   const handleArchiveSelect = useCallback((year: number, monthName: string) => {
     const monthNames = [
       "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
       "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre",
     ];
-    const monthIndex = monthNames.indexOf(monthName);
-    if (monthIndex >= 0) {
-      setSelectedMonth(new Date(year, monthIndex, 1));
-    }
+    const idx = monthNames.indexOf(monthName);
+    if (idx >= 0) setSelectedMonth(new Date(year, idx, 1));
   }, []);
+
+  // Ouvrir la modal au clic sur une ligne
+  const handleRowClick = useCallback((row: InvoiceRow) => {
+    const inv = invoiceMap.get(row.id);
+    if (inv) {
+      setPreviewInvoice(inv);
+      setPreviewOpen(true);
+    }
+  }, [invoiceMap]);
+
+  // Supprimer avec confirmation
+  const handleDeleteConfirm = useCallback(() => {
+    if (!deleteTargetId) return;
+    deleteMutation.mutate(deleteTargetId);
+    setDeleteTargetId(null);
+  }, [deleteTargetId, deleteMutation]);
 
   return (
     <div>
@@ -288,25 +391,29 @@ export default function InvoicesPage() {
 
       {/* Data Table */}
       <div className="rounded-2xl border border-slate-300/80 dark:border-violet-500/20 shadow-lg shadow-slate-200/50 dark:shadow-violet-950/40 bg-white/75 dark:bg-[#1a1438] backdrop-blur-lg overflow-hidden mb-8">
-        <DataTable<Invoice>
-          data={filteredInvoices}
+        <DataTable<InvoiceRow>
+          data={filteredRows}
           columns={columns}
-          getRowId={(inv) => inv.id}
-          mobileFields={["id", "client"]}
-          actions={(inv) => (
+          getRowId={(row) => row.id}
+          mobileFields={["number", "client"]}
+          actions={(row) => (
             <ActionButtons
-              onEdit={() => handleEdit(inv)}
-              onDelete={() => handleDelete(inv)}
+              onEdit={() => handleRowClick(row)}
+              onDelete={() => setDeleteTargetId(row.id)}
             />
           )}
-          mobileActions={(inv) => (
+          mobileActions={(row) => (
             <ActionMenuMobile
-              onEdit={() => handleEdit(inv)}
-              onDelete={() => handleDelete(inv)}
+              onEdit={() => handleRowClick(row)}
+              onDelete={() => setDeleteTargetId(row.id)}
             />
           )}
-          emptyTitle="Aucune facture trouvée"
-          emptyDescription="Aucune facture ne correspond à votre recherche pour ce mois."
+          emptyTitle={isLoading ? "Chargement…" : "Aucune facture trouvée"}
+          emptyDescription={
+            isLoading
+              ? "Récupération des factures en cours…"
+              : "Aucune facture ne correspond à votre recherche pour ce mois."
+          }
         />
       </div>
 
@@ -314,6 +421,45 @@ export default function InvoicesPage() {
       {archiveData.length > 0 && (
         <ArchiveSection data={archiveData} onSelect={handleArchiveSelect} />
       )}
+
+      {/* Modal aperçu */}
+      <InvoicePreviewModal
+        invoice={previewInvoice}
+        open={previewOpen}
+        onOpenChange={handlePreviewClose}
+      />
+
+      {/* Dialog de confirmation de suppression */}
+      <AlertDialog open={!!deleteTargetId} onOpenChange={(o) => !o && setDeleteTargetId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Supprimer cette facture ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Cette action est irréversible. La facture sera définitivement supprimée.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              <Trash2 className="size-4 mr-1.5" />
+              Supprimer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
+  );
+}
+
+// ─── Page principale avec Suspense pour useSearchParams ──────────────────────
+
+export default function InvoicesPage() {
+  return (
+    <Suspense>
+      <InvoicesPageContent />
+    </Suspense>
   );
 }

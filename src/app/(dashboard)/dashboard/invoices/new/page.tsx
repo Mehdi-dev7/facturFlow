@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useState, useCallback, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft } from "lucide-react";
@@ -14,19 +13,11 @@ import {
 	invoiceFormSchema,
 	type InvoiceFormData,
 	type CompanyInfo,
-	type DraftInvoice,
 } from "@/lib/validations/invoice";
-import { calcInvoiceTotals } from "@/lib/utils/calculs-facture";
-import { mockClients } from "@/lib/mock-data/clients";
+import { getNextInvoiceNumber, saveDraft } from "@/lib/actions/invoices";
+import { useCreateInvoice } from "@/hooks/use-invoices";
 
-const DRAFT_KEY = "facturflow_invoice_draft";
 const AUTOSAVE_INTERVAL = 30_000;
-
-function generateInvoiceNumber(): string {
-	const year = new Date().getFullYear();
-	const count = Math.floor(Math.random() * 900) + 100;
-	return `FAC-${year}-${String(count).padStart(3, "0")}`;
-}
 
 function todayISO(): string {
 	return new Date().toISOString().split("T")[0];
@@ -39,12 +30,16 @@ function dueDateISO(): string {
 }
 
 export default function NewInvoicePage() {
-	const router = useRouter();
-
 	// Tout le state client-only initialisé dans useEffect pour éviter les hydration mismatches
 	const [mounted, setMounted] = useState(false);
 	const [invoiceNumber, setInvoiceNumber] = useState("");
 	const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
+
+	// Mutation de création (gère toast + redirect auto vers /dashboard/invoices?preview=<id>)
+	const createMutation = useCreateInvoice();
+
+	// Ref pour stocker l'ID du brouillon en cours de sauvegarde
+	const draftIdRef = useRef<string | undefined>(undefined);
 
 	const form = useForm<InvoiceFormData>({
 		resolver: zodResolver(invoiceFormSchema),
@@ -63,45 +58,30 @@ export default function NewInvoicePage() {
 		},
 	});
 
-	// Client-only init
+	// ─── Init client-only ──────────────────────────────────────────────────────
 	useEffect(() => {
-		setInvoiceNumber(generateInvoiceNumber());
+		// 1. Récupérer le prochain numéro depuis la DB
+		getNextInvoiceNumber().then((result) => {
+			if (result.success && result.data) {
+				setInvoiceNumber(result.data.number);
+			} else {
+				// Fallback si non connecté
+				const year = new Date().getFullYear();
+				setInvoiceNumber(`FAC-${year}-0001`);
+			}
+		});
 
-		// Load company info
+		// 2. Charger les infos société depuis localStorage
 		try {
 			const savedCompany = localStorage.getItem("facturflow_company");
-			if (savedCompany) setCompanyInfo(JSON.parse(savedCompany));
+			if (savedCompany) setCompanyInfo(JSON.parse(savedCompany) as CompanyInfo);
 		} catch {
 			// ignore
 		}
 
-		// Set dates
+		// 3. Initialiser les dates
 		form.setValue("date", todayISO());
 		form.setValue("dueDate", dueDateISO());
-
-		// Load draft
-		try {
-			const savedDraft = localStorage.getItem(DRAFT_KEY);
-			if (savedDraft) {
-				const draft = JSON.parse(savedDraft) as Partial<InvoiceFormData>;
-				if (draft.lines && draft.lines.length > 0) {
-					// Nettoyer les lignes : supprimer les champs obsolètes (vatRate per-line)
-					const cleanLines = draft.lines.map((l) => ({
-						description: l.description || "",
-						quantity: l.quantity || 1,
-						unitPrice: l.unitPrice || 0,
-						category: l.category,
-					}));
-					form.reset({
-						...form.getValues(),
-						...draft,
-						lines: cleanLines,
-					});
-				}
-			}
-		} catch {
-			localStorage.removeItem(DRAFT_KEY);
-		}
 
 		setMounted(true);
 	}, [form]);
@@ -111,70 +91,39 @@ export default function NewInvoicePage() {
 		localStorage.setItem("facturflow_company", JSON.stringify(data));
 	}, []);
 
-	// Autosave every 30s
+	// ─── Auto-save en DB toutes les 30s ───────────────────────────────────────
 	const intervalRef = useRef<ReturnType<typeof setInterval>>(undefined);
 	useEffect(() => {
 		if (!mounted) return;
-		intervalRef.current = setInterval(() => {
+
+		intervalRef.current = setInterval(async () => {
 			const values = form.getValues();
-			localStorage.setItem(DRAFT_KEY, JSON.stringify(values));
+			// Ne sauvegarder que si au moins une ligne a une description
+			const hasContent = values.lines?.some((l) => l.description?.trim());
+			if (!hasContent) return;
+
+			try {
+				const result = await saveDraft(values, draftIdRef.current);
+				if (result.success && result.data) {
+					draftIdRef.current = result.data.id;
+				}
+			} catch {
+				// Auto-save silencieux : on n'affiche pas d'erreur à l'utilisateur
+			}
 		}, AUTOSAVE_INTERVAL);
+
 		return () => clearInterval(intervalRef.current);
 	}, [form, mounted]);
 
+	// ─── Submit : créer la facture en DB ──────────────────────────────────────
 	const onSubmit = useCallback(
 		(data: InvoiceFormData) => {
-			// Calculs centralisés via l'utilitaire
-			const totals = calcInvoiceTotals({
-				lines: data.lines || [],
-				vatRate: data.vatRate,
-				discountType: data.discountType,
-				discountValue: data.discountValue,
-				depositAmount: data.depositAmount,
-			});
-
-			// Résoudre les données client
-			const resolvedClient = (() => {
-				if (data.newClient) return data.newClient;
-				const found = mockClients.find((c) => c.id === data.clientId);
-				if (found) return { name: found.name, email: found.email, address: found.city, city: found.city };
-				return { name: "", email: "", address: "", city: "" };
-			})();
-
-			const draft: DraftInvoice = {
-				id: invoiceNumber,
-				emitter: companyInfo || { name: "", siret: "", address: "", city: "", email: "" },
-				client: resolvedClient,
-				date: data.date,
-				dueDate: data.dueDate,
-				invoiceType: data.invoiceType ?? "basic",
-				lines: data.lines,
-				vatRate: data.vatRate,
-				subtotal: totals.subtotal,
-				discountAmount: totals.discountAmount,
-				netHT: totals.netHT,
-				taxTotal: totals.taxTotal,
-				total: totals.totalTTC,
-				depositAmount: totals.depositAmount,
-				netAPayer: totals.netAPayer,
-				notes: data.notes,
-				paymentLinks: data.paymentLinks,
-				status: "brouillon",
-			};
-
-			const existing = JSON.parse(
-				localStorage.getItem("facturflow_invoices") || "[]",
-			) as DraftInvoice[];
-			existing.push(draft);
-			localStorage.setItem("facturflow_invoices", JSON.stringify(existing));
-			localStorage.removeItem(DRAFT_KEY);
-
-			router.push("/dashboard/invoices");
+			createMutation.mutate({ data, draftId: draftIdRef.current });
 		},
-		[invoiceNumber, router, companyInfo],
+		[createMutation],
 	);
 
-	// Skeleton de chargement pendant le montage client
+	// ─── Skeleton pendant le montage ──────────────────────────────────────────
 	if (!mounted) {
 		return (
 			<div className="animate-pulse space-y-6">
@@ -203,7 +152,7 @@ export default function NewInvoicePage() {
 						Nouvelle facture
 					</h1>
 					<p className="text-sm text-slate-500 dark:text-violet-400/60">
-						{invoiceNumber}
+						{invoiceNumber || "Chargement…"}
 					</p>
 				</div>
 			</div>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Golos_Text, Kanit, Merriweather } from "next/font/google";
 import { Toaster } from "sonner";
+import { Providers } from "@/components/providers";
 import "./globals.css";
 
 // Inter pour le texte principal
@@ -52,8 +53,10 @@ export default function RootLayout({
   return (
     <html lang="fr" suppressHydrationWarning>
       <body className={`${inter.variable} ${golosText.variable} ${kanit.variable} ${merriweather.variable} antialiased`}>
-        {children}
-        <Toaster richColors position="top-center" />
+        <Providers>
+          {children}
+          <Toaster richColors position="top-center" />
+        </Providers>
       </body>
     </html>
   );

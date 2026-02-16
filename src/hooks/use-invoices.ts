@@ -1,0 +1,160 @@
+"use client";
+
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import {
+  getInvoices,
+  getInvoice,
+  createInvoice,
+  updateInvoice,
+  deleteInvoice,
+  duplicateInvoice,
+  type SavedInvoice,
+} from "@/lib/actions/invoices";
+
+// Re-export pour faciliter l'import depuis d'autres fichiers
+export type { SavedInvoice };
+
+// ─── Hook : liste des factures ────────────────────────────────────────────────
+
+/**
+ * Récupère toutes les factures, avec un filtre optionnel par mois ("YYYY-MM").
+ */
+export function useInvoices(filters?: { month?: string }) {
+  return useQuery({
+    queryKey: ["invoices", filters ?? {}],
+    queryFn: async (): Promise<SavedInvoice[]> => {
+      const result = await getInvoices(filters);
+      if (!result.success) throw new Error(result.error);
+      return result.data as SavedInvoice[];
+    },
+    staleTime: 30_000, // 30 secondes
+  });
+}
+
+// ─── Hook : une facture par ID ────────────────────────────────────────────────
+
+/**
+ * Récupère une facture par son ID. Ne fait rien si l'ID est null.
+ */
+export function useInvoice(id: string | null) {
+  return useQuery({
+    queryKey: ["invoices", id],
+    queryFn: async (): Promise<SavedInvoice> => {
+      const result = await getInvoice(id!);
+      if (!result.success || !result.data) throw new Error(result.error ?? "Facture introuvable");
+      return result.data;
+    },
+    enabled: !!id,
+    staleTime: 30_000,
+  });
+}
+
+// ─── Hook : créer une facture ─────────────────────────────────────────────────
+
+/**
+ * Mutation pour créer une nouvelle facture.
+ * Redirige vers la page de prévisualisation après succès.
+ */
+export function useCreateInvoice() {
+  const queryClient = useQueryClient();
+  const router = useRouter();
+
+  return useMutation({
+    mutationFn: ({
+      data,
+      draftId,
+    }: {
+      data: Parameters<typeof createInvoice>[0];
+      draftId?: string;
+    }) => createInvoice(data, draftId),
+    onSuccess: (result) => {
+      if (result.success && result.data) {
+        queryClient.invalidateQueries({ queryKey: ["invoices"] });
+        toast.success("Facture créée !");
+        router.push(`/dashboard/invoices?preview=${result.data.id}`);
+      } else if (!result.success) {
+        toast.error(result.error ?? "Erreur lors de la création");
+      }
+    },
+    onError: () => toast.error("Erreur lors de la création de la facture"),
+  });
+}
+
+// ─── Hook : mettre à jour une facture ────────────────────────────────────────
+
+/**
+ * Mutation pour mettre à jour une facture existante.
+ * Invalide le cache de la liste et du détail après succès.
+ */
+export function useUpdateInvoice() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: string;
+      data: Parameters<typeof updateInvoice>[1];
+    }) => updateInvoice(id, data),
+    onSuccess: (result, { id }) => {
+      if (result.success) {
+        queryClient.invalidateQueries({ queryKey: ["invoices"] });
+        queryClient.invalidateQueries({ queryKey: ["invoices", id] });
+        toast.success("Facture mise à jour !");
+      } else {
+        toast.error(result.error ?? "Erreur lors de la mise à jour");
+      }
+    },
+    onError: () => toast.error("Erreur lors de la mise à jour"),
+  });
+}
+
+// ─── Hook : supprimer une facture ─────────────────────────────────────────────
+
+/**
+ * Mutation pour supprimer une facture.
+ */
+export function useDeleteInvoice() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => deleteInvoice(id),
+    onSuccess: (result) => {
+      if (result.success) {
+        queryClient.invalidateQueries({ queryKey: ["invoices"] });
+        toast.success("Facture supprimée");
+      } else {
+        toast.error(result.error ?? "Erreur lors de la suppression");
+      }
+    },
+    onError: () => toast.error("Erreur lors de la suppression"),
+  });
+}
+
+// ─── Hook : dupliquer une facture ─────────────────────────────────────────────
+
+/**
+ * Mutation pour dupliquer une facture existante.
+ * Redirige vers la page d'édition du duplicata après succès.
+ */
+export function useDuplicateInvoice() {
+  const queryClient = useQueryClient();
+  const router = useRouter();
+
+  return useMutation({
+    mutationFn: (id: string) => duplicateInvoice(id),
+    onSuccess: (result) => {
+      if (result.success && result.data) {
+        queryClient.invalidateQueries({ queryKey: ["invoices"] });
+        toast.success("Facture dupliquée !");
+        router.push(`/dashboard/invoices/${result.data.id}/edit`);
+      } else {
+        toast.error(result.error ?? "Erreur lors de la duplication");
+      }
+    },
+    onError: () => toast.error("Erreur lors de la duplication"),
+  });
+}
