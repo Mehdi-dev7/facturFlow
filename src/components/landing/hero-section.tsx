@@ -47,7 +47,7 @@ export function HeroSection() {
 						<p className="text-lg xs:text-xl text-slate-600 leading-relaxed max-w-xl">
 							Créez, envoyez et suivez vos factures professionnelles en quelques
 							clics. FacturFlow automatise votre facturation pour que vous
-							puissiez vous concentrer sur votre business.
+							puissiez vous concentrer sur votre activité.
 						</p>
 
 						{/* Features badges avec icônes de validation */}

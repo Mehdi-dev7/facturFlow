@@ -18,6 +18,8 @@ import {
 	type QuickClientData,
 } from "@/lib/validations/invoice";
 import { mockClients, type Client } from "@/lib/mock-data/clients";
+import { SiretLookupInput } from "@/components/shared/siret-lookup-input";
+import type { SiretData } from "@/lib/api/siret-lookup";
 
 interface ClientSearchProps {
 	selectedClientId?: string;
@@ -78,11 +80,24 @@ export function ClientSearch({
 	const {
 		register: registerNew,
 		handleSubmit: handleSubmitNew,
+		setValue: setNewValue,
 		formState: { errors: newErrors },
 		reset: resetNew,
 	} = useForm<QuickClientData>({
 		resolver: zodResolver(quickClientSchema),
 	});
+
+	// Pré-remplit le formulaire quand une entreprise est trouvée via SIRET
+	const handleSiretFound = useCallback(
+		(data: SiretData) => {
+			setNewValue("name", data.name, { shouldDirty: true });
+			setNewValue("address", data.address, { shouldDirty: true });
+			setNewValue("zipCode", data.zipCode, { shouldDirty: true });
+			setNewValue("city", data.city, { shouldDirty: true });
+			setNewValue("siret", data.siret, { shouldDirty: true });
+		},
+		[setNewValue],
+	);
 
 	const onSubmitNew = useCallback(
 		(data: QuickClientData) => {
@@ -252,6 +267,9 @@ export function ClientSearch({
 					</div>
 					<div className="mx-0 h-px bg-linear-to-r from-transparent via-primary/30 dark:via-violet-200/30 to-transparent" />
 					<div className="grid gap-3">
+						{/* SIRET lookup en premier — pré-remplit nom, adresse, ville, code postal */}
+						<SiretLookupInput onFound={handleSiretFound} />
+
 						<div>
 							<Label
 								htmlFor="newClientName"
@@ -291,59 +309,63 @@ export function ClientSearch({
 								</p>
 							)}
 						</div>
-						<div className="grid grid-cols-2 gap-3">
-							<div>
-								<Label
-									htmlFor="newClientAddress"
-									className="text-slate-700 dark:text-violet-200"
-								>
-									Adresse *
-								</Label>
-								<Input
-									id="newClientAddress"
-									{...registerNew("address")}
-									className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50"
-									aria-invalid={!!newErrors.address}
-								/>
-								{newErrors.address && (
-									<p className="text-xs text-red-500 dark:text-red-400 mt-1">
-										{newErrors.address.message}
-									</p>
-								)}
-							</div>
-							<div>
-								<Label
-									htmlFor="newClientCity"
-									className="text-slate-700 dark:text-violet-200"
-								>
-									Ville *
-								</Label>
-								<Input
-									id="newClientCity"
-									{...registerNew("city")}
-									className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50"
-									aria-invalid={!!newErrors.city}
-								/>
-								{newErrors.city && (
-									<p className="text-xs text-red-500 dark:text-red-400 mt-1">
-										{newErrors.city.message}
-									</p>
-								)}
-							</div>
-						</div>
+						<div>
+						<Label
+							htmlFor="newClientAddress"
+							className="text-slate-700 dark:text-violet-200"
+						>
+							Adresse *
+						</Label>
+						<Input
+							id="newClientAddress"
+							{...registerNew("address")}
+							className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50"
+							aria-invalid={!!newErrors.address}
+						/>
+						{newErrors.address && (
+							<p className="text-xs text-red-500 dark:text-red-400 mt-1">
+								{newErrors.address.message}
+							</p>
+						)}
+					</div>
+
+					<div className="grid grid-cols-2 gap-3">
 						<div>
 							<Label
-								htmlFor="newClientSiret"
+								htmlFor="newClientZipCode"
 								className="text-slate-700 dark:text-violet-200"
 							>
-								SIRET (optionnel)
+								Code postal
 							</Label>
 							<Input
-								id="newClientSiret"
-								{...registerNew("siret")}
+								id="newClientZipCode"
+								{...registerNew("zipCode")}
+								placeholder="75001"
+								maxLength={5}
+								inputMode="numeric"
 								className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50"
 							/>
 						</div>
+						<div>
+							<Label
+								htmlFor="newClientCity"
+								className="text-slate-700 dark:text-violet-200"
+							>
+								Ville *
+							</Label>
+							<Input
+								id="newClientCity"
+								{...registerNew("city")}
+								className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50"
+								aria-invalid={!!newErrors.city}
+							/>
+							{newErrors.city && (
+								<p className="text-xs text-red-500 dark:text-red-400 mt-1">
+									{newErrors.city.message}
+								</p>
+							)}
+						</div>
+					</div>
 						<div className="lg:ml-auto">
 							<Button
 								type="button"

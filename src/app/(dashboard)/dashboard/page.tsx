@@ -105,7 +105,7 @@ export default function DashboardPage() {
 					</span>  👋
         </h1>
         <p className="mt-1 text-xs sm:text-sm lg:text-base text-slate-500 dark:text-slate-400">
-          &quot;Facturation, devis et suivi clients — tout est ici&quot;
+          « Facturation, devis et suivi clients — tout est ici »
         </p>
 
         {/* CA + Nouvelle facture */}

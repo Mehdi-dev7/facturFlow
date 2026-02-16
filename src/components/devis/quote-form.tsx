@@ -237,7 +237,7 @@ export function QuoteForm({
 						</Button>
 					</div>
 					{companyInfo ? (
-						<div className="rounded-xl border border-violet-200 dark:border-violet-400/25 bg-violet-50/80 dark:bg-[#251e4d] p-3.5 text-sm shadow-sm">
+						<div className="rounded-xl border border-violet-200 dark:border-violet-400/25 bg-violet-100/60 dark:bg-[#251e4d] p-3.5 text-sm shadow-sm">
 							<p className="font-semibold text-slate-800 dark:text-slate-100">
 								{companyInfo.name}
 							</p>
@@ -377,12 +377,12 @@ export function QuoteForm({
 								<SelectTrigger className={`${inputClass} w-full`}>
 									<SelectValue placeholder="Choisir un type" />
 								</SelectTrigger>
-								<SelectContent className="bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/30">
+								<SelectContent side="bottom" avoidCollisions={false} className="bg-linear-to-b from-violet-100 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/30 rounded-xl shadow-xl dark:shadow-violet-950/50 z-50">
 									{INVOICE_TYPES.map((type) => (
 										<SelectItem
 											key={type}
 											value={type}
-											className="cursor-pointer hover:bg-violet-200/30 dark:hover:bg-violet-500/15 dark:text-slate-100 text-sm"
+											className="cursor-pointer rounded-lg transition-colors text-sm dark:text-slate-100 hover:bg-violet-200/70 data-[highlighted]:bg-violet-200/70 dark:hover:bg-violet-500/25 dark:data-[highlighted]:bg-violet-500/25 data-[highlighted]:text-violet-900 dark:data-[highlighted]:text-slate-50"
 										>
 											{INVOICE_TYPE_LABELS[type]}
 										</SelectItem>
@@ -436,7 +436,7 @@ export function QuoteForm({
 							return (
 								<div
 									key={field.id}
-									className="rounded-xl border border-violet-200 dark:border-violet-400/25 p-3.5 space-y-2.5 bg-violet-50/50 dark:bg-[#251e4d]/70 transition-all duration-300 hover:shadow-md hover:border-violet-300 dark:hover:border-violet-400/40 shadow-sm"
+									className="rounded-xl border border-violet-200 dark:border-violet-400/25 p-3.5 space-y-2.5 bg-violet-100/45 dark:bg-[#251e4d] transition-all duration-300 hover:shadow-md hover:border-violet-300 dark:hover:border-violet-400/40 shadow-sm"
 								>
 									<div className="flex items-start gap-2">
 										<div className="flex-1">
@@ -555,11 +555,11 @@ export function QuoteForm({
 														<SelectTrigger className="h-7 text-xs bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-lg dark:text-slate-50">
 															<SelectValue />
 														</SelectTrigger>
-														<SelectContent className="bg-white dark:bg-[#221c48] border border-primary/20 dark:border-violet-400/30">
-															<SelectItem value="main_oeuvre" className="text-xs cursor-pointer dark:text-slate-100">
+														<SelectContent side="bottom" avoidCollisions={false} className="bg-linear-to-b from-violet-100 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/30 rounded-xl shadow-xl dark:shadow-violet-950/50 z-50">
+															<SelectItem value="main_oeuvre" className="cursor-pointer rounded-lg transition-colors text-xs dark:text-slate-100 hover:bg-violet-200/70 data-[highlighted]:bg-violet-200/70 dark:hover:bg-violet-500/25 dark:data-[highlighted]:bg-violet-500/25 data-[highlighted]:text-violet-900 dark:data-[highlighted]:text-slate-50">
 																Main d'œuvre
 															</SelectItem>
-															<SelectItem value="materiel" className="text-xs cursor-pointer dark:text-slate-100">
+															<SelectItem value="materiel" className="cursor-pointer rounded-lg transition-colors text-xs dark:text-slate-100 hover:bg-violet-200/70 data-[highlighted]:bg-violet-200/70 dark:hover:bg-violet-500/25 dark:data-[highlighted]:bg-violet-500/25 data-[highlighted]:text-violet-900 dark:data-[highlighted]:text-slate-50">
 																Matériaux
 															</SelectItem>
 														</SelectContent>
@@ -640,7 +640,7 @@ export function QuoteForm({
 				<div className={dividerClass} />
 
 				{/* Totaux + TVA + Réduction */}
-				<section className="rounded-xl border border-violet-200 dark:border-violet-400/25 bg-violet-50/80 dark:bg-[#251e4d] p-4 space-y-2 shadow-sm">
+				<section className="rounded-xl border border-violet-200 dark:border-violet-400/25 bg-violet-100/60 dark:bg-[#251e4d] p-4 space-y-2 shadow-sm">
 
 					{/* Sous-total HT */}
 					<div className="flex justify-between text-sm">
@@ -672,12 +672,12 @@ export function QuoteForm({
 										<SelectTrigger className="h-7 w-28 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-lg text-xs text-slate-900 dark:text-slate-50">
 											<SelectValue placeholder="Aucune" />
 										</SelectTrigger>
-										<SelectContent className="bg-white dark:bg-[#221c48] border border-primary/20 dark:border-violet-400/30">
-											<SelectItem value="none" className="text-xs cursor-pointer dark:text-slate-100">Aucune</SelectItem>
-											<SelectItem value="pourcentage" className="text-xs cursor-pointer dark:text-slate-100">
+										<SelectContent side="bottom" avoidCollisions={false} className="bg-linear-to-b from-violet-100 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/30 rounded-xl shadow-xl dark:shadow-violet-950/50 z-50">
+											<SelectItem value="none" className="cursor-pointer rounded-lg transition-colors text-xs dark:text-slate-100 hover:bg-violet-200/70 data-[highlighted]:bg-violet-200/70 dark:hover:bg-violet-500/25 dark:data-[highlighted]:bg-violet-500/25 data-[highlighted]:text-violet-900 dark:data-[highlighted]:text-slate-50">Aucune</SelectItem>
+											<SelectItem value="pourcentage" className="cursor-pointer rounded-lg transition-colors text-xs dark:text-slate-100 hover:bg-violet-200/70 data-[highlighted]:bg-violet-200/70 dark:hover:bg-violet-500/25 dark:data-[highlighted]:bg-violet-500/25 data-[highlighted]:text-violet-900 dark:data-[highlighted]:text-slate-50">
 												Pourcentage (%)
 											</SelectItem>
-											<SelectItem value="montant" className="text-xs cursor-pointer dark:text-slate-100">
+											<SelectItem value="montant" className="cursor-pointer rounded-lg transition-colors text-xs dark:text-slate-100 hover:bg-violet-200/70 data-[highlighted]:bg-violet-200/70 dark:hover:bg-violet-500/25 dark:data-[highlighted]:bg-violet-500/25 data-[highlighted]:text-violet-900 dark:data-[highlighted]:text-slate-50">
 												Montant fixe (€)
 											</SelectItem>
 										</SelectContent>
@@ -737,12 +737,12 @@ export function QuoteForm({
 								<SelectTrigger className="h-7 w-20 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-lg text-xs text-slate-900 dark:text-slate-50">
 									<SelectValue />
 								</SelectTrigger>
-								<SelectContent className="bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/30">
+								<SelectContent side="bottom" avoidCollisions={false} className="bg-linear-to-b from-violet-100 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/30 rounded-xl shadow-xl dark:shadow-violet-950/50 z-50">
 									{VAT_RATES.map((rate) => (
 										<SelectItem
 											key={rate}
 											value={String(rate)}
-											className="cursor-pointer hover:bg-violet-200/30 dark:hover:bg-violet-500/15 dark:text-slate-100 text-xs"
+											className="cursor-pointer rounded-lg transition-colors text-xs dark:text-slate-100 hover:bg-violet-200/70 data-[highlighted]:bg-violet-200/70 dark:hover:bg-violet-500/25 dark:data-[highlighted]:bg-violet-500/25 data-[highlighted]:text-violet-900 dark:data-[highlighted]:text-slate-50"
 										>
 											{rate}%
 										</SelectItem>

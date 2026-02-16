@@ -12,7 +12,7 @@ export function FaqSection() {
     
       {
         question: "Comment configurer le prélèvement SEPA automatique (GoCardless) ?",
-        answer: "1️⃣ Allez dans Paramètres → Paiements\n2️⃣ Cliquez sur 'Connecter GoCardless'\n3️⃣ Créez votre compte GoCardless (gratuit, 2 min) ou connectez-vous\n4️⃣ Autorisez FacturFlow → Badge 'SEPA activé' apparaît\n\nEnsuite, lors de la création d'une facture, sélectionnez 'Prélèvement SEPA' comme mode de paiement. Votre client recevra un email pour signer le mandat (IBAN + autorisation). Après 3-5 jours d'activation, les prélèvements sont automatiques chaque mois."
+        answer: "1️⃣ Allez dans Paramètres → Paiements\n2️⃣ Cliquez sur 'Connecter GoCardless'\n3️⃣ Créez votre compte GoCardless (gratuit, 2 min) ou connectez-vous\n4️⃣ Autorisez FacturFlow → Badge 'SEPA activé' apparaît\n\nEnsuite, lors de la création d'une facture, sélectionnez 'Prélèvement SEPA' comme mode de paiement. Votre client recevra un email pour signer le mandat (IBAN + autorisation). Après 3 à 5 jours d'activation, les prélèvements sont automatiques chaque mois."
       },
       {
         question: "Comment activer les paiements par carte bancaire (Stripe) ?",
@@ -36,7 +36,7 @@ export function FaqSection() {
       },
       {
         question: "Que se passe-t-il si je dépasse 10 factures/mois en plan Free ?",
-        answer: "Vous recevrez un email 2 jours avant d'atteindre la limite (8/10 factures).\n\nSi vous atteignez 10/10 :\n→ Vous ne pourrez plus créer de nouvelles factures ce mois-ci\n→ Vos factures existantes restent accessibles\n→ Vous pouvez upgrader vers Pro à tout moment (transition instantanée)\n\nLe compteur se réinitialise le 1er de chaque mois.\n\n💡 Astuce : Passez au plan Pro (14€/mois) pour factures illimitées + SEPA + relances automatiques + suivi des paiements etc..."
+        answer: "Vous recevrez un email 2 jours avant d'atteindre la limite (8/10 factures).\n\nSi vous atteignez 10/10 :\n→ Vous ne pourrez plus créer de nouvelles factures ce mois-ci\n→ Vos factures existantes restent accessibles\n→ Vous pouvez upgrader vers Pro à tout moment (transition instantanée)\n\nLe compteur se réinitialise le 1er de chaque mois.\n\n💡 Astuce : Passez au plan Pro (14€/mois) pour factures illimitées + SEPA + relances automatiques + suivi des paiements, etc."
       },
       {
         question: "Comment fonctionnent les factures récurrentes avec SEPA ?",

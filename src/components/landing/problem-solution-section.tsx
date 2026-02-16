@@ -180,7 +180,7 @@ export function ProblemSolutionSection() {
                   {({ countUpRef }) => <span ref={countUpRef} />}
                 </CountUp>
               </p>
-              <p className="text-slate-600 font-ui">relance nécessaire</p>
+              <p className="text-slate-600 font-ui">relances nécessaires</p>
             </div>
           </div>
         </div>

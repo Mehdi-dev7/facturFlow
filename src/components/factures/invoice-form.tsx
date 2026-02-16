@@ -49,9 +49,9 @@ const dividerClass =
 const inputClass =
 	"bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-violet-300/50 autofill:shadow-[inset_0_0_0_30px_white] dark:autofill:shadow-[inset_0_0_0_30px_#2a2254] autofill:[-webkit-text-fill-color:theme(--color-slate-900)] dark:autofill:[-webkit-text-fill-color:theme(--color-slate-50)]";
 const selectContentClass =
-	"bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/30";
+	"bg-linear-to-b from-violet-100 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/30 rounded-xl shadow-xl dark:shadow-violet-950/50 z-50";
 const selectItemClass =
-	"cursor-pointer hover:bg-violet-200/30 dark:hover:bg-violet-500/15 dark:text-slate-100 text-xs";
+	"cursor-pointer rounded-lg transition-colors text-xs dark:text-slate-100 hover:bg-violet-200/70 data-[highlighted]:bg-violet-200/70 dark:hover:bg-violet-500/25 dark:data-[highlighted]:bg-violet-500/25 data-[highlighted]:text-violet-900 dark:data-[highlighted]:text-slate-50";
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -188,7 +188,7 @@ export function InvoiceForm({
 						</Button>
 					</div>
 					{companyInfo ? (
-						<div className="rounded-xl border border-violet-200 dark:border-violet-400/25 bg-violet-50/80 dark:bg-[#251e4d] p-3.5 text-sm shadow-sm">
+						<div className="rounded-xl border border-violet-200 dark:border-violet-400/25 bg-violet-100/60 dark:bg-[#251e4d] p-3.5 text-sm shadow-sm">
 							<p className="font-semibold text-slate-800 dark:text-slate-100">{companyInfo.name}</p>
 							<p className="text-slate-500 dark:text-violet-300/80 mt-0.5">SIRET : {companyInfo.siret}</p>
 							<p className="text-slate-500 dark:text-violet-300/80">
@@ -305,7 +305,7 @@ export function InvoiceForm({
 								<SelectTrigger className={`h-9 w-full ${inputClass}`}>
 									<SelectValue placeholder="Choisir un type…" />
 								</SelectTrigger>
-								<SelectContent className={selectContentClass}>
+								<SelectContent side="bottom" avoidCollisions={false} className={selectContentClass}>
 									{INVOICE_TYPES.map((t) => (
 										<SelectItem key={t} value={t} className={selectItemClass}>
 											{INVOICE_TYPE_LABELS[t]}
@@ -355,7 +355,7 @@ export function InvoiceForm({
 							return (
 								<div
 									key={field.id}
-									className="rounded-xl border border-violet-200 dark:border-violet-400/25 p-3.5 space-y-2.5 bg-violet-50/50 dark:bg-[#251e4d]/70 transition-all duration-300 hover:shadow-md hover:border-violet-300 dark:hover:border-violet-400/40 shadow-sm"
+									className="rounded-xl border border-violet-200 dark:border-violet-400/25 p-3.5 space-y-2.5 bg-violet-100/45 dark:bg-[#251e4d] transition-all duration-300 hover:shadow-md hover:border-violet-300 dark:hover:border-violet-400/40 shadow-sm"
 								>
 									{/* Catégorie artisan */}
 									{typeConfig.showCategory && (
@@ -372,7 +372,7 @@ export function InvoiceForm({
 														<SelectTrigger className="h-7 w-44 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-lg text-xs text-slate-900 dark:text-slate-50">
 															<SelectValue />
 														</SelectTrigger>
-														<SelectContent className={selectContentClass}>
+														<SelectContent side="bottom" avoidCollisions={false} className={selectContentClass}>
 															<SelectItem value="main_oeuvre" className={selectItemClass}>
 																Main d'œuvre
 															</SelectItem>
@@ -516,7 +516,7 @@ export function InvoiceForm({
 				<div className={dividerClass} />
 
 				{/* ── Totaux ───────────────────────────────────────────── */}
-				<section className="rounded-xl border border-violet-200 dark:border-violet-400/25 bg-violet-50/80 dark:bg-[#251e4d] p-4 space-y-2 shadow-sm">
+				<section className="rounded-xl border border-violet-200 dark:border-violet-400/25 bg-violet-100/60 dark:bg-[#251e4d] p-4 space-y-2 shadow-sm">
 					{/* Sous-total HT */}
 					<div className="flex justify-between text-sm">
 						<span className="text-slate-500 dark:text-violet-200">Sous-total HT</span>
@@ -542,7 +542,7 @@ export function InvoiceForm({
 										<SelectTrigger className="h-7 w-28 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-lg text-xs text-slate-900 dark:text-slate-50">
 											<SelectValue placeholder="Aucune" />
 										</SelectTrigger>
-										<SelectContent className={selectContentClass}>
+										<SelectContent side="bottom" avoidCollisions={false} className={selectContentClass}>
 											<SelectItem value="none" className={selectItemClass}>Aucune</SelectItem>
 											<SelectItem value="pourcentage" className={selectItemClass}>
 												Pourcentage (%)
@@ -607,7 +607,7 @@ export function InvoiceForm({
 								<SelectTrigger className="h-7 w-20 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-lg text-xs text-slate-900 dark:text-slate-50">
 									<SelectValue />
 								</SelectTrigger>
-								<SelectContent className={selectContentClass}>
+								<SelectContent side="bottom" avoidCollisions={false} className={selectContentClass}>
 									{VAT_RATES.map((rate) => (
 										<SelectItem key={rate} value={String(rate)} className={selectItemClass}>
 											{rate}%

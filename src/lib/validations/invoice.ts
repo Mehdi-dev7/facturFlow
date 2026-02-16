@@ -64,8 +64,8 @@ export const INVOICE_TYPE_CONFIG: Record<
 
 export const invoiceLineSchema = z.object({
 	description: z.string().min(1, "La description est requise"),
-	quantity: z.number().min(0.01, "La quantité doit être positive"),
-	unitPrice: z.number().min(0, "Le prix unitaire doit être positif"),
+	quantity: z.number().min(0.01, "La quantité doit être supérieure à 0"),
+	unitPrice: z.number().min(0, "Le prix unitaire ne peut pas être négatif"),
 	category: z.enum(["main_oeuvre", "materiel"]).optional(), // artisan uniquement
 });
 
@@ -73,6 +73,7 @@ export const quickClientSchema = z.object({
 	name: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
 	email: z.string().email("Email invalide"),
 	address: z.string().min(5, "L'adresse est requise"),
+	zipCode: z.string().optional(),
 	city: z.string().min(2, "La ville est requise"),
 	siret: z.string().optional(),
 });
@@ -81,6 +82,7 @@ export const companyInfoSchema = z.object({
 	name: z.string().min(2, "Le nom de l'entreprise est requis"),
 	siret: z.string().min(14, "Le SIRET doit contenir 14 chiffres").max(14),
 	address: z.string().min(5, "L'adresse est requise"),
+	zipCode: z.string().optional(),
 	city: z.string().min(2, "La ville est requise"),
 	email: z.string().email("Email invalide"),
 	phone: z.string().optional(),

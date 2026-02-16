@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { useSession, signOut } from "@/lib/auth-client";
 import {
 	Sheet,
@@ -62,7 +63,7 @@ interface NavSection {
 }
 
 const dashboardItem: NavItem = {
-	label: "Dashboard",
+	label: "Tableau de bord",
 	href: "/dashboard",
 	icon: LayoutDashboard,
 };
@@ -225,10 +226,12 @@ function UserAvatar({
 }) {
 	if (image) {
 		return (
-			<img
+			<Image
 				src={image}
 				alt={name || "Avatar"}
-				className="h-8 w-8 rounded-full object-cover"
+				width={32}
+				height={32}
+				className="rounded-full object-cover"
 			/>
 		);
 	}
@@ -360,8 +363,8 @@ export default function DashboardLayout({
 						{/* Page title */}
 						<h1 className="text-lg lg:text-2xl font-semibold text-slate-900 dark:text-slate-100">
 							{pathname === "/dashboard"
-								? "Dashboard"
-								: navSections.flatMap((s) => s.items).find((item) => pathname.startsWith(item.href))?.label ?? "Dashboard"}
+								? "Tableau de bord"
+								: navSections.flatMap((s) => s.items).find((item) => pathname.startsWith(item.href))?.label ?? "Tableau de bord"}
 						</h1>
 					</div>
 

@@ -32,7 +32,7 @@ export function SecurePaymentsSection() {
             <span className="text-slate-900">et ultra-sécurisés</span>
           </h2>
           <p className="text-lg xs:text-xl text-slate-600 max-w-2xl mx-auto">
-            Recevez vos paiements plus rapidement avec les leaders mondiaux de la sécurité
+            Recevez vos paiements plus rapidement grâce aux leaders mondiaux de la sécurité
           </p>
         </div>
 
@@ -262,7 +262,7 @@ export function SecurePaymentsSection() {
                 {({ countUpRef }) => <span ref={countUpRef} />}
               </CountUp>x
             </p>
-            <p className="text-slate-600 font-ui">Plus rapide à être payé</p>
+            <p className="text-slate-600 font-ui">Payé 2x plus rapidement</p>
           </div>
           <div className="text-center">
             <p className="text-4xl font-bold font-display text-slate-900 mb-2">

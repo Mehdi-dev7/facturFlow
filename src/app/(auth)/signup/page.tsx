@@ -102,7 +102,7 @@ export default function SignUpPage() {
 				return;
 			}
 
-			toast.success("Compte créé avec succès ! Vérifiez votre email.");
+			toast.success("Compte créé avec succès ! Vérifiez votre e-mail.");
 
 			// Envoyer l'OTP de vérification
 			await authClient.emailOtp.sendVerificationOtp({

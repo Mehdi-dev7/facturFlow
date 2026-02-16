@@ -40,7 +40,7 @@ export function PricingSection() {
       subtitle: "Essai 14 jours puis limité",
       price: "0",
       period: "Gratuit",
-      description: "14j d'essai Pro, puis 10 factures/mois",
+      description: "14 j d'essai Pro, puis 10 factures/mois",
       cta: "Commencer gratuitement",
       popular: false,
       icon: Star,
@@ -62,7 +62,7 @@ export function PricingSection() {
       borderColor: "border-primary/40",
       iconBg: "bg-primary/20",
       iconColor: "text-primary",
-      badge: "⭐ Le + populaire"
+      badge: "⭐ Le plus populaire"
     },
     {
       name: "Business",
@@ -135,7 +135,7 @@ export function PricingSection() {
                 </h3>
                 <div className="text-sm text-amber-700 space-y-1">
                   <p><strong>Entreprises B2B :</strong> Obligatoire septembre 2026 (inclus dans Business)</p>
-                  <p><strong>Freelances & Auto-entrepreneurs & PME B2C :</strong> Obligatoire septembre 2027</p>
+                  <p><strong>Freelances, auto-entrepreneurs et PME B2C :</strong> Obligatoire septembre 2027</p>
                   <p className="text-xs mt-2 text-amber-600">
                     Mise à jour prévue pour le plan Pro en juin 2027
                   </p>

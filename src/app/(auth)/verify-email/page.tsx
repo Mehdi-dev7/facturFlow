@@ -113,7 +113,7 @@ export default function VerifyEmailPage() {
 						</div>
 					</Link>
 					<CardTitle className="text-3xl font-bold text-center text-gradient">
-						Vérification email
+						Vérification de l&apos;e-mail
 					</CardTitle>
 					<CardDescription className="text-center text-base text-slate-600">
 						Un code à 6 chiffres a été envoyé à{" "}
