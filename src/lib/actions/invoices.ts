@@ -729,6 +729,57 @@ export async function getInvoices(filters?: { month?: string }) {
   }
 }
 
+// ─── Action : changer le statut d'une facture ────────────────────────────────
+
+// Transitions autorisées (statut actuel → statuts possibles)
+const ALLOWED_TRANSITIONS: Record<string, string[]> = {
+  DRAFT:    ["SENT", "PAID"],
+  SENT:     ["PAID", "OVERDUE"],
+  OVERDUE:  ["PAID", "REMINDED"],
+  REMINDED: ["PAID"],
+  PAID:     ["SENT", "OVERDUE"], // Retour arrière en cas d'erreur
+};
+
+export async function updateInvoiceStatus(id: string, newStatus: string) {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session?.user?.id) {
+    return { success: false, error: "Non authentifié" } as const;
+  }
+
+  try {
+    // Récupérer la facture (vérification ownership incluse)
+    const doc = await prisma.document.findFirst({
+      where: { id, userId: session.user.id, type: "INVOICE" },
+      select: { status: true },
+    });
+
+    if (!doc) {
+      return { success: false, error: "Facture introuvable" } as const;
+    }
+
+    // Vérifier que la transition est autorisée
+    const allowed = ALLOWED_TRANSITIONS[doc.status] ?? [];
+    if (!allowed.includes(newStatus)) {
+      return {
+        success: false,
+        error: `Transition non autorisée : ${doc.status} → ${newStatus}`,
+      } as const;
+    }
+
+    await prisma.document.update({
+      where: { id },
+      data: { status: newStatus as "DRAFT" | "SENT" | "PAID" | "OVERDUE" | "REMINDED" },
+    });
+
+    revalidatePath("/dashboard/invoices");
+
+    return { success: true } as const;
+  } catch (error) {
+    console.error("[updateInvoiceStatus] Erreur:", error);
+    return { success: false, error: "Erreur lors du changement de statut" } as const;
+  }
+}
+
 // ─── Action : récupérer une facture par ID ───────────────────────────────────
 
 export async function getInvoice(id: string) {

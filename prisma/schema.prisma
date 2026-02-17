@@ -55,6 +55,7 @@ enum DocumentStatus {
   PAID
   PARTIALLY_PAID
   OVERDUE
+  REMINDED
   CANCELLED
 }
 

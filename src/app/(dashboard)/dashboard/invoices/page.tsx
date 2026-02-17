@@ -12,7 +12,6 @@ import {
   ActionButtons,
   ActionMenuMobile,
   ArchiveSection,
-  StatusBadge,
 } from "@/components/dashboard";
 import type { KpiData, Column } from "@/components/dashboard";
 import type { InvoiceStatus } from "@/components/dashboard/status-badge";
@@ -27,6 +26,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useInvoices, useDeleteInvoice, type SavedInvoice } from "@/hooks/use-invoices";
+import { StatusDropdown } from "@/components/dashboard/status-dropdown";
 import { InvoicePreviewModal } from "@/components/factures/invoice-preview-modal";
 
 // ─── Types & helpers ──────────────────────────────────────────────────────────
@@ -40,19 +40,26 @@ interface InvoiceRow {
   echeance: string;
   amount: string;
   status: InvoiceStatus;
+  dbStatus: string; // Statut DB brut pour le dropdown
 }
 
 const statusOrder: Record<InvoiceStatus, number> = {
-  impayée: 0,
-  "en attente": 1,
-  payée: 2,
+  relancée: 0,
+  impayée: 1,
+  envoyée: 2,
+  "en attente": 3,
+  "à envoyer": 4,
+  payée: 5,
 };
 
 function mapDocStatus(status: string): InvoiceStatus {
   switch (status) {
-    case "PAID": return "payée";
-    case "OVERDUE": return "impayée";
-    default: return "en attente";
+    case "DRAFT":    return "à envoyer";
+    case "SENT":     return "envoyée";
+    case "PAID":     return "payée";
+    case "OVERDUE":  return "impayée";
+    case "REMINDED": return "relancée";
+    default:         return "à envoyer";
   }
 }
 
@@ -80,6 +87,7 @@ function toRow(inv: SavedInvoice): InvoiceRow {
     echeance: formatDateFR(inv.dueDate),
     amount: formatAmountFR(inv.total),
     status: mapDocStatus(inv.status),
+    dbStatus: inv.status,
   };
 }
 
@@ -292,7 +300,10 @@ function InvoicesPageContent() {
       align: "center" as const,
       sortable: true,
       getValue: (row) => statusOrder[row.status],
-      render: (row) => <StatusBadge status={row.status} />,
+      // StatusDropdown : badge cliquable avec menu de transition (stoppe la propagation)
+      render: (row) => (
+        <StatusDropdown invoiceId={row.id} dbStatus={row.dbStatus} />
+      ),
     },
   ], [invoiceMap]);
 

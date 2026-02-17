@@ -3,6 +3,7 @@
 // Server action : envoie la facture par email avec le PDF en pièce jointe via Resend
 
 import { headers } from "next/headers";
+import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { resend } from "@/lib/email/resend";
 import { prisma } from "@/lib/prisma";
@@ -188,6 +189,15 @@ export async function sendInvoiceEmail(
     if (error) {
       console.error("[sendInvoiceEmail] Resend error:", error);
       return { success: false, error: "Erreur d'envoi : " + error.message };
+    }
+
+    // 7. Passer le statut à SENT après envoi réussi (si pas déjà PAID)
+    if (doc.status !== "PAID") {
+      await prisma.document.update({
+        where: { id: invoiceId },
+        data: { status: "SENT" },
+      });
+      revalidatePath("/dashboard/invoices");
     }
 
     return { success: true };

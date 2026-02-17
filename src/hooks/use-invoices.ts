@@ -8,6 +8,7 @@ import {
   getInvoice,
   createInvoice,
   updateInvoice,
+  updateInvoiceStatus,
   deleteInvoice,
   duplicateInvoice,
   type SavedInvoice,
@@ -115,6 +116,28 @@ export function useUpdateInvoice() {
       }
     },
     onError: () => toast.error("Erreur lors de la mise à jour"),
+  });
+}
+
+// ─── Hook : changer le statut d'une facture ───────────────────────────────────
+
+/**
+ * Mutation pour changer le statut d'une facture (transitions validées côté serveur).
+ */
+export function useUpdateInvoiceStatus() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, status }: { id: string; status: string }) =>
+      updateInvoiceStatus(id, status),
+    onSuccess: (result) => {
+      if (result.success) {
+        queryClient.invalidateQueries({ queryKey: ["invoices"] });
+      } else {
+        toast.error(result.error ?? "Erreur lors du changement de statut");
+      }
+    },
+    onError: () => toast.error("Erreur lors du changement de statut"),
   });
 }
 

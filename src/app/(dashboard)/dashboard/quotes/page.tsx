@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useMemo, useCallback } from "react";
-import { Plus } from "lucide-react";
+import { useState, useMemo, useCallback, useEffect, useRef, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { Plus, Trash2 } from "lucide-react";
 import {
   PageHeader,
   KpiCard,
@@ -11,86 +12,206 @@ import {
   ActionButtons,
   ActionMenuMobile,
   ArchiveSection,
-  StatusBadge,
-  parseDate,
-  parseAmount,
 } from "@/components/dashboard";
 import type { KpiData, Column } from "@/components/dashboard";
 import type { QuoteStatus } from "@/components/dashboard/status-badge";
-import { mockQuotes } from "@/lib/mock-data/quotes";
-import type { Quote } from "@/lib/mock-data/quotes";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { useQuotes, useDeleteQuote, type SavedQuote } from "@/hooks/use-quotes";
+import { StatusDropdownQuote } from "@/components/dashboard/status-dropdown-quote";
+import { QuotePreviewModal } from "@/components/devis/quote-preview-modal";
 
-const statusOrder: Record<QuoteStatus, number> = {
-  brouillon: 0,
-  "en attente": 1,
-  envoyé: 2,
-  accepté: 3,
-  refusé: 4,
-  expiré: 5,
-};
+// ─── Types & helpers ──────────────────────────────────────────────────────────
 
-function getMonthKey(dateStr: string): string {
-  const [, month, year] = dateStr.split("/");
-  return `${year}-${month}`;
+interface QuoteRow {
+  id: string;
+  number: string;
+  client: string;
+  date: string;
+  validUntil: string;
+  amount: string;
+  status: QuoteStatus;
+  dbStatus: string;
 }
 
-export default function QuotesPage() {
+const statusOrder: Record<QuoteStatus, number> = {
+  "à envoyer": 0,
+  "envoyé": 1,
+  "en attente": 2,
+  "accepté": 3,
+  "refusé": 4,
+  "expiré": 5,
+  "brouillon": 6,
+};
+
+function mapDocStatus(status: string): QuoteStatus {
+  switch (status) {
+    case "DRAFT":     return "à envoyer";
+    case "SENT":      return "envoyé";
+    case "ACCEPTED":  return "accepté";
+    case "REJECTED":  return "refusé";
+    case "CANCELLED": return "expiré";
+    default:          return "à envoyer";
+  }
+}
+
+function getClientName(client: SavedQuote["client"]): string {
+  if (client.companyName) return client.companyName;
+  const parts = [client.firstName, client.lastName].filter(Boolean);
+  return parts.join(" ") || client.email;
+}
+
+function formatDateFR(dateStr: string | null): string {
+  if (!dateStr) return "\u2014";
+  return new Date(dateStr).toLocaleDateString("fr-FR");
+}
+
+function formatAmountFR(amount: number): string {
+  return amount.toLocaleString("fr-FR", { minimumFractionDigits: 2 }) + " \u20AC";
+}
+
+function toRow(q: SavedQuote): QuoteRow {
+  return {
+    id: q.id,
+    number: q.number,
+    client: getClientName(q.client),
+    date: formatDateFR(q.date),
+    validUntil: formatDateFR(q.validUntil),
+    amount: formatAmountFR(q.total),
+    status: mapDocStatus(q.status),
+    dbStatus: q.status,
+  };
+}
+
+function getMonthKey(dateStr: string): string {
+  const d = new Date(dateStr);
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  return `${d.getFullYear()}-${m}`;
+}
+
+// ─── Composant interne qui lit searchParams ────────────────────────────────
+
+function QuotesPageContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const previewId = searchParams.get("preview");
+
   const [search, setSearch] = useState("");
   const [selectedMonth, setSelectedMonth] = useState(() => new Date());
+  const [previewQuote, setPreviewQuote] = useState<SavedQuote | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
 
-  const handleSearch = useCallback((value: string) => {
-    setSearch(value);
-  }, []);
+  // Fetch real data
+  const { data: allQuotes = [], isLoading } = useQuotes();
+  const deleteMutation = useDeleteQuote();
 
-  const handleMonthChange = useCallback((date: Date) => {
-    setSelectedMonth(date);
-  }, []);
+  // Map DB id → SavedQuote pour acces rapide
+  const quoteMap = useMemo(() => {
+    const m = new Map<string, SavedQuote>();
+    for (const q of allQuotes) m.set(q.id, q);
+    return m;
+  }, [allQuotes]);
 
-  const handleEdit = useCallback((quote: Quote) => {
-    // TODO: navigate to edit page
-    console.log("Edit quote:", quote.id);
-  }, []);
+  // Ouvrir la modal si ?preview=<id> dans l'URL
+  const previewOpenedRef = useRef(false);
+  useEffect(() => {
+    if (!previewId || isLoading || previewOpenedRef.current) return;
+    const q = quoteMap.get(previewId);
+    if (q) {
+      previewOpenedRef.current = true;
+      setPreviewQuote(q);
+      setPreviewOpen(true);
+    }
+  }, [previewId, quoteMap, isLoading]);
 
-  const handleDelete = useCallback((quote: Quote) => {
-    // TODO: handle delete
-    console.log("Delete quote:", quote.id);
-  }, []);
+  // Nettoyer ?preview= de l'URL quand la modal se ferme
+  const handlePreviewClose = useCallback((open: boolean) => {
+    setPreviewOpen(open);
+    if (!open && previewId) {
+      previewOpenedRef.current = false;
+      router.replace("/dashboard/quotes", { scroll: false });
+    }
+  }, [previewId, router]);
+
+  const handleSearch = useCallback((value: string) => setSearch(value), []);
+  const handleMonthChange = useCallback((date: Date) => setSelectedMonth(date), []);
 
   const selectedMonthKey = useMemo(() => {
-    const m = (selectedMonth.getMonth() + 1).toString().padStart(2, "0");
-    const y = selectedMonth.getFullYear().toString();
-    return `${y}-${m}`;
+    const m = String(selectedMonth.getMonth() + 1).padStart(2, "0");
+    return `${selectedMonth.getFullYear()}-${m}`;
   }, [selectedMonth]);
 
-  // Filter quotes by selected month
-  const monthQuotes = useMemo(() => {
-    return mockQuotes.filter((q) => getMonthKey(q.date) === selectedMonthKey);
-  }, [selectedMonthKey]);
+  // Conversion en lignes de tableau
+  const allRows = useMemo(() => allQuotes.map(toRow), [allQuotes]);
 
-  // Search filtering
-  const filteredQuotes = useMemo(() => {
-    if (!search.trim()) return monthQuotes;
-    const q = search.toLowerCase();
-    return monthQuotes.filter(
-      (quote) =>
-        quote.id.toLowerCase().includes(q) ||
-        quote.client.toLowerCase().includes(q) ||
-        quote.status.toLowerCase().includes(q)
+  // Filtrage par mois
+  const monthRows = useMemo(
+    () => allRows.filter((row) => {
+      const q = quoteMap.get(row.id);
+      return q ? getMonthKey(q.date) === selectedMonthKey : false;
+    }),
+    [allRows, quoteMap, selectedMonthKey],
+  );
+
+  // Filtrage par recherche
+  const filteredRows = useMemo(() => {
+    if (!search.trim()) return monthRows;
+    const query = search.toLowerCase();
+    return monthRows.filter(
+      (row) =>
+        row.number.toLowerCase().includes(query) ||
+        row.client.toLowerCase().includes(query) ||
+        row.status.toLowerCase().includes(query),
     );
-  }, [monthQuotes, search]);
+  }, [monthRows, search]);
 
-  // KPI values computed from current month quotes
+  // KPIs calcules sur le mois courant
   const kpis = useMemo((): KpiData[] => {
-    const pending = monthQuotes.filter(
-      (q) => q.status === "en attente" || q.status === "envoyé"
-    ).length;
-    const accepted = monthQuotes.filter((q) => q.status === "accepté").length;
+    const total = monthRows.length;
+    const accepted = monthRows.filter((r) => r.status === "accepté").length;
+    const sent = monthRows.filter((r) => r.status === "envoyé").length;
+    const rejected = monthRows.filter((r) => r.status === "refusé").length;
 
     return [
       {
-        label: "Devis en attente",
-        value: String(pending),
-        change: `${pending} devis`,
+        label: "Devis ce mois",
+        value: String(total),
+        change: `${total} devis`,
+        changeType: "up",
+        icon: "file",
+        iconBg: "bg-blue-500",
+        borderAccent: "border-blue-500/30",
+        gradientFrom: "#eff6ff",
+        gradientTo: "#bfdbfe",
+        darkGradientFrom: "#1e1b4b",
+        darkGradientTo: "#1e3a5f",
+      },
+      {
+        label: "Acceptés",
+        value: String(accepted),
+        change: `${accepted} accept\u00E9${accepted > 1 ? "s" : ""}`,
+        changeType: "up",
+        icon: "check",
+        iconBg: "bg-emerald-500",
+        borderAccent: "border-emerald-500/30",
+        gradientFrom: "#ecfdf5",
+        gradientTo: "#a7f3d0",
+        darkGradientFrom: "#1e1b4b",
+        darkGradientTo: "#064e3b",
+      },
+      {
+        label: "Envoyés",
+        value: String(sent),
+        change: `${sent} envoy\u00E9${sent > 1 ? "s" : ""}`,
         changeType: "neutral",
         icon: "clock",
         iconBg: "bg-amber-500",
@@ -101,55 +222,55 @@ export default function QuotesPage() {
         darkGradientTo: "#78350f",
       },
       {
-        label: "Devis acceptés",
-        value: String(accepted),
-        change: `${accepted} accepté${accepted > 1 ? "s" : ""}`,
-        changeType: "up",
-        icon: "check",
-        iconBg: "bg-emerald-500",
-        borderAccent: "border-emerald-500/30",
-        gradientFrom: "#ecfdf5",
-        gradientTo: "#a7f3d0",
+        label: "Refusés",
+        value: String(rejected),
+        change: `${rejected} refus\u00E9${rejected > 1 ? "s" : ""}`,
+        changeType: "down",
+        icon: "alert",
+        iconBg: "bg-red-500",
+        borderAccent: "border-red-500/30",
+        gradientFrom: "#fef2f2",
+        gradientTo: "#fecaca",
         darkGradientFrom: "#1e1b4b",
-        darkGradientTo: "#064e3b",
+        darkGradientTo: "#7f1d1d",
       },
     ];
-  }, [monthQuotes]);
+  }, [monthRows]);
 
-  // Table columns
-  const columns = useMemo((): Column<Quote>[] => [
+  // Colonnes du tableau
+  const columns = useMemo((): Column<QuoteRow>[] => [
     {
-      key: "id",
+      key: "number",
       label: "N\u00B0 Devis",
-      render: (q) => (
+      render: (row) => (
         <span className="text-xs lg:text-sm font-semibold text-violet-600 dark:text-violet-400 group-hover:text-violet-800 transition-colors">
-          {q.id}
+          {row.number}
         </span>
       ),
     },
     {
       key: "client",
       label: "Client",
-      render: (q) => (
-        <span className="text-xs lg:text-sm text-slate-700 dark:text-slate-300">{q.client}</span>
+      render: (row) => (
+        <span className="text-xs lg:text-sm text-slate-700 dark:text-slate-300">{row.client}</span>
       ),
     },
     {
       key: "date",
-      label: "Date",
+      label: "\u00C9mission",
       sortable: true,
-      getValue: (q) => parseDate(q.date),
-      render: (q) => (
-        <span className="text-xs lg:text-sm text-slate-500 dark:text-slate-400">{q.date}</span>
+      getValue: (row) => new Date(row.date.split("/").reverse().join("-")).getTime(),
+      render: (row) => (
+        <span className="text-xs lg:text-sm text-slate-500 dark:text-slate-400">{row.date}</span>
       ),
     },
     {
       key: "validUntil",
-      label: "Valide jusqu'au",
+      label: "Validit\u00E9",
       sortable: true,
-      getValue: (q) => parseDate(q.validUntil),
-      render: (q) => (
-        <span className="text-xs lg:text-sm text-slate-500 dark:text-slate-400">{q.validUntil}</span>
+      getValue: (row) => row.validUntil !== "\u2014" ? new Date(row.validUntil.split("/").reverse().join("-")).getTime() : 0,
+      render: (row) => (
+        <span className="text-xs lg:text-sm text-slate-500 dark:text-slate-400">{row.validUntil}</span>
       ),
     },
     {
@@ -157,9 +278,9 @@ export default function QuotesPage() {
       label: "Montant",
       align: "right" as const,
       sortable: true,
-      getValue: (q) => parseAmount(q.amount),
-      render: (q) => (
-        <span className="text-xs lg:text-sm font-semibold text-slate-900 dark:text-slate-100">{q.amount}</span>
+      getValue: (row) => quoteMap.get(row.id)?.total ?? 0,
+      render: (row) => (
+        <span className="text-xs lg:text-sm font-semibold text-slate-900 dark:text-slate-100">{row.amount}</span>
       ),
     },
     {
@@ -167,29 +288,31 @@ export default function QuotesPage() {
       label: "Statut",
       align: "center" as const,
       sortable: true,
-      getValue: (q) => statusOrder[q.status],
-      render: (q) => <StatusBadge status={q.status} />,
+      getValue: (row) => statusOrder[row.status],
+      render: (row) => (
+        <StatusDropdownQuote quoteId={row.id} dbStatus={row.dbStatus} />
+      ),
     },
-  ], []);
+  ], [quoteMap]);
 
-  // Archive data computed from all quotes
+  // Archive
   const archiveData = useMemo(() => {
     const monthNames = [
-      "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
-      "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre",
+      "Janvier", "F\u00E9vrier", "Mars", "Avril", "Mai", "Juin",
+      "Juillet", "Ao\u00FBt", "Septembre", "Octobre", "Novembre", "D\u00E9cembre",
     ];
 
     const grouped: Record<number, Record<number, number>> = {};
-    for (const q of mockQuotes) {
-      const [, month, year] = q.date.split("/");
-      const y = parseInt(year, 10);
-      const m = parseInt(month, 10);
+    for (const q of allQuotes) {
+      const d = new Date(q.date);
+      const y = d.getFullYear();
+      const m = d.getMonth() + 1;
       if (!grouped[y]) grouped[y] = {};
       grouped[y][m] = (grouped[y][m] || 0) + 1;
     }
 
-    const currentYear = selectedMonth.getFullYear();
-    const currentMonthNum = selectedMonth.getMonth() + 1;
+    const cy = selectedMonth.getFullYear();
+    const cm = selectedMonth.getMonth() + 1;
 
     return Object.entries(grouped)
       .map(([yearStr, months]) => ({
@@ -198,7 +321,7 @@ export default function QuotesPage() {
           .filter(([mStr]) => {
             const y = parseInt(yearStr, 10);
             const m = parseInt(mStr, 10);
-            return !(y === currentYear && m === currentMonthNum);
+            return !(y === cy && m === cm);
           })
           .map(([mStr, count]) => ({
             month: monthNames[parseInt(mStr, 10) - 1],
@@ -208,25 +331,39 @@ export default function QuotesPage() {
       }))
       .filter((y) => y.months.length > 0)
       .sort((a, b) => b.year - a.year);
-  }, [selectedMonth]);
+  }, [allQuotes, selectedMonth]);
 
   const handleArchiveSelect = useCallback((year: number, monthName: string) => {
     const monthNames = [
-      "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
-      "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre",
+      "Janvier", "F\u00E9vrier", "Mars", "Avril", "Mai", "Juin",
+      "Juillet", "Ao\u00FBt", "Septembre", "Octobre", "Novembre", "D\u00E9cembre",
     ];
-    const monthIndex = monthNames.indexOf(monthName);
-    if (monthIndex >= 0) {
-      setSelectedMonth(new Date(year, monthIndex, 1));
-    }
+    const idx = monthNames.indexOf(monthName);
+    if (idx >= 0) setSelectedMonth(new Date(year, idx, 1));
   }, []);
+
+  // Ouvrir la modal au clic sur une ligne
+  const handleRowClick = useCallback((row: QuoteRow) => {
+    const q = quoteMap.get(row.id);
+    if (q) {
+      setPreviewQuote(q);
+      setPreviewOpen(true);
+    }
+  }, [quoteMap]);
+
+  // Supprimer avec confirmation
+  const handleDeleteConfirm = useCallback(() => {
+    if (!deleteTargetId) return;
+    deleteMutation.mutate(deleteTargetId);
+    setDeleteTargetId(null);
+  }, [deleteTargetId, deleteMutation]);
 
   return (
     <div>
       {/* Header */}
       <PageHeader
         title="Devis"
-        subtitle="Créez et gérez vos devis"
+        subtitle="Cr\u00E9ez et g\u00E9rez vos devis"
         ctaLabel="Nouveau devis"
         ctaHref="/dashboard/quotes/new"
         ctaIcon={<Plus className="h-5 w-5" strokeWidth={2.5} />}
@@ -244,7 +381,7 @@ export default function QuotesPage() {
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-6">
         <div className="flex-1">
           <SearchBar
-            placeholder="Rechercher par n°, client, statut..."
+            placeholder="Rechercher par n\u00B0, client, statut..."
             onSearch={handleSearch}
           />
         </div>
@@ -253,25 +390,30 @@ export default function QuotesPage() {
 
       {/* Data Table */}
       <div className="rounded-2xl border border-slate-300/80 dark:border-violet-500/20 shadow-lg shadow-slate-200/50 dark:shadow-violet-950/40 bg-white/75 dark:bg-[#1a1438] backdrop-blur-lg overflow-hidden mb-8">
-        <DataTable<Quote>
-          data={filteredQuotes}
+        <DataTable<QuoteRow>
+          data={filteredRows}
           columns={columns}
-          getRowId={(q) => q.id}
-          mobileFields={["id", "client"]}
-          actions={(q) => (
+          getRowId={(row) => row.id}
+          mobileFields={["number", "client"]}
+          onRowClick={handleRowClick}
+          actions={(row) => (
             <ActionButtons
-              onEdit={() => handleEdit(q)}
-              onDelete={() => handleDelete(q)}
+              onEdit={() => handleRowClick(row)}
+              onDelete={() => setDeleteTargetId(row.id)}
             />
           )}
-          mobileActions={(q) => (
+          mobileActions={(row) => (
             <ActionMenuMobile
-              onEdit={() => handleEdit(q)}
-              onDelete={() => handleDelete(q)}
+              onEdit={() => handleRowClick(row)}
+              onDelete={() => setDeleteTargetId(row.id)}
             />
           )}
-          emptyTitle="Aucun devis trouvé"
-          emptyDescription="Aucun devis ne correspond à votre recherche pour ce mois."
+          emptyTitle={isLoading ? "Chargement\u2026" : "Aucun devis trouv\u00E9"}
+          emptyDescription={
+            isLoading
+              ? "R\u00E9cup\u00E9ration des devis en cours\u2026"
+              : "Aucun devis ne correspond \u00E0 votre recherche pour ce mois."
+          }
         />
       </div>
 
@@ -279,6 +421,45 @@ export default function QuotesPage() {
       {archiveData.length > 0 && (
         <ArchiveSection data={archiveData} onSelect={handleArchiveSelect} />
       )}
+
+      {/* Modal apercu */}
+      <QuotePreviewModal
+        quote={previewQuote}
+        open={previewOpen}
+        onOpenChange={handlePreviewClose}
+      />
+
+      {/* Dialog de confirmation de suppression */}
+      <AlertDialog open={!!deleteTargetId} onOpenChange={(o) => !o && setDeleteTargetId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Supprimer ce devis ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Cette action est irr\u00E9versible. Le devis sera d\u00E9finitivement supprim\u00E9.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              <Trash2 className="size-4 mr-1.5" />
+              Supprimer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
+  );
+}
+
+// ─── Page principale avec Suspense pour useSearchParams ──────────────────────
+
+export default function QuotesPage() {
+  return (
+    <Suspense>
+      <QuotesPageContent />
+    </Suspense>
   );
 }

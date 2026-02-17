@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/update-overdue",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/update-expired-quotes",
+      "schedule": "0 0 * * *"
+    }
+  ]
+}

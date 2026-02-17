@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,19 +14,12 @@ import {
 	quoteFormSchema,
 	type QuoteFormData,
 	type CompanyInfo,
-	type DraftQuote,
 } from "@/lib/validations/quote";
-import { calcInvoiceTotals } from "@/lib/utils/calculs-facture";
-import { mockClients } from "@/lib/mock-data/clients";
+import { getNextQuoteNumber } from "@/lib/actions/quotes";
+import { useCreateQuote } from "@/hooks/use-quotes";
 
 const DRAFT_KEY = "facturflow_quote_draft";
 const AUTOSAVE_INTERVAL = 30_000;
-
-function generateQuoteNumber(): string {
-	const year = new Date().getFullYear();
-	const count = Math.floor(Math.random() * 900) + 100;
-	return `DEV-${year}-${String(count).padStart(3, "0")}`;
-}
 
 function todayISO(): string {
 	return new Date().toISOString().split("T")[0];
@@ -44,6 +37,8 @@ export default function NewQuotePage() {
 	const [mounted, setMounted] = useState(false);
 	const [quoteNumber, setQuoteNumber] = useState("");
 	const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
+
+	const createMutation = useCreateQuote();
 
 	const form = useForm<QuoteFormData>({
 		resolver: zodResolver(quoteFormSchema),
@@ -64,7 +59,12 @@ export default function NewQuotePage() {
 
 	// Client-only init
 	useEffect(() => {
-		setQuoteNumber(generateQuoteNumber());
+		// Charger le numero de devis depuis le serveur
+		getNextQuoteNumber().then((result) => {
+			if (result.success && result.data) {
+				setQuoteNumber(result.data.number);
+			}
+		});
 
 		// Load company info
 		try {
@@ -78,7 +78,7 @@ export default function NewQuotePage() {
 		form.setValue("date", todayISO());
 		form.setValue("validUntil", validUntilISO());
 
-		// Load draft
+		// Load draft from localStorage (brouillon temporaire avant soumission)
 		try {
 			const savedDraft = localStorage.getItem(DRAFT_KEY);
 			if (savedDraft) {
@@ -108,7 +108,7 @@ export default function NewQuotePage() {
 		localStorage.setItem("facturflow_company", JSON.stringify(data));
 	}, []);
 
-	// Autosave every 30s
+	// Autosave every 30s en localStorage (brouillon temporaire)
 	const intervalRef = useRef<ReturnType<typeof setInterval>>(undefined);
 	useEffect(() => {
 		if (!mounted) return;
@@ -121,51 +121,26 @@ export default function NewQuotePage() {
 
 	const onSubmit = useCallback(
 		(data: QuoteFormData) => {
-			const totals = calcInvoiceTotals({
-				lines: data.lines || [],
-				vatRate: data.vatRate,
-				discountType: data.discountType,
-				discountValue: data.discountValue,
-				depositAmount: data.depositAmount,
-			});
-
-			const resolvedClient = (() => {
-				if (data.newClient) return data.newClient;
-				const found = mockClients.find((c) => c.id === data.clientId);
-				if (found) return { name: found.name, email: found.email, address: found.city, city: found.city };
-				return { name: "", email: "", address: "", city: "" };
-			})();
-
-			const draft: DraftQuote = {
-				id: quoteNumber,
-				emitter: companyInfo || { name: "", siret: "", address: "", city: "", email: "" },
-				client: resolvedClient,
+			createMutation.mutate({
+				clientId: data.clientId ?? "",
 				date: data.date,
 				validUntil: data.validUntil,
-				quoteType: data.quoteType ?? "basic",
-				lines: data.lines,
+				lines: data.lines.map((l) => ({ ...l, vatRate: data.vatRate })),
 				vatRate: data.vatRate,
-				subtotal: totals.subtotal,
-				discountAmount: totals.discountAmount,
-				netHT: totals.netHT,
-				taxTotal: totals.taxTotal,
-				total: totals.totalTTC,
-				depositAmount: totals.depositAmount,
-				netAPayer: totals.netAPayer,
+				number: quoteNumber,
 				notes: data.notes,
-				status: "brouillon",
-			};
-
-			const existing = JSON.parse(
-				localStorage.getItem("facturflow_quotes") || "[]",
-			) as DraftQuote[];
-			existing.push(draft);
-			localStorage.setItem("facturflow_quotes", JSON.stringify(existing));
-			localStorage.removeItem(DRAFT_KEY);
-
-			router.push("/dashboard/quotes");
+			}, {
+				onSuccess: (result) => {
+					if (result.success && result.data) {
+						// Supprimer le brouillon localStorage
+						localStorage.removeItem(DRAFT_KEY);
+						// Rediriger vers la liste avec apercu du devis cree
+						router.push(`/dashboard/quotes?preview=${result.data.id}`);
+					}
+				},
+			});
 		},
-		[quoteNumber, router, companyInfo],
+		[createMutation, router],
 	);
 
 	// Skeleton pendant le montage client

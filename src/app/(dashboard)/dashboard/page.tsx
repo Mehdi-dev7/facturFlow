@@ -48,7 +48,7 @@ const recentInvoices: Invoice[] = [
 type SortKey = "date" | "echeance" | "amount" | "status";
 type SortDir = "asc" | "desc";
 
-const statusOrder: Record<InvoiceStatus, number> = { "impayée": 0, "en attente": 1, "payée": 2 };
+const statusOrder: Record<InvoiceStatus, number> = { relancée: 0, impayée: 1, envoyée: 2, "en attente": 3, "à envoyer": 4, payée: 5 };
 
 /* ─── Dashboard Page ─── */
 export default function DashboardPage() {
