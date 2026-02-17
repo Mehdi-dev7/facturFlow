@@ -34,10 +34,10 @@ import {
 	Receipt,
 	FolderOpen,
 	Repeat,
+	Banknote,
 	BarChart3,
 	Building2,
 	CreditCard,
-	LayoutTemplate,
 	Paintbrush,
 	LogOut,
 	ChevronDown,
@@ -76,6 +76,7 @@ const navSections: NavSection[] = [
 		items: [
 			{ label: "Factures", href: "/dashboard/invoices", icon: FileText },
 			{ label: "Devis", href: "/dashboard/quotes", icon: FileCheck },
+			{ label: "Acomptes", href: "/dashboard/acomptes", icon: Banknote },
 			{ label: "Reçus", href: "/dashboard/receipts", icon: Receipt },
 			{ label: "Documents", href: "/dashboard/documents", icon: FolderOpen },
 			{ label: "Récurrences", href: "/dashboard/recurring", icon: Repeat },
@@ -105,7 +106,6 @@ const navSections: NavSection[] = [
 		color: "text-tertiary dark:text-tertiary",
 		activeColor: "border-tertiary bg-tertiary/10 text-tertiary",
 		items: [
-			{ label: "Templates", href: "/dashboard/templates", icon: LayoutTemplate },
 			{ label: "Apparence", href: "/dashboard/appearance", icon: Paintbrush },
 		],
 	},

@@ -578,3 +578,24 @@ Utilise les agents quand :
 - Plusieurs fichiers/domaines sont impactés en parallèle
 - Une feature touche à la fois le front, le back et le SEO
 - Le gain de temps est significatif par rapport au mode solo
+## État du Projet & Reste à faire
+
+### Fonctionnalités implémentées
+- [x] Auth (login, signup, OAuth Google/GitHub/Microsoft)
+- [x] Dashboard layout + sidebar
+- [x] Factures — CRUD complet, PDF, email Resend, statuts, cron OVERDUE
+- [x] Devis — CRUD complet, email Resend (boutons Accepter/Refuser), statuts, cron CANCELLED
+- [x] Acomptes — CRUD, email Resend, automation depuis devis accepté, statuts
+- [x] Clients — CRUD complet, modale création/édition, SIRET lookup
+
+### Reste à faire
+- [ ] **Sidebar** : supprimer "Templates" de Personnalisation
+- [ ] **Mon Compte** : ajouter page profil (email, téléphone, avatar), garder "Mon entreprise"
+- [ ] **Documents complémentaires** : avoirs (CREDIT_NOTE), bons de commande (PURCHASE_ORDER), bons de livraison (DELIVERY_NOTE), proforma (PROFORMA)
+- [ ] **Paiements** : brancher Stripe (CB/Apple Pay/Google Pay), PayPal, GoCardless (SEPA)
+- [ ] **Factures récurrentes** : page /dashboard/recurring, génération auto via cron
+- [ ] **Relances automatiques** : 3 niveaux (FRIENDLY/FIRM/FORMAL), cron sur dueDate
+- [ ] **Templates métiers** : 9 templates visuels pour les PDFs (web dev, designer, artisan…)
+- [ ] **Statistiques** : page /dashboard/stats — CA, TVA collectée, exports URSSAF/FEC
+- [ ] **E-invoicing** : conformité Chorus Pro (sept 2026 entreprises / sept 2027 freelances)
+- [ ] **Tests** : tester envoi email Resend en vrai, tester flux paiement sandbox

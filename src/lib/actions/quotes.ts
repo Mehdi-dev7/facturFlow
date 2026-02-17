@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { calcInvoiceTotals } from "@/lib/utils/calculs-facture";
 import type { QuoteFormData, VatRate } from "@/lib/validations/quote";
+import { createDepositFromQuote } from "./deposits";
 
 // ─── Type exporté (utilisé par les hooks et les modals) ─────────────────────
 
@@ -647,6 +648,22 @@ export async function updateQuoteStatus(id: string, newStatus: string) {
 			where: { id },
 			data: { status: newStatus as "DRAFT" | "SENT" | "ACCEPTED" | "REJECTED" | "CANCELLED" },
 		});
+
+		// Si le devis passe à ACCEPTED et a un depositAmount > 0 → créer l'acompte auto
+		if (newStatus === "ACCEPTED") {
+			const quote = await prisma.document.findFirst({
+				where: { id, type: "QUOTE" },
+				select: { depositAmount: true, clientId: true },
+			});
+			if (quote?.depositAmount && Number(quote.depositAmount) > 0) {
+				const existingDeposit = await prisma.document.findFirst({
+					where: { relatedDocumentId: id, type: "DEPOSIT" },
+				});
+				if (!existingDeposit) {
+					await createDepositFromQuote(id, session.user.id);
+				}
+			}
+		}
 
 		revalidatePath("/dashboard/quotes");
 

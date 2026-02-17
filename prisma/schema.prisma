@@ -38,6 +38,7 @@ enum ProductType {
 enum DocumentType {
   INVOICE
   QUOTE
+  DEPOSIT
   CREDIT_NOTE
   PURCHASE_ORDER
   DELIVERY_NOTE
@@ -123,6 +124,7 @@ model User {
   nextInvoiceNumber Int    @default(1)
   nextQuoteNumber   Int    @default(1)
   nextCreditNumber  Int    @default(1)
+  nextDepositNumber Int    @default(1)
 
   // Payment Terms
   defaultPaymentTerms  Int      @default(30)
