@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { Plus } from "lucide-react";
 import {
   PageHeader,
@@ -9,16 +9,24 @@ import {
   DataTable,
   ActionButtons,
   ActionMenuMobile,
-  parseAmount,
 } from "@/components/dashboard";
 import type { KpiData, Column } from "@/components/dashboard";
-import { mockClients } from "@/lib/mock-data/clients";
-import type { Client } from "@/lib/mock-data/clients";
+import { useClients, useDeleteClient, type SavedClient } from "@/hooks/use-clients";
+import { ClientModal } from "@/components/clients/client-modal";
+
+// ─── Formater un montant en euros ───────────────────────────────────────────
+
+function formatEuros(amount: number): string {
+  return new Intl.NumberFormat("fr-FR", {
+    style: "currency",
+    currency: "EUR",
+  }).format(amount);
+}
 
 /* ─── KPI Data ─── */
-function buildKpiData(clients: Client[]): KpiData[] {
+function buildKpiData(clients: SavedClient[]): KpiData[] {
   const total = clients.length;
-  const recurring = clients.filter((c) => c.hasRecurring).length;
+  const companies = clients.filter((c) => c.type === "entreprise").length;
 
   return [
     {
@@ -35,11 +43,11 @@ function buildKpiData(clients: Client[]): KpiData[] {
       darkGradientTo: "#1e3a5f",
     },
     {
-      label: "Clients récurrents",
-      value: String(recurring),
-      change: `${Math.round((recurring / total) * 100)}% du total`,
+      label: "Entreprises",
+      value: String(companies),
+      change: total > 0 ? `${Math.round((companies / total) * 100)}% du total` : "0%",
       changeType: "up",
-      icon: "repeat",
+      icon: "building",
       iconBg: "bg-amber-500",
       borderAccent: "border-amber-500/30",
       gradientFrom: "#fffbeb",
@@ -51,7 +59,7 @@ function buildKpiData(clients: Client[]): KpiData[] {
 }
 
 /* ─── Type Badge ─── */
-function TypeBadge({ type }: { type: Client["type"] }) {
+function TypeBadge({ type }: { type: SavedClient["type"] }) {
   const isEntreprise = type === "entreprise";
   return (
     <span
@@ -67,7 +75,7 @@ function TypeBadge({ type }: { type: Client["type"] }) {
 }
 
 /* ─── Table Columns ─── */
-const columns: Column<Client>[] = [
+const columns: Column<SavedClient>[] = [
   {
     key: "name",
     label: "Nom / Entreprise",
@@ -102,7 +110,7 @@ const columns: Column<Client>[] = [
     sortable: false,
     render: (c) => (
       <span className="text-xs lg:text-sm text-slate-500 dark:text-slate-400">
-        {c.phone}
+        {c.phone ?? "—"}
       </span>
     ),
   },
@@ -110,10 +118,10 @@ const columns: Column<Client>[] = [
     key: "city",
     label: "Ville",
     sortable: true,
-    getValue: (c) => c.city,
+    getValue: (c) => c.city ?? "",
     render: (c) => (
       <span className="text-xs lg:text-sm text-slate-700 dark:text-slate-300">
-        {c.city}
+        {c.city ?? "—"}
       </span>
     ),
   },
@@ -122,10 +130,10 @@ const columns: Column<Client>[] = [
     label: "Total facturé",
     sortable: true,
     align: "right" as const,
-    getValue: (c) => parseAmount(c.totalInvoiced),
+    getValue: (c) => c.totalInvoiced,
     render: (c) => (
       <span className="text-xs lg:text-sm font-semibold text-slate-900 dark:text-slate-100">
-        {c.totalInvoiced}
+        {formatEuros(c.totalInvoiced)}
       </span>
     ),
   },
@@ -134,30 +142,51 @@ const columns: Column<Client>[] = [
 /* ─── Clients Page ─── */
 export default function ClientsPage() {
   const [search, setSearch] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editClient, setEditClient] = useState<SavedClient | null>(null);
 
-  const kpiData = useMemo(() => buildKpiData(mockClients), []);
+  // Données réelles depuis la DB
+  const { data: clients = [], isLoading } = useClients();
+  const deleteMutation = useDeleteClient();
 
+  const kpiData = useMemo(() => buildKpiData(clients), [clients]);
+
+  // Filtrage local par recherche
   const filteredClients = useMemo(() => {
-    if (!search) return mockClients;
+    if (!search) return clients;
     const q = search.toLowerCase();
-    return mockClients.filter(
+    return clients.filter(
       (c) =>
         c.name.toLowerCase().includes(q) ||
         c.email.toLowerCase().includes(q) ||
-        c.city.toLowerCase().includes(q)
+        (c.city?.toLowerCase().includes(q) ?? false),
     );
-  }, [search]);
+  }, [search, clients]);
 
   const handleSearch = useCallback((value: string) => {
     setSearch(value);
   }, []);
 
-  const handleEdit = useCallback((client: Client) => {
-    console.log("Edit client:", client.id);
+  // Ouvrir la modale en mode édition
+  const handleEdit = useCallback((client: SavedClient) => {
+    setEditClient(client);
+    setModalOpen(true);
   }, []);
 
-  const handleDelete = useCallback((client: Client) => {
-    console.log("Delete client:", client.id);
+  // Supprimer un client
+  const handleDelete = useCallback(
+    (client: SavedClient) => {
+      if (window.confirm(`Supprimer le client "${client.name}" ?`)) {
+        deleteMutation.mutate(client.id);
+      }
+    },
+    [deleteMutation],
+  );
+
+  // Ouvrir la modale en mode création
+  const handleNewClient = useCallback(() => {
+    setEditClient(null);
+    setModalOpen(true);
   }, []);
 
   return (
@@ -167,8 +196,8 @@ export default function ClientsPage() {
         title="Clients"
         subtitle="Gérez votre base clients"
         ctaLabel="Nouveau client"
-        ctaHref="/dashboard/clients/new"
         ctaIcon={<Plus className="h-5 w-5" strokeWidth={2.5} />}
+        onCtaClick={handleNewClient}
       />
 
       {/* KPI Cards */}
@@ -194,7 +223,9 @@ export default function ClientsPage() {
               Liste des clients
             </h2>
             <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">
-              {filteredClients.length} client{filteredClients.length > 1 ? "s" : ""}
+              {isLoading
+                ? "Chargement..."
+                : `${filteredClients.length} client${filteredClients.length > 1 ? "s" : ""}`}
             </p>
           </div>
         </div>
@@ -219,6 +250,13 @@ export default function ClientsPage() {
           emptyDescription="Ajoutez votre premier client pour commencer."
         />
       </div>
+
+      {/* Modale de création/édition */}
+      <ClientModal
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        editClient={editClient}
+      />
     </div>
   );
 }

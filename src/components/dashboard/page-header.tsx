@@ -8,9 +8,12 @@ interface PageHeaderProps {
   title: string;
   subtitle?: string;
   ctaLabel?: string;
+  /** Lien de navigation — ignoré si onCtaClick est fourni */
   ctaHref?: string;
   ctaIcon?: React.ReactNode;
   ctaVariant?: "default" | "gradient" | "outline";
+  /** Callback au clic — remplace la navigation si fourni */
+  onCtaClick?: () => void;
 }
 
 export function PageHeader({
@@ -20,6 +23,7 @@ export function PageHeader({
   ctaHref,
   ctaIcon,
   ctaVariant = "gradient",
+  onCtaClick,
 }: PageHeaderProps) {
   return (
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
@@ -31,21 +35,32 @@ export function PageHeader({
           <p className="mt-1 text-xs sm:text-sm text-slate-500 dark:text-slate-400">{subtitle}</p>
         )}
       </div>
-      {ctaLabel && ctaHref && (
+      {ctaLabel && (ctaHref || onCtaClick) && (
         <div className="lg:ml-auto">
-
-        <Button
-          variant={ctaVariant}
-          size="lg"
-          className="h-11 sm:h-12 px-6 sm:px-8 font-ui text-sm sm:text-base transition-all duration-300 cursor-pointer hover:scale-105 w-auto"
-          asChild
-          >
-          <Link href={ctaHref}>
-            {ctaIcon}
-            {ctaLabel}
-          </Link>
-        </Button>
-          </div>
+          {onCtaClick ? (
+            <Button
+              variant={ctaVariant}
+              size="lg"
+              className="h-11 sm:h-12 px-6 sm:px-8 font-ui text-sm sm:text-base transition-all duration-300 cursor-pointer hover:scale-105 w-auto"
+              onClick={onCtaClick}
+            >
+              {ctaIcon}
+              {ctaLabel}
+            </Button>
+          ) : (
+            <Button
+              variant={ctaVariant}
+              size="lg"
+              className="h-11 sm:h-12 px-6 sm:px-8 font-ui text-sm sm:text-base transition-all duration-300 cursor-pointer hover:scale-105 w-auto"
+              asChild
+            >
+              <Link href={ctaHref!}>
+                {ctaIcon}
+                {ctaLabel}
+              </Link>
+            </Button>
+          )}
+        </div>
       )}
     </div>
   );
