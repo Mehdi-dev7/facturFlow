@@ -557,7 +557,7 @@ export function InvoicePreviewModal({
             <button
               onClick={() => onOpenChange(false)}
               aria-label="Fermer"
-              className="rounded-lg p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:text-slate-200 dark:hover:bg-slate-700/50 transition-colors"
+              className="rounded-lg p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:text-slate-200 dark:hover:bg-slate-700/50 transition-colors cursor-pointer"
             >
               <X size={16} />
             </button>
@@ -569,7 +569,7 @@ export function InvoicePreviewModal({
             <button
               onClick={handlePrint}
               disabled={!invoice}
-              className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-slate-300 text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-slate-300 text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               <Printer size={14} />
               Imprimer
@@ -579,7 +579,7 @@ export function InvoicePreviewModal({
             <button
               onClick={handleDownload}
               disabled={!invoice}
-              className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-sky-300 text-sky-600 hover:bg-sky-50 dark:border-sky-500 dark:text-sky-400 dark:hover:bg-sky-950 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-sky-300 text-sky-600 hover:bg-sky-50 dark:border-sky-500 dark:text-sky-400 dark:hover:bg-sky-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               <Download size={14} />
               Télécharger PDF
@@ -589,7 +589,7 @@ export function InvoicePreviewModal({
             <button
               onClick={handleSend}
               disabled={!invoice || isSending}
-              className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-violet-300 text-violet-600 hover:bg-violet-50 dark:border-violet-500 dark:text-violet-400 dark:hover:bg-violet-950 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-violet-300 text-violet-600 hover:bg-violet-50 dark:border-violet-500 dark:text-violet-400 dark:hover:bg-violet-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               <Send size={14} />
               {isSending ? "Envoi..." : "Envoyer"}
@@ -599,7 +599,7 @@ export function InvoicePreviewModal({
             <button
               onClick={handleDuplicate}
               disabled={!invoice || duplicateMutation.isPending}
-              className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-amber-300 text-amber-600 hover:bg-amber-50 dark:border-amber-500 dark:text-amber-400 dark:hover:bg-amber-950 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-amber-300 text-amber-600 hover:bg-amber-50 dark:border-amber-500 dark:text-amber-400 dark:hover:bg-amber-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               <Copy size={14} />
               {duplicateMutation.isPending ? "Duplication..." : "Dupliquer"}
@@ -609,7 +609,7 @@ export function InvoicePreviewModal({
             <button
               onClick={handleEdit}
               disabled={!invoice}
-              className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-emerald-300 text-emerald-600 hover:bg-emerald-50 dark:border-emerald-500 dark:text-emerald-400 dark:hover:bg-emerald-950 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-emerald-300 text-emerald-600 hover:bg-emerald-50 dark:border-emerald-500 dark:text-emerald-400 dark:hover:bg-emerald-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               <Pencil size={14} />
               Éditer
