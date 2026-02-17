@@ -7,16 +7,18 @@ import {
 	getQuotes,
 	getQuote,
 	createQuote,
+	saveDraftQuote,
 	updateQuote,
 	updateQuoteStatus,
 	deleteQuote,
 	duplicateQuote,
 	type SavedQuote,
-	type CreateQuoteInput,
 } from "@/lib/actions/quotes";
+import type { QuoteFormData } from "@/lib/validations/quote";
 
 // Re-export pour faciliter l'import depuis d'autres fichiers
 export type { SavedQuote };
+export { saveDraftQuote };
 
 // ─── Hook : liste des devis ─────────────────────────────────────────────────
 
@@ -64,7 +66,13 @@ export function useCreateQuote() {
 	const router = useRouter();
 
 	return useMutation({
-		mutationFn: (data: CreateQuoteInput) => createQuote(data),
+		mutationFn: ({
+			data,
+			draftId,
+		}: {
+			data: QuoteFormData;
+			draftId?: string;
+		}) => createQuote(data, draftId),
 		onSuccess: (result) => {
 			if (result.success && result.data) {
 				queryClient.invalidateQueries({ queryKey: ["quotes"] });
@@ -89,7 +97,7 @@ export function useUpdateQuote() {
 	const queryClient = useQueryClient();
 
 	return useMutation({
-		mutationFn: ({ id, data }: { id: string; data: CreateQuoteInput }) =>
+		mutationFn: ({ id, data }: { id: string; data: QuoteFormData }) =>
 			updateQuote(id, data),
 		onSuccess: (result, { id }) => {
 			if (result.success) {

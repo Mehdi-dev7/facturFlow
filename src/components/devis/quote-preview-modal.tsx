@@ -103,11 +103,11 @@ function StaticLinesTable({ title, lines, isForfait, typeConfig }: StaticLinesTa
                 </td>
               )}
               <td className="py-2.5 text-right text-slate-600 dark:text-slate-400">
-                {fmt(line.unitPrice)} \u20AC
+                {fmt(line.unitPrice)} €
               </td>
               {!isForfait && (
                 <td className="py-2.5 text-right font-medium text-slate-800 dark:text-slate-200">
-                  {fmt(line.subtotal)} \u20AC
+                  {fmt(line.subtotal)} €
                 </td>
               )}
             </tr>
@@ -192,7 +192,7 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
           </div>
           <div className="text-right text-sm text-emerald-100">
             <p>Date : {formatDate(quote.date)}</p>
-            <p>Validit\u00E9 : {formatDate(quote.validUntil)}</p>
+            <p>Validité : {formatDate(quote.validUntil)}</p>
           </div>
         </div>
       </div>
@@ -203,7 +203,7 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
           {/* Emetteur */}
           <div>
             <p className="text-[10px] uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1 font-semibold">
-              \u00C9metteur
+              Émetteur
             </p>
             {emitter.companyName ? (
               <div className="text-sm space-y-0.5">
@@ -234,7 +234,7 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
                 )}
               </div>
             ) : (
-              <p className="text-xs text-slate-400 italic">Non renseign\u00E9</p>
+              <p className="text-xs text-slate-400 italic">Non renseigné</p>
             )}
           </div>
 
@@ -311,8 +311,8 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
             {/* Reduction */}
             {discount > 0 && (
               <div className="flex justify-between text-sm">
-                <span className="text-slate-500 dark:text-slate-400">R\u00E9duction</span>
-                <span className="text-rose-600 font-medium">\u2212{fmt(discount)} \u20AC</span>
+                <span className="text-slate-500 dark:text-slate-400">Réduction</span>
+                <span className="text-rose-600 font-medium">−{fmt(discount)} €</span>
               </div>
             )}
 
@@ -320,7 +320,7 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
             <div className="flex justify-between text-sm">
               <span className="text-slate-500 dark:text-slate-400">TVA ({vatRate}%)</span>
               <span className="text-slate-800 dark:text-slate-100 font-medium">
-                {fmt(quote.taxTotal)} \u20AC
+                {fmt(quote.taxTotal)} €
               </span>
             </div>
 
@@ -330,7 +330,7 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
             <div className="flex justify-between text-base font-bold">
               <span className="text-slate-900 dark:text-slate-50">Total TTC</span>
               <span className="text-emerald-600 dark:text-emerald-400">
-                {fmt(quote.total)} \u20AC
+                {fmt(quote.total)} 
               </span>
             </div>
 
@@ -338,10 +338,10 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
             {deposit > 0 && (
               <div className="flex justify-between text-sm pt-1 border-t border-emerald-200 dark:border-emerald-500/30 mt-1">
                 <span className="text-emerald-700 dark:text-emerald-400 font-medium">
-                  Acompte \u00E0 verser
+                  Acompte à verser
                 </span>
                 <span className="text-emerald-700 dark:text-emerald-400 font-bold">
-                  {fmt(deposit)} \u20AC
+                  {fmt(deposit)} €
                 </span>
               </div>
             )}
@@ -358,7 +358,7 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
 
         {/* Footer */}
         <div className="text-center text-[10px] text-slate-400 dark:text-slate-500 pt-4 border-t border-slate-100 dark:border-slate-700">
-          <p>Document g\u00E9n\u00E9r\u00E9 par FacturFlow</p>
+          <p>Document généré par FacturFlow</p>
         </div>
       </div>
     </div>
@@ -466,7 +466,7 @@ export function QuotePreviewModal({
     const result = await sendQuoteEmail(quote.id, emitterFallback);
 
     if (result.success) {
-      toast.success(`Devis envoy\u00E9 \u00E0 ${quote.client.email}`);
+      toast.success(`Devis envoyé à ${quote.client.email}`);
     } else {
       toast.error(result.error ?? "Erreur lors de l'envoi");
     }
@@ -541,19 +541,19 @@ export function QuotePreviewModal({
               {duplicateMutation.isPending ? "Duplication..." : "Dupliquer"}
             </button>
 
-            {/* Editer */}
+            {/* Éditer */}
             <button
               onClick={handleEdit}
               disabled={!quote}
               className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-violet-300 text-violet-600 hover:bg-violet-50 dark:border-violet-500 dark:text-violet-400 dark:hover:bg-violet-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               <Pencil size={14} />
-              \u00C9diter
+              Éditer
             </button>
           </div>
         </DialogHeader>
 
-        {/* Corps scrollable : apercu statique du devis */}
+        {/* Corps scrollable : aperçu statique du devis */}
         <div id="quote-print-area" className="overflow-y-auto max-h-[70vh] p-6">
           {quote ? (
             <QuotePreviewStatic quote={quote} />

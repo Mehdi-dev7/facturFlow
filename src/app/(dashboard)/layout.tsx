@@ -260,6 +260,7 @@ export default function DashboardLayout({
 	const [sidebarOpen, setSidebarOpen] = useState(false);
 	const [collapsed, setCollapsed] = useState(false);
 	const [dark, setDark] = useState(false);
+	const [mounted, setMounted] = useState(false);
 	const pathname = usePathname();
 	const { data: session } = useSession();
 
@@ -268,6 +269,7 @@ export default function DashboardLayout({
 		const isDark = saved === "dark" || (!saved && window.matchMedia("(prefers-color-scheme: dark)").matches);
 		setDark(isDark);
 		document.documentElement.classList.toggle("dark", isDark);
+		setMounted(true);
 	}, []);
 
 	const toggleDark = useCallback(() => {
@@ -326,39 +328,47 @@ export default function DashboardLayout({
 				<header className="flex h-16 shrink-0 items-center justify-between border-b border-slate-200 bg-white px-4 dark:border-slate-800 dark:bg-slate-900 md:px-6">
 					{/* Left: Mobile menu + Page title */}
 					<div className="flex items-center gap-3">
-						{/* Mobile menu */}
-						<Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-							<SheetTrigger asChild>
-								<button
-									className="md:hidden p-2 text-slate-500 hover:text-primary transition-colors cursor-pointer"
-									aria-label="Ouvrir le menu"
+						{/* Mobile menu — rendu client uniquement pour éviter le mismatch d'IDs Radix */}
+						{mounted ? (
+							<Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
+								<SheetTrigger asChild>
+									<button
+										className="md:hidden p-2 text-slate-500 hover:text-primary transition-colors cursor-pointer"
+										aria-label="Ouvrir le menu"
+									>
+										<Menu className="h-5 w-5" strokeWidth={2.5} />
+									</button>
+								</SheetTrigger>
+								<SheetContent
+									side="left"
+									className="w-78 p-0 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800"
 								>
-									<Menu className="h-5 w-5" strokeWidth={2.5} />
-								</button>
-							</SheetTrigger>
-							<SheetContent
-								side="left"
-								className="w-78 p-0 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800"
+									<SheetTitle className="sr-only">
+										Menu de navigation
+									</SheetTitle>
+									<div className="flex h-16 items-center px-6">
+										<span className="text-xl font-semibold text-gradient golos-text font-heading">
+											FacturFlow
+										</span>
+									</div>
+									<div className="mx-6 h-px bg-linear-to-r from-transparent via-primary/30 dark:via-violet-400/30 to-transparent" />
+									<div className="flex-1 overflow-y-auto py-4">
+										<SidebarNav
+											pathname={pathname}
+											onNavigate={() => setSidebarOpen(false)}
+										/>
+									</div>
+								</SheetContent>
+							</Sheet>
+						) : (
+							<button
+								className="md:hidden p-2 text-slate-500"
+								aria-label="Ouvrir le menu"
+								disabled
 							>
-								<SheetTitle className="sr-only">
-									Menu de navigation
-								</SheetTitle>
-								<div className="flex h-16 items-center px-6">
-									<span className="text-xl font-semibold text-gradient golos-text font-heading">
-										FacturFlow
-									</span>
-								</div>
-								<div className="mx-6 h-px bg-linear-to-r from-transparent via-primary/30 dark:via-violet-400/30 to-transparent" />
-								<div className="flex-1 overflow-y-auto py-4">
-									<SidebarNav
-										pathname={pathname}
-										onNavigate={() =>
-											setSidebarOpen(false)
-										}
-									/>
-								</div>
-							</SheetContent>
-						</Sheet>
+								<Menu className="h-5 w-5" strokeWidth={2.5} />
+							</button>
+						)}
 
 						{/* Page title */}
 						<h1 className="text-lg lg:text-2xl font-semibold text-slate-900 dark:text-slate-100">
@@ -378,78 +388,88 @@ export default function DashboardLayout({
 						<Sun className={`h-5 w-5 transition-all duration-300 ${dark ? "rotate-90 scale-0 opacity-0" : "rotate-0 scale-100 opacity-100"}`} />
 						<Moon className={`absolute inset-0 m-auto h-5 w-5 text-slate-200 transition-all duration-300 ${dark ? "rotate-0 scale-100 opacity-100" : "-rotate-90 scale-0 opacity-0"}`} />
 					</button>
-					<DropdownMenu>
-						<DropdownMenuTrigger asChild>
-							<button
-								className="group flex items-center gap-2 rounded-md p-1.5 text-secondary hover:text-primary hover:bg-primary/20 dark:text-slate-200 dark:hover:text-white dark:hover:bg-primary/80 transition-colors cursor-pointer"
-								aria-label="Menu utilisateur"
-							>
-								<UserAvatar
-									name={user?.name}
-									image={user?.image}
-								/>
-								<span className="hidden max-w-30 truncate hover:text-primary dark:text-slate-200 dark:hover:text-white  text-sm font-medium sm:inline-block">
-									{user?.name ?? "Utilisateur"}
-								</span>
-								<ChevronDown className="h-4 w-4 text-slate-500 dark:text-slate-200 dark:hover:text-white" />
-							</button>
-						</DropdownMenuTrigger>
-						<DropdownMenuContent align="end" className="w-64 bg-linear-to-b from-violet-50 via-white to-white dark:from-[#1e1b4b] dark:via-[#1a1438] dark:to-[#1a1438] border border-primary/20 dark:border-violet-500/20 shadow-lg dark:shadow-violet-950/40 rounded-xl p-0 overflow-hidden">
-							{/* User info */}
-							<div className="px-4 py-3">
-								<p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-									{user?.name ?? "Utilisateur"}
-								</p>
-								<p className="text-xs text-muted-foreground truncate dark:text-slate-100">
-									{user?.email ?? ""}
-								</p>
-							</div>
-
-							{/* Séparateur gradient */}
-							<div className="mx-3 h-px bg-linear-to-r from-transparent via-primary/30 dark:via-violet-200/30 to-transparent " />
-
-							{/* Abonnement */}
-							<div className="px-4 py-3">
-								<div className="flex items-center justify-between">
-									<div className="flex items-center gap-2">
-										<Crown className="h-4 w-4 text-primary dark:text-violet-400" />
-										<span className="text-xs font-medium text-slate-700 dark:text-violet-200">
-											Plan Gratuit
-										</span>
-									</div>
-									<Link
-										href="/dashboard/settings"
-										className="flex items-center gap-1 text-xs font-semibold text-primary hover:text-secondary dark:text-violet-400 dark:hover:text-violet-500 transition-colors cursor-pointer"
-									>
-										<Sparkles className="h-3 w-3" />
-										Upgrade
-									</Link>
-								</div>
-							</div>
-
-							{/* Séparateur gradient */}
-							<div className="mx-3 h-px bg-linear-to-r from-transparent via-primary/30 dark:via-violet-200/30 to-transparent" />
-
-							{/* Déconnexion */}
-							<div className="p-1">
-								<DropdownMenuItem
-									onClick={() =>
-										signOut({
-											fetchOptions: {
-												onSuccess: () => {
-													window.location.href = "/";
-												},
-											},
-										})
-									}
-									className="text-red-600 focus:bg-red-50 focus:text-red-600 dark:text-red-400 dark:focus:bg-red-500/10 dark:focus:text-red-400 cursor-pointer rounded-lg"
+					{mounted ? (
+						<DropdownMenu>
+							<DropdownMenuTrigger asChild>
+								<button
+									className="group flex items-center gap-2 rounded-md p-1.5 text-secondary hover:text-primary hover:bg-primary/20 dark:text-slate-200 dark:hover:text-white dark:hover:bg-primary/80 transition-colors cursor-pointer"
+									aria-label="Menu utilisateur"
 								>
-									<LogOut className="mr-2 h-4 w-4" />
-									Déconnexion
-								</DropdownMenuItem>
-							</div>
-						</DropdownMenuContent>
-					</DropdownMenu>
+									<UserAvatar
+										name={user?.name}
+										image={user?.image}
+									/>
+									<span className="hidden max-w-30 truncate hover:text-primary dark:text-slate-200 dark:hover:text-white  text-sm font-medium sm:inline-block">
+										{user?.name ?? "Utilisateur"}
+									</span>
+									<ChevronDown className="h-4 w-4 text-slate-500 dark:text-slate-200 dark:hover:text-white" />
+								</button>
+							</DropdownMenuTrigger>
+							<DropdownMenuContent align="end" className="w-64 bg-linear-to-b from-violet-50 via-white to-white dark:from-[#1e1b4b] dark:via-[#1a1438] dark:to-[#1a1438] border border-primary/20 dark:border-violet-500/20 shadow-lg dark:shadow-violet-950/40 rounded-xl p-0 overflow-hidden">
+								{/* User info */}
+								<div className="px-4 py-3">
+									<p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+										{user?.name ?? "Utilisateur"}
+									</p>
+									<p className="text-xs text-muted-foreground truncate dark:text-slate-100">
+										{user?.email ?? ""}
+									</p>
+								</div>
+
+								{/* Séparateur gradient */}
+								<div className="mx-3 h-px bg-linear-to-r from-transparent via-primary/30 dark:via-violet-200/30 to-transparent " />
+
+								{/* Abonnement */}
+								<div className="px-4 py-3">
+									<div className="flex items-center justify-between">
+										<div className="flex items-center gap-2">
+											<Crown className="h-4 w-4 text-primary dark:text-violet-400" />
+											<span className="text-xs font-medium text-slate-700 dark:text-violet-200">
+												Plan Gratuit
+											</span>
+										</div>
+										<Link
+											href="/dashboard/settings"
+											className="flex items-center gap-1 text-xs font-semibold text-primary hover:text-secondary dark:text-violet-400 dark:hover:text-violet-500 transition-colors cursor-pointer"
+										>
+											<Sparkles className="h-3 w-3" />
+											Upgrade
+										</Link>
+									</div>
+								</div>
+
+								{/* Séparateur gradient */}
+								<div className="mx-3 h-px bg-linear-to-r from-transparent via-primary/30 dark:via-violet-200/30 to-transparent" />
+
+								{/* Déconnexion */}
+								<div className="p-1">
+									<DropdownMenuItem
+										onClick={() =>
+											signOut({
+												fetchOptions: {
+													onSuccess: () => {
+														window.location.href = "/";
+													},
+												},
+											})
+										}
+										className="text-red-600 focus:bg-red-50 focus:text-red-600 dark:text-red-400 dark:focus:bg-red-500/10 dark:focus:text-red-400 cursor-pointer rounded-lg"
+									>
+										<LogOut className="mr-2 h-4 w-4" />
+										Déconnexion
+									</DropdownMenuItem>
+								</div>
+							</DropdownMenuContent>
+						</DropdownMenu>
+					) : (
+						<button
+							className="group flex items-center gap-2 rounded-md p-1.5 text-secondary dark:text-slate-200"
+							aria-label="Menu utilisateur"
+							disabled
+						>
+							<UserAvatar name={user?.name} image={user?.image} />
+						</button>
+					)}
 					</div>
 				</header>
 

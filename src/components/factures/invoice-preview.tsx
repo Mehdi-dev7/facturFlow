@@ -47,7 +47,7 @@ export function InvoicePreview({ form, invoiceNumber, companyInfo }: InvoicePrev
 		depositAmount: depositAmt,
 	});
 
-	const typeConfig = INVOICE_TYPE_CONFIG[invoiceType];
+	const typeConfig = INVOICE_TYPE_CONFIG[invoiceType] ?? INVOICE_TYPE_CONFIG["basic"];
 
 	// ── Helpers ────────────────────────────────────────────────────────────
 	const fmt = (n: number) =>

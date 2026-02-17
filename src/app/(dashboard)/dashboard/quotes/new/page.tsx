@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft } from "lucide-react";
@@ -15,10 +14,9 @@ import {
 	type QuoteFormData,
 	type CompanyInfo,
 } from "@/lib/validations/quote";
-import { getNextQuoteNumber } from "@/lib/actions/quotes";
+import { getNextQuoteNumber, saveDraftQuote } from "@/lib/actions/quotes";
 import { useCreateQuote } from "@/hooks/use-quotes";
 
-const DRAFT_KEY = "facturflow_quote_draft";
 const AUTOSAVE_INTERVAL = 30_000;
 
 function todayISO(): string {
@@ -32,13 +30,17 @@ function validUntilISO(): string {
 }
 
 export default function NewQuotePage() {
-	const router = useRouter();
-
+	// State client-only initialisé dans useEffect pour éviter les hydration mismatches
 	const [mounted, setMounted] = useState(false);
 	const [quoteNumber, setQuoteNumber] = useState("");
 	const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
+	const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
+	// Mutation de création (gère toast + redirect auto vers /dashboard/quotes?preview=<id>)
 	const createMutation = useCreateQuote();
+
+	// Ref pour stocker l'ID du brouillon en cours de sauvegarde
+	const draftIdRef = useRef<string | undefined>(undefined);
 
 	const form = useForm<QuoteFormData>({
 		resolver: zodResolver(quoteFormSchema),
@@ -57,48 +59,30 @@ export default function NewQuotePage() {
 		},
 	});
 
-	// Client-only init
+	// ─── Init client-only ──────────────────────────────────────────────────────
 	useEffect(() => {
-		// Charger le numero de devis depuis le serveur
+		// 1. Récupérer le prochain numéro depuis la DB
 		getNextQuoteNumber().then((result) => {
 			if (result.success && result.data) {
 				setQuoteNumber(result.data.number);
+			} else {
+				// Fallback si non connecté
+				const year = new Date().getFullYear();
+				setQuoteNumber(`DEV-${year}-0001`);
 			}
 		});
 
-		// Load company info
+		// 2. Charger les infos société depuis localStorage
 		try {
 			const savedCompany = localStorage.getItem("facturflow_company");
-			if (savedCompany) setCompanyInfo(JSON.parse(savedCompany));
+			if (savedCompany) setCompanyInfo(JSON.parse(savedCompany) as CompanyInfo);
 		} catch {
 			// ignore
 		}
 
-		// Set dates
+		// 3. Initialiser les dates
 		form.setValue("date", todayISO());
 		form.setValue("validUntil", validUntilISO());
-
-		// Load draft from localStorage (brouillon temporaire avant soumission)
-		try {
-			const savedDraft = localStorage.getItem(DRAFT_KEY);
-			if (savedDraft) {
-				const draft = JSON.parse(savedDraft) as Partial<QuoteFormData>;
-				if (draft.lines && draft.lines.length > 0) {
-					const cleanLines = draft.lines.map((l) => ({
-						description: l.description || "",
-						quantity: l.quantity || 1,
-						unitPrice: l.unitPrice || 0,
-					}));
-					form.reset({
-						...form.getValues(),
-						...draft,
-						lines: cleanLines,
-					});
-				}
-			}
-		} catch {
-			localStorage.removeItem(DRAFT_KEY);
-		}
 
 		setMounted(true);
 	}, [form]);
@@ -108,42 +92,45 @@ export default function NewQuotePage() {
 		localStorage.setItem("facturflow_company", JSON.stringify(data));
 	}, []);
 
-	// Autosave every 30s en localStorage (brouillon temporaire)
+	// ─── Auto-save en DB toutes les 30s ───────────────────────────────────────
 	const intervalRef = useRef<ReturnType<typeof setInterval>>(undefined);
 	useEffect(() => {
 		if (!mounted) return;
-		intervalRef.current = setInterval(() => {
+
+		intervalRef.current = setInterval(async () => {
 			const values = form.getValues();
-			localStorage.setItem(DRAFT_KEY, JSON.stringify(values));
+			// Ne sauvegarder que si au moins une ligne a une description
+			const hasContent = values.lines?.some((l) => l.description?.trim());
+			// Ne sauvegarder que si un client est sélectionné (requis par la DB)
+			const hasClient = values.clientId || values.newClient;
+			if (!hasContent || !hasClient) return;
+
+			try {
+				const result = await saveDraftQuote(values, draftIdRef.current);
+				if (result.success && result.data) {
+					draftIdRef.current = result.data.id;
+					setLastSaved(new Date());
+				} else if (!result.success) {
+					// Log pour debug — l'erreur est silencieuse côté UI
+					console.warn("[Auto-save devis] Échec:", result.error);
+				}
+			} catch (err) {
+				console.warn("[Auto-save devis] Exception:", err);
+			}
 		}, AUTOSAVE_INTERVAL);
+
 		return () => clearInterval(intervalRef.current);
 	}, [form, mounted]);
 
+	// ─── Submit : créer le devis en DB ────────────────────────────────────────
 	const onSubmit = useCallback(
 		(data: QuoteFormData) => {
-			createMutation.mutate({
-				clientId: data.clientId ?? "",
-				date: data.date,
-				validUntil: data.validUntil,
-				lines: data.lines.map((l) => ({ ...l, vatRate: data.vatRate })),
-				vatRate: data.vatRate,
-				number: quoteNumber,
-				notes: data.notes,
-			}, {
-				onSuccess: (result) => {
-					if (result.success && result.data) {
-						// Supprimer le brouillon localStorage
-						localStorage.removeItem(DRAFT_KEY);
-						// Rediriger vers la liste avec apercu du devis cree
-						router.push(`/dashboard/quotes?preview=${result.data.id}`);
-					}
-				},
-			});
+			createMutation.mutate({ data, draftId: draftIdRef.current });
 		},
-		[createMutation, router],
+		[createMutation],
 	);
 
-	// Skeleton pendant le montage client
+	// ─── Skeleton pendant le montage ──────────────────────────────────────────
 	if (!mounted) {
 		return (
 			<div className="animate-pulse space-y-6">
@@ -172,7 +159,12 @@ export default function NewQuotePage() {
 						Nouveau devis
 					</h1>
 					<p className="text-sm text-slate-500 dark:text-violet-400/60">
-						{quoteNumber}
+						{quoteNumber || "Chargement…"}
+						{lastSaved && (
+							<span className="ml-2 text-xs text-emerald-500 dark:text-emerald-400">
+								· Sauvegardé à {lastSaved.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
+							</span>
+						)}
 					</p>
 				</div>
 			</div>
@@ -187,6 +179,7 @@ export default function NewQuotePage() {
 							quoteNumber={quoteNumber}
 							companyInfo={companyInfo}
 							onCompanyChange={handleCompanyChange}
+							isSubmitting={createMutation.isPending}
 						/>
 					</div>
 				</div>

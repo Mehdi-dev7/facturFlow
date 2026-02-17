@@ -43,7 +43,7 @@ export function QuotePreview({ form, quoteNumber, companyInfo, acceptUrl, refuse
 	})();
 
 	const safeLines  = lines || [];
-	const typeConfig = INVOICE_TYPE_CONFIG[quoteType];
+	const typeConfig = INVOICE_TYPE_CONFIG[quoteType] ?? INVOICE_TYPE_CONFIG["basic"];
 	const isForfait  = typeConfig.quantityLabel === null;
 	const isArtisan  = quoteType === "artisan";
 

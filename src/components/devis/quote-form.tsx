@@ -62,6 +62,7 @@ interface QuoteFormProps {
 	quoteNumber: string;
 	companyInfo: CompanyInfo | null;
 	onCompanyChange: (data: CompanyInfo) => void;
+	isSubmitting?: boolean;
 }
 
 export function QuoteForm({
@@ -70,6 +71,7 @@ export function QuoteForm({
 	quoteNumber,
 	companyInfo,
 	onCompanyChange,
+	isSubmitting,
 }: QuoteFormProps) {
 	const {
 		register,
@@ -96,7 +98,7 @@ export function QuoteForm({
 	const discountValue = useWatch({ control, name: "discountValue" }) ?? 0;
 	const depositAmount = useWatch({ control, name: "depositAmount" }) ?? 0;
 
-	const typeConfig = INVOICE_TYPE_CONFIG[quoteType];
+	const typeConfig = INVOICE_TYPE_CONFIG[quoteType] ?? INVOICE_TYPE_CONFIG["basic"];
 	const isForfait  = typeConfig.quantityLabel === null;
 	const isArtisan  = quoteType === "artisan";
 
@@ -440,11 +442,20 @@ export function QuoteForm({
 								>
 									<div className="flex items-start gap-2">
 										<div className="flex-1">
-											<Input
-												placeholder={typeConfig.descriptionLabel}
-												{...register(`lines.${index}.description`)}
-												className={inputClass}
-												aria-invalid={!!lineErrors?.description}
+											<Controller
+												name={`lines.${index}.description`}
+												control={control}
+												render={({ field: f }) => (
+													<Input
+														placeholder={typeConfig.descriptionLabel}
+														value={f.value ?? ""}
+														onChange={(e) => f.onChange(e.target.value)}
+														onBlur={f.onBlur}
+														ref={f.ref}
+														className={inputClass}
+														aria-invalid={!!lineErrors?.description}
+													/>
+												)}
 											/>
 											{lineErrors?.description && (
 												<p className="text-xs text-red-500 dark:text-red-400 mt-1">
@@ -801,9 +812,10 @@ export function QuoteForm({
 					<Button
 						type="submit"
 						variant="gradient"
+						disabled={isSubmitting}
 						className="w-full h-11 cursor-pointer transition-all duration-300 hover:scale-101"
 					>
-						Créer le devis
+						{isSubmitting ? "Création en cours…" : "Créer le devis"}
 					</Button>
 				</div>
 			</form>

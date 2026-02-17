@@ -21,6 +21,17 @@ import { useUpdateQuote, type SavedQuote } from "@/hooks/use-quotes";
 
 // ─── Mapping DB → valeurs du formulaire ───────────────────────────────────────
 
+const VAT_RATES = [0, 5.5, 10, 20] as const;
+type VatRate = (typeof VAT_RATES)[number];
+
+function extractVatRate(meta: Record<string, unknown> | null): VatRate {
+	const raw = meta?.vatRate;
+	if (typeof raw === "number" && (VAT_RATES as readonly number[]).includes(raw)) {
+		return raw as VatRate;
+	}
+	return 20;
+}
+
 function toFormValues(q: SavedQuote): Partial<QuoteFormData> {
 	const rawQuoteType = q.invoiceType ?? "basic";
 	const quoteType = (INVOICE_TYPES.includes(rawQuoteType as (typeof INVOICE_TYPES)[number])
@@ -40,7 +51,7 @@ function toFormValues(q: SavedQuote): Partial<QuoteFormData> {
 			unitPrice: li.unitPrice,
 			category: (li.category === "main_oeuvre" || li.category === "materiel") ? li.category : undefined,
 		})),
-		vatRate: 20,
+		vatRate: extractVatRate(q.businessMetadata),
 		discountType: (q.discountType === "pourcentage" || q.discountType === "montant") ? q.discountType : undefined,
 		discountValue: q.discount ?? 0,
 		depositAmount: q.depositAmount ?? 0,
@@ -132,18 +143,7 @@ export default function EditQuotePage() {
 		(data: QuoteFormData) => {
 			if (!id) return;
 			updateMutation.mutate(
-				{
-					id,
-					data: {
-						clientId: data.clientId ?? "",
-						date: data.date,
-						validUntil: data.validUntil,
-						lines: data.lines.map((l) => ({ ...l, vatRate: data.vatRate })),
-						vatRate: data.vatRate,
-						number: quote?.number ?? "",
-						notes: data.notes,
-					},
-				},
+				{ id, data },
 				{
 					onSuccess: (result) => {
 						if (result.success) {

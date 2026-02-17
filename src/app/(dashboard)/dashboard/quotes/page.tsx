@@ -241,7 +241,7 @@ function QuotesPageContent() {
   const columns = useMemo((): Column<QuoteRow>[] => [
     {
       key: "number",
-      label: "N\u00B0 Devis",
+      label: "N° Devis",
       render: (row) => (
         <span className="text-xs lg:text-sm font-semibold text-violet-600 dark:text-violet-400 group-hover:text-violet-800 transition-colors">
           {row.number}
@@ -257,7 +257,7 @@ function QuotesPageContent() {
     },
     {
       key: "date",
-      label: "\u00C9mission",
+      label: "Émission",
       sortable: true,
       getValue: (row) => new Date(row.date.split("/").reverse().join("-")).getTime(),
       render: (row) => (
@@ -266,9 +266,9 @@ function QuotesPageContent() {
     },
     {
       key: "validUntil",
-      label: "Validit\u00E9",
+      label: "Validité",
       sortable: true,
-      getValue: (row) => row.validUntil !== "\u2014" ? new Date(row.validUntil.split("/").reverse().join("-")).getTime() : 0,
+      getValue: (row) => row.validUntil !== " -2014" ? new Date(row.validUntil.split("/").reverse().join("-")).getTime() : 0,
       render: (row) => (
         <span className="text-xs lg:text-sm text-slate-500 dark:text-slate-400">{row.validUntil}</span>
       ),
@@ -298,8 +298,8 @@ function QuotesPageContent() {
   // Archive
   const archiveData = useMemo(() => {
     const monthNames = [
-      "Janvier", "F\u00E9vrier", "Mars", "Avril", "Mai", "Juin",
-      "Juillet", "Ao\u00FBt", "Septembre", "Octobre", "Novembre", "D\u00E9cembre",
+      "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+      "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre",
     ];
 
     const grouped: Record<number, Record<number, number>> = {};
@@ -335,8 +335,8 @@ function QuotesPageContent() {
 
   const handleArchiveSelect = useCallback((year: number, monthName: string) => {
     const monthNames = [
-      "Janvier", "F\u00E9vrier", "Mars", "Avril", "Mai", "Juin",
-      "Juillet", "Ao\u00FBt", "Septembre", "Octobre", "Novembre", "D\u00E9cembre",
+      "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+      "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre",
     ];
     const idx = monthNames.indexOf(monthName);
     if (idx >= 0) setSelectedMonth(new Date(year, idx, 1));
@@ -363,7 +363,7 @@ function QuotesPageContent() {
       {/* Header */}
       <PageHeader
         title="Devis"
-        subtitle="Cr\u00E9ez et g\u00E9rez vos devis"
+        subtitle="Créez et gérez vos devis"
         ctaLabel="Nouveau devis"
         ctaHref="/dashboard/quotes/new"
         ctaIcon={<Plus className="h-5 w-5" strokeWidth={2.5} />}
@@ -381,7 +381,7 @@ function QuotesPageContent() {
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-6">
         <div className="flex-1">
           <SearchBar
-            placeholder="Rechercher par n\u00B0, client, statut..."
+            placeholder="Rechercher par n°, client, statut..."
             onSearch={handleSearch}
           />
         </div>
@@ -408,11 +408,11 @@ function QuotesPageContent() {
               onDelete={() => setDeleteTargetId(row.id)}
             />
           )}
-          emptyTitle={isLoading ? "Chargement\u2026" : "Aucun devis trouv\u00E9"}
+          emptyTitle={isLoading ? "Chargement..." : "Aucun devis trouvé"}
           emptyDescription={
             isLoading
-              ? "R\u00E9cup\u00E9ration des devis en cours\u2026"
-              : "Aucun devis ne correspond \u00E0 votre recherche pour ce mois."
+              ? "Récupération des devis en cours..."
+              : "Aucun devis ne correspond à votre recherche pour ce mois."
           }
         />
       </div>
@@ -422,7 +422,7 @@ function QuotesPageContent() {
         <ArchiveSection data={archiveData} onSelect={handleArchiveSelect} />
       )}
 
-      {/* Modal apercu */}
+      {/* Modal aperçu */}
       <QuotePreviewModal
         quote={previewQuote}
         open={previewOpen}
@@ -435,7 +435,7 @@ function QuotesPageContent() {
           <AlertDialogHeader>
             <AlertDialogTitle>Supprimer ce devis ?</AlertDialogTitle>
             <AlertDialogDescription>
-              Cette action est irr\u00E9versible. Le devis sera d\u00E9finitivement supprim\u00E9.
+              Cette action est irréversible. Le devis sera définitivement supprimé.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
