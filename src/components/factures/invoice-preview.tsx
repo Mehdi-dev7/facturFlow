@@ -69,8 +69,9 @@ export function InvoicePreview({ form, invoiceNumber, companyInfo }: InvoicePrev
 	const isForfait       = typeConfig.quantityLabel === null;
 
 	// ── Render ─────────────────────────────────────────────────────────────
+	// Conteneur A4 : ratio 210/297 (ISO A4), fond blanc, ombre
 	return (
-		<div className="bg-white rounded-2xl border border-slate-300/80 shadow-lg shadow-slate-200/50 overflow-hidden">
+		<div className="w-full min-h-[800px] bg-white rounded-2xl border border-slate-300/80 shadow-lg shadow-slate-200/50 overflow-hidden flex flex-col">
 			{/* Header */}
 			<div className="bg-linear-to-r from-violet-600 to-indigo-600 px-6 py-5 text-white">
 				<div className="flex items-start justify-between">
@@ -90,7 +91,7 @@ export function InvoicePreview({ form, invoiceNumber, companyInfo }: InvoicePrev
 				</div>
 			</div>
 
-			<div className="p-6 space-y-5">
+			<div className="p-6 flex-1 flex flex-col gap-5">
 				{/* Émetteur & Destinataire */}
 				<div className="grid grid-cols-2 gap-6">
 					<div>
@@ -124,7 +125,7 @@ export function InvoicePreview({ form, invoiceNumber, companyInfo }: InvoicePrev
 					</div>
 				</div>
 
-				<div className="h-px bg-slate-200" />
+				<div className="h-px bg-slate-200 mt-2 mb-1" />
 
 				{/* Lignes — artisan : 2 sections, autres : tableau simple */}
 				{isArtisan ? (
@@ -154,6 +155,9 @@ export function InvoicePreview({ form, invoiceNumber, companyInfo }: InvoicePrev
 						fmt={fmt}
 					/>
 				)}
+
+				{/* Spacer : pousse les totaux vers le bas de la page A4 */}
+				<div className="flex-1" />
 
 				{/* Totaux */}
 				<div className="flex justify-end">

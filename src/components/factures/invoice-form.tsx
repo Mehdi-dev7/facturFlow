@@ -29,6 +29,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { toast } from "sonner";
 import { ClientSearch } from "./client-search";
 import { CompanyInfoModal } from "./company-info-modal";
 import {
@@ -61,6 +62,7 @@ interface InvoiceFormProps {
 	invoiceNumber: string;
 	companyInfo: CompanyInfo | null;
 	onCompanyChange: (data: CompanyInfo) => void;
+	isSubmitting?: boolean;
 }
 
 // ─── Composant ───────────────────────────────────────────────────────────────
@@ -71,6 +73,7 @@ export function InvoiceForm({
 	invoiceNumber,
 	companyInfo,
 	onCompanyChange,
+	isSubmitting = false,
 }: InvoiceFormProps) {
 	const {
 		register,
@@ -139,7 +142,71 @@ export function InvoiceForm({
 
 	const onError = useCallback((formErrors: FieldErrors<InvoiceFormData>) => {
 		console.warn("[InvoiceForm] Validation errors:", formErrors);
-	}, []);
+
+		// Collecter tous les messages d'erreur avec leur label
+		const messages: string[] = [];
+
+		if (formErrors.clientId?.message)
+			messages.push("Destinataire : " + formErrors.clientId.message);
+		if (formErrors.date?.message)
+			messages.push("Date : " + formErrors.date.message);
+		if (formErrors.dueDate?.message)
+			messages.push("Échéance : " + formErrors.dueDate.message);
+
+		// Erreurs dans les lignes
+		type LineErr = { description?: { message?: string }; quantity?: { message?: string }; unitPrice?: { message?: string } };
+		const linesErrors = formErrors.lines as ({ message?: string } & LineErr[]) | undefined;
+		// zodResolver peut retourner un objet {0: ..., 1: ...} ou un vrai array — gérer les deux
+		const lineEntries: [number, LineErr][] = linesErrors
+			? Array.isArray(linesErrors)
+				? (linesErrors as LineErr[]).map((err, i) => [i, err] as [number, LineErr])
+				: Object.entries(linesErrors as Record<string, unknown>)
+						.filter(([k]) => !isNaN(Number(k)))
+						.map(([k, v]) => [Number(k), v] as [number, LineErr])
+			: [];
+
+		if (linesErrors) {
+			if (linesErrors.message) messages.push("Lignes : " + linesErrors.message);
+			for (const [i, lineErr] of lineEntries) {
+				if (!lineErr) continue;
+				const n = i + 1;
+				const le = lineErr as LineErr;
+				if (le.description?.message)
+					messages.push(`Ligne ${n} — ${le.description.message}`);
+				if (le.quantity?.message)
+					messages.push(`Ligne ${n} — Quantité invalide`);
+				if (le.unitPrice?.message)
+					messages.push(`Ligne ${n} — Prix invalide`);
+			}
+		}
+
+		const [first, ...rest] = messages.length > 0
+			? messages
+			: ["Veuillez corriger les erreurs dans le formulaire"];
+
+		toast.error(first, {
+			description: rest.length > 0 ? rest.join(" · ") : undefined,
+			duration: 5000,
+		});
+
+		// Scroller vers le premier champ en erreur
+		if (formErrors.clientId) {
+			document.querySelector("[data-section='client']")?.scrollIntoView({ behavior: "smooth", block: "center" });
+		} else if (formErrors.date) {
+			form.setFocus("date");
+		} else if (formErrors.dueDate) {
+			form.setFocus("dueDate");
+		} else if (linesErrors) {
+			const firstEntry = lineEntries.find(([, e]) => !!e);
+			if (firstEntry) {
+				const [idx, lineErr] = firstEntry;
+				const le = lineErr as LineErr;
+				if (le?.description) form.setFocus(`lines.${idx}.description`);
+				else if (le?.quantity) form.setFocus(`lines.${idx}.quantity`);
+				else if (le?.unitPrice) form.setFocus(`lines.${idx}.unitPrice`);
+			}
+		}
+	}, [form]);
 
 	const handleAddLine = useCallback(() => {
 		append({
@@ -217,7 +284,7 @@ export function InvoiceForm({
 				<div className={dividerClass} />
 
 				{/* ── Destinataire ─────────────────────────────────────── */}
-				<section className="space-y-3">
+				<section className="space-y-3" data-section="client">
 					<h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100">Destinataire</h3>
 					<ClientSearch
 						selectedClientId={clientId}
@@ -389,11 +456,20 @@ export function InvoiceForm({
 									{/* Description + bouton suppr */}
 									<div className="flex items-start gap-2">
 										<div className="flex-1">
-											<Input
-												placeholder={typeConfig.descriptionLabel}
-												{...register(`lines.${index}.description`)}
-												className={inputClass}
-												aria-invalid={!!lineErrors?.description}
+											<Controller
+												name={`lines.${index}.description`}
+												control={control}
+												render={({ field: f }) => (
+													<Input
+														placeholder={typeConfig.descriptionLabel}
+														value={f.value ?? ""}
+														onChange={(e) => f.onChange(e.target.value)}
+														onBlur={f.onBlur}
+														ref={f.ref}
+														className={inputClass}
+														aria-invalid={!!lineErrors?.description}
+													/>
+												)}
 											/>
 											{lineErrors?.description && (
 												<p className="text-xs text-red-500 dark:text-red-400 mt-1">
@@ -432,15 +508,16 @@ export function InvoiceForm({
 													render={({ field: f }) => (
 														<Input
 															type="number"
-															min={0.01}
-															step={0.5}
-															value={f.value || ""}
+															min={0}
+															step="any"
+															value={f.value === 0 ? "" : f.value}
 															onChange={(e) => {
 																const v = e.target.value;
 																f.onChange(v === "" ? 0 : Number(v));
 															}}
 															onBlur={(e) => {
-																if (!e.target.value || Number(e.target.value) < 0.01)
+																const num = Number(e.target.value);
+																if (!e.target.value || num <= 0)
 																	f.onChange(1);
 																f.onBlur();
 															}}
@@ -449,6 +526,9 @@ export function InvoiceForm({
 														/>
 													)}
 												/>
+												{lineErrors?.quantity && (
+													<p className="text-xs text-red-500 dark:text-red-400 mt-1">{lineErrors.quantity.message}</p>
+												)}
 											</div>
 										)}
 
@@ -738,9 +818,10 @@ export function InvoiceForm({
 					<Button
 						type="submit"
 						variant="gradient"
-						className="w-full h-11 cursor-pointer transition-all duration-300 hover:scale-101"
+						disabled={isSubmitting}
+						className="w-full h-11 cursor-pointer transition-all duration-300 hover:scale-101 disabled:opacity-70 disabled:cursor-not-allowed"
 					>
-						Créer la facture
+						{isSubmitting ? "Création en cours…" : "Créer la facture"}
 					</Button>
 				</div>
 			</form>

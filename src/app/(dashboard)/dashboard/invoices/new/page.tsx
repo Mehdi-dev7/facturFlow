@@ -34,6 +34,7 @@ export default function NewInvoicePage() {
 	const [mounted, setMounted] = useState(false);
 	const [invoiceNumber, setInvoiceNumber] = useState("");
 	const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
+	const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
 	// Mutation de création (gère toast + redirect auto vers /dashboard/invoices?preview=<id>)
 	const createMutation = useCreateInvoice();
@@ -100,15 +101,21 @@ export default function NewInvoicePage() {
 			const values = form.getValues();
 			// Ne sauvegarder que si au moins une ligne a une description
 			const hasContent = values.lines?.some((l) => l.description?.trim());
-			if (!hasContent) return;
+			// Ne sauvegarder que si un client est sélectionné (requis par la DB)
+			const hasClient = values.clientId || values.newClient;
+			if (!hasContent || !hasClient) return;
 
 			try {
 				const result = await saveDraft(values, draftIdRef.current);
 				if (result.success && result.data) {
 					draftIdRef.current = result.data.id;
+					setLastSaved(new Date());
+				} else if (!result.success) {
+					// Log pour debug — l'erreur est silencieuse côté UI
+					console.warn("[Auto-save] Échec:", result.error);
 				}
-			} catch {
-				// Auto-save silencieux : on n'affiche pas d'erreur à l'utilisateur
+			} catch (err) {
+				console.warn("[Auto-save] Exception:", err);
 			}
 		}, AUTOSAVE_INTERVAL);
 
@@ -153,6 +160,11 @@ export default function NewInvoicePage() {
 					</h1>
 					<p className="text-sm text-slate-500 dark:text-violet-400/60">
 						{invoiceNumber || "Chargement…"}
+						{lastSaved && (
+							<span className="ml-2 text-xs text-emerald-500 dark:text-emerald-400">
+								· Sauvegardé à {lastSaved.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
+							</span>
+						)}
 					</p>
 				</div>
 			</div>
@@ -167,6 +179,7 @@ export default function NewInvoicePage() {
 							invoiceNumber={invoiceNumber}
 							companyInfo={companyInfo}
 							onCompanyChange={handleCompanyChange}
+							isSubmitting={createMutation.isPending}
 						/>
 					</div>
 				</div>

@@ -20,6 +20,7 @@ interface DataTableProps<T> {
   mobileFields?: string[];
   actions?: (item: T) => React.ReactNode;
   mobileActions?: (item: T) => React.ReactNode;
+  onRowClick?: (item: T) => void;
   emptyTitle?: string;
   emptyDescription?: string;
 }
@@ -42,6 +43,7 @@ export function DataTable<T>({
   mobileFields,
   actions,
   mobileActions,
+  onRowClick,
   emptyTitle = "Aucune donnée",
   emptyDescription = "Il n'y a rien à afficher pour le moment.",
 }: DataTableProps<T>) {
@@ -110,10 +112,10 @@ export function DataTable<T>({
               >
                 <div
                   className="flex items-center gap-3 min-w-0 flex-1"
-                  onClick={() => setExpandedId(isExpanded ? null : id)}
+                  onClick={() => onRowClick ? onRowClick(item) : setExpandedId(isExpanded ? null : id)}
                   role="button"
                   tabIndex={0}
-                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setExpandedId(isExpanded ? null : id); } }}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onRowClick ? onRowClick(item) : setExpandedId(isExpanded ? null : id); } }}
                 >
                   {mobileCols.map((col) => (
                     <span key={col.key} className="text-xs text-slate-700 dark:text-slate-300 truncate">
@@ -186,6 +188,7 @@ export function DataTable<T>({
                 {columns.map((col, i) => (
                   <td
                     key={col.key}
+                    onClick={() => onRowClick?.(item)}
                     className={`px-3 lg:px-6 py-3.5 ${
                       i < columns.length - 1 || actions ? "border-r border-slate-200 dark:border-violet-500/15" : ""
                     } ${col.align === "right" ? "text-right" : col.align === "center" ? "text-center" : ""}`}

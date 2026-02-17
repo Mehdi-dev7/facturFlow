@@ -2,7 +2,7 @@
 // src/components/factures/invoice-preview-modal.tsx
 // Modal de prévisualisation d'une facture enregistrée avec 5 actions
 
-import { useCallback } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useDuplicateInvoice } from "@/hooks/use-invoices";
 import type { SavedInvoice } from "@/lib/actions/invoices";
+import { sendInvoiceEmail } from "@/lib/actions/send-invoice-email";
 import {
   INVOICE_TYPE_CONFIG,
   INVOICE_TYPE_LABELS,
@@ -133,6 +134,26 @@ function StaticLinesTable({ title, lines, isForfait, typeConfig }: StaticLinesTa
 // ─── Sous-composant : aperçu statique complet de la facture ───────────────────
 
 function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
+  // Émetteur : données DB en priorité, sinon fallback localStorage
+  const emitter = useMemo(() => {
+    if (invoice.user.companyName) return invoice.user;
+    try {
+      const saved = localStorage.getItem("facturflow_company");
+      if (saved) {
+        const c = JSON.parse(saved) as { name?: string; siret?: string; address?: string; city?: string; email?: string; zipCode?: string };
+        return {
+          companyName: c.name ?? null,
+          companySiret: c.siret ?? null,
+          companyAddress: c.address ?? null,
+          companyPostalCode: c.zipCode ?? null,
+          companyCity: c.city ?? null,
+          companyEmail: c.email ?? null,
+        };
+      }
+    } catch { /* ignore */ }
+    return invoice.user;
+  }, [invoice.user]);
+
   // Config du type de facture (labels colonnes, forfait, etc.)
   const invoiceType = (invoice.invoiceType ?? "basic") as InvoiceType;
   const typeConfig =
@@ -165,7 +186,7 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
     : [];
 
   return (
-    <div className="bg-white dark:bg-[#1e1a3a] rounded-2xl border border-slate-200 dark:border-violet-500/20 shadow-sm overflow-hidden">
+    <div className="bg-white dark:bg-[#1e1a3a] rounded-2xl border border-slate-200 dark:border-violet-500/20 shadow-sm overflow-hidden flex flex-col min-h-[800px]">
       {/* ── Header violet ─────────────────────────────────────────────── */}
       <div className="bg-gradient-to-r from-violet-600 to-indigo-600 px-6 py-5 text-white">
         <div className="flex items-start justify-between">
@@ -185,7 +206,7 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
         </div>
       </div>
 
-      <div className="p-6 space-y-5">
+      <div className="p-6 flex-1 flex flex-col gap-5">
         {/* ── Émetteur / Destinataire ────────────────────────────────── */}
         <div className="grid grid-cols-2 gap-6">
           {/* Émetteur */}
@@ -193,31 +214,31 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
             <p className="text-[10px] uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1 font-semibold">
               Émetteur
             </p>
-            {invoice.user.companyName ? (
+            {emitter.companyName ? (
               <div className="text-sm space-y-0.5">
                 <p className="font-semibold text-slate-800 dark:text-slate-100">
-                  {invoice.user.companyName}
+                  {emitter.companyName}
                 </p>
-                {invoice.user.companyAddress && (
+                {emitter.companyAddress && (
                   <p className="text-slate-500 dark:text-slate-400">
-                    {invoice.user.companyAddress}
+                    {emitter.companyAddress}
                   </p>
                 )}
-                {(invoice.user.companyPostalCode || invoice.user.companyCity) && (
+                {(emitter.companyPostalCode || emitter.companyCity) && (
                   <p className="text-slate-500 dark:text-slate-400">
-                    {[invoice.user.companyPostalCode, invoice.user.companyCity]
+                    {[emitter.companyPostalCode, emitter.companyCity]
                       .filter(Boolean)
                       .join(" ")}
                   </p>
                 )}
-                {invoice.user.companySiret && (
+                {emitter.companySiret && (
                   <p className="text-slate-500 dark:text-slate-400">
-                    SIRET : {invoice.user.companySiret}
+                    SIRET : {emitter.companySiret}
                   </p>
                 )}
-                {invoice.user.companyEmail && (
+                {emitter.companyEmail && (
                   <p className="text-slate-500 dark:text-slate-400">
-                    {invoice.user.companyEmail}
+                    {emitter.companyEmail}
                   </p>
                 )}
               </div>
@@ -254,7 +275,7 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
           </div>
         </div>
 
-        <div className="h-px bg-slate-200 dark:bg-slate-700" />
+        <div className="h-px bg-slate-200 dark:bg-slate-700 mt-2 mb-1" />
 
         {/* ── Lignes ────────────────────────────────────────────────── */}
         {isArtisan ? (
@@ -281,6 +302,9 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
             typeConfig={typeConfig}
           />
         )}
+
+        {/* Spacer : pousse les totaux vers le bas de la page A4 */}
+        <div className="flex-1" />
 
         {/* ── Totaux ────────────────────────────────────────────────── */}
         <div className="flex justify-end">
@@ -429,8 +453,38 @@ export function InvoicePreviewModal({
   // ── Handlers des 5 boutons d'action ──────────────────────────────────────
 
   const handlePrint = useCallback(() => {
-    window.print();
-  }, []);
+    // Copie le HTML de l'aperçu + toutes les feuilles de style dans une fenêtre dédiée
+    const printArea = document.getElementById("invoice-print-area");
+    if (!printArea) return;
+
+    // Récupérer toutes les <link> et <style> du document actuel
+    const styles = Array.from(document.querySelectorAll('link[rel="stylesheet"], style'))
+      .map((el) => el.outerHTML)
+      .join("\n");
+
+    const win = window.open("", "_blank", "width=800,height=1100");
+    if (!win) return;
+
+    win.document.write(`<!DOCTYPE html>
+<html><head>
+  <title>Facture ${invoice?.number ?? ""}</title>
+  ${styles}
+  <style>
+    @page { size: A4; margin: 10mm; }
+    body { margin: 0; padding: 20px; background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .rounded-2xl { border-radius: 0 !important; border: none !important; box-shadow: none !important; }
+    .min-h-\\[800px\\] { min-height: auto !important; }
+  </style>
+</head>
+<body>${printArea.innerHTML}</body></html>`);
+    win.document.close();
+
+    // Attendre le chargement des styles puis imprimer
+    win.onload = () => { win.print(); win.close(); };
+    // Fallback si onload ne fire pas
+    setTimeout(() => { try { win.print(); win.close(); } catch { /* already closed */ } }, 1500);
+  }, [invoice]);
 
   const handleDownload = useCallback(async () => {
     if (!invoice) return;
@@ -439,9 +493,39 @@ export function InvoicePreviewModal({
     await downloadInvoicePDF(invoice);
   }, [invoice]);
 
-  const handleSend = useCallback(() => {
-    toast.info("Envoi par email — bientôt disponible");
-  }, []);
+  const [isSending, setIsSending] = useState(false);
+
+  const handleSend = useCallback(async () => {
+    if (!invoice || isSending) return;
+    setIsSending(true);
+
+    // Récupérer les infos émetteur depuis localStorage en fallback
+    let emitterFallback: Record<string, string> | undefined;
+    try {
+      const saved = localStorage.getItem("facturflow_company");
+      if (saved) {
+        const c = JSON.parse(saved) as { name?: string; siret?: string; address?: string; city?: string; email?: string; zipCode?: string };
+        emitterFallback = {
+          companyName: c.name ?? "",
+          companySiret: c.siret ?? "",
+          companyAddress: c.address ?? "",
+          companyPostalCode: c.zipCode ?? "",
+          companyCity: c.city ?? "",
+          companyEmail: c.email ?? "",
+        };
+      }
+    } catch { /* ignore */ }
+
+    const result = await sendInvoiceEmail(invoice.id, emitterFallback);
+
+    if (result.success) {
+      toast.success(`Facture envoyée à ${invoice.client.email}`);
+    } else {
+      toast.error(result.error ?? "Erreur lors de l'envoi");
+    }
+
+    setIsSending(false);
+  }, [invoice, isSending]);
 
   const handleDuplicate = useCallback(() => {
     if (!invoice) return;
@@ -464,7 +548,7 @@ export function InvoicePreviewModal({
         showCloseButton={false}
       >
         {/* ── Header du modal : titre + bouton fermer + 5 actions ─────── */}
-        <DialogHeader className="px-6 pt-5 pb-4 border-b border-slate-200 dark:border-violet-500/20">
+        <DialogHeader data-print-hide className="px-6 pt-5 pb-4 border-b border-slate-200 dark:border-violet-500/20">
           {/* Première ligne : numéro de facture + croix */}
           <div className="flex items-center justify-between">
             <DialogTitle className="text-slate-900 dark:text-slate-100 text-base font-semibold">
@@ -504,11 +588,11 @@ export function InvoicePreviewModal({
             {/* Envoyer */}
             <button
               onClick={handleSend}
-              disabled={!invoice}
+              disabled={!invoice || isSending}
               className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-violet-300 text-violet-600 hover:bg-violet-50 dark:border-violet-500 dark:text-violet-400 dark:hover:bg-violet-950 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Send size={14} />
-              Envoyer
+              {isSending ? "Envoi..." : "Envoyer"}
             </button>
 
             {/* Dupliquer */}
@@ -534,7 +618,7 @@ export function InvoicePreviewModal({
         </DialogHeader>
 
         {/* ── Corps scrollable : aperçu statique de la facture ─────────── */}
-        <div className="overflow-y-auto max-h-[70vh] p-6">
+        <div id="invoice-print-area" className="overflow-y-auto max-h-[70vh] p-6">
           {invoice ? (
             <InvoicePreviewStatic invoice={invoice} />
           ) : (

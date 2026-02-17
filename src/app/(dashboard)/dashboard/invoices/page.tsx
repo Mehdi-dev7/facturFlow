@@ -396,6 +396,7 @@ function InvoicesPageContent() {
           columns={columns}
           getRowId={(row) => row.id}
           mobileFields={["number", "client"]}
+          onRowClick={handleRowClick}
           actions={(row) => (
             <ActionButtons
               onEdit={() => handleRowClick(row)}

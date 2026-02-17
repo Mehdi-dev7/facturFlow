@@ -193,7 +193,7 @@ export function CompanyInfoModal({
 							type="button"
 							variant="outline"
 							onClick={() => onOpenChange(false)}
-							className="cursor-pointer border-primary/20 dark:border-violet-500/30 hover:bg-violet-50 dark:hover:bg-violet-500/10 dark:text-slate-200"
+							className="cursor-pointer border-primary/20 dark:border-violet-500/30 hover:bg-violet-50 dark:hover:bg-violet-500/10 dark:text-slate-200 mx-4"
 						>
 							Annuler
 						</Button>

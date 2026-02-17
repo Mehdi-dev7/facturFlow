@@ -50,10 +50,10 @@ function toFormValues(inv: SavedInvoice): Partial<InvoiceFormData> {
 			description: li.description,
 			quantity: li.quantity,
 			unitPrice: li.unitPrice,
-			category: li.category as "main_oeuvre" | "materiel" | undefined,
+			category: (li.category === "main_oeuvre" || li.category === "materiel") ? li.category : undefined,
 		})),
 		vatRate,
-		discountType: (inv.discountType as "pourcentage" | "montant") ?? undefined,
+		discountType: (inv.discountType === "pourcentage" || inv.discountType === "montant") ? inv.discountType : undefined,
 		discountValue: inv.discount ?? 0,
 		depositAmount: inv.depositAmount ?? 0,
 		notes: inv.notes ?? "",
@@ -215,6 +215,7 @@ export default function EditInvoicePage() {
 							invoiceNumber={invoice?.number ?? ""}
 							companyInfo={companyInfo}
 							onCompanyChange={handleCompanyChange}
+							isSubmitting={updateMutation.isPending}
 						/>
 					</div>
 				</div>

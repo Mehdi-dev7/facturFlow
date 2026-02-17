@@ -75,7 +75,13 @@ export function useCreateInvoice() {
         toast.success("Facture créée !");
         router.push(`/dashboard/invoices?preview=${result.data.id}`);
       } else if (!result.success) {
-        toast.error(result.error ?? "Erreur lors de la création");
+        // Si des détails Zod sont présents, afficher la première erreur précise
+        const details = (result as { details?: { message: string }[] }).details;
+        const detail = details?.[0]?.message;
+        toast.error(result.error ?? "Erreur lors de la création", {
+          description: detail ?? undefined,
+        });
+        console.error("[createInvoice] Erreur serveur:", result.error, details);
       }
     },
     onError: () => toast.error("Erreur lors de la création de la facture"),
