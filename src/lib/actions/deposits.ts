@@ -16,7 +16,10 @@ const depositSchema = z.object({
   clientId: z.string().min(1, "Client requis"),
   amount: z.number().min(0.01, "Montant requis"),
   vatRate: z.union([z.literal(0), z.literal(5.5), z.literal(10), z.literal(20)]),
+  // Optionnels : la modale rapide n'envoie pas ces champs (defaults côté serveur)
+  date: z.string().optional(),
   dueDate: z.string().min(1, "Date d'échéance requise"),
+  description: z.string().optional(),
   relatedQuoteId: z.string().optional(),
   notes: z.string().optional(),
 });
@@ -138,7 +141,7 @@ export async function createDeposit(data: DepositFormData) {
         clientId: data.clientId,
         type: "DEPOSIT",
         number: depositNumber,
-        date: new Date(),
+        date: data.date ? new Date(data.date) : new Date(),
         dueDate: new Date(data.dueDate),
         status: "DRAFT",
         subtotal,
@@ -149,6 +152,7 @@ export async function createDeposit(data: DepositFormData) {
         businessMetadata: {
           vatRate: data.vatRate,
           amount: data.amount,
+          description: data.description ?? "Acompte",
         },
       },
       include: depositInclude,
@@ -363,6 +367,31 @@ export async function updateDepositStatus(id: string, newStatus: string) {
   } catch (error) {
     console.error("[updateDepositStatus] Erreur:", error);
     return { success: false, error: "Erreur lors du changement de statut" } as const;
+  }
+}
+
+// ─── Action : prochain numéro d'acompte (preview, sans incrémenter) ─────────
+
+export async function getNextDepositNumber() {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session?.user?.id) {
+    return { success: false, error: "Non authentifié", data: null } as const;
+  }
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { nextDepositNumber: true },
+    });
+
+    const year = new Date().getFullYear();
+    const next = user?.nextDepositNumber ?? 1;
+    const number = `DEP-${year}-${String(next).padStart(4, "0")}`;
+
+    return { success: true, data: number } as const;
+  } catch (error) {
+    console.error("[getNextDepositNumber] Erreur:", error);
+    return { success: false, error: "Erreur", data: null } as const;
   }
 }
 

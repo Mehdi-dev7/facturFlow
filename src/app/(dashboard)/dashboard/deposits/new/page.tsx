@@ -3,15 +3,19 @@
 import { useState, useCallback, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { DepositForm } from "@/components/acomptes/deposit-form";
 import { DepositPreview } from "@/components/acomptes/deposit-preview";
-import { z } from "zod";
+import { useCreateDeposit } from "@/hooks/use-deposits";
+import { getNextDepositNumber } from "@/lib/actions/deposits";
 import type { CompanyInfo } from "@/lib/validations/invoice";
 
-// Schema simplifié pour les acomptes
+// ─── Schema local (inclut les champs UI non stockés en DB brut) ──────────────
+
 const depositFormSchema = z.object({
   clientId: z.string().min(1, "Client requis"),
   amount: z.number().min(0.01, "Montant requis"),
@@ -29,6 +33,8 @@ const depositFormSchema = z.object({
 
 type DepositFormData = z.infer<typeof depositFormSchema>;
 
+// ─── Helpers date ─────────────────────────────────────────────────────────────
+
 function todayISO(): string {
   return new Date().toISOString().split("T")[0];
 }
@@ -39,14 +45,20 @@ function dueDateISO(): string {
   return d.toISOString().split("T")[0];
 }
 
+// ─── Page ─────────────────────────────────────────────────────────────────────
+
 export default function NewDepositPage() {
+  const router = useRouter();
   const [mounted, setMounted] = useState(false);
-  const [depositNumber, setDepositNumber] = useState("");
+  const [depositNumber, setDepositNumber] = useState("DEP-…-…");
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
+
+  const createDeposit = useCreateDeposit();
 
   const form = useForm<DepositFormData>({
     resolver: zodResolver(depositFormSchema),
-    mode: "onChange",
+    mode: "onSubmit",          // Erreurs affichées seulement au premier submit
+    reValidateMode: "onChange", // Après le premier submit, mise à jour en temps réel
     defaultValues: {
       clientId: "",
       amount: 0,
@@ -63,29 +75,30 @@ export default function NewDepositPage() {
     },
   });
 
-  // Init client-only
+  // Initialisation côté client uniquement
   useEffect(() => {
-    const initializeForm = async () => {
-      // 1. Générer le numéro d'acompte
-      const year = new Date().getFullYear();
-      setDepositNumber(`ACC-${year}-0001`); // TODO: Récupérer depuis la DB
+    async function init() {
+      // 1. Numéro d'acompte depuis la DB
+      const result = await getNextDepositNumber();
+      if (result.success && result.data) setDepositNumber(result.data);
 
-      // 2. Charger les infos société depuis localStorage
+      // 2. Infos société depuis localStorage
       try {
-        const savedCompany = localStorage.getItem("facturflow_company");
-        if (savedCompany) setCompanyInfo(JSON.parse(savedCompany) as CompanyInfo);
+        const saved = localStorage.getItem("facturflow_company");
+        if (saved) setCompanyInfo(JSON.parse(saved) as CompanyInfo);
       } catch {
         // ignore
       }
 
-      // 3. Initialiser les dates
-      form.setValue("date", todayISO());
-      form.setValue("dueDate", dueDateISO());
+      // 3. Dates par défaut — shouldValidate: false pour ne pas déclencher
+      //    la validation sur les autres champs vides (description, clientId…)
+      form.setValue("date", todayISO(), { shouldValidate: false });
+      form.setValue("dueDate", dueDateISO(), { shouldValidate: false });
 
       setMounted(true);
-    };
+    }
 
-    initializeForm();
+    init();
   }, [form]);
 
   const handleCompanyChange = useCallback((data: CompanyInfo) => {
@@ -93,12 +106,26 @@ export default function NewDepositPage() {
     localStorage.setItem("facturflow_company", JSON.stringify(data));
   }, []);
 
-  const onSubmit = useCallback((data: DepositFormData) => {
-    console.log("Données acompte:", data);
-    // TODO: Implémenter la création d'acompte
-  }, []);
+  // Soumission : map vers le schéma serveur + redirection
+  const onSubmit = useCallback(
+    async (data: DepositFormData) => {
+      const result = await createDeposit.mutateAsync({
+        clientId: data.clientId,
+        amount: data.amount,
+        vatRate: data.vatRate,
+        date: data.date,
+        dueDate: data.dueDate,
+        description: data.description,
+        notes: data.notes || undefined,
+      });
 
-  // Skeleton pendant le montage
+      if (result.success) {
+        router.push("/dashboard/deposits");
+      }
+    },
+    [createDeposit, router],
+  );
+
   if (!mounted) {
     return (
       <div className="animate-pulse space-y-6">
@@ -127,12 +154,12 @@ export default function NewDepositPage() {
             Nouvel acompte
           </h1>
           <p className="text-sm text-slate-500 dark:text-violet-400/60">
-            {depositNumber || "Chargement…"}
+            {depositNumber}
           </p>
         </div>
       </div>
 
-      {/* Desktop: split screen */}
+      {/* Desktop : split screen */}
       <div className="hidden lg:grid lg:grid-cols-2 lg:gap-6">
         <div className="space-y-4">
           <div className="rounded-2xl border border-slate-300/80 dark:border-violet-500/20 shadow-lg shadow-slate-200/50 dark:shadow-violet-950/40 bg-white/75 dark:bg-[#1a1438] backdrop-blur-lg p-6">
@@ -141,27 +168,27 @@ export default function NewDepositPage() {
               onSubmit={onSubmit}
               companyInfo={companyInfo}
               onCompanyChange={handleCompanyChange}
-              isSubmitting={false}
+              isSubmitting={createDeposit.isPending}
             />
           </div>
         </div>
         <div className="sticky top-6 self-start">
-          <DepositPreview 
-            form={form} 
+          <DepositPreview
+            form={form}
             depositNumber={depositNumber}
-            companyInfo={companyInfo} 
+            companyInfo={companyInfo}
           />
         </div>
       </div>
 
-      {/* Mobile: form simple */}
+      {/* Mobile : form simple */}
       <div className="lg:hidden rounded-2xl border border-slate-300/80 dark:border-violet-500/20 bg-white/75 dark:bg-[#1a1438] backdrop-blur-lg shadow-lg shadow-slate-200/50 dark:shadow-violet-950/40 min-h-[70vh] p-6">
         <DepositForm
           form={form}
           onSubmit={onSubmit}
           companyInfo={companyInfo}
           onCompanyChange={handleCompanyChange}
-          isSubmitting={false}
+          isSubmitting={createDeposit.isPending}
         />
       </div>
     </div>

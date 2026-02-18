@@ -26,21 +26,62 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-// import { useDeposits, useDeleteDeposit, type SavedDeposit } from "@/hooks/use-deposits";
-// import { DepositPreviewModal } from "@/components/acomptes/deposit-preview-modal";
+import { useDeposits, useDeleteDeposit, type SavedDeposit } from "@/hooks/use-deposits";
+import { DepositPreviewModal } from "@/components/acomptes/deposit-preview-modal";
 
 // ─── Types & helpers ──────────────────────────────────────────────────────────
 
-// Ligne de tableau pour les acomptes
 interface DepositRow {
-  id: string;      // UUID DB
-  number: string;  // N° acompte (ACC-2026-0001)
+  id: string;
+  number: string;
   client: string;
   date: string;    // DD/MM/YYYY
   echeance: string;
-  amount: string;
-  status: InvoiceStatus; // Réutilise les mêmes statuts
+  amount: string;  // formaté FR
+  status: InvoiceStatus;
   dbStatus: string;
+  _raw: SavedDeposit;
+}
+
+// Correspondance statut DB → label UI
+function mapStatus(dbStatus: string): InvoiceStatus {
+  switch (dbStatus) {
+    case "DRAFT":   return "à envoyer";
+    case "SENT":    return "envoyée";
+    case "PAID":    return "payée";
+    case "OVERDUE": return "impayée";
+    default:        return "à envoyer";
+  }
+}
+
+function getClientName(client: SavedDeposit["client"]): string {
+  if (client.companyName) return client.companyName;
+  const parts = [client.firstName, client.lastName].filter(Boolean);
+  return parts.join(" ") || client.email;
+}
+
+function formatDateFR(iso: string | null): string {
+  if (!iso) return "—";
+  return new Date(iso).toLocaleDateString("fr-FR");
+}
+
+function formatAmountFR(amount: number): string {
+  return amount.toLocaleString("fr-FR", { minimumFractionDigits: 2 }) + " \u20AC";
+}
+
+// Mapper SavedDeposit → DepositRow
+function toRow(deposit: SavedDeposit): DepositRow {
+  return {
+    id: deposit.id,
+    number: deposit.number,
+    client: getClientName(deposit.client),
+    date: formatDateFR(deposit.date),
+    echeance: formatDateFR(deposit.dueDate),
+    amount: formatAmountFR(deposit.total),
+    status: mapStatus(deposit.status),
+    dbStatus: deposit.status,
+    _raw: deposit,
+  };
 }
 
 const statusOrder: Record<InvoiceStatus, number> = {
@@ -74,7 +115,7 @@ const columns: Column<DepositRow>[] = [
     key: "date",
     label: "Émission",
     sortable: true,
-    getValue: (row) => new Date(row.date.split("/").reverse().join("-")).getTime(),
+    getValue: (row) => row.date !== "—" ? new Date(row.date.split("/").reverse().join("-")).getTime() : 0,
     render: (row) => (
       <span className="text-xs lg:text-sm text-slate-500 dark:text-slate-400">{row.date}</span>
     ),
@@ -104,197 +145,173 @@ const columns: Column<DepositRow>[] = [
     align: "center" as const,
     sortable: true,
     getValue: (row) => statusOrder[row.status],
-    render: (row) => (
-      <StatusBadge status={row.status} />
-    ),
+    render: (row) => <StatusBadge status={row.status} />,
   },
 ];
 
-// Données mockées pour l'instant
-const mockDeposits: DepositRow[] = [
-  {
-    id: "1",
-    number: "ACC-2026-0001",
-    client: "ACME Corp",
-    date: "15/02/2026",
-    echeance: "15/03/2026",
-    amount: "1 500,00 €",
-    status: "envoyée",
-    dbStatus: "SENT"
-  },
-  {
-    id: "2", 
-    number: "ACC-2026-0002",
-    client: "Tech Solutions",
-    date: "10/02/2026",
-    echeance: "10/03/2026", 
-    amount: "750,00 €",
-    status: "payée",
-    dbStatus: "PAID"
-  },
-  {
-    id: "3",
-    number: "ACC-2026-0003", 
-    client: "StartupXYZ",
-    date: "18/02/2026",
-    echeance: "20/03/2026",
-    amount: "2 250,00 €", 
-    status: "impayée",
-    dbStatus: "OVERDUE"
-  }
-];
-
-// KPIs mockés
-const mockKpis: KpiData[] = [
-  {
-    label: "Acomptes ce mois",
-    value: "3",
-    change: "3 acomptes",
-    changeType: "up",
-    icon: "file",
-    iconBg: "bg-blue-500",
-    borderAccent: "border-blue-500/30",
-    gradientFrom: "#eff6ff",
-    gradientTo: "#bfdbfe",
-    darkGradientFrom: "#1e1b4b",
-    darkGradientTo: "#1e3a5f",
-  },
-  {
-    label: "Payés",
-    value: "1",
-    change: "33%",
-    changeType: "up",
-    icon: "check",
-    iconBg: "bg-emerald-500",
-    borderAccent: "border-emerald-500/30",
-    gradientFrom: "#ecfdf5",
-    gradientTo: "#a7f3d0",
-    darkGradientFrom: "#1e1b4b",
-    darkGradientTo: "#064e3b",
-  },
-  {
-    label: "En attente",
-    value: "1",
-    change: "1 500,00 €",
-    changeType: "neutral",
-    icon: "clock",
-    iconBg: "bg-amber-500",
-    borderAccent: "border-amber-500/30",
-    gradientFrom: "#fffbeb",
-    gradientTo: "#fde68a",
-    darkGradientFrom: "#1e1b4b",
-    darkGradientTo: "#78350f",
-  },
-  {
-    label: "Impayés",
-    value: "1",
-    change: "2 250,00 €",
-    changeType: "down",
-    icon: "alert",
-    iconBg: "bg-red-500",
-    borderAccent: "border-red-500/30",
-    gradientFrom: "#fef2f2",
-    gradientTo: "#fecaca",
-    darkGradientFrom: "#1e1b4b",
-    darkGradientTo: "#7f1d1d",
-  }
-];
+// ─── Composant principal ──────────────────────────────────────────────────────
 
 export function DepositsPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  
-  // États locaux
+
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedMonth, setSelectedMonth] = useState<Date>(new Date());
-  const [selectedStatuses, setSelectedStatuses] = useState<InvoiceStatus[]>([]);
+  const [selectedStatuses] = useState<InvoiceStatus[]>([]);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
-  const [previewDeposit, setPreviewDeposit] = useState<any>(null);
+  const [previewDeposit, setPreviewDeposit] = useState<SavedDeposit | null>(null);
 
-  // Gestion de la preview via URL
   const previewId = searchParams.get("preview");
   const previewOpenedRef = useRef(false);
 
-  // Données filtrées
-  const filteredDeposits = useMemo(() => {
-    let filtered = mockDeposits;
+  // Filtre mois → format "YYYY-MM"
+  const monthFilter = useMemo(() => {
+    const y = selectedMonth.getFullYear();
+    const m = String(selectedMonth.getMonth() + 1).padStart(2, "0");
+    return `${y}-${m}`;
+  }, [selectedMonth]);
 
-    // Filtre par recherche
+  // ─── Données réelles depuis la DB ─────────────────────────────────────────
+  const { data: deposits = [], isLoading } = useDeposits({ month: monthFilter });
+  const deleteDeposit = useDeleteDeposit();
+
+  // Mapper en DepositRow
+  const rows: DepositRow[] = useMemo(() => deposits.map(toRow), [deposits]);
+
+  // ─── KPIs dynamiques ──────────────────────────────────────────────────────
+  const kpis: KpiData[] = useMemo(() => {
+    const total = rows.length;
+    const paid = rows.filter((r) => r.dbStatus === "PAID").length;
+    const sent = rows.filter((r) => r.dbStatus === "SENT").length;
+    const overdue = rows.filter((r) => r.dbStatus === "OVERDUE").length;
+
+    const sentAmount = deposits
+      .filter((d) => d.status === "SENT")
+      .reduce((acc, d) => acc + d.total, 0);
+    const overdueAmount = deposits
+      .filter((d) => d.status === "OVERDUE")
+      .reduce((acc, d) => acc + d.total, 0);
+
+    return [
+      {
+        label: "Acomptes ce mois",
+        value: String(total),
+        change: `${total} acompte${total > 1 ? "s" : ""}`,
+        changeType: "up",
+        icon: "file",
+        iconBg: "bg-blue-500",
+        borderAccent: "border-blue-500/30",
+        gradientFrom: "#eff6ff",
+        gradientTo: "#bfdbfe",
+        darkGradientFrom: "#1e1b4b",
+        darkGradientTo: "#1e3a5f",
+      },
+      {
+        label: "Payés",
+        value: String(paid),
+        change: paid > 0 ? `${Math.round((paid / total) * 100)}%` : "0%",
+        changeType: "up",
+        icon: "check",
+        iconBg: "bg-emerald-500",
+        borderAccent: "border-emerald-500/30",
+        gradientFrom: "#ecfdf5",
+        gradientTo: "#a7f3d0",
+        darkGradientFrom: "#1e1b4b",
+        darkGradientTo: "#064e3b",
+      },
+      {
+        label: "En attente",
+        value: String(sent),
+        change: sentAmount > 0 ? formatAmountFR(sentAmount) : "—",
+        changeType: "neutral",
+        icon: "clock",
+        iconBg: "bg-amber-500",
+        borderAccent: "border-amber-500/30",
+        gradientFrom: "#fffbeb",
+        gradientTo: "#fde68a",
+        darkGradientFrom: "#1e1b4b",
+        darkGradientTo: "#78350f",
+      },
+      {
+        label: "Impayés",
+        value: String(overdue),
+        change: overdueAmount > 0 ? formatAmountFR(overdueAmount) : "—",
+        changeType: overdue > 0 ? "down" : "neutral",
+        icon: "alert",
+        iconBg: "bg-red-500",
+        borderAccent: "border-red-500/30",
+        gradientFrom: "#fef2f2",
+        gradientTo: "#fecaca",
+        darkGradientFrom: "#1e1b4b",
+        darkGradientTo: "#7f1d1d",
+      },
+    ] satisfies KpiData[];
+  }, [rows, deposits]);
+
+  // ─── Filtrage + tri ────────────────────────────────────────────────────────
+  const filteredRows = useMemo(() => {
+    let filtered = rows;
+
     if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
+      const q = searchQuery.toLowerCase();
       filtered = filtered.filter(
-        (deposit) =>
-          deposit.number.toLowerCase().includes(query) ||
-          deposit.client.toLowerCase().includes(query)
+        (r) => r.number.toLowerCase().includes(q) || r.client.toLowerCase().includes(q),
       );
     }
 
-    // Filtre par statuts
     if (selectedStatuses.length > 0) {
-      filtered = filtered.filter((deposit) =>
-        selectedStatuses.includes(deposit.status)
-      );
+      filtered = filtered.filter((r) => selectedStatuses.includes(r.status));
     }
 
-    // Tri par statut puis par date
     return filtered.sort((a, b) => {
-      const statusDiff = statusOrder[a.status] - statusOrder[b.status];
-      if (statusDiff !== 0) return statusDiff;
-      
+      const diff = statusOrder[a.status] - statusOrder[b.status];
+      if (diff !== 0) return diff;
       // Si même statut, trier par date décroissante
-      const [dayA, monthA, yearA] = a.date.split("/").map(Number);
-      const [dayB, monthB, yearB] = b.date.split("/").map(Number);
-      const dateA = new Date(yearA, monthA - 1, dayA);
-      const dateB = new Date(yearB, monthB - 1, dayB);
-      return dateB.getTime() - dateA.getTime();
+      return new Date(b._raw.date).getTime() - new Date(a._raw.date).getTime();
     });
-  }, [searchQuery, selectedStatuses]);
+  }, [rows, searchQuery, selectedStatuses]);
 
-  // Gestion des actions
-  const handleRowClick = useCallback((row: DepositRow) => {
-    // Si c'est un brouillon, aller vers l'édition
-    if (row.dbStatus === "DRAFT") {
+  // ─── Actions ───────────────────────────────────────────────────────────────
+
+  const handleRowClick = useCallback(
+    (row: DepositRow) => {
+      if (row.dbStatus === "DRAFT") {
+        router.push(`/dashboard/deposits/${row.id}/edit`);
+        return;
+      }
+      setPreviewDeposit(row._raw);
+      setPreviewOpen(true);
+    },
+    [router],
+  );
+
+  const handleEdit = useCallback(
+    (row: DepositRow) => {
       router.push(`/dashboard/deposits/${row.id}/edit`);
-      return;
-    }
+    },
+    [router],
+  );
 
-    // Sinon, ouvrir la modal de prévisualisation
-    setPreviewDeposit(row);
-    setPreviewOpen(true);
-  }, [router]);
-
-  const handleEdit = useCallback((row: DepositRow) => {
-    router.push(`/dashboard/deposits/${row.id}/edit`);
-  }, [router]);
-
-  const handleDelete = useCallback((id: string) => {
-    // TODO: Implémenter la suppression
-    console.log("Supprimer acompte:", id);
+  const handleDelete = useCallback(async () => {
+    if (!deleteTargetId) return;
+    await deleteDeposit.mutateAsync(deleteTargetId);
     setDeleteTargetId(null);
-  }, []);
+  }, [deleteTargetId, deleteDeposit]);
 
-  const handleStatusChange = useCallback((id: string, newStatus: string) => {
-    // TODO: Implémenter le changement de statut
-    console.log("Changer statut:", id, newStatus);
-  }, []);
-
-  // Gestion preview via URL
+  // Ouvrir la preview via URL (?preview=id)
   useEffect(() => {
-    if (!previewId || previewOpenedRef.current) return;
-    
-    const deposit = mockDeposits.find(d => d.id === previewId);
+    if (!previewId || previewOpenedRef.current || deposits.length === 0) return;
+    const deposit = deposits.find((d) => d.id === previewId);
     if (deposit) {
       previewOpenedRef.current = true;
       setPreviewDeposit(deposit);
       setPreviewOpen(true);
     }
-  }, [previewId]);
+  }, [previewId, deposits]);
 
   useEffect(() => {
-    if (!previewOpen) {
-      previewOpenedRef.current = false;
-    }
+    if (!previewOpen) previewOpenedRef.current = false;
   }, [previewOpen]);
 
   return (
@@ -310,7 +327,7 @@ export function DepositsPageContent() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-8">
-        {mockKpis.map((kpi, i) => (
+        {kpis.map((kpi, i) => (
           <KpiCard key={kpi.label} data={kpi} index={i} />
         ))}
       </div>
@@ -319,7 +336,7 @@ export function DepositsPageContent() {
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-6">
         <div className="flex-1">
           <SearchBar
-            placeholder="Rechercher par n°, client, statut..."
+            placeholder="Rechercher par n°, client…"
             onSearch={setSearchQuery}
           />
         </div>
@@ -330,10 +347,11 @@ export function DepositsPageContent() {
       <div className="rounded-2xl border border-slate-300/80 dark:border-violet-500/20 shadow-lg shadow-slate-200/50 dark:shadow-violet-950/40 bg-white/75 dark:bg-[#1a1438] backdrop-blur-lg overflow-hidden mb-8">
         <DataTable<DepositRow>
           columns={columns}
-          data={filteredDeposits}
+          data={filteredRows}
           getRowId={(row) => row.id}
           mobileFields={["number", "client"]}
           onRowClick={handleRowClick}
+          isLoading={isLoading}
           actions={(row) => (
             <ActionButtons
               onEdit={() => handleEdit(row)}
@@ -346,25 +364,19 @@ export function DepositsPageContent() {
               onDelete={() => setDeleteTargetId(row.id)}
             />
           )}
-          emptyTitle="Aucun acompte trouvé"
-          emptyDescription="Aucun acompte ne correspond à votre recherche pour ce mois."
+          emptyTitle="Aucun acompte ce mois"
+          emptyDescription="Créez votre premier acompte en cliquant sur le bouton ci-dessus."
         />
       </div>
 
       {/* Section archivées */}
-      <ArchiveSection
-        data={[]}
-        onSelect={(year, month) => {
-          // TODO: Implémenter la sélection des archivés
-          console.log("Archive sélectionnée:", year, month);
-        }}
-      />
+      <ArchiveSection data={[]} onSelect={() => {}} />
 
-      {/* Modal de suppression */}
+      {/* Dialog de confirmation suppression */}
       <AlertDialog open={!!deleteTargetId} onOpenChange={() => setDeleteTargetId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Supprimer l'acompte</AlertDialogTitle>
+            <AlertDialogTitle>Supprimer l&apos;acompte</AlertDialogTitle>
             <AlertDialogDescription>
               Êtes-vous sûr de vouloir supprimer cet acompte ? Cette action est irréversible.
             </AlertDialogDescription>
@@ -372,8 +384,9 @@ export function DepositsPageContent() {
           <AlertDialogFooter>
             <AlertDialogCancel>Annuler</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => deleteTargetId && handleDelete(deleteTargetId)}
+              onClick={handleDelete}
               className="bg-red-600 hover:bg-red-700"
+              disabled={deleteDeposit.isPending}
             >
               <Trash2 className="size-4 mr-2" />
               Supprimer
@@ -382,26 +395,12 @@ export function DepositsPageContent() {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Modal de prévisualisation */}
-      {/* TODO: Créer DepositPreviewModal */}
-      {previewOpen && previewDeposit && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-auto">
-            <div className="p-6">
-              <h2 className="text-xl font-bold mb-4">Aperçu de l'acompte</h2>
-              <p>Acompte: {previewDeposit.number}</p>
-              <p>Client: {previewDeposit.client}</p>
-              <p>Montant: {previewDeposit.amount}</p>
-              <button
-                onClick={() => setPreviewOpen(false)}
-                className="mt-4 px-4 py-2 bg-violet-600 text-white rounded"
-              >
-                Fermer
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Modale de prévisualisation */}
+      <DepositPreviewModal
+        deposit={previewDeposit}
+        open={previewOpen}
+        onOpenChange={setPreviewOpen}
+      />
     </div>
   );
 }

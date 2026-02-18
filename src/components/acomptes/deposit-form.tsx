@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { Controller, useWatch, type UseFormReturn, type FieldErrors } from "react-hook-form";
 import {
   Building2,
@@ -71,17 +71,19 @@ export function DepositForm({
   const [selectedClientId, setSelectedClientId] = useState<string | undefined>();
 
   const { register, handleSubmit, setValue, control, formState: { errors } } = form;
+  // register est utilisé pour date, dueDate, description, notes
 
-  // Watch comme dans invoice-form
+  // Watch les champs pour la réactivité temps réel
   const amount = useWatch({ control, name: "amount" });
   const vatRate = useWatch({ control, name: "vatRate" });
-  
+
   const calculations = useMemo(() => {
     const subtotal = Number(amount) || 0;
-    const taxAmount = (subtotal * (Number(vatRate) || 20)) / 100;
+    // vatRate ?? 20 : gère le cas 0% (exonéré) qui est falsy avec ||
+    const rate = vatRate ?? 20;
+    const taxAmount = (subtotal * Number(rate)) / 100;
     const total = subtotal + taxAmount;
-    
-    
+
     return {
       subtotal: Number(subtotal.toFixed(2)),
       taxAmount: Number(taxAmount.toFixed(2)),
@@ -223,11 +225,19 @@ export function DepositForm({
               <Label htmlFor="description" className="text-xs font-medium text-slate-700 dark:text-slate-300">
                 Description *
               </Label>
-              <Input
-                id="description"
-                {...register("description")}
-                placeholder="Acompte 30% - Projet X"
-                className={inputClass}
+              {/* Controller (contrôlé) au lieu de register (non-contrôlé) :
+                  évite la perte de valeur au re-render — même fix que quote-form.tsx */}
+              <Controller
+                name="description"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    id="description"
+                    {...field}
+                    placeholder="Acompte 30% - Projet X"
+                    className={inputClass}
+                  />
+                )}
               />
               {errors.description && (
                 <p className="text-xs text-red-500 dark:text-red-400">{errors.description.message}</p>
@@ -238,13 +248,22 @@ export function DepositForm({
               <Label htmlFor="amount" className="text-xs font-medium text-slate-700 dark:text-slate-300">
                 Montant HT *
               </Label>
-              <Input
-                id="amount"
-                type="number"
-                step="0.01"
-                {...register("amount", { valueAsNumber: true })}
-                placeholder="0.00"
-                className={inputClass}
+              {/* Controller garantit la réactivité de useWatch pour les inputs number */}
+              <Controller
+                name="amount"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    id="amount"
+                    type="number"
+                    step="0.01"
+                    value={field.value === 0 ? "" : field.value}
+                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                    onBlur={field.onBlur}
+                    placeholder="0.00"
+                    className={inputClass}
+                  />
+                )}
               />
               {errors.amount && (
                 <p className="text-xs text-red-500 dark:text-red-400">{errors.amount.message}</p>
@@ -285,7 +304,7 @@ export function DepositForm({
                   <span className="font-medium text-slate-900 dark:text-slate-50">{calculations.subtotal > 0 ? calculations.subtotal.toFixed(2) : "0,00"} €</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-600 dark:text-slate-300">TVA ({vatRate || 20}%) :</span>
+                  <span className="text-slate-600 dark:text-slate-300">TVA ({vatRate ?? 20}%) :</span>
                   <span className="font-medium text-slate-900 dark:text-slate-50">{calculations.taxAmount > 0 ? calculations.taxAmount.toFixed(2) : "0,00"} €</span>
                 </div>
                 <div className="flex justify-between border-t border-slate-300 dark:border-slate-600 pt-1 font-semibold">

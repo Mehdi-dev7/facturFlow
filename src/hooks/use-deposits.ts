@@ -8,10 +8,22 @@ import {
   updateDepositStatus,
   deleteDeposit,
 } from "@/lib/actions/deposits";
-import type { SavedDeposit, DepositFormData } from "@/lib/types/deposits";
+import type { SavedDeposit } from "@/lib/types/deposits";
+
+// Type aligné sur le server action (date et description optionnels pour la modale rapide)
+export interface DepositFormData {
+  clientId: string;
+  amount: number;
+  vatRate: 0 | 5.5 | 10 | 20;
+  date?: string;
+  dueDate: string;
+  description?: string;
+  relatedQuoteId?: string;
+  notes?: string;
+}
 
 // Re-export pour faciliter l'import depuis d'autres fichiers
-export type { SavedDeposit, DepositFormData };
+export type { SavedDeposit };
 
 // ─── Hook : liste des acomptes ─────────────────────────────────────────────
 

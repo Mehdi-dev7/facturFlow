@@ -32,15 +32,12 @@ export function DepositPreview({ form, depositNumber, companyInfo }: DepositPrev
 
   // Calculs automatiques
   const calculations = useMemo(() => {
-    const amount = Number(formData.amount) || 0;
-    const vatRate = Number(formData.vatRate) || 20;
-    
-    
-    // Le montant saisi est HT
-    const subtotal = amount;
-    const taxAmount = (subtotal * vatRate) / 100;
+    const subtotal = Number(formData.amount) || 0;
+    // ?? 20 : gère le cas 0% (exonéré) qui serait falsy avec ||
+    const rate = formData.vatRate ?? 20;
+    const taxAmount = (subtotal * Number(rate)) / 100;
     const total = subtotal + taxAmount;
-    
+
     return {
       subtotal: Number(subtotal.toFixed(2)),
       taxAmount: Number(taxAmount.toFixed(2)),
@@ -60,9 +57,9 @@ export function DepositPreview({ form, depositNumber, companyInfo }: DepositPrev
 
       {/* Preview content */}
       <div className="p-6 overflow-auto max-h-[calc(100vh-200px)]">
-        <div className="bg-white dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 p-6 space-y-6">
+        <div className="bg-white dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 p-6 space-y-6 shadow-sm">
           {/* En-tête du document avec bandeau coloré */}
-          <div className="bg-gradient-to-r from-violet-600 to-purple-600 dark:from-violet-500 dark:to-purple-500 rounded-lg p-4 text-white mb-6">
+          <div className="bg-linear-to-r from-violet-600 to-purple-600 dark:from-violet-500 dark:to-purple-500 rounded-lg p-4 text-white mb-6">
             <div className="flex justify-between items-start">
               <div>
                 <h1 className="text-xl font-bold mb-1">
@@ -173,7 +170,7 @@ export function DepositPreview({ form, depositNumber, companyInfo }: DepositPrev
                 <span className="text-slate-900 dark:text-slate-50 font-medium">{calculations.subtotal > 0 ? calculations.subtotal.toFixed(2) : "0,00"} €</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-violet-700 dark:text-violet-300">TVA ({formData.vatRate || 20}%) :</span>
+                <span className="text-violet-700 dark:text-violet-300">TVA ({formData.vatRate ?? 20}%) :</span>
                 <span className="text-slate-900 dark:text-slate-50 font-medium">{calculations.taxAmount > 0 ? calculations.taxAmount.toFixed(2) : "0,00"} €</span>
               </div>
               <div className="flex justify-between text-lg font-bold border-t border-violet-200 dark:border-violet-500/30 pt-2">
