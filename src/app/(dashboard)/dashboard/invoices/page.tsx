@@ -354,14 +354,18 @@ function InvoicesPageContent() {
     if (idx >= 0) setSelectedMonth(new Date(year, idx, 1));
   }, []);
 
-  // Ouvrir la modal au clic sur une ligne
+  // Ouvrir la modal au clic sur une ligne (brouillons → page d'édition)
   const handleRowClick = useCallback((row: InvoiceRow) => {
+    if (row.dbStatus === "DRAFT") {
+      router.push(`/dashboard/invoices/${row.id}/edit`);
+      return;
+    }
     const inv = invoiceMap.get(row.id);
     if (inv) {
       setPreviewInvoice(inv);
       setPreviewOpen(true);
     }
-  }, [invoiceMap]);
+  }, [invoiceMap, router]);
 
   // Supprimer avec confirmation
   const handleDeleteConfirm = useCallback(() => {

@@ -25,6 +25,10 @@ export interface SavedInvoice {
   depositAmount: number | null;
   notes: string | null;
   businessMetadata: Record<string, unknown> | null;
+  // Facture électronique SuperPDP
+  einvoiceRef: string | null;
+  einvoiceStatus: string | null;
+  einvoiceSentAt: string | null;
   lineItems: {
     id: string;
     description: string;
@@ -40,6 +44,7 @@ export interface SavedInvoice {
   client: {
     id: string;
     companyName: string | null;
+    companySiret: string | null;
     firstName: string | null;
     lastName: string | null;
     email: string;
@@ -140,15 +145,34 @@ async function resolveClient(data: InvoiceFormData, userId: string) {
       where: { email: data.newClient.email, userId },
     });
 
-    if (existing) return existing;
+    const hasSiret = !!data.newClient.siret?.trim();
 
-    // Créer un nouveau client de type INDIVIDUAL
+    // Si un client avec cet email existe déjà : mettre à jour le SIRET si fourni, sinon retourner tel quel
+    if (existing) {
+      if (hasSiret && !existing.companySiret) {
+        return prisma.client.update({
+          where: { id: existing.id },
+          data: {
+            type: "COMPANY",
+            companyName: data.newClient.name,
+            companySiret: data.newClient.siret!,
+            companySiren: data.newClient.siret!.substring(0, 9),
+          },
+        });
+      }
+      return existing;
+    }
+
+    // Créer un nouveau client : COMPANY si SIRET fourni, sinon INDIVIDUAL
     const client = await prisma.client.create({
       data: {
         userId,
-        type: "INDIVIDUAL",
-        firstName: data.newClient.name.split(" ")[0] ?? data.newClient.name,
-        lastName: data.newClient.name.split(" ").slice(1).join(" ") || null,
+        type: hasSiret ? "COMPANY" : "INDIVIDUAL",
+        companyName: hasSiret ? data.newClient.name : null,
+        companySiret: hasSiret ? data.newClient.siret! : null,
+        companySiren: hasSiret ? data.newClient.siret!.substring(0, 9) : null,
+        firstName: hasSiret ? null : (data.newClient.name.split(" ")[0] ?? data.newClient.name),
+        lastName: hasSiret ? null : (data.newClient.name.split(" ").slice(1).join(" ") || null),
         email: data.newClient.email,
         address: data.newClient.address,
         postalCode: data.newClient.zipCode ?? null,
@@ -185,6 +209,9 @@ type PrismaDocumentWithRelations = {
   depositAmount: { toNumber: () => number } | null;
   notes: string | null;
   businessMetadata: unknown;
+  einvoiceRef: string | null;
+  einvoiceStatus: string | null;
+  einvoiceSentAt: Date | null;
   lineItems: {
     id: string;
     description: string;
@@ -200,6 +227,7 @@ type PrismaDocumentWithRelations = {
   client: {
     id: string;
     companyName: string | null;
+    companySiret: string | null;
     firstName: string | null;
     lastName: string | null;
     email: string;
@@ -237,6 +265,9 @@ function mapToSavedInvoice(doc: PrismaDocumentWithRelations): SavedInvoice {
       doc.businessMetadata != null
         ? (doc.businessMetadata as Record<string, unknown>)
         : null,
+    einvoiceRef: doc.einvoiceRef,
+    einvoiceStatus: doc.einvoiceStatus,
+    einvoiceSentAt: doc.einvoiceSentAt ? doc.einvoiceSentAt.toISOString() : null,
     lineItems: doc.lineItems.map((li) => ({
       id: li.id,
       description: li.description,
@@ -261,6 +292,7 @@ const documentInclude = {
     select: {
       id: true,
       companyName: true,
+      companySiret: true,
       firstName: true,
       lastName: true,
       email: true,

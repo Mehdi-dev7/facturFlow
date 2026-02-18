@@ -28,6 +28,7 @@ interface InvoiceStepperProps {
 	invoiceNumber: string;
 	companyInfo: CompanyInfo | null;
 	onCompanyChange: (data: CompanyInfo) => void;
+	submitLabel?: string;
 }
 
 export function InvoiceStepper({
@@ -36,6 +37,7 @@ export function InvoiceStepper({
 	invoiceNumber,
 	companyInfo,
 	onCompanyChange,
+	submitLabel = "Créer la facture",
 }: InvoiceStepperProps) {
 	const [step, setStep] = useState(1);
 
@@ -135,7 +137,7 @@ export function InvoiceStepper({
 							className="w-full h-11 cursor-pointer transition-all duration-300 hover:scale-105"
 							onClick={form.handleSubmit(onSubmit)}
 						>
-							Créer la facture
+							{submitLabel}
 						</Button>
 					</div>
 				)}

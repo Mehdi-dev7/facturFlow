@@ -75,6 +75,9 @@ export async function sendInvoiceEmail(
       depositAmount: doc.depositAmount?.toNumber() ?? null,
       notes: doc.notes,
       businessMetadata: doc.businessMetadata as Record<string, unknown> | null,
+      einvoiceRef: doc.einvoiceRef ?? null,
+      einvoiceStatus: doc.einvoiceStatus ?? null,
+      einvoiceSentAt: doc.einvoiceSentAt?.toISOString() ?? null,
       lineItems: doc.lineItems.map((li) => ({
         id: li.id,
         description: li.description,
@@ -90,6 +93,7 @@ export async function sendInvoiceEmail(
       client: {
         id: doc.client.id,
         companyName: doc.client.companyName,
+        companySiret: doc.client.companySiret,
         firstName: doc.client.firstName,
         lastName: doc.client.lastName,
         email: doc.client.email,

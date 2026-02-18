@@ -1,10 +1,10 @@
 "use client";
 
-import React from "react";
+import { useMemo } from "react";
 import { useWatch, type UseFormReturn } from "react-hook-form";
+import { useClients } from "@/hooks/use-clients";
 import type { InvoiceFormData, CompanyInfo, InvoiceType } from "@/lib/validations/invoice";
 import { INVOICE_TYPE_LABELS, INVOICE_TYPE_CONFIG } from "@/lib/validations/invoice";
-import { mockClients } from "@/lib/mock-data/clients";
 import { calcInvoiceTotals } from "@/lib/utils/calculs-facture";
 
 interface InvoicePreviewProps {
@@ -27,13 +27,37 @@ export function InvoicePreview({ form, invoiceNumber, companyInfo }: InvoicePrev
 	const discountValue = useWatch({ control: form.control, name: "discountValue" }) ?? 0;
 	const depositAmt    = useWatch({ control: form.control, name: "depositAmount" }) ?? 0;
 
+	// ── Lookup client existant ─────────────────────────────────────────────
+	const { data: clients = [] } = useClients();
+	const selectedClient = useMemo(
+		() => clients.find((c) => c.id === clientId),
+		[clients, clientId],
+	);
+
 	// ── Client ─────────────────────────────────────────────────────────────
+	// Pour les clients existants (clientId), les données détaillées ne sont pas
+	// disponibles dans le form — on affiche juste un placeholder.
+	// Pour les nouveaux clients (__new__), toutes les données sont dans newClient.
 	const client = (() => {
+		if (newClient) return {
+			name: newClient.name,
+			email: newClient.email,
+			city: newClient.city,
+			address: newClient.address,
+			siret: newClient.siret,
+		};
 		if (clientId && clientId !== "__new__") {
-			const found = mockClients.find((c) => c.id === clientId);
-			if (found) return { name: found.name, email: found.email, city: found.city };
+			if (selectedClient) {
+				return {
+					name: selectedClient.name,
+					email: selectedClient.email ?? "",
+					city: selectedClient.city ?? "",
+					address: selectedClient.address ?? "",
+					siret: selectedClient.siret ?? undefined,
+				};
+			}
+			return { name: "Chargement…", email: "", city: "", address: "", siret: undefined };
 		}
-		if (newClient) return { name: newClient.name, email: newClient.email, city: newClient.city };
 		return null;
 	})();
 
@@ -116,8 +140,10 @@ export function InvoicePreview({ form, invoiceNumber, companyInfo }: InvoicePrev
 						{client ? (
 							<div className="text-sm space-y-0.5">
 								<p className="font-semibold text-slate-800">{client.name}</p>
-								<p className="text-slate-500">{client.email}</p>
-								<p className="text-slate-500">{client.city}</p>
+								{client.email && <p className="text-slate-500">{client.email}</p>}
+								{client.address && <p className="text-slate-500">{client.address}</p>}
+								{client.city && <p className="text-slate-500">{client.city}</p>}
+								{client.siret && <p className="text-slate-500">SIRET : {client.siret}</p>}
 							</div>
 						) : (
 							<p className="text-xs text-slate-400 italic">Aucun client sélectionné</p>

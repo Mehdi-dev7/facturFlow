@@ -18,7 +18,7 @@ import {
 	VAT_RATES,
 } from "@/lib/validations/invoice";
 import { getInvoice } from "@/lib/actions/invoices";
-import { useUpdateInvoice, type SavedInvoice } from "@/hooks/use-invoices";
+import { useUpdateInvoice, useCreateInvoice, type SavedInvoice } from "@/hooks/use-invoices";
 
 // ─── Mapping DB → valeurs du formulaire ───────────────────────────────────────
 
@@ -86,6 +86,7 @@ export default function EditInvoicePage() {
 	const [loadError, setLoadError] = useState<string | null>(null);
 
 	const updateMutation = useUpdateInvoice();
+	const createMutation = useCreateInvoice(); // utilisé pour convertir un brouillon en facture officielle
 
 	const form = useForm<InvoiceFormData>({
 		resolver: zodResolver(invoiceFormSchema),
@@ -141,22 +142,31 @@ export default function EditInvoicePage() {
 		localStorage.setItem("facturflow_company", JSON.stringify(data));
 	}, []);
 
-	// ─── Submit : mettre à jour la facture ───────────────────────────────────
+	// ─── Submit ──────────────────────────────────────────────────────────────
+	// Brouillon → créer avec numéro officiel ; facture existante → mettre à jour
+	const isDraft = invoice?.status === "DRAFT";
+
 	const onSubmit = useCallback(
 		(data: InvoiceFormData) => {
 			if (!id) return;
-			updateMutation.mutate(
-				{ id, data },
-				{
-					onSuccess: (result) => {
-						if (result.success) {
-							router.push(`/dashboard/invoices?preview=${id}`);
-						}
+
+			if (isDraft) {
+				// Convertit le brouillon en facture officielle avec un nouveau numéro
+				createMutation.mutate({ data, draftId: id });
+			} else {
+				updateMutation.mutate(
+					{ id, data },
+					{
+						onSuccess: (result) => {
+							if (result.success) {
+								router.push(`/dashboard/invoices?preview=${id}`);
+							}
+						},
 					},
-				},
-			);
+				);
+			}
 		},
-		[id, updateMutation, router],
+		[id, isDraft, createMutation, updateMutation, router],
 	);
 
 	// ─── Skeleton ─────────────────────────────────────────────────────────────
@@ -215,7 +225,8 @@ export default function EditInvoicePage() {
 							invoiceNumber={invoice?.number ?? ""}
 							companyInfo={companyInfo}
 							onCompanyChange={handleCompanyChange}
-							isSubmitting={updateMutation.isPending}
+							isSubmitting={updateMutation.isPending || createMutation.isPending}
+							submitLabel={isDraft ? "Créer la facture" : "Sauvegarder"}
 						/>
 					</div>
 				</div>
@@ -236,6 +247,7 @@ export default function EditInvoicePage() {
 					invoiceNumber={invoice?.number ?? ""}
 					companyInfo={companyInfo}
 					onCompanyChange={handleCompanyChange}
+					submitLabel={isDraft ? "Créer la facture" : "Sauvegarder"}
 				/>
 			</div>
 		</div>

@@ -63,6 +63,7 @@ interface InvoiceFormProps {
 	companyInfo: CompanyInfo | null;
 	onCompanyChange: (data: CompanyInfo) => void;
 	isSubmitting?: boolean;
+	submitLabel?: string;
 }
 
 // ─── Composant ───────────────────────────────────────────────────────────────
@@ -74,6 +75,7 @@ export function InvoiceForm({
 	companyInfo,
 	onCompanyChange,
 	isSubmitting = false,
+	submitLabel = "Créer la facture",
 }: InvoiceFormProps) {
 	const {
 		register,
@@ -821,7 +823,7 @@ export function InvoiceForm({
 						disabled={isSubmitting}
 						className="w-full h-11 cursor-pointer transition-all duration-300 hover:scale-101 disabled:opacity-70 disabled:cursor-not-allowed"
 					>
-						{isSubmitting ? "Création en cours…" : "Créer la facture"}
+						{isSubmitting ? "En cours…" : submitLabel}
 					</Button>
 				</div>
 			</form>

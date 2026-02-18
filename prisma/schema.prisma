@@ -118,7 +118,7 @@ model User {
   timezone String @default("Europe/Paris")
 
   // Invoice Settings
-  invoicePrefix     String @default("INV")
+  invoicePrefix     String @default("FAC")
   quotePrefix       String @default("QUO")
   creditNotePrefix  String @default("CN")
   nextInvoiceNumber Int    @default(1)
@@ -333,6 +333,11 @@ model Document {
   // Files
   pdfUrl String?
 
+  // Facture électronique (SuperPDP)
+  einvoiceRef    String?   // ID de la facture chez SuperPDP
+  einvoiceStatus String?   // Dernier status_code reçu (ex: "api:uploaded", "fr:204"…)
+  einvoiceSentAt DateTime? // Date d'envoi électronique
+
   // Relations
   lineItems DocumentLineItem[]
   reminders Reminder[]
@@ -452,6 +457,13 @@ model Template {
   @@index([userId])
   @@index([type])
   @@index([businessType])
+}
+
+// État de synchronisation des events SuperPDP (singleton, polling)
+model EInvoiceSyncState {
+  id          String   @id @default("singleton")
+  lastEventId Int      @default(0) // Dernier event_id traité
+  updatedAt   DateTime @updatedAt
 }
 
 model Reminder {

@@ -9,12 +9,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Printer, Download, Send, Copy, Pencil, X } from "lucide-react";
+import { Printer, Download, Send, Copy, Pencil, X, FileCheck2, ShieldCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useDuplicateInvoice } from "@/hooks/use-invoices";
 import type { SavedInvoice } from "@/lib/actions/invoices";
 import { sendInvoiceEmail } from "@/lib/actions/send-invoice-email";
+import { sendEInvoice } from "@/lib/actions/send-einvoice";
+import { getEInvoiceStatusLabel } from "@/lib/superpdp";
 import {
   INVOICE_TYPE_CONFIG,
   INVOICE_TYPE_LABELS,
@@ -271,6 +273,11 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
                     .join(" ")}
                 </p>
               )}
+              {invoice.client.companySiret && (
+                <p className="text-slate-500 dark:text-slate-400">
+                  SIRET : {invoice.client.companySiret}
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -450,7 +457,7 @@ export function InvoicePreviewModal({
   const router = useRouter();
   const duplicateMutation = useDuplicateInvoice();
 
-  // ── Handlers des 5 boutons d'action ──────────────────────────────────────
+  // ── Handlers des 6 boutons d'action ──────────────────────────────────────
 
   const handlePrint = useCallback(() => {
     // Copie le HTML de l'aperçu + toutes les feuilles de style dans une fenêtre dédiée
@@ -538,6 +545,25 @@ export function InvoicePreviewModal({
     onOpenChange(false);
   }, [invoice, router, onOpenChange]);
 
+  const [isSendingEInvoice, setIsSendingEInvoice] = useState(false);
+
+  const handleSendEInvoice = useCallback(async () => {
+    if (!invoice || isSendingEInvoice) return;
+    setIsSendingEInvoice(true);
+
+    const result = await sendEInvoice(invoice.id);
+
+    if (result.success) {
+      toast.success("Facture envoyée électroniquement via SuperPDP !", {
+        description: "Elle transite sur le réseau Peppol.",
+      });
+    } else {
+      toast.error(result.error ?? "Envoi électronique échoué");
+    }
+
+    setIsSendingEInvoice(false);
+  }, [invoice, isSendingEInvoice]);
+
   // ── Render ────────────────────────────────────────────────────────────────
 
   return (
@@ -614,7 +640,42 @@ export function InvoicePreviewModal({
               <Pencil size={14} />
               Éditer
             </button>
+
+            {/* Envoyer électroniquement — désactivé si déjà envoyé */}
+            <button
+              onClick={handleSendEInvoice}
+              disabled={!invoice || isSendingEInvoice || !!invoice?.einvoiceRef}
+              className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-indigo-300 text-indigo-600 hover:bg-indigo-50 dark:border-indigo-500 dark:text-indigo-400 dark:hover:bg-indigo-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              title={invoice?.einvoiceRef ? "Déjà envoyée électroniquement" : "Envoyer via le réseau Peppol (certifié DGFiP)"}
+            >
+              <FileCheck2 size={14} />
+              {isSendingEInvoice ? "Envoi élec..." : invoice?.einvoiceRef ? "Envoyée élec." : "Envoyer élec."}
+            </button>
           </div>
+
+          {/* Badge de statut e-invoice — visible uniquement si envoyée */}
+          {invoice?.einvoiceRef && (
+            <div className="flex items-center gap-2 mt-3 px-3 py-2 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-500/30">
+              <ShieldCheck size={14} className="text-indigo-600 dark:text-indigo-400 shrink-0" />
+              <div className="flex flex-col min-w-0">
+                <span className="text-xs font-semibold text-indigo-700 dark:text-indigo-300">
+                  Facture électronique certifiée
+                </span>
+                <span className="text-[11px] text-indigo-500 dark:text-indigo-400">
+                  {invoice.einvoiceStatus
+                    ? getEInvoiceStatusLabel(invoice.einvoiceStatus)
+                    : "En transit"
+                  }
+                  {invoice.einvoiceSentAt && (
+                    <> &middot; {new Date(invoice.einvoiceSentAt).toLocaleDateString("fr-FR")}</>
+                  )}
+                </span>
+              </div>
+              <span className="ml-auto text-[10px] font-medium text-indigo-400 dark:text-indigo-500 shrink-0">
+                SuperPDP · Peppol
+              </span>
+            </div>
+          )}
         </DialogHeader>
 
         {/* ── Corps scrollable : aperçu statique de la facture ─────────── */}

@@ -351,11 +351,80 @@ Scheduled based on due date.
 - Export comptable (FEC, CSV)
 - Attestations diverses
 
-### 8. E-invoicing (À venir)
-- Obligatory Sept 2026 for businesses
-- Obligatory Sept 2027 for freelances
-- Business plan: includes Chorus Pro compliance
-- Pro plan: update in June 2027
+### 8. E-invoicing via SuperPDP (intégration validée, sandbox prêt)
+- Obligatoire sept 2026 pour entreprises, sept 2027 pour freelances
+- Partenaire retenu : **SuperPDP** (plateforme agréée PA/PDP, ISO 27001, Peppol)
+- Docs API : https://www.superpdp.tech/documentation | OpenAPI disponible
+
+#### API technique
+- **Base URL** : `https://api.superpdp.tech/v1.beta/`
+- **Auth** : OAuth 2.0 Client Credentials
+  - Token : `POST https://api.superpdp.tech/oauth2/token`
+  - `grant_type=client_credentials` + `client_id` + `client_secret`
+  - Puis `Authorization: Bearer {access_token}` sur chaque requête
+- **Env variables** : `SUPERPDP_CLIENT_ID`, `SUPERPDP_CLIENT_SECRET`
+  - La clé détermine auto si on est en sandbox ou production (pas de flag séparé)
+
+#### Endpoints utilisés
+| Route | Usage |
+|-------|-------|
+| `POST /v1.beta/invoices/convert?from=en16931&to=cii` | Convertit notre JSON → XML CII |
+| `POST /v1.beta/invoices` (body: XML) | Envoie la facture via Peppol |
+| `GET /v1.beta/invoice_events?starting_after_id=X` | Polling des statuts |
+| `POST /v1.beta/validation_reports` | Valide une facture avant envoi |
+| `GET /v1.beta/invoices/generate_test_invoice?format=en16931` | Facture test sandbox |
+
+#### Contraintes API critiques (validées sur OpenAPI)
+
+1. **`POST /v1.beta/invoices` n'accepte PAS JSON** — uniquement `application/xml` ou `multipart/form-data`.
+   Ne jamais envoyer `Content-Type: application/json` à cet endpoint → 400 "unknown format".
+
+2. **`seller.electronic_address` est REQUIRED** dans le schéma seller `['name', 'electronic_address', 'postal_address']`.
+   Le vendeur DOIT avoir un SIREN pour pouvoir envoyer. Vérifier avant de construire l'EN16931.
+
+3. **`addressed_to` est PIÈGE** — utilise le schéma `extension_contact` avec 8 champs required.
+   Ne pas l'inclure dans l'EN16931 : le routage Peppol se fait via `buyer.electronic_address`.
+
+4. **`buyer.electronic_address` n'est PAS required** — buyer ne requiert que `['name', 'postal_address']`.
+   Ajouter l'electronic_address du buyer conditionnellement si SIREN client présent.
+
+5. **Format `total_vat_amount`** : c'est `{ value: string (required), currency_code?: string }` (schéma `amount`).
+
+#### Flux d'envoi dans notre code
+```
+1. sendEInvoice(invoiceId) — Server Action
+   a. Récupère la facture + lignes + client + user en DB
+   b. Vérifie client.companySiren (routage Peppol client)
+   c. Vérifie user.companySiren (adresse Peppol vendeur, REQUIRED)
+   d. Construit l'objet EN16931 JSON (seller avec electronic_address, buyer, lines, totals, vat_break_down)
+   e. POST /convert?from=en16931&to=cii (Content-Type: application/json) → reçoit XML CII
+   f. POST /invoices (Content-Type: application/xml, body: XML) → reçoit { id: superpdpId }
+   g. Stocke superpdpId dans Document.einvoiceRef + status initial
+
+2. Cron Vercel (toutes les heures ou matin) — syncEInvoiceStatuses()
+   a. GET /invoice_events?starting_after_id={dernierIdConnu}
+   b. Met à jour Document.einvoiceStatus selon status_code reçu
+   c. Stocke le max id pour la prochaine sync
+```
+
+**Pas de webhooks pour l'instant** → polling obligatoire
+
+#### Statuts importants (status_code)
+- `api:uploaded` : reçu par SuperPDP, en attente de traitement
+- `fr:204` à `fr:211` : statuts cycle de vie DGFiP (envoyé, reçu, accepté, refusé…)
+- `fr:212` : paiement partiel reçu
+
+#### Champs Prisma à ajouter sur Document
+```prisma
+einvoiceRef    String?   // ID SuperPDP de la facture
+einvoiceStatus String?   // Dernier status_code reçu
+einvoiceSentAt DateTime? // Date d'envoi électronique
+```
++ table `EInvoiceSyncState` (id, lastEventId) pour le polling
+
+#### Plans tarifaires
+- **Business (29€/mois)** : inclus sans limite (coût absorbé par FacturFlow)
+- **Pro (14€/mois)** : 100 factures électroniques gratuites/mois, ensuite à décider
 
 ## Pricing (Validated)
 
@@ -372,12 +441,13 @@ Scheduled based on due date.
 - 9 business templates
 - CB & PayPal payments
 - Annual reports & URSSAF docs
+- Facture électronique certifiée (100/mois incluses via SuperPDP)
 
 ### Business - 29€/month
 - All Pro features
 - Multi-users (3 accounts)
 - API & Webhooks
-- E-invoicing (Sept 2026)
+- Facture électronique certifiée illimitée (SuperPDP, absorbé) 🏛️
 - Priority support
 - Advanced exports
 
@@ -597,5 +667,5 @@ Utilise les agents quand :
 - [ ] **Relances automatiques** : 3 niveaux (FRIENDLY/FIRM/FORMAL), cron sur dueDate
 - [ ] **Templates métiers** : 9 templates visuels pour les PDFs (web dev, designer, artisan…)
 - [ ] **Statistiques** : page /dashboard/stats — CA, TVA collectée, exports URSSAF/FEC
-- [ ] **E-invoicing** : conformité Chorus Pro (sept 2026 entreprises / sept 2027 freelances)
+- [x] **E-invoicing SuperPDP** : API intégrée (sendEInvoice + cron sync + badge UI). Contraintes: /invoices = XML only, seller.electronic_address required, pas de addressed_to
 - [ ] **Tests** : tester envoi email Resend en vrai, tester flux paiement sandbox
