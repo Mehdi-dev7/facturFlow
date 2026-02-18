@@ -16,7 +16,7 @@ const companySchema = z.object({
   companyAddress: z.string().min(5, "Adresse requise"),
   companyPostalCode: z.string().min(5, "Code postal requis"),
   companyCity: z.string().min(2, "Ville requise"),
-  companyEmail: z.string().email("Email invalide").optional().or(z.literal("")),
+  companyEmail: z.string().email("Email invalide").min(1, "Email entreprise requis"),
   companyPhone: z.string().optional(),
 });
 
@@ -84,7 +84,7 @@ export async function updateCompanyInfo(data: CompanyFormData) {
         companyAddress: validatedData.companyAddress,
         companyPostalCode: validatedData.companyPostalCode,
         companyCity: validatedData.companyCity,
-        companyEmail: validatedData.companyEmail || null,
+        companyEmail: validatedData.companyEmail,
         companyPhone: validatedData.companyPhone || null,
       },
     });

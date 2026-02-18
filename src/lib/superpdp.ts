@@ -39,6 +39,7 @@ export interface EN16931Invoice {
 
 interface EN16931Party {
   name: string
+  identifiers?: Array<{ value: string; scheme: string }>
   postal_address: {
     address_line1?: string
     city?: string
@@ -171,10 +172,34 @@ async function superpdpFetch(path: string, options: RequestInit = {}) {
 // ─── Fonctions publiques ──────────────────────────────────────────────────────
 
 /**
+ * Récupère une facture d'exemple depuis SuperPDP pour comprendre le format attendu
+ */
+export async function getTestInvoice(): Promise<any> {
+  try {
+    const res = await superpdpFetch("/v1.beta/invoices/generate_test_invoice?format=en16931", {
+      method: "GET",
+    });
+    
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(`SuperPDP test invoice échoué (${res.status}): ${err}`);
+    }
+    
+    return res.json();
+  } catch (error) {
+    console.error("[SuperPDP] Erreur récupération facture test:", error);
+    throw error;
+  }
+}
+
+/**
  * Convertit un objet EN16931 JSON en XML CII (format officiel français).
  * SuperPDP génère le XML conforme — on n'a pas à le faire nous-mêmes.
  */
 export async function convertInvoiceToXml(invoice: EN16931Invoice): Promise<string> {
+  // Debug: log de l'objet qu'on envoie (à supprimer en production)
+  console.log("[SuperPDP] Envoi EN16931:", JSON.stringify(invoice, null, 2));
+  
   const res = await superpdpFetch(
     "/v1.beta/invoices/convert?from=en16931&to=cii",
     {

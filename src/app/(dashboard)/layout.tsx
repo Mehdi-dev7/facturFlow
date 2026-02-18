@@ -76,7 +76,7 @@ const navSections: NavSection[] = [
 		items: [
 			{ label: "Factures", href: "/dashboard/invoices", icon: FileText },
 			{ label: "Devis", href: "/dashboard/quotes", icon: FileCheck },
-			{ label: "Acomptes", href: "/dashboard/acomptes", icon: Banknote },
+			{ label: "Acomptes", href: "/dashboard/deposits", icon: Banknote },
 			{ label: "Reçus", href: "/dashboard/receipts", icon: Receipt },
 			{ label: "Documents", href: "/dashboard/documents", icon: FolderOpen },
 			{ label: "Récurrences", href: "/dashboard/recurring", icon: Repeat },

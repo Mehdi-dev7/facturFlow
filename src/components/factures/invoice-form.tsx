@@ -443,7 +443,7 @@ export function InvoiceForm({
 														</SelectTrigger>
 														<SelectContent side="bottom" avoidCollisions={false} className={selectContentClass}>
 															<SelectItem value="main_oeuvre" className={selectItemClass}>
-																Main d'œuvre
+																Main d&apos;œuvre
 															</SelectItem>
 															<SelectItem value="materiel" className={selectItemClass}>
 																Matériaux

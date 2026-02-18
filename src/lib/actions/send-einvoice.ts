@@ -68,6 +68,29 @@ type InvoiceWithFullData = {
  * Le format EN16931 est le modèle sémantique commun à tous les pays européens.
  * SuperPDP prend ce JSON et génère le XML CII conforme DGFiP + Peppol.
  */
+// Helper pour supprimer les propriétés undefined/null/empty de manière plus agressive
+function removeEmptyProperties(obj: any): any {
+	if (obj === null || obj === undefined || obj === '') return undefined;
+	
+	if (Array.isArray(obj)) {
+		const filtered = obj.map(removeEmptyProperties).filter(item => item !== undefined);
+		return filtered.length > 0 ? filtered : undefined;
+	}
+	
+	if (typeof obj === 'object') {
+		const cleaned: any = {};
+		for (const [key, value] of Object.entries(obj)) {
+			const cleanedValue = removeEmptyProperties(value);
+			if (cleanedValue !== undefined) {
+				cleaned[key] = cleanedValue;
+			}
+		}
+		return Object.keys(cleaned).length > 0 ? cleaned : undefined;
+	}
+	
+	return obj;
+}
+
 function buildEN16931(invoice: InvoiceWithFullData): EN16931Invoice {
 	const subtotal = invoice.subtotal.toNumber();
 	const taxTotal = invoice.taxTotal.toNumber();
@@ -95,67 +118,95 @@ function buildEN16931(invoice: InvoiceWithFullData): EN16931Invoice {
 		}),
 		currency_code: "EUR",
 
+		// ─ Notes légales obligatoires (France) ─
+		notes: [
+			{
+				subject_code: "PMT",
+				note: "L'indemnité forfaitaire légale pour frais de recouvrement est de 40 €.",
+			},
+			{
+				subject_code: "PMD",
+				note: "À défaut de règlement à la date d'échéance, une pénalité de 10 % du net à payer sera applicable immédiatement.",
+			},
+			{
+				subject_code: "AAB",
+				note: "Aucun escompte pour paiement anticipé.",
+			},
+		],
+
 		// ─ Processus Peppol ─
 		process_control: {
-			business_process_type: "urn:fdc:peppol.eu:2017:poacc:billing:01:1.0",
-			specification_identifier:
-				"urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:01:1.0",
+			business_process_type: "M1",
+			specification_identifier: "urn:cen.eu:en16931:2017",
 		},
 
 		// ─ Vendeur (notre utilisateur) ─
-		seller: {
-			name: user.companyName ?? "FacturFlow User",
-			postal_address: {
-				address_line1: user.companyAddress ?? undefined,
-				city: user.companyCity ?? undefined,
-				post_code: user.companyPostalCode ?? undefined,
-				country_code: "FR",
-			},
-			// Adresse Peppol du vendeur (SIREN = identifiant sur le réseau français)
-			...(user.companySiren && {
+		seller: (() => {
+			const seller: any = {
+				name: user.companyName ?? "FacturFlow User",
+				identifiers: [
+					{
+						value: user.companySiren,
+						scheme: "0225",
+					},
+				],
+				postal_address: {
+					country_code: "FR",
+				},
 				electronic_address: { scheme: "0225", value: user.companySiren },
-			}),
-			// SIRET = identifiant légal
-			...(user.companySiret && {
 				legal_registration_identifier: {
 					scheme: "0002",
-					value: user.companySiret,
+					value: user.companySiren,
 				},
-			}),
-			// Numéro de TVA
-			...(user.companyVatNumber && {
-				vat_identifier: user.companyVatNumber,
-			}),
-			...(user.companyEmail && {
-				contact: { email_address: user.companyEmail },
-			}),
-		},
+			};
+			
+			// Ajouter les champs d'adresse seulement s'ils existent
+			if (user.companyAddress) seller.postal_address.address_line1 = user.companyAddress;
+			if (user.companyCity) seller.postal_address.city = user.companyCity;
+			if (user.companyPostalCode) seller.postal_address.post_code = user.companyPostalCode;
+			
+			// Ajouter le numéro de TVA seulement s'il existe
+			if (user.companyVatNumber) seller.vat_identifier = user.companyVatNumber;
+			
+			return seller;
+		})(),
 
 		// ─ Acheteur (client) ─
-		buyer: {
-			name: buyerName,
-			postal_address: {
-				address_line1: client.address ?? undefined,
-				city: client.city ?? undefined,
-				post_code: client.postalCode ?? undefined,
-				country_code:
-					client.country === "France" ? "FR" : (client.country ?? "FR"),
-			},
-			// Adresse Peppol de l'acheteur (SIREN pour les entreprises françaises)
-			...(client.companySiren && {
-				electronic_address: { scheme: "0225", value: client.companySiren },
-			}),
-			...(client.companySiret && {
-				legal_registration_identifier: {
-					scheme: "0002",
-					value: client.companySiret,
+		buyer: (() => {
+			const buyer: any = {
+				name: buyerName,
+				postal_address: {
+					country_code: client.country === "France" ? "FR" : (client.country ?? "FR"),
 				},
-			}),
-			...(client.companyVatNumber && {
-				vat_identifier: client.companyVatNumber,
-			}),
-			contact: { email_address: client.email },
-		},
+			};
+			
+			// Ajouter les identifiants seulement si le client a un SIREN
+			if (client.companySiren) {
+				buyer.identifiers = [
+					{
+						value: client.companySiren,
+						scheme: "0225",
+					},
+				];
+				buyer.electronic_address = { scheme: "0225", value: client.companySiren };
+				buyer.legal_registration_identifier = {
+					scheme: "0002",
+					value: client.companySiren,
+				};
+			}
+			
+			// Ajouter les champs d'adresse seulement s'ils existent
+			if (client.address) buyer.postal_address.address_line1 = client.address;
+			if (client.city) buyer.postal_address.city = client.city;
+			if (client.postalCode) buyer.postal_address.post_code = client.postalCode;
+			
+			// Ajouter le numéro de TVA seulement s'il existe et n'est pas vide
+			if (client.companyVatNumber && client.companyVatNumber.trim()) {
+				buyer.vat_identifier = client.companyVatNumber;
+			}
+			
+			return buyer;
+		})(),
 
 		// ─ Lignes de facture ─
 		lines: invoice.lineItems.map((li, idx) => ({
@@ -327,7 +378,10 @@ export async function sendEInvoice(invoiceId: string) {
 		}
 
 		// ─ 5. Construire l'objet EN16931 ─
-		const en16931 = buildEN16931(invoice as unknown as InvoiceWithFullData);
+		const en16931Raw = buildEN16931(invoice as unknown as InvoiceWithFullData);
+		
+		// ─ 5.1. Nettoyer l'objet pour supprimer les éléments vides ─
+		const en16931 = removeEmptyProperties(en16931Raw) as EN16931Invoice;
 
 		// ─ 6. Convertir EN16931 JSON → XML CII via SuperPDP ─
 		const xml = await convertInvoiceToXml(en16931);

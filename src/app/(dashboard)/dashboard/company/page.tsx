@@ -23,7 +23,7 @@ const companySchema = z.object({
   companyAddress: z.string().min(5, "Adresse requise"),
   companyPostalCode: z.string().min(5, "Code postal requis"),
   companyCity: z.string().min(2, "Ville requise"),
-  companyEmail: z.string().email("Email invalide").optional().or(z.literal("")),
+  companyEmail: z.string().email("Email invalide").min(1, "Email entreprise requis"),
   companyPhone: z.string().optional(),
 });
 
@@ -156,7 +156,7 @@ export default function CompanyPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="companyName" className="text-xs font-medium text-slate-700 dark:text-slate-300">
-                Nom de l'entreprise *
+                Nom de l&apos;entreprise *
               </Label>
               <Input
                 id="companyName"
@@ -294,7 +294,7 @@ export default function CompanyPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="companyEmail" className="text-xs font-medium text-slate-700 dark:text-slate-300">
-                Email professionnel
+                Email professionnel *
               </Label>
               <Input
                 id="companyEmail"
@@ -332,7 +332,7 @@ export default function CompanyPage() {
           <Button 
             type="submit" 
             disabled={updateMutation.isPending}
-            className="bg-violet-600 hover:bg-violet-700 dark:bg-violet-500 dark:hover:bg-violet-600 text-white rounded-xl px-6 py-2.5 text-sm font-medium transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl"
+            className="bg-violet-600 hover:bg-violet-700 dark:bg-violet-500 dark:hover:bg-violet-600 text-white rounded-xl px-6 py-2.5 text-sm font-medium transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl cursor-pointer"
           >
             {updateMutation.isPending ? (
               <>

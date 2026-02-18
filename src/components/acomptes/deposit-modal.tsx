@@ -194,7 +194,7 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
           {/* Date d'échéance */}
           <div className="space-y-1.5">
             <Label htmlFor="deposit-due-date" className="text-slate-700 dark:text-violet-200">
-              Date d'échéance *
+              Date d&apos;échéance *
             </Label>
             <Input
               id="deposit-due-date"
