@@ -655,17 +655,38 @@ Utilise les agents quand :
 - [x] Dashboard layout + sidebar
 - [x] Factures — CRUD complet, PDF, email Resend, statuts, cron OVERDUE
 - [x] Devis — CRUD complet, email Resend (boutons Accepter/Refuser), statuts, cron CANCELLED
-- [x] Acomptes — CRUD, email Resend, automation depuis devis accepté, statuts
+- [x] Acomptes — CRUD complet, email Resend, automation depuis devis accepté, statuts, branché DB (page new + liste)
 - [x] Clients — CRUD complet, modale création/édition, SIRET lookup
+- [x] E-invoicing SuperPDP — API intégrée (sendEInvoice + cron sync + badge UI)
 
-### Reste à faire
+### Bugs connus
+- [ ] **Bug envoi facture électronique** : l'envoi via SuperPDP échoue dans certains cas — investiguer les logs, vérifier seller.electronic_address et le flux convert → send
+
+### Reste à faire — App
+
 - [ ] **Sidebar** : supprimer "Templates" de Personnalisation
 - [ ] **Mon Compte** : ajouter page profil (email, téléphone, avatar), garder "Mon entreprise"
 - [ ] **Documents complémentaires** : avoirs (CREDIT_NOTE), bons de commande (PURCHASE_ORDER), bons de livraison (DELIVERY_NOTE), proforma (PROFORMA)
+- [ ] **Dots / badges d'action** : indicateurs visuels sur les listes factures, devis et acomptes
+  - Point rouge si action requise (DRAFT non envoyé, OVERDUE)
+  - Point vert si événement positif (PAID, ACCEPTED)
+  - Point orange si info (SENT, REMINDED)
+  - Applicable aussi aux notifications sidebar
 - [ ] **Paiements** : brancher Stripe (CB/Apple Pay/Google Pay), PayPal, GoCardless (SEPA)
 - [ ] **Factures récurrentes** : page /dashboard/recurring, génération auto via cron
 - [ ] **Relances automatiques** : 3 niveaux (FRIENDLY/FIRM/FORMAL), cron sur dueDate
 - [ ] **Templates métiers** : 9 templates visuels pour les PDFs (web dev, designer, artisan…)
 - [ ] **Statistiques** : page /dashboard/stats — CA, TVA collectée, exports URSSAF/FEC
-- [x] **E-invoicing SuperPDP** : API intégrée (sendEInvoice + cron sync + badge UI). Contraintes: /invoices = XML only, seller.electronic_address required, pas de addressed_to
 - [ ] **Tests** : tester envoi email Resend en vrai, tester flux paiement sandbox
+
+### Reste à faire — Onboarding & Marketing
+
+- [ ] **Tutoriel paiements animé** : guide visuel interactif (images animées / GIF / mini-vidéo) pour connecter Stripe, PayPal et GoCardless
+  - Étape 1 : Créer un compte sur la plateforme (Stripe dashboard, PayPal Business, GoCardless)
+  - Étape 2 : Récupérer les clés API / OAuth
+  - Étape 3 : Les coller dans FacturFlow (Settings → Paiements)
+  - Format : images avec flèches et boutons surlignés, style "product tour"
+- [ ] **Landing page — animation hero** : petite animation ou image animée (Lottie / CSS / vidéo courte) montrant en 5-10s ce que fait FacturFlow (créer facture → envoyer → client paie → PAID automatique)
+- [ ] **Démo vidéo** : vidéo de 1min à 1min30 pour le bouton "Voir la démo" sur la landing page
+  - Scénario : création facture, envoi client, paiement SEPA automatique, dashboard stats
+  - Format : screen recording avec voix-off ou sous-titres, montage propre
