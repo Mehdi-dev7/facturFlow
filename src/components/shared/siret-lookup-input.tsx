@@ -113,10 +113,15 @@ export function SiretLookupInput({ onFound }: SiretLookupInputProps) {
 
 			{/* Feedback succès */}
 			{found && !error && (
-				<p className="text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
-					<CheckCircle2 className="size-3.5 shrink-0" />
-					Entreprise trouvée — champs pré-remplis automatiquement
-				</p>
+				<div className="rounded-lg border border-emerald-300 dark:border-emerald-400/30 bg-emerald-50/80 dark:bg-emerald-900/15 p-3 space-y-1">
+					<p className="text-xs text-emerald-700 dark:text-emerald-300 flex items-center gap-1.5 font-medium">
+						<CheckCircle2 className="size-3.5 shrink-0" />
+						Entreprise trouvée — champs pré-remplis automatiquement
+					</p>
+					<p className="text-xs text-emerald-600 dark:text-emerald-400">
+						✓ Nom, SIREN, SIRET, adresse et numéro de TVA récupérés
+					</p>
+				</div>
 			)}
 		</div>
 	);

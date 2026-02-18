@@ -8,6 +8,7 @@ import { auth } from "@/lib/auth";
 import { calcInvoiceTotals } from "@/lib/utils/calculs-facture";
 import type { QuoteFormData, VatRate } from "@/lib/validations/quote";
 import { createDepositFromQuote } from "./deposits";
+import type { DepositFormData } from "@/lib/types/deposits";
 
 // ─── Type exporté (utilisé par les hooks et les modals) ─────────────────────
 

@@ -6,42 +6,13 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 
-// ─── Type exporté (utilisé par les hooks et les modals) ──────────────────────
+// ─── Imports des types ──────────────────────────────────────────────────────
 
-export interface SavedDeposit {
-  id: string;
-  number: string;
-  status: string;
-  date: string;
-  dueDate: string | null;
-  total: number;
-  subtotal: number;
-  taxTotal: number;
-  notes: string | null;
-  relatedDocumentId: string | null;
-  businessMetadata: Record<string, unknown> | null;
-  client: {
-    id: string;
-    companyName: string | null;
-    firstName: string | null;
-    lastName: string | null;
-    email: string;
-    city: string | null;
-  };
-  user: {
-    companyName: string | null;
-    companySiret: string | null;
-    companyAddress: string | null;
-    companyPostalCode: string | null;
-    companyCity: string | null;
-    companyEmail: string | null;
-    companyPhone: string | null;
-  };
-}
+import type { SavedDeposit } from "@/lib/types/deposits";
 
-// ─── Schema Zod ──────────────────────────────────────────────────────────────
+// ─── Schema Zod (interne) ───────────────────────────────────────────────────
 
-export const depositSchema = z.object({
+const depositSchema = z.object({
   clientId: z.string().min(1, "Client requis"),
   amount: z.number().min(0.01, "Montant requis"),
   vatRate: z.union([z.literal(0), z.literal(5.5), z.literal(10), z.literal(20)]),
@@ -50,7 +21,7 @@ export const depositSchema = z.object({
   notes: z.string().optional(),
 });
 
-export type DepositFormData = z.infer<typeof depositSchema>;
+type DepositFormData = z.infer<typeof depositSchema>;
 
 // ─── Prisma include & mapper ────────────────────────────────────────────────
 

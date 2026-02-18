@@ -70,11 +70,16 @@ export function useCreateInvoice() {
       data: Parameters<typeof createInvoice>[0];
       draftId?: string;
     }) => createInvoice(data, draftId),
-    onSuccess: (result) => {
+    onSuccess: async (result) => {
       if (result.success && result.data) {
-        queryClient.invalidateQueries({ queryKey: ["invoices"] });
+        // Invalider la liste ET la facture spécifique pour forcer le refresh
+        await queryClient.invalidateQueries({ queryKey: ["invoices"] });
+        await queryClient.invalidateQueries({ queryKey: ["invoices", result.data.id] });
         toast.success("Facture créée !");
-        router.push(`/dashboard/invoices?preview=${result.data.id}`);
+        // Petit délai pour s'assurer que les données sont rafraîchies
+        setTimeout(() => {
+          router.push(`/dashboard/invoices?preview=${result.data.id}`);
+        }, 100);
       } else if (!result.success) {
         // Si des détails Zod sont présents, afficher la première erreur précise
         const details = (result as { details?: { message: string }[] }).details;

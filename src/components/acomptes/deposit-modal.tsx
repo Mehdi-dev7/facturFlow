@@ -23,7 +23,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Loader2 } from "lucide-react";
 import { ClientSearch } from "@/components/factures/client-search";
 import { useCreateDeposit } from "@/hooks/use-deposits";
-import { depositSchema, type DepositFormData } from "@/lib/actions/deposits";
+import { depositSchema, type DepositFormData } from "@/lib/types/deposits";
 
 // ─── Props ──────────────────────────────────────────────────────────────────
 

@@ -127,9 +127,12 @@ function InvoicesPageContent() {
     if (!previewId || isLoading || previewOpenedRef.current) return;
     const inv = invoiceMap.get(previewId);
     if (inv) {
-      previewOpenedRef.current = true;
-      setPreviewInvoice(inv);
-      setPreviewOpen(true);
+      // Vérifier que ce n'est pas un brouillon temporaire
+      if (!inv.number.startsWith("BROUILLON-")) {
+        previewOpenedRef.current = true;
+        setPreviewInvoice(inv);
+        setPreviewOpen(true);
+      }
     }
   }, [previewId, invoiceMap, isLoading]);
 
@@ -354,18 +357,26 @@ function InvoicesPageContent() {
     if (idx >= 0) setSelectedMonth(new Date(year, idx, 1));
   }, []);
 
-  // Ouvrir la modal au clic sur une ligne (brouillons → page d'édition)
+  // Ouvrir la modal au clic sur une ligne (vrais brouillons → page d'édition)
   const handleRowClick = useCallback((row: InvoiceRow) => {
-    if (row.dbStatus === "DRAFT") {
+    const inv = invoiceMap.get(row.id);
+    if (!inv) return;
+    
+    // Si c'est un vrai brouillon (numéro temporaire), aller vers l'édition
+    if (row.dbStatus === "DRAFT" && inv.number.startsWith("BROUILLON-")) {
       router.push(`/dashboard/invoices/${row.id}/edit`);
       return;
     }
-    const inv = invoiceMap.get(row.id);
-    if (inv) {
-      setPreviewInvoice(inv);
-      setPreviewOpen(true);
-    }
+    
+    // Sinon, ouvrir la modal de prévisualisation
+    setPreviewInvoice(inv);
+    setPreviewOpen(true);
   }, [invoiceMap, router]);
+
+  // Toujours aller vers le formulaire d'édition (pour le bouton "Éditer")
+  const handleEdit = useCallback((row: InvoiceRow) => {
+    router.push(`/dashboard/invoices/${row.id}/edit`);
+  }, [router]);
 
   // Supprimer avec confirmation
   const handleDeleteConfirm = useCallback(() => {
@@ -414,13 +425,13 @@ function InvoicesPageContent() {
           onRowClick={handleRowClick}
           actions={(row) => (
             <ActionButtons
-              onEdit={() => handleRowClick(row)}
+              onEdit={() => handleEdit(row)}
               onDelete={() => setDeleteTargetId(row.id)}
             />
           )}
           mobileActions={(row) => (
             <ActionMenuMobile
-              onEdit={() => handleRowClick(row)}
+              onEdit={() => handleEdit(row)}
               onDelete={() => setDeleteTargetId(row.id)}
             />
           )}

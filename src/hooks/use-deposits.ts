@@ -7,9 +7,8 @@ import {
   createDeposit,
   updateDepositStatus,
   deleteDeposit,
-  type SavedDeposit,
-  type DepositFormData,
 } from "@/lib/actions/deposits";
+import type { SavedDeposit, DepositFormData } from "@/lib/types/deposits";
 
 // Re-export pour faciliter l'import depuis d'autres fichiers
 export type { SavedDeposit, DepositFormData };
