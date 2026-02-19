@@ -19,6 +19,9 @@ export interface SavedClient {
   email: string;
   phone: string | null;
   siret: string | null;
+  companySiret: string | null;
+  companySiren: string | null;
+  companyVatNumber: string | null;
   address: string | null;
   postalCode: string | null;
   city: string | null;
@@ -40,6 +43,8 @@ type PrismaClientRow = {
   email: string;
   phone: string | null;
   companySiret: string | null;
+  companySiren: string | null;
+  companyVatNumber: string | null;
   address: string | null;
   postalCode: string | null;
   city: string | null;
@@ -65,6 +70,9 @@ function mapToSavedClient(row: PrismaClientRow): SavedClient {
     email: row.email,
     phone: row.phone,
     siret: row.companySiret,
+    companySiret: row.companySiret,
+    companySiren: row.companySiren,
+    companyVatNumber: row.companyVatNumber,
     address: row.address,
     postalCode: row.postalCode,
     city: row.city,
@@ -183,6 +191,8 @@ export async function createClient(data: ClientFormData) {
         firstName: isCompany ? null : data.name.split(" ")[0] ?? data.name,
         lastName: isCompany ? null : data.name.split(" ").slice(1).join(" ") || null,
         companySiret: data.siret || null,
+        companySiren: data.siren || null,
+        companyVatNumber: data.vatNumber || null,
         email: data.email,
         phone: data.phone || null,
         address: data.address,
@@ -255,6 +265,8 @@ export async function updateClient(id: string, data: ClientFormData) {
         firstName: isCompany ? null : data.name.split(" ")[0] ?? data.name,
         lastName: isCompany ? null : data.name.split(" ").slice(1).join(" ") || null,
         companySiret: data.siret || null,
+        companySiren: data.siren || null,
+        companyVatNumber: data.vatNumber || null,
         email: data.email,
         phone: data.phone || null,
         address: data.address,

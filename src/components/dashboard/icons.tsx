@@ -112,6 +112,29 @@ export function UsersIcon() {
   );
 }
 
+export function BuildingIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z" />
+      <path d="M6 12H4a2 2 0 0 0-2 2v8h20v-8a2 2 0 0 0-2-2h-2" />
+      <path d="M18 9h2a2 2 0 0 1 2 2v1" />
+      <path d="M18 22V4" />
+      <path d="M14 22v-4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v4" />
+      <path d="M14 9h.01" />
+      <path d="M10 9h.01" />
+    </svg>
+  );
+}
+
+export function BriefcaseIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect width="20" height="14" x="2" y="7" rx="2" ry="2" />
+      <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+    </svg>
+  );
+}
+
 export function RepeatIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -130,5 +153,7 @@ export const iconMap: Record<string, () => React.JSX.Element> = {
   clock: ClockIcon,
   chart: ChartIcon,
   users: UsersIcon,
+  building: BuildingIcon,
+  briefcase: BriefcaseIcon,
   repeat: RepeatIcon,
 };

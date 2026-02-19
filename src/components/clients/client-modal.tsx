@@ -57,6 +57,8 @@ export function ClientModal({ open, onOpenChange, editClient, onSuccess }: Clien
         type: editClient.type,
         name: editClient.name,
         siret: editClient.siret ?? undefined,
+        siren: editClient.companySiren ?? undefined,
+        vatNumber: editClient.companyVatNumber ?? undefined,
         email: editClient.email,
         phone: editClient.phone ?? undefined,
         address: editClient.address ?? "",
@@ -74,6 +76,10 @@ export function ClientModal({ open, onOpenChange, editClient, onSuccess }: Clien
     (data: SiretData) => {
       setValue("name", data.name, { shouldDirty: true });
       setValue("siret", data.siret, { shouldDirty: true });
+      setValue("siren", data.siren, { shouldDirty: true });
+      if (data.vatNumber) {
+        setValue("vatNumber", data.vatNumber, { shouldDirty: true });
+      }
       setValue("address", data.address, { shouldDirty: true });
       setValue("zipCode", data.zipCode, { shouldDirty: true });
       setValue("city", data.city, { shouldDirty: true });
@@ -191,8 +197,8 @@ export function ClientModal({ open, onOpenChange, editClient, onSuccess }: Clien
                   }`} />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-slate-900 dark:text-slate-100">Particulier</p>
-                  <p className="text-[11px] text-slate-500 dark:text-violet-400/70">B2C</p>
+                  <p className="text-sm font-medium text-slate-900 dark:text-slate-100">PME & Freelance</p>
+                  <p className="text-[11px] text-slate-500 dark:text-violet-400/70">Auto-entrepreneur</p>
                 </div>
               </button>
             </div>
@@ -209,12 +215,12 @@ export function ClientModal({ open, onOpenChange, editClient, onSuccess }: Clien
             {/* Nom */}
             <div>
               <Label htmlFor="modalClientName" className={labelClass}>
-                {clientType === "entreprise" ? "Raison sociale *" : "Nom complet *"}
+                {clientType === "entreprise" ? "Raison sociale *" : "Nom / Raison sociale *"}
               </Label>
               <Input
                 id="modalClientName"
                 {...register("name")}
-                placeholder={clientType === "entreprise" ? "Ex: Acme SAS" : "Ex: Jean Dupont"}
+                placeholder={clientType === "entreprise" ? "Ex: Acme SAS" : "Ex: Jean Dupont EURL"}
                 className={inputClass}
                 aria-invalid={!!errors.name}
               />
@@ -233,6 +239,30 @@ export function ClientModal({ open, onOpenChange, editClient, onSuccess }: Clien
                 maxLength={14}
                 inputMode="numeric"
                 className={`${inputClass} font-mono tracking-widest`}
+              />
+            </div>
+
+            {/* SIREN */}
+            <div>
+              <Label htmlFor="modalClientSiren" className={labelClass}>SIREN</Label>
+              <Input
+                id="modalClientSiren"
+                {...register("siren")}
+                placeholder="9 chiffres"
+                maxLength={9}
+                inputMode="numeric"
+                className={`${inputClass} font-mono tracking-widest`}
+              />
+            </div>
+
+            {/* Numéro de TVA */}
+            <div>
+              <Label htmlFor="modalClientVatNumber" className={labelClass}>N° TVA Intracommunautaire</Label>
+              <Input
+                id="modalClientVatNumber"
+                {...register("vatNumber")}
+                placeholder="FR12345678901"
+                className={`${inputClass} font-mono`}
               />
             </div>
 

@@ -27,10 +27,11 @@ function formatEuros(amount: number): string {
 function buildKpiData(clients: SavedClient[]): KpiData[] {
   const total = clients.length;
   const companies = clients.filter((c) => c.type === "entreprise").length;
+  const pme = clients.filter((c) => c.type === "particulier").length;
 
   return [
     {
-      label: "Nombre de clients",
+      label: "Total clients",
       value: String(total),
       change: `${total} au total`,
       changeType: "neutral",
@@ -55,6 +56,19 @@ function buildKpiData(clients: SavedClient[]): KpiData[] {
       darkGradientFrom: "#1e1b4b",
       darkGradientTo: "#78350f",
     },
+    {
+      label: "PME & Auto-entrepreneurs",
+      value: String(pme),
+      change: total > 0 ? `${Math.round((pme / total) * 100)}% du total` : "0%",
+      changeType: "up",
+      icon: "briefcase",
+      iconBg: "bg-emerald-500",
+      borderAccent: "border-emerald-500/30",
+      gradientFrom: "#f0fdf4",
+      gradientTo: "#a7f3d0",
+      darkGradientFrom: "#1e1b4b",
+      darkGradientTo: "#064e3b",
+    },
   ];
 }
 
@@ -69,7 +83,7 @@ function TypeBadge({ type }: { type: SavedClient["type"] }) {
           : "bg-sky-100 text-sky-700 dark:bg-sky-500/20 dark:text-sky-300 border border-sky-300 dark:border-sky-500/40"
       }`}
     >
-      {isEntreprise ? "Entreprise" : "Particulier"}
+      {isEntreprise ? "Entreprise" : "PME & Freelance"}
     </span>
   );
 }
