@@ -111,9 +111,92 @@ function mapToSavedDeposit(doc: PrismaDepositWithRelations): SavedDeposit {
   };
 }
 
+// ─── Action : sauvegarder un brouillon d'acompte ────────────────────────────
+
+export async function saveDraftDeposit(data: DepositFormData, draftId?: string) {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session?.user?.id) {
+    return { success: false, error: "Non authentifié" } as const;
+  }
+
+  const userId = session.user.id;
+
+  try {
+    // Validation basique (moins stricte que pour la création finale)
+    if (!data.clientId || !data.amount || data.amount <= 0) {
+      return { success: false, error: "Données insuffisantes pour la sauvegarde" } as const;
+    }
+
+    // Calculer les totaux
+    const subtotal = new Decimal(data.amount);
+    const vatRate = data.vatRate || 20;
+    const taxTotal = subtotal.mul(vatRate).div(100);
+    const total = subtotal.add(taxTotal);
+
+    if (draftId) {
+      // Mettre à jour le brouillon existant
+      const existingDraft = await prisma.document.findFirst({
+        where: { id: draftId, userId, type: "DEPOSIT", status: "DRAFT" },
+      });
+
+      if (existingDraft) {
+        await prisma.document.update({
+          where: { id: draftId },
+          data: {
+            clientId: data.clientId,
+            date: data.date ? new Date(data.date) : new Date(),
+            dueDate: data.dueDate ? new Date(data.dueDate) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+            subtotal,
+            taxTotal,
+            total,
+            notes: data.notes ?? null,
+            businessMetadata: {
+              vatRate,
+              amount: data.amount,
+              description: data.description ?? "Acompte",
+            },
+            updatedAt: new Date(),
+          },
+        });
+
+        revalidatePath("/dashboard/deposits");
+        return { success: true, data: { id: draftId } } as const;
+      }
+    }
+
+    // Créer un nouveau brouillon avec un numéro temporaire
+    const draft = await prisma.document.create({
+      data: {
+        userId,
+        clientId: data.clientId,
+        type: "DEPOSIT",
+        number: `BROUILLON-${Date.now()}`,
+        date: data.date ? new Date(data.date) : new Date(),
+        dueDate: data.dueDate ? new Date(data.dueDate) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        status: "DRAFT",
+        subtotal,
+        taxTotal,
+        total,
+        notes: data.notes ?? null,
+        businessMetadata: {
+          vatRate,
+          amount: data.amount,
+          description: data.description ?? "Acompte",
+        },
+      },
+    });
+
+    revalidatePath("/dashboard/deposits");
+    return { success: true, data: { id: draft.id } } as const;
+  } catch (error) {
+    console.error("[saveDraftDeposit] Erreur:", error);
+    return { success: false, error: "Erreur lors de la sauvegarde du brouillon" } as const;
+  }
+}
+
 // ─── Action : créer un acompte ──────────────────────────────────────────────
 
-export async function createDeposit(data: DepositFormData) {
+export async function createDeposit(data: DepositFormData, draftId?: string) {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session?.user?.id) {
     return { success: false, error: "Non authentifié" } as const;
@@ -145,40 +228,79 @@ export async function createDeposit(data: DepositFormData) {
     const taxTotal = subtotal * (data.vatRate / 100);
     const total = subtotal + taxTotal;
 
-    // Numérotation atomique : DEP-YYYY-XXXX
-    const updatedUser = await prisma.user.update({
-      where: { id: userId },
-      data: { nextDepositNumber: { increment: 1 } },
-      select: { nextDepositNumber: true },
-    });
+    let doc;
 
-    const year = new Date().getFullYear();
-    const usedNumber = updatedUser.nextDepositNumber - 1;
-    const depositNumber = `DEP-${year}-${String(usedNumber).padStart(4, "0")}`;
+    if (draftId) {
+      // Transformer le brouillon en acompte officiel
+      const existingDraft = await prisma.document.findFirst({
+        where: { id: draftId, userId, type: "DEPOSIT", status: "DRAFT" },
+      });
 
-    // Créer le document DEPOSIT
-    const doc = await prisma.document.create({
-      data: {
-        userId,
-        clientId: data.clientId,
-        type: "DEPOSIT",
-        number: depositNumber,
-        date: data.date ? new Date(data.date) : new Date(),
-        dueDate: new Date(data.dueDate),
-        status: "DRAFT",
-        subtotal,
-        taxTotal,
-        total,
-        relatedDocumentId: data.relatedQuoteId ?? null,
-        notes: data.notes ?? null,
-        businessMetadata: {
-          vatRate: data.vatRate,
-          amount: data.amount,
-          description: data.description ?? "Acompte",
+      if (existingDraft) {
+        doc = await prisma.document.update({
+          where: { id: draftId },
+          data: {
+            clientId: data.clientId,
+            date: data.date ? new Date(data.date) : new Date(),
+            dueDate: new Date(data.dueDate),
+            status: "SENT", // Passer de DRAFT à SENT
+            subtotal: new Decimal(subtotal),
+            taxTotal: new Decimal(taxTotal),
+            total: new Decimal(total),
+            relatedDocumentId: data.relatedQuoteId ?? null,
+            notes: data.notes ?? null,
+            businessMetadata: {
+              vatRate: data.vatRate,
+              amount: data.amount,
+              description: data.description ?? "Acompte",
+            },
+            updatedAt: new Date(),
+          },
+          include: depositInclude,
+        });
+      } else {
+        // Le brouillon n'existe plus, créer un nouveau document
+        draftId = undefined;
+      }
+    }
+
+    if (!draftId) {
+      // Créer un nouvel acompte (pas de brouillon ou brouillon introuvable)
+      // Numérotation atomique : DEP-YYYY-XXXX
+      const updatedUser = await prisma.user.update({
+        where: { id: userId },
+        data: { nextDepositNumber: { increment: 1 } },
+        select: { nextDepositNumber: true },
+      });
+
+      const year = new Date().getFullYear();
+      const usedNumber = updatedUser.nextDepositNumber - 1;
+      const depositNumber = `DEP-${year}-${String(usedNumber).padStart(4, "0")}`;
+
+      // Créer le document DEPOSIT
+      doc = await prisma.document.create({
+        data: {
+          userId,
+          clientId: data.clientId,
+          type: "DEPOSIT",
+          number: depositNumber,
+          date: data.date ? new Date(data.date) : new Date(),
+          dueDate: new Date(data.dueDate),
+          status: "SENT", // Créer directement en SENT (pas DRAFT)
+          subtotal: new Decimal(subtotal),
+          taxTotal: new Decimal(taxTotal),
+          total: new Decimal(total),
+          relatedDocumentId: data.relatedQuoteId ?? null,
+          notes: data.notes ?? null,
+          businessMetadata: {
+            vatRate: data.vatRate,
+            amount: data.amount,
+            description: data.description ?? "Acompte",
+          },
         },
-      },
-      include: depositInclude,
-    });
+        include: depositInclude,
+      });
+    }
 
     revalidatePath("/dashboard/acomptes");
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -11,9 +11,11 @@ import { Button } from "@/components/ui/button";
 import { DepositForm } from "@/components/acomptes/deposit-form";
 import { DepositPreview } from "@/components/acomptes/deposit-preview";
 import { toast } from "sonner";
-import { useCreateDeposit } from "@/hooks/use-deposits";
+import { useCreateDeposit, useSaveDraftDeposit } from "@/hooks/use-deposits";
 import { getNextDepositNumber } from "@/lib/actions/deposits";
 import type { CompanyInfo } from "@/lib/validations/invoice";
+
+const AUTOSAVE_INTERVAL = 30_000;
 
 // ─── Schema local (inclut les champs UI non stockés en DB brut) ──────────────
 
@@ -53,8 +55,13 @@ export default function NewDepositPage() {
   const [mounted, setMounted] = useState(false);
   const [depositNumber, setDepositNumber] = useState("DEP-…-…");
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
   const createDeposit = useCreateDeposit();
+  const saveDraft = useSaveDraftDeposit();
+
+  // Ref pour stocker l'ID du brouillon en cours de sauvegarde
+  const draftIdRef = useRef<string | undefined>(undefined);
 
   const form = useForm<DepositFormData>({
     resolver: zodResolver(depositFormSchema),
@@ -117,11 +124,47 @@ export default function NewDepositPage() {
     localStorage.setItem("facturflow_company", JSON.stringify(data));
   }, []);
 
-  // Soumission : map vers le schéma serveur + redirection
+  // ─── Auto-save en DB toutes les 30s ─────────────────────────────────────────
+  const intervalRef = useRef<ReturnType<typeof setInterval>>(undefined);
+  useEffect(() => {
+    if (!mounted) return;
+
+    intervalRef.current = setInterval(async () => {
+      const values = form.getValues();
+      // Vérifier qu'il y a du contenu à sauvegarder
+      const hasContent = values.amount && values.amount > 0 && values.description;
+      // Ne sauvegarder que si un client est sélectionné (requis par la DB)
+      const hasClient = values.clientId;
+      if (!hasContent || !hasClient) return;
+
+      try {
+        const result = await saveDraft.mutateAsync({
+          data: values as DepositFormData,
+          draftId: draftIdRef.current,
+        });
+        if (result.success && result.data) {
+          draftIdRef.current = result.data.id;
+          setLastSaved(new Date());
+        } else if (!result.success) {
+          // Log pour debug — l'erreur est silencieuse côté UI
+          console.warn("[Auto-save] Échec:", result.error);
+        }
+      } catch (error) {
+        console.warn("[Auto-save] Erreur:", error);
+      }
+    }, AUTOSAVE_INTERVAL);
+
+    return () => clearInterval(intervalRef.current);
+  }, [form, saveDraft, mounted]);
+
+  // ─── Submit : créer l'acompte en DB ──────────────────────────────────────────
   const onSubmit = useCallback(
     async (data: DepositFormData) => {
       try {
-        const result = await createDeposit.mutateAsync(data);
+        const result = await createDeposit.mutateAsync({
+          data,
+          draftId: draftIdRef.current,
+        });
         
         if (result.success && result.data) {
           toast.success("Acompte créé !");
@@ -169,6 +212,11 @@ export default function NewDepositPage() {
           </h1>
           <p className="text-sm text-slate-500 dark:text-violet-400/60">
             {depositNumber}
+            {lastSaved && (
+              <span className="ml-2 text-xs text-emerald-500 dark:text-emerald-400">
+                · Sauvegardé à {lastSaved.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
+              </span>
+            )}
           </p>
         </div>
       </div>

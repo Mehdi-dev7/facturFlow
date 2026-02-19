@@ -6,6 +6,7 @@ import {
   getDeposits,
   getDeposit,
   createDeposit,
+  saveDraftDeposit,
   updateDeposit,
   updateDepositStatus,
   deleteDeposit,
@@ -53,7 +54,8 @@ export function useCreateDeposit() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: DepositFormData) => createDeposit(data),
+    mutationFn: ({ data, draftId }: { data: DepositFormData; draftId?: string }) => 
+      createDeposit(data, draftId),
     onSuccess: (result) => {
       if (result.success) {
         queryClient.invalidateQueries({ queryKey: ["deposits"] });
@@ -85,6 +87,19 @@ export function useUpdateDepositStatus() {
       }
     },
     onError: () => toast.error("Erreur lors du changement de statut"),
+  });
+}
+
+// ─── Hook : sauvegarder un brouillon d'acompte ──────────────────────────────
+
+/**
+ * Mutation pour sauvegarder un brouillon d'acompte (auto-save).
+ */
+export function useSaveDraftDeposit() {
+  return useMutation({
+    mutationFn: ({ data, draftId }: { data: DepositFormData; draftId?: string }) => 
+      saveDraftDeposit(data, draftId),
+    // Pas de toast pour l'auto-save (silencieux)
   });
 }
 

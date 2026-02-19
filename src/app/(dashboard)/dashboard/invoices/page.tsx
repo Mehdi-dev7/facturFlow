@@ -328,6 +328,7 @@ function InvoicesPageContent() {
 
     const cy = selectedMonth.getFullYear();
     const cm = selectedMonth.getMonth() + 1;
+    const currentYear = new Date().getFullYear();
 
     return Object.entries(grouped)
       .map(([yearStr, months]) => ({
@@ -336,7 +337,8 @@ function InvoicesPageContent() {
           .filter(([mStr]) => {
             const y = parseInt(yearStr, 10);
             const m = parseInt(mStr, 10);
-            return !(y === cy && m === cm);
+            // Exclure le mois courant ET ne montrer que les années antérieures à l'année courante
+            return !(y === cy && m === cm) && y < currentYear;
           })
           .map(([mStr, count]) => ({
             month: monthNames[parseInt(mStr, 10) - 1],

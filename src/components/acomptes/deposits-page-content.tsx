@@ -272,14 +272,74 @@ export function DepositsPageContent() {
     });
   }, [rows, searchQuery, selectedStatuses]);
 
+  // ─── Archive ─────────────────────────────────────────────────────────────────
+  const archiveData = useMemo(() => {
+    const monthNames = [
+      "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+      "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre",
+    ];
+
+    // Grouper par année/mois
+    const grouped = deposits.reduce((acc, deposit) => {
+      const date = new Date(deposit.date);
+      const year = date.getFullYear();
+      const month = date.getMonth() + 1;
+      
+      if (!acc[year]) acc[year] = {};
+      if (!acc[year][month]) acc[year][month] = 0;
+      acc[year][month]++;
+      
+      return acc;
+    }, {} as Record<number, Record<number, number>>);
+
+    const cy = selectedMonth.getFullYear();
+    const cm = selectedMonth.getMonth() + 1;
+    const currentYear = new Date().getFullYear();
+
+    return Object.entries(grouped)
+      .map(([yearStr, months]) => ({
+        year: parseInt(yearStr, 10),
+        months: Object.entries(months)
+          .filter(([mStr]) => {
+            const y = parseInt(yearStr, 10);
+            const m = parseInt(mStr, 10);
+            // Exclure le mois courant ET ne montrer que les années antérieures à l'année courante
+            return !(y === cy && m === cm) && y < currentYear;
+          })
+          .map(([mStr, count]) => ({
+            month: monthNames[parseInt(mStr, 10) - 1],
+            count,
+          }))
+          .sort((a, b) => monthNames.indexOf(b.month) - monthNames.indexOf(a.month)),
+      }))
+      .filter((y) => y.months.length > 0)
+      .sort((a, b) => b.year - a.year);
+  }, [deposits, selectedMonth]);
+
+  const handleArchiveSelect = useCallback((year: number, monthName: string) => {
+    const monthNames = [
+      "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+      "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre",
+    ];
+    const idx = monthNames.indexOf(monthName);
+    if (idx >= 0) setSelectedMonth(new Date(year, idx, 1));
+  }, []);
+
   // ─── Actions ───────────────────────────────────────────────────────────────
 
   const handleRowClick = useCallback(
     (row: DepositRow) => {
+      // Si c'est un vrai brouillon (numéro temporaire), aller vers l'édition
+      if (row.dbStatus === "DRAFT" && row.number.startsWith("BROUILLON-")) {
+        router.push(`/dashboard/deposits/${row.id}/edit`);
+        return;
+      }
+
+      // Sinon, ouvrir la modal de prévisualisation
       setPreviewDeposit(row._raw);
       setPreviewOpen(true);
     },
-    [],
+    [router],
   );
 
 
@@ -376,8 +436,10 @@ export function DepositsPageContent() {
         />
       </div>
 
-      {/* Section archivées */}
-      <ArchiveSection data={[]} onSelect={() => {}} />
+      {/* Archive Section */}
+      {archiveData.length > 0 && (
+        <ArchiveSection data={archiveData} onSelect={handleArchiveSelect} />
+      )}
 
       {/* Dialog de confirmation suppression */}
       <AlertDialog open={!!deleteTargetId} onOpenChange={() => setDeleteTargetId(null)}>

@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Printer, Send, Copy, Pencil, X } from "lucide-react";
+import { Printer, Download, Send, Copy, Pencil, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useDuplicateQuote } from "@/hooks/use-quotes";
@@ -451,6 +451,23 @@ export function QuotePreviewModal({
   }, [quote]);
 
   const [isSending, setIsSending] = useState(false);
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+
+  const handleGeneratePdf = useCallback(async () => {
+    if (!quote) return;
+    setIsGeneratingPdf(true);
+    try {
+      // Import dynamique : le module @react-pdf/renderer ne s'exécute qu'au clic
+      const { downloadQuotePDF } = await import("@/lib/pdf/quote-pdf");
+      await downloadQuotePDF(quote);
+      toast.success("PDF téléchargé !");
+    } catch (error) {
+      console.error("Erreur génération PDF:", error);
+      toast.error("Erreur lors de la génération du PDF");
+    } finally {
+      setIsGeneratingPdf(false);
+    }
+  }, [quote]);
 
   const handleSend = useCallback(async () => {
     if (!quote || isSending) return;
@@ -529,6 +546,16 @@ export function QuotePreviewModal({
             >
               <Printer size={14} />
               Imprimer
+            </button>
+
+            {/* Télécharger PDF */}
+            <button
+              onClick={handleGeneratePdf}
+              disabled={!quote || isGeneratingPdf}
+              className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-sky-300 text-sky-600 hover:bg-sky-50 dark:border-sky-500 dark:text-sky-400 dark:hover:bg-sky-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            >
+              <Download size={14} />
+              {isGeneratingPdf ? "..." : "PDF"}
             </button>
 
             {/* Envoyer */}

@@ -13,6 +13,7 @@ import { Printer, Download, Send, Copy, Pencil, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import type { SavedDeposit } from "@/lib/types/deposits";
+import { sendDepositEmail } from "@/lib/actions/send-deposit-email";
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -76,9 +77,12 @@ export function DepositPreviewModal({
     if (!deposit) return;
     setIsGeneratingPdf(true);
     try {
-      // TODO: Implémenter la génération PDF
-      toast.success("PDF généré !");
-    } catch {
+      // Import dynamique : le module @react-pdf/renderer ne s'exécute qu'au clic
+      const { downloadDepositPDF } = await import("@/lib/pdf/deposit-pdf");
+      await downloadDepositPDF(deposit);
+      toast.success("PDF téléchargé !");
+    } catch (error) {
+      console.error("Erreur génération PDF:", error);
       toast.error("Erreur lors de la génération du PDF");
     } finally {
       setIsGeneratingPdf(false);
@@ -89,9 +93,14 @@ export function DepositPreviewModal({
     if (!deposit) return;
     setIsSendingEmail(true);
     try {
-      // TODO: Implémenter l'envoi par email
-      toast.success("Email envoyé !");
-    } catch {
+      const result = await sendDepositEmail(deposit.id);
+      if (result.success) {
+        toast.success(`Acompte envoyé à ${deposit.client.email}`);
+      } else {
+        toast.error(result.error ?? "Erreur lors de l'envoi");
+      }
+    } catch (error) {
+      console.error("Erreur envoi email:", error);
       toast.error("Erreur lors de l'envoi de l'email");
     } finally {
       setIsSendingEmail(false);
@@ -99,9 +108,41 @@ export function DepositPreviewModal({
   }, [deposit]);
 
   const handlePrint = useCallback(() => {
-    if (!deposit) return;
-    // TODO: Implémenter l'impression
-    window.print();
+    // Copie le HTML de l'aperçu + toutes les feuilles de style dans une fenêtre dédiée
+    const printArea = document.getElementById("deposit-print-area");
+    if (!printArea) return;
+
+    // Récupérer toutes les <link> et <style> du document actuel
+    const styles = Array.from(document.querySelectorAll('link[rel="stylesheet"], style'))
+      .map((el) => el.outerHTML)
+      .join("\n");
+
+    // Petit délai pour éviter l'effet d'agrandissement de la modal
+    setTimeout(() => {
+      const win = window.open("", "_blank", "width=800,height=1100");
+      if (!win) return;
+
+    win.document.write(`<!DOCTYPE html>
+<html><head>
+  <title>Acompte ${deposit?.number ?? ""}</title>
+  ${styles}
+  <style>
+    @page { size: A4; margin: 10mm; }
+    body { margin: 0; padding: 20px; background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .rounded-2xl { border-radius: 0 !important; border: none !important; box-shadow: none !important; }
+    .min-h-\\[800px\\] { min-height: auto !important; }
+  </style>
+</head>
+<body>${printArea.innerHTML}</body></html>`);
+
+      win.document.close();
+
+      // Attendre le chargement des styles puis imprimer
+      win.onload = () => { win.print(); win.close(); };
+      // Fallback si onload ne fire pas
+      setTimeout(() => { try { win.print(); win.close(); } catch { /* already closed */ } }, 1500);
+    }, 100); // Délai de 100ms
   }, [deposit]);
 
   // ── Données calculées ──────────────────────────────────────────────────
@@ -136,7 +177,7 @@ export function DepositPreviewModal({
         showCloseButton={false}
       >
         {/* ── Header du modal : titre + bouton fermer + 5 actions ─────── */}
-        <DialogHeader className="px-6 pt-5 pb-4 border-b border-slate-200 dark:border-violet-500/20">
+        <DialogHeader data-print-hide className="px-6 pt-5 pb-4 border-b border-slate-200 dark:border-violet-500/20">
           {/* Première ligne : numéro d'acompte + croix */}
           <div className="flex items-center justify-between">
             <DialogTitle className="text-slate-900 dark:text-slate-100 text-base font-semibold">
@@ -207,7 +248,7 @@ export function DepositPreviewModal({
         </DialogHeader>
 
         {/* ── Corps scrollable : aperçu statique de l'acompte ─────────── */}
-        <div className="overflow-y-auto max-h-[70vh] p-6">
+        <div id="deposit-print-area" className="overflow-y-auto max-h-[70vh] p-6">
           <div className="bg-white dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 p-6 space-y-6 shadow-sm">
             {/* En-tête du document avec bandeau coloré */}
             <div className="bg-linear-to-r from-violet-600 to-purple-600 dark:from-violet-500 dark:to-purple-500 rounded-lg p-4 text-white mb-6">

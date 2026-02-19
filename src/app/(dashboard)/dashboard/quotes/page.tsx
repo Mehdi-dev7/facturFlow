@@ -313,6 +313,7 @@ function QuotesPageContent() {
 
     const cy = selectedMonth.getFullYear();
     const cm = selectedMonth.getMonth() + 1;
+    const currentYear = new Date().getFullYear();
 
     return Object.entries(grouped)
       .map(([yearStr, months]) => ({
@@ -321,7 +322,8 @@ function QuotesPageContent() {
           .filter(([mStr]) => {
             const y = parseInt(yearStr, 10);
             const m = parseInt(mStr, 10);
-            return !(y === cy && m === cm);
+            // Exclure le mois courant ET ne montrer que les années antérieures à l'année courante
+            return !(y === cy && m === cm) && y < currentYear;
           })
           .map(([mStr, count]) => ({
             month: monthNames[parseInt(mStr, 10) - 1],
@@ -342,14 +344,26 @@ function QuotesPageContent() {
     if (idx >= 0) setSelectedMonth(new Date(year, idx, 1));
   }, []);
 
-  // Ouvrir la modal au clic sur une ligne
+  // Ouvrir la modal au clic sur une ligne (vrais brouillons → page d'édition)
   const handleRowClick = useCallback((row: QuoteRow) => {
     const q = quoteMap.get(row.id);
-    if (q) {
-      setPreviewQuote(q);
-      setPreviewOpen(true);
+    if (!q) return;
+
+    // Si c'est un vrai brouillon (numéro temporaire), aller vers l'édition
+    if (row.dbStatus === "DRAFT" && q.number.startsWith("BROUILLON-")) {
+      router.push(`/dashboard/quotes/${row.id}/edit`);
+      return;
     }
-  }, [quoteMap]);
+
+    // Sinon, ouvrir la modal de prévisualisation
+    setPreviewQuote(q);
+    setPreviewOpen(true);
+  }, [quoteMap, router]);
+
+  // Édition directe (toujours vers la page d'édition)
+  const handleEdit = useCallback((row: QuoteRow) => {
+    router.push(`/dashboard/quotes/${row.id}/edit`);
+  }, [router]);
 
   // Supprimer avec confirmation
   const handleDeleteConfirm = useCallback(() => {
@@ -398,13 +412,13 @@ function QuotesPageContent() {
           onRowClick={handleRowClick}
           actions={(row) => (
             <ActionButtons
-              onEdit={() => handleRowClick(row)}
+              onEdit={() => handleEdit(row)}
               onDelete={() => setDeleteTargetId(row.id)}
             />
           )}
           mobileActions={(row) => (
             <ActionMenuMobile
-              onEdit={() => handleRowClick(row)}
+              onEdit={() => handleEdit(row)}
               onDelete={() => setDeleteTargetId(row.id)}
             />
           )}
