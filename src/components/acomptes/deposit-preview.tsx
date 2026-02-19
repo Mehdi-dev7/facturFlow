@@ -48,7 +48,7 @@ export function DepositPreview({ form, depositNumber, companyInfo }: DepositPrev
   return (
     <div className="rounded-2xl border border-slate-300/80 dark:border-violet-500/20 shadow-lg shadow-slate-200/50 dark:shadow-violet-950/40 bg-white/75 dark:bg-[#1a1438] backdrop-blur-lg overflow-hidden">
       {/* Header avec bandeau coloré */}
-      <div className="bg-gradient-to-r from-violet-600 to-purple-600 dark:from-violet-500 dark:to-purple-500 p-4">
+      <div className="bg-linear-to-r from-violet-600 to-purple-600 dark:from-violet-500 dark:to-purple-500 p-4">
         <h2 className="text-sm font-semibold text-white flex items-center gap-2">
           <Eye className="size-4 text-white" />
           Aperçu temps réel
@@ -84,7 +84,7 @@ export function DepositPreview({ form, depositNumber, companyInfo }: DepositPrev
           <div className="grid grid-cols-2 gap-6">
             {/* Émetteur */}
             <div>
-              <h3 className="font-semibold text-slate-900 dark:text-slate-50 mb-2 text-xs uppercase tracking-wide text-violet-600 dark:text-violet-400">
+              <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide text-violet-600 dark:text-violet-400">
                 Émetteur
               </h3>
               {companyInfo ? (
@@ -105,7 +105,7 @@ export function DepositPreview({ form, depositNumber, companyInfo }: DepositPrev
 
             {/* Destinataire */}
             <div>
-              <h3 className="font-semibold text-slate-900 dark:text-slate-50 mb-2 text-xs uppercase tracking-wide text-violet-600 dark:text-violet-400">
+              <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide text-violet-600 dark:text-violet-400">
                 Destinataire
               </h3>
               {formData.clientId ? (
@@ -121,12 +121,12 @@ export function DepositPreview({ form, depositNumber, companyInfo }: DepositPrev
 
           {/* Détails de l'acompte */}
           <div>
-            <h3 className="font-semibold text-slate-900 dark:text-slate-50 mb-3 text-xs uppercase tracking-wide text-violet-600 dark:text-violet-400">
+            <h3 className="font-semibold mb-3 text-xs uppercase tracking-wide text-violet-600 dark:text-violet-400">
               Détails
             </h3>
             <div className="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
               <table className="w-full">
-                <thead className="bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-950/50 dark:to-purple-950/50">
+                <thead className="bg-linear-to-r from-violet-50 to-purple-50 dark:from-violet-950/50 dark:to-purple-950/50">
                   <tr>
                     <th className="text-left p-3 text-xs font-medium text-violet-700 dark:text-violet-300 uppercase tracking-wide">
                       Description
@@ -164,7 +164,7 @@ export function DepositPreview({ form, depositNumber, companyInfo }: DepositPrev
 
           {/* Récapitulatif */}
           <div className="flex justify-end">
-            <div className="w-64 space-y-2 bg-gradient-to-br from-violet-50 to-purple-50 dark:from-violet-950/50 dark:to-purple-950/50 rounded-lg p-4 border border-violet-200/50 dark:border-violet-500/20">
+            <div className="w-64 space-y-2 bg-linear-to-br from-violet-50 to-purple-50 dark:from-violet-950/50 dark:to-purple-950/50 rounded-lg p-4 border border-violet-200/50 dark:border-violet-500/20">
               <div className="flex justify-between text-sm">
                 <span className="text-violet-700 dark:text-violet-300">Sous-total HT :</span>
                 <span className="text-slate-900 dark:text-slate-50 font-medium">{calculations.subtotal > 0 ? calculations.subtotal.toFixed(2) : "0,00"} €</span>
@@ -183,7 +183,7 @@ export function DepositPreview({ form, depositNumber, companyInfo }: DepositPrev
           {/* Notes */}
           {formData.notes && formData.notes.trim() && (
             <div>
-              <h3 className="font-semibold text-slate-900 dark:text-slate-50 mb-2 text-xs uppercase tracking-wide text-violet-600 dark:text-violet-400">
+              <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide text-violet-600 dark:text-violet-400">
                 Notes
               </h3>
               <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3">
@@ -196,7 +196,7 @@ export function DepositPreview({ form, depositNumber, companyInfo }: DepositPrev
 
           {/* Liens de paiement */}
           <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
-            <h3 className="font-semibold text-slate-900 dark:text-slate-50 mb-3 text-xs uppercase tracking-wide text-violet-600 dark:text-violet-400">
+            <h3 className="font-semibold mb-3 text-xs uppercase tracking-wide text-violet-600 dark:text-violet-400">
               Modalités de paiement
             </h3>
             <div className="space-y-2 text-sm text-slate-600 dark:text-slate-400">

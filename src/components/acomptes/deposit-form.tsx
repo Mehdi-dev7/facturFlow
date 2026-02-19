@@ -298,7 +298,7 @@ export function DepositForm({
               <Label className="text-xs font-medium text-slate-700 dark:text-slate-300">
                 Récapitulatif
               </Label>
-              <div className="rounded-xl border border-slate-200/50 bg-linear-to-br from-violet-50 to-purple-50 dark:from-violet-950/50 dark:to-purple-950/50 border-violet-200/50 dark:border-violet-500/20 p-3 space-y-1 text-sm">
+              <div className="rounded-xl border  bg-linear-to-br from-violet-50 to-purple-50 dark:from-violet-950/50 dark:to-purple-950/50 border-violet-200/50 dark:border-violet-500/20 p-3 space-y-1 text-sm">
                 <div className="flex justify-between">
                   <span className="text-slate-600 dark:text-slate-300">Montant HT :</span>
                   <span className="font-medium text-slate-900 dark:text-slate-50">{calculations.subtotal > 0 ? calculations.subtotal.toFixed(2) : "0,00"} €</span>

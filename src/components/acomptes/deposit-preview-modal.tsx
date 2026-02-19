@@ -66,7 +66,7 @@ export function DepositPreviewModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg bg-gradient-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25 shadow-lg dark:shadow-violet-950/40">
+      <DialogContent className="sm:max-w-lg bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25 shadow-lg dark:shadow-violet-950/40">
         <DialogHeader>
           <div className="flex items-center gap-3">
             <DialogTitle className="text-lg font-bold text-slate-900 dark:text-slate-100">
@@ -110,7 +110,7 @@ export function DepositPreviewModal({
                   {formatAmountFR(deposit.taxTotal)}
                 </span>
               </div>
-              <div className="h-px bg-gradient-to-r from-transparent via-violet-300 dark:via-violet-500/30 to-transparent" />
+              <div className="h-px bg-linear-to-r from-transparent via-violet-300 dark:via-violet-500/30 to-transparent" />
               <div className="flex items-center justify-between">
                 <span className="text-sm font-semibold text-slate-800 dark:text-violet-200">
                   Total TTC

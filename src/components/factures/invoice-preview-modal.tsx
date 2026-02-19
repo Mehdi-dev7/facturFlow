@@ -190,7 +190,7 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
   return (
     <div className="bg-white dark:bg-[#1e1a3a] rounded-2xl border border-slate-200 dark:border-violet-500/20 shadow-sm overflow-hidden flex flex-col min-h-[800px]">
       {/* ── Header violet ─────────────────────────────────────────────── */}
-      <div className="bg-gradient-to-r from-violet-600 to-indigo-600 px-6 py-5 text-white">
+      <div className="bg-linear-to-r from-violet-600 to-indigo-600 px-6 py-5 text-white">
         <div className="flex items-start justify-between">
           <div>
             <h2 className="text-lg font-bold tracking-tight">FACTURE</h2>
@@ -569,7 +569,7 @@ export function InvoicePreviewModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="sm:max-w-3xl bg-gradient-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25 shadow-lg dark:shadow-violet-950/40 rounded-xl overflow-hidden p-0"
+        className="sm:max-w-3xl bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25 shadow-lg dark:shadow-violet-950/40 rounded-xl overflow-hidden p-0"
         // On désactive le bouton de fermeture par défaut pour en mettre un custom dans le header
         showCloseButton={false}
       >
