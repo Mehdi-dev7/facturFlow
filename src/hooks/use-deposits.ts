@@ -4,7 +4,9 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   getDeposits,
+  getDeposit,
   createDeposit,
+  updateDeposit,
   updateDepositStatus,
   deleteDeposit,
 } from "@/lib/actions/deposits";
@@ -83,6 +85,29 @@ export function useUpdateDepositStatus() {
       }
     },
     onError: () => toast.error("Erreur lors du changement de statut"),
+  });
+}
+
+// ─── Hook : mettre à jour un acompte ────────────────────────────────────────
+
+/**
+ * Mutation pour mettre à jour un acompte.
+ */
+export function useUpdateDeposit() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, ...data }: { id: string } & DepositFormData) =>
+      updateDeposit(id, data),
+    onSuccess: (result) => {
+      if (result.success) {
+        queryClient.invalidateQueries({ queryKey: ["deposits"] });
+        toast.success("Acompte mis à jour !");
+      } else {
+        toast.error(result.error ?? "Erreur lors de la mise à jour");
+      }
+    },
+    onError: () => toast.error("Erreur lors de la mise à jour"),
   });
 }
 

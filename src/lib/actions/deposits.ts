@@ -1,6 +1,7 @@
 "use server";
 
 import { z } from "zod";
+import { Decimal } from "@prisma/client/runtime/library";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
@@ -32,11 +33,18 @@ const depositInclude = {
   client: {
     select: {
       id: true,
+      type: true,
       companyName: true,
       firstName: true,
       lastName: true,
       email: true,
+      phone: true,
+      address: true,
+      postalCode: true,
       city: true,
+      companyVatNumber: true,
+      companySiren: true,
+      companySiret: true,
     },
   },
   user: {
@@ -64,11 +72,16 @@ type PrismaDepositWithRelations = {
   notes: string | null;
   relatedDocumentId: string | null;
   businessMetadata: unknown;
+  clientId: string;
+  createdAt: Date;
+  updatedAt: Date;
   client: SavedDeposit["client"];
   user: SavedDeposit["user"];
 };
 
 function mapToSavedDeposit(doc: PrismaDepositWithRelations): SavedDeposit {
+  const metadata = doc.businessMetadata as Record<string, unknown> | null;
+  
   return {
     id: doc.id,
     number: doc.number,
@@ -80,12 +93,21 @@ function mapToSavedDeposit(doc: PrismaDepositWithRelations): SavedDeposit {
     total: doc.total.toNumber(),
     notes: doc.notes,
     relatedDocumentId: doc.relatedDocumentId,
-    businessMetadata:
-      doc.businessMetadata != null
-        ? (doc.businessMetadata as Record<string, unknown>)
-        : null,
+    businessMetadata: metadata,
     client: doc.client,
     user: doc.user,
+    // Propriétés extraites de businessMetadata
+    amount: metadata?.amount as number || doc.subtotal.toNumber(),
+    vatRate: metadata?.vatRate as number || 20,
+    description: metadata?.description as string || "Acompte",
+    clientId: doc.clientId,
+    paymentLinks: {
+      stripe: true,
+      paypal: true,
+      sepa: true,
+    },
+    createdAt: doc.createdAt.toISOString(),
+    updatedAt: doc.updatedAt.toISOString(),
   };
 }
 
@@ -319,6 +341,59 @@ export async function getDeposit(id: string) {
   } catch (error) {
     console.error("[getDeposit] Erreur:", error);
     return { success: false, error: "Erreur lors de la récupération de l'acompte", data: null } as const;
+  }
+}
+
+// ─── Action : mettre à jour un acompte ──────────────────────────────────────
+
+export async function updateDeposit(id: string, data: DepositFormData) {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session?.user?.id) {
+    return { success: false, error: "Non authentifié" } as const;
+  }
+
+  try {
+    // Vérifier que l'acompte existe et appartient à l'utilisateur
+    const existingDeposit = await prisma.document.findFirst({
+      where: { id, userId: session.user.id, type: "DEPOSIT" },
+    });
+
+    if (!existingDeposit) {
+      return { success: false, error: "Acompte introuvable" } as const;
+    }
+
+    // Calculer les totaux
+    const subtotal = data.amount;
+    const taxTotal = (subtotal * data.vatRate) / 100;
+    const total = subtotal + taxTotal;
+
+    // Mettre à jour l'acompte
+    const updatedDoc = await prisma.document.update({
+      where: { id },
+      data: {
+        clientId: data.clientId,
+        date: new Date(data.date),
+        dueDate: new Date(data.dueDate),
+        subtotal: new Decimal(subtotal),
+        taxTotal: new Decimal(taxTotal),
+        total: new Decimal(total),
+        notes: data.notes || null,
+        businessMetadata: {
+          vatRate: data.vatRate,
+          amount: data.amount,
+          description: data.description,
+        },
+      },
+      include: depositInclude,
+    });
+
+    revalidatePath("/dashboard/deposits");
+
+    const saved = mapToSavedDeposit(updatedDoc as unknown as PrismaDepositWithRelations);
+    return { success: true, data: saved } as const;
+  } catch (error) {
+    console.error("[updateDeposit] Erreur:", error);
+    return { success: false, error: "Erreur lors de la mise à jour de l'acompte" } as const;
   }
 }
 

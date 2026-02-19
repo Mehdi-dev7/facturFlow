@@ -26,50 +26,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-// import { useDeposits, useDeleteDeposit, type SavedDeposit } from "@/hooks/use-deposits";
+import { useDeposits, useDeleteDeposit, type SavedDeposit } from "@/hooks/use-deposits";
 import { DepositPreviewModal } from "@/components/acomptes/deposit-preview-modal";
 
 // ─── Types & helpers ──────────────────────────────────────────────────────────
-
-// Type temporaire pour SavedDeposit
-interface SavedDeposit {
-  id: string;
-  number: string;
-  clientId: string;
-  client: {
-    id: string;
-    name: string;
-    email?: string;
-    type: "COMPANY" | "INDIVIDUAL";
-    companyName?: string;
-    firstName?: string;
-    lastName?: string;
-    address?: string;
-    postalCode?: string;
-    city?: string;
-    phone?: string;
-    companyVatNumber?: string;
-    companySiren?: string;
-    companySiret?: string;
-  };
-  amount: number;
-  vatRate: number;
-  subtotal: number;
-  taxTotal: number;
-  total: number;
-  description: string;
-  notes?: string;
-  date: string;
-  dueDate: string;
-  status: string;
-  paymentLinks: {
-    stripe: boolean;
-    paypal: boolean;
-    sepa: boolean;
-  };
-  createdAt: string;
-  updatedAt: string;
-}
 
 interface DepositRow {
   id: string;
@@ -212,116 +172,9 @@ export function DepositsPageContent() {
   //   return `${y}-${m}`;
   // }, [selectedMonth]);
 
-  // ─── Données mockées temporaires ─────────────────────────────────────────
-  const deposits: SavedDeposit[] = useMemo(() => [
-    {
-      id: "1",
-      number: "ACC-2026-0001",
-      clientId: "client-1",
-      client: {
-        id: "client-1",
-        name: "ACME Corp",
-        email: "contact@acme.com",
-        type: "COMPANY",
-        companyName: "ACME Corp",
-        address: "123 Rue de la Paix",
-        postalCode: "75001",
-        city: "Paris",
-        phone: "01 23 45 67 89",
-        companySiret: "12345678901234"
-      },
-      amount: 1250,
-      vatRate: 20,
-      subtotal: 1250,
-      taxTotal: 250,
-      total: 1500,
-      description: "Acompte sur prestation développement web",
-      notes: "Acompte de 50% sur le projet",
-      date: "2026-02-15",
-      dueDate: "2026-03-15",
-      status: "SENT",
-      paymentLinks: {
-        stripe: true,
-        paypal: false,
-        sepa: true
-      },
-      createdAt: "2026-02-15T10:00:00Z",
-      updatedAt: "2026-02-15T10:00:00Z"
-    },
-    {
-      id: "2",
-      number: "ACC-2026-0002",
-      clientId: "client-2",
-      client: {
-        id: "client-2",
-        name: "Tech Solutions",
-        email: "info@techsolutions.fr",
-        type: "COMPANY",
-        companyName: "Tech Solutions SARL",
-        address: "456 Avenue des Champs",
-        postalCode: "69000",
-        city: "Lyon",
-        phone: "04 56 78 90 12"
-      },
-      amount: 625,
-      vatRate: 20,
-      subtotal: 625,
-      taxTotal: 125,
-      total: 750,
-      description: "Acompte sur formation React",
-      date: "2026-02-10",
-      dueDate: "2026-03-10",
-      status: "PAID",
-      paymentLinks: {
-        stripe: true,
-        paypal: true,
-        sepa: false
-      },
-      createdAt: "2026-02-10T14:30:00Z",
-      updatedAt: "2026-02-12T09:15:00Z"
-    },
-    {
-      id: "3",
-      number: "ACC-2026-0003",
-      clientId: "client-3",
-      client: {
-        id: "client-3",
-        name: "StartupXYZ",
-        email: "hello@startupxyz.com",
-        type: "COMPANY",
-        companyName: "StartupXYZ SAS",
-        address: "789 Boulevard Innovation",
-        postalCode: "33000",
-        city: "Bordeaux"
-      },
-      amount: 1875,
-      vatRate: 20,
-      subtotal: 1875,
-      taxTotal: 375,
-      total: 2250,
-      description: "Acompte sur refonte site web",
-      notes: "Premier acompte de 30%",
-      date: "2026-02-18",
-      dueDate: "2026-03-20",
-      status: "OVERDUE",
-      paymentLinks: {
-        stripe: true,
-        paypal: false,
-        sepa: true
-      },
-      createdAt: "2026-02-18T16:45:00Z",
-      updatedAt: "2026-02-18T16:45:00Z"
-    }
-  ], []);
-  
-  // Mock delete function
-  const deleteDeposit = useMemo(() => ({
-    mutateAsync: async (id: string) => {
-      console.log("Delete deposit:", id);
-      // TODO: Implémenter la suppression
-    },
-    isPending: false
-  }), []);
+  // ─── Hooks pour les données réelles ─────────────────────────────────────────
+  const { data: deposits = [] } = useDeposits();
+  const deleteDepositMutation = useDeleteDeposit();
 
   // Mapper en DepositRow
   const rows: DepositRow[] = useMemo(() => deposits.map(toRow), [deposits]);
@@ -423,15 +276,12 @@ export function DepositsPageContent() {
 
   const handleRowClick = useCallback(
     (row: DepositRow) => {
-      if (row.dbStatus === "DRAFT") {
-        router.push(`/dashboard/deposits/${row.id}/edit`);
-        return;
-      }
       setPreviewDeposit(row._raw);
       setPreviewOpen(true);
     },
-    [router],
+    [],
   );
+
 
   const handleEdit = useCallback(
     (row: DepositRow) => {
@@ -442,9 +292,9 @@ export function DepositsPageContent() {
 
   const handleDelete = useCallback(async () => {
     if (!deleteTargetId) return;
-    await deleteDeposit.mutateAsync(deleteTargetId);
+    await deleteDepositMutation.mutateAsync(deleteTargetId);
     setDeleteTargetId(null);
-  }, [deleteTargetId, deleteDeposit]);
+  }, [deleteTargetId, deleteDepositMutation]);
 
   // Ouvrir la preview via URL (?preview=id)
   useEffect(() => {
@@ -543,7 +393,7 @@ export function DepositsPageContent() {
             <AlertDialogAction
               onClick={handleDelete}
               className="bg-red-600 hover:bg-red-700"
-              disabled={deleteDeposit.isPending}
+              disabled={deleteDepositMutation.isPending}
             >
               <Trash2 className="size-4 mr-2" />
               Supprimer

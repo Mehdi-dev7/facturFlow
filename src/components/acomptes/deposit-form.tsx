@@ -68,7 +68,6 @@ export function DepositForm({
   isSubmitting,
 }: DepositFormProps) {
   const [showCompanyModal, setShowCompanyModal] = useState(false);
-  const [selectedClientId, setSelectedClientId] = useState<string | undefined>();
 
   const { register, handleSubmit, setValue, control, formState: { errors } } = form;
   // register est utilisé pour date, dueDate, description, notes
@@ -76,6 +75,7 @@ export function DepositForm({
   // Watch les champs pour la réactivité temps réel
   const amount = useWatch({ control, name: "amount" });
   const vatRate = useWatch({ control, name: "vatRate" });
+  const clientId = useWatch({ control, name: "clientId" });
 
   const calculations = useMemo(() => {
     const subtotal = Number(amount) || 0;
@@ -93,12 +93,10 @@ export function DepositForm({
 
   // Gestion des clients
   const handleSelectClient = useCallback((clientId: string) => {
-    setSelectedClientId(clientId);
     setValue("clientId", clientId);
   }, [setValue]);
 
   const handleClearClient = useCallback(() => {
-    setSelectedClientId(undefined);
     setValue("clientId", "");
   }, [setValue]);
 
@@ -163,7 +161,7 @@ export function DepositForm({
             Destinataire
           </h3>
           <ClientSearch
-            selectedClientId={selectedClientId}
+            selectedClientId={clientId}
             onSelectClient={handleSelectClient}
             onClear={handleClearClient}
             error={errors.clientId?.message}
@@ -279,14 +277,22 @@ export function DepositForm({
                 control={control}
                 render={({ field }) => (
                   <Select value={field.value.toString()} onValueChange={(value) => field.onChange(Number(value))}>
-                    <SelectTrigger className={inputClass}>
+                    <SelectTrigger className="h-10 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-lg text-sm text-slate-900 dark:text-slate-50">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="0">0% (exonéré)</SelectItem>
-                      <SelectItem value="5.5">5,5% (réduit)</SelectItem>
-                      <SelectItem value="10">10% (intermédiaire)</SelectItem>
-                      <SelectItem value="20">20% (normal)</SelectItem>
+                    <SelectContent side="bottom" avoidCollisions={false} className="bg-linear-to-b from-violet-100 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/30 rounded-xl shadow-xl dark:shadow-violet-950/50 z-50">
+                      <SelectItem value="0" className="cursor-pointer rounded-lg transition-colors text-sm dark:text-slate-100 hover:bg-violet-200/70 data-highlighted:bg-violet-200/70 dark:hover:bg-violet-500/25 dark:data-highlighted:bg-violet-500/25 data-highlighted:text-violet-900 dark:data-highlighted:text-slate-50">
+                        0% (exonéré)
+                      </SelectItem>
+                      <SelectItem value="5.5" className="cursor-pointer rounded-lg transition-colors text-sm dark:text-slate-100 hover:bg-violet-200/70 data-highlighted:bg-violet-200/70 dark:hover:bg-violet-500/25 dark:data-highlighted:bg-violet-500/25 data-highlighted:text-violet-900 dark:data-highlighted:text-slate-50">
+                        5,5% (réduit)
+                      </SelectItem>
+                      <SelectItem value="10" className="cursor-pointer rounded-lg transition-colors text-sm dark:text-slate-100 hover:bg-violet-200/70 data-highlighted:bg-violet-200/70 dark:hover:bg-violet-500/25 dark:data-highlighted:bg-violet-500/25 data-highlighted:text-violet-900 dark:data-highlighted:text-slate-50">
+                        10% (intermédiaire)
+                      </SelectItem>
+                      <SelectItem value="20" className="cursor-pointer rounded-lg transition-colors text-sm dark:text-slate-100 hover:bg-violet-200/70 data-highlighted:bg-violet-200/70 dark:hover:bg-violet-500/25 dark:data-highlighted:bg-violet-500/25 data-highlighted:text-violet-900 dark:data-highlighted:text-slate-50">
+                        20% (normal)
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 )}

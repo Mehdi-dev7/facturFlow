@@ -103,7 +103,7 @@ export function QuoteStepper({
 				</div>
 				<div className="h-1 bg-slate-200 dark:bg-violet-950/40 rounded-full overflow-hidden">
 					<div
-						className="h-full bg-gradient-to-r from-emerald-600 to-teal-600 rounded-full transition-all duration-500 ease-out"
+						className="h-full bg-linear-to-r from-emerald-600 to-teal-600 rounded-full transition-all duration-500 ease-out"
 						style={{ width: `${progress}%` }}
 					/>
 				</div>

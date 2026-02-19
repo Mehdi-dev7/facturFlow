@@ -12,48 +12,7 @@ import {
 import { Printer, Download, Send, Copy, Pencil, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { StatusDropdownDeposit } from "@/components/dashboard";
-
-// ─── Types temporaires (à adapter selon votre structure) ─────────────────────
-
-interface SavedDeposit {
-  id: string;
-  number: string;
-  clientId: string;
-  client: {
-    id: string;
-    name: string;
-    email?: string;
-    type: "COMPANY" | "INDIVIDUAL";
-    companyName?: string;
-    firstName?: string;
-    lastName?: string;
-    address?: string;
-    postalCode?: string;
-    city?: string;
-    phone?: string;
-    companyVatNumber?: string;
-    companySiren?: string;
-    companySiret?: string;
-  };
-  amount: number;
-  vatRate: number;
-  subtotal: number;
-  taxTotal: number;
-  total: number;
-  description: string;
-  notes?: string;
-  date: string;
-  dueDate: string;
-  status: string;
-  paymentLinks: {
-    stripe: boolean;
-    paypal: boolean;
-    sepa: boolean;
-  };
-  createdAt: string;
-  updatedAt: string;
-}
+import type { SavedDeposit } from "@/lib/types/deposits";
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -96,7 +55,8 @@ export function DepositPreviewModal({
   const handleEdit = useCallback(() => {
     if (!deposit) return;
     router.push(`/dashboard/deposits/${deposit.id}/edit`);
-  }, [deposit, router]);
+    onOpenChange(false);
+  }, [deposit, router, onOpenChange]);
 
   const handleDuplicate = useCallback(async () => {
     if (!deposit) return;
@@ -150,9 +110,9 @@ export function DepositPreviewModal({
     if (!deposit?.client) return "Client inconnu";
     const { client } = deposit;
     if (client.type === "COMPANY") {
-      return client.companyName || client.name;
+      return client.companyName || "Entreprise";
     }
-    return `${client.firstName || ""} ${client.lastName || ""}`.trim() || client.name;
+    return `${client.firstName || ""} ${client.lastName || ""}`.trim() || client.email || "Client";
   }, [deposit]);
 
   const clientAddress = useMemo(() => {
@@ -242,6 +202,7 @@ export function DepositPreviewModal({
               <Pencil size={14} />
               Éditer
             </button>
+
           </div>
         </DialogHeader>
 
@@ -278,7 +239,28 @@ export function DepositPreviewModal({
                   Émetteur
                 </h3>
                 <div className="text-sm space-y-0.5">
-                  <p className="text-slate-400 italic">Informations société</p>
+                  {deposit.user.companyName && (
+                    <p className="font-medium text-slate-900 dark:text-slate-50">{deposit.user.companyName}</p>
+                  )}
+                  {deposit.user.companyAddress && (
+                    <p className="text-slate-600 dark:text-slate-400">{deposit.user.companyAddress}</p>
+                  )}
+                  {deposit.user.companyPostalCode && deposit.user.companyCity && (
+                    <p className="text-slate-600 dark:text-slate-400">
+                      {deposit.user.companyPostalCode} {deposit.user.companyCity}
+                    </p>
+                  )}
+                  {deposit.user.companyEmail && (
+                    <p className="text-slate-600 dark:text-slate-400">{deposit.user.companyEmail}</p>
+                  )}
+                  {deposit.user.companyPhone && (
+                    <p className="text-slate-600 dark:text-slate-400">{deposit.user.companyPhone}</p>
+                  )}
+                  {deposit.user.companySiret && (
+                    <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">
+                      SIRET : {deposit.user.companySiret}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -299,16 +281,6 @@ export function DepositPreviewModal({
                     <p className="text-slate-600 dark:text-slate-400">{deposit.client.phone}</p>
                   )}
                 </div>
-              </div>
-            </div>
-
-            {/* Statut */}
-            <div>
-              <h3 className="font-semibold mb-3 text-xs uppercase tracking-wide text-violet-600 dark:text-violet-400">
-                Statut
-              </h3>
-              <div className="flex items-center gap-2">
-                <StatusDropdownDeposit depositId={deposit.id} dbStatus={deposit.status} />
               </div>
             </div>
 

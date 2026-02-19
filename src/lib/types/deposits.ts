@@ -20,6 +20,13 @@ export interface SavedDeposit {
     lastName: string | null;
     email: string;
     city: string | null;
+    type?: "COMPANY" | "INDIVIDUAL";
+    address?: string | null;
+    postalCode?: string | null;
+    phone?: string | null;
+    companyVatNumber?: string | null;
+    companySiren?: string | null;
+    companySiret?: string | null;
   };
   user: {
     companyName: string | null;
@@ -30,6 +37,18 @@ export interface SavedDeposit {
     companyEmail: string | null;
     companyPhone: string | null;
   };
+  // Propriétés additionnelles pour la prévisualisation (calculées ou extraites de businessMetadata)
+  amount: number;
+  vatRate: number;
+  description: string;
+  clientId: string;
+  paymentLinks?: {
+    stripe: boolean;
+    paypal: boolean;
+    sepa: boolean;
+  };
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 // Schema Zod pour les formulaires
