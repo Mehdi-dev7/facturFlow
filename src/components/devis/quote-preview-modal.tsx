@@ -66,64 +66,66 @@ function StaticLinesTable({ title, lines, isForfait, typeConfig }: StaticLinesTa
   return (
     <div>
       {title && (
-        <p className="text-[10px] uppercase tracking-wider text-emerald-500 font-semibold mb-1.5">
+        <h3 className="font-semibold mb-3 text-xs uppercase tracking-wide text-emerald-600 dark:text-emerald-400">
           {title}
-        </p>
+        </h3>
       )}
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b-2 border-slate-200 dark:border-slate-700">
-            <th className="text-left py-2 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              {typeConfig.descriptionLabel}
-            </th>
-            {!isForfait && (
-              <th className="text-right py-2 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider w-14">
-                {typeConfig.quantityLabel}
-              </th>
-            )}
-            <th className="text-right py-2 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider w-24">
-              {isForfait ? "Montant" : "Prix unit."}
-            </th>
-            {!isForfait && (
-              <th className="text-right py-2 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider w-24">
-                Total HT
-              </th>
-            )}
-          </tr>
-        </thead>
-        <tbody>
-          {lines.map((line) => (
-            <tr key={line.id} className="border-b border-slate-100 dark:border-slate-700/50">
-              <td className="py-2.5 text-slate-700 dark:text-slate-300">
-                {line.description}
-              </td>
-              {!isForfait && (
-                <td className="py-2.5 text-right text-slate-600 dark:text-slate-400">
-                  {line.quantity}
-                </td>
-              )}
-              <td className="py-2.5 text-right text-slate-600 dark:text-slate-400">
-                {fmt(line.unitPrice)} €
-              </td>
-              {!isForfait && (
-                <td className="py-2.5 text-right font-medium text-slate-800 dark:text-slate-200">
-                  {fmt(line.subtotal)} €
-                </td>
-              )}
-            </tr>
-          ))}
-          {lines.length === 0 && (
+      <div className="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
+        <table className="w-full">
+          <thead className="bg-linear-to-r from-emerald-50 to-green-50 dark:from-emerald-950/50 dark:to-green-950/50">
             <tr>
-              <td
-                colSpan={isForfait ? 2 : 4}
-                className="py-6 text-center text-sm text-slate-400 italic"
-              >
-                Aucune ligne
-              </td>
+              <th className="text-left p-3 text-xs font-medium text-emerald-700 dark:text-emerald-300 uppercase tracking-wide">
+                {typeConfig.descriptionLabel}
+              </th>
+              {!isForfait && (
+                <th className="text-right p-3 text-xs font-medium text-emerald-700 dark:text-emerald-300 uppercase tracking-wide">
+                  {typeConfig.quantityLabel}
+                </th>
+              )}
+              <th className="text-right p-3 text-xs font-medium text-emerald-700 dark:text-emerald-300 uppercase tracking-wide">
+                {isForfait ? "Montant" : "Prix unit."}
+              </th>
+              {!isForfait && (
+                <th className="text-right p-3 text-xs font-medium text-emerald-700 dark:text-emerald-300 uppercase tracking-wide">
+                  Total HT
+                </th>
+              )}
             </tr>
-          )}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {lines.map((line) => (
+              <tr key={line.id} className="border-t border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30">
+                <td className="p-3 text-sm text-slate-900 dark:text-slate-50">
+                  {line.description}
+                </td>
+                {!isForfait && (
+                  <td className="p-3 text-sm text-right text-slate-900 dark:text-slate-50">
+                    {line.quantity}
+                  </td>
+                )}
+                <td className="p-3 text-sm text-right text-slate-900 dark:text-slate-50">
+                  {fmt(line.unitPrice)} €
+                </td>
+                {!isForfait && (
+                  <td className="p-3 text-sm text-right font-medium text-emerald-600 dark:text-emerald-400">
+                    {fmt(line.subtotal)} €
+                  </td>
+                )}
+              </tr>
+            ))}
+            {lines.length === 0 && (
+              <tr>
+                <td
+                  colSpan={isForfait ? 2 : 4}
+                  className="py-6 text-center text-sm text-slate-400 italic"
+                >
+                  Aucune ligne
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
@@ -177,22 +179,30 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
     : [];
 
   return (
-    <div className="bg-white dark:bg-[#1e1a3a] rounded-2xl border border-slate-200 dark:border-violet-500/20 shadow-sm overflow-hidden flex flex-col min-h-[800px]">
-      {/* Header vert emeraude */}
-      <div className="bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-5 text-white">
-        <div className="flex items-start justify-between">
+    <div className="bg-white dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 p-6 space-y-6 shadow-sm">
+      {/* En-tête du document avec bandeau coloré */}
+      <div className="bg-linear-to-r from-emerald-600 to-green-600 dark:from-emerald-500 dark:to-green-500 rounded-lg p-4 text-white mb-6">
+        <div className="flex justify-between items-start">
           <div>
-            <h2 className="text-lg font-bold tracking-tight">DEVIS</h2>
-            <p className="text-emerald-200 text-sm mt-0.5">{quote.number}</p>
+            <h1 className="text-xl font-bold mb-1">
+              DEVIS
+            </h1>
+            <p className="text-white/90 text-sm">
+              N° {quote.number}
+            </p>
             {quoteType !== "basic" && (
               <span className="inline-block mt-1.5 text-[10px] bg-white/20 px-2 py-0.5 rounded-full font-medium tracking-wide">
                 {INVOICE_TYPE_LABELS[quoteType]}
               </span>
             )}
           </div>
-          <div className="text-right text-sm text-emerald-100">
-            <p>Date : {formatDate(quote.date)}</p>
-            <p>Validité : {formatDate(quote.validUntil)}</p>
+          <div className="text-right text-sm">
+            <p className="text-white/90">
+              Date : {formatDate(quote.date)}
+            </p>
+            <p className="text-white/90">
+              Validité : {formatDate(quote.validUntil)}
+            </p>
           </div>
         </div>
       </div>
@@ -490,7 +500,7 @@ export function QuotePreviewModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="sm:max-w-3xl bg-gradient-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25 shadow-lg dark:shadow-violet-950/40 rounded-xl overflow-hidden p-0"
+        className="sm:max-w-3xl lg:max-w-5xl bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25 shadow-lg dark:shadow-violet-950/40 rounded-xl overflow-hidden p-0"
         showCloseButton={false}
       >
         {/* Header du modal : titre + bouton fermer + actions */}

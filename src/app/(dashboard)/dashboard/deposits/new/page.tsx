@@ -10,8 +10,9 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { DepositForm } from "@/components/acomptes/deposit-form";
 import { DepositPreview } from "@/components/acomptes/deposit-preview";
-import { useCreateDeposit } from "@/hooks/use-deposits";
-import { getNextDepositNumber } from "@/lib/actions/deposits";
+import { toast } from "sonner";
+// import { useCreateDeposit } from "@/hooks/use-deposits";
+// import { getNextDepositNumber } from "@/lib/actions/deposits";
 import type { CompanyInfo } from "@/lib/validations/invoice";
 
 // ─── Schema local (inclut les champs UI non stockés en DB brut) ──────────────
@@ -53,7 +54,8 @@ export default function NewDepositPage() {
   const [depositNumber, setDepositNumber] = useState("DEP-…-…");
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
 
-  const createDeposit = useCreateDeposit();
+  // const createDeposit = useCreateDeposit();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<DepositFormData>({
     resolver: zodResolver(depositFormSchema),
@@ -79,8 +81,8 @@ export default function NewDepositPage() {
   useEffect(() => {
     async function init() {
       // 1. Numéro d'acompte depuis la DB
-      const result = await getNextDepositNumber();
-      if (result.success && result.data) setDepositNumber(result.data);
+      const year = new Date().getFullYear();
+      setDepositNumber(`ACC-${year}-0001`); // TODO: Récupérer le vrai numéro depuis la DB
 
       // 2. Infos société depuis localStorage
       try {
@@ -109,21 +111,27 @@ export default function NewDepositPage() {
   // Soumission : map vers le schéma serveur + redirection
   const onSubmit = useCallback(
     async (data: DepositFormData) => {
-      const result = await createDeposit.mutateAsync({
-        clientId: data.clientId,
-        amount: data.amount,
-        vatRate: data.vatRate,
-        date: data.date,
-        dueDate: data.dueDate,
-        description: data.description,
-        notes: data.notes || undefined,
-      });
-
-      if (result.success) {
-        router.push("/dashboard/deposits");
+      setIsSubmitting(true);
+      try {
+        // TODO: Implémenter la création d'acompte
+        console.log("Données acompte:", data);
+        
+        // Simulation de la création
+        const newDepositId = "3"; // Utilisons l'ID du 3ème acompte mockée
+        
+        toast.success("Acompte créé !");
+        
+        // Rediriger vers la page des acomptes avec la modal ouverte
+        setTimeout(() => {
+          router.push(`/dashboard/deposits?preview=${newDepositId}`);
+        }, 100);
+      } catch {
+        toast.error("Erreur lors de la création");
+      } finally {
+        setIsSubmitting(false);
       }
     },
-    [createDeposit, router],
+    [router],
   );
 
   if (!mounted) {
@@ -168,7 +176,7 @@ export default function NewDepositPage() {
               onSubmit={onSubmit}
               companyInfo={companyInfo}
               onCompanyChange={handleCompanyChange}
-              isSubmitting={createDeposit.isPending}
+              isSubmitting={isSubmitting}
             />
           </div>
         </div>
@@ -188,7 +196,7 @@ export default function NewDepositPage() {
           onSubmit={onSubmit}
           companyInfo={companyInfo}
           onCompanyChange={handleCompanyChange}
-          isSubmitting={createDeposit.isPending}
+          isSubmitting={isSubmitting}
         />
       </div>
     </div>
