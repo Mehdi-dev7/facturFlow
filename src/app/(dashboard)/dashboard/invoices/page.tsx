@@ -75,7 +75,7 @@ function formatDateFR(dateStr: string | null): string {
 }
 
 function formatAmountFR(amount: number): string {
-  return amount.toLocaleString("fr-FR", { minimumFractionDigits: 2 }) + " \u20AC";
+  return amount.toLocaleString("fr-FR", { minimumFractionDigits: 2 }) + " €";
 }
 
 function toRow(inv: SavedInvoice): InvoiceRow {
@@ -255,9 +255,9 @@ function InvoicesPageContent() {
   const columns = useMemo((): Column<InvoiceRow>[] => [
     {
       key: "number",
-      label: "N\u00B0 Facture",
+      label: "N° Facture",
       render: (row) => (
-        <span className="text-xs lg:text-sm font-semibold text-violet-600 dark:text-violet-400 group-hover:text-violet-800 transition-colors">
+        <span className="text-[10px] lg:text-xs font-semibold text-violet-600 dark:text-violet-400 group-hover:text-violet-800 transition-colors">
           {row.number}
         </span>
       ),
@@ -266,12 +266,12 @@ function InvoicesPageContent() {
       key: "client",
       label: "Client",
       render: (row) => (
-        <span className="text-xs lg:text-sm text-slate-700 dark:text-slate-300">{row.client}</span>
+        <span className="text-[10px] lg:text-xs text-slate-700 dark:text-slate-300">{row.client}</span>
       ),
     },
     {
       key: "date",
-      label: "\u00C9mission",
+      label: "Émission",
       sortable: true,
       getValue: (row) => new Date(row.date.split("/").reverse().join("-")).getTime(),
       render: (row) => (
@@ -280,7 +280,7 @@ function InvoicesPageContent() {
     },
     {
       key: "echeance",
-      label: "\u00C9ch\u00E9ance",
+      label: "Échéance",
       sortable: true,
       getValue: (row) => row.echeance !== "—" ? new Date(row.echeance.split("/").reverse().join("-")).getTime() : 0,
       render: (row) => (
@@ -424,6 +424,7 @@ function InvoicesPageContent() {
           columns={columns}
           getRowId={(row) => row.id}
           mobileFields={["number", "client"]}
+          mobileStatusKey="status"
           onRowClick={handleRowClick}
           actions={(row) => (
             <ActionButtons

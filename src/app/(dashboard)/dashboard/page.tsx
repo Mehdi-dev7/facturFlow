@@ -188,15 +188,15 @@ export default function DashboardPage() {
                 >
                   <div className="overflow-hidden">
                     <div className="px-4 pb-3.5 pt-0 flex flex-col gap-2 bg-violet-50/50 dark:bg-violet-950/30">
-                      <div className="flex justify-between text-sm">
+                      <div className="flex justify-between text-xs md:text:sm">
                         <span className="text-slate-500 dark:text-slate-400">Émission</span>
                         <span className="text-slate-700 dark:text-slate-300">{inv.date}</span>
                       </div>
-                      <div className="flex justify-between text-sm">
+                      <div className="flex justify-between text-xs md:text-sm">
                         <span className="text-slate-500 dark:text-slate-400">Échéance</span>
                         <span className="text-slate-700 dark:text-slate-300">{inv.echeance}</span>
                       </div>
-                      <div className="flex justify-between text-sm">
+                      <div className="flex justify-between text-xs md:text-sm">
                         <span className="text-slate-500 dark:text-slate-400">Montant</span>
                         <span className="font-semibold text-slate-900 dark:text-slate-100">{inv.amount}</span>
                       </div>

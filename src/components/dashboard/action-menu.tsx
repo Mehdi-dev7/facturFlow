@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import {
   DropdownMenu,
@@ -93,7 +93,7 @@ export function ActionButtons({ onEdit, onDelete, deleteMessage = "√ätes-vous s√
 
   return (
     <>
-      <div className="flex items-center justify-center gap-1">
+      <div className="flex flex-col lg:flex-row items-center justify-center gap-0.5 lg:gap-1">
         {onEdit && (
           <button
             onClick={(e) => { e.stopPropagation(); onEdit(); }}

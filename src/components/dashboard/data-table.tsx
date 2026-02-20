@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, type ReactNode } from "react";
 import { ChevronDown } from "lucide-react";
 import { SortIcon } from "./icons";
 
@@ -9,8 +9,10 @@ export interface Column<T> {
   label: string;
   sortable?: boolean;
   align?: "left" | "center" | "right";
-  render?: (item: T) => React.ReactNode;
+  render?: (item: T) => ReactNode;
   getValue?: (item: T) => string | number;
+  headerClassName?: string;
+  cellClassName?: string;
 }
 
 interface DataTableProps<T> {
@@ -18,6 +20,9 @@ interface DataTableProps<T> {
   columns: Column<T>[];
   getRowId: (item: T) => string;
   mobileFields?: string[];
+  // Clé de colonne à afficher comme badge de statut au centre de la ligne mobile.
+  // Cette colonne est exclue du panneau expandé pour éviter les doublons.
+  mobileStatusKey?: string;
   actions?: (item: T) => React.ReactNode;
   mobileActions?: (item: T) => React.ReactNode;
   onRowClick?: (item: T) => void;
@@ -41,6 +46,7 @@ export function DataTable<T>({
   columns,
   getRowId,
   mobileFields,
+  mobileStatusKey,
   actions,
   mobileActions,
   onRowClick,
@@ -77,11 +83,22 @@ export function DataTable<T>({
     });
   }, [data, columns, sortKey, sortDir]);
 
+  // Colonnes affichées dans la ligne principale mobile (gauche)
   const mobileCols = mobileFields
     ? columns.filter((c) => mobileFields.includes(c.key))
     : columns.slice(0, 2);
 
-  const expandedCols = columns.filter((c) => !mobileCols.some((mc) => mc.key === c.key));
+  // Colonne statut optionnelle affichée au centre de la ligne mobile
+  const mobileStatusCol = mobileStatusKey
+    ? columns.find((c) => c.key === mobileStatusKey)
+    : undefined;
+
+  // Colonnes du panneau expandé : on exclut les mobileCols ET la colonne statut mobile
+  const expandedCols = columns.filter(
+    (c) =>
+      !mobileCols.some((mc) => mc.key === c.key) &&
+      c.key !== mobileStatusKey,
+  );
 
   if (data.length === 0) {
     return (
@@ -100,37 +117,75 @@ export function DataTable<T>({
 
   return (
     <>
-      {/* Mobile: Accordion View */}
+      {/* ── Mobile: vue accordéon ── */}
       <div className="md:hidden divide-y divide-slate-200 dark:divide-violet-500/20">
         {sortedData.map((item) => {
           const id = getRowId(item);
           const isExpanded = expandedId === id;
           return (
             <div key={id}>
-              <div
-                className="w-full flex items-center justify-between px-4 py-3.5 hover:bg-violet-200/30 dark:hover:bg-violet-500/10 transition-colors cursor-pointer"
-              >
+              <div className="w-full flex items-center justify-between px-4 py-3.5 hover:bg-violet-200/30 dark:hover:bg-violet-500/10 transition-colors cursor-pointer">
+
+                {/* Gauche : numéro + client en colonne, tronqués */}
                 <div
-                  className="flex items-center gap-3 min-w-0 flex-1"
+                  className="flex flex-col min-w-0 flex-1"
                   onClick={() => onRowClick ? onRowClick(item) : setExpandedId(isExpanded ? null : id)}
                   role="button"
                   tabIndex={0}
-                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onRowClick ? onRowClick(item) : setExpandedId(isExpanded ? null : id); } }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      onRowClick ? onRowClick(item) : setExpandedId(isExpanded ? null : id);
+                    }
+                  }}
                 >
-                  {mobileCols.map((col) => (
-                    <span key={col.key} className="text-xs text-slate-700 dark:text-slate-300 truncate">
-                      {col.render ? col.render(item) : String((item as Record<string, unknown>)[col.key] ?? "")}
+                  {mobileCols[0] && (
+                    <span className="text-xs font-semibold text-violet-600 dark:text-violet-400 truncate max-w-[120px]">
+                      {mobileCols[0].render
+                        ? mobileCols[0].render(item)
+                        : String((item as Record<string, unknown>)[mobileCols[0].key] ?? "")}
                     </span>
-                  ))}
+                  )}
+                  {mobileCols[1] && (
+                    <span className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-[120px]">
+                      {mobileCols[1].render
+                        ? mobileCols[1].render(item)
+                        : String((item as Record<string, unknown>)[mobileCols[1].key] ?? "")}
+                    </span>
+                  )}
                 </div>
-                <div className="flex items-center gap-2.5 shrink-0 ml-2">
-                  {(mobileActions ?? actions) && (mobileActions ?? actions)!(item)}
+
+                {/* Centre : badge de statut (si mobileStatusKey fourni) */}
+                {mobileStatusCol && (
+                  <div
+                    className="shrink-0 mx-2"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {mobileStatusCol.render
+                      ? mobileStatusCol.render(item)
+                      : (
+                        <span className="text-xs text-slate-700 dark:text-slate-300">
+                          {String((item as Record<string, unknown>)[mobileStatusCol.key] ?? "")}
+                        </span>
+                      )}
+                  </div>
+                )}
+
+                {/* Droite : ChevronDown en haut, MoreHorizontal en dessous */}
+                <div className="flex flex-col items-center gap-1 shrink-0 ml-2">
                   <ChevronDown
                     onClick={() => setExpandedId(isExpanded ? null : id)}
                     className={`h-4 w-4 text-slate-400 transition-transform duration-200 cursor-pointer ${isExpanded ? "rotate-180" : ""}`}
                   />
+                  {(mobileActions ?? actions) && (
+                    <div onClick={(e) => e.stopPropagation()}>
+                      {(mobileActions ?? actions)!(item)}
+                    </div>
+                  )}
                 </div>
               </div>
+
+              {/* Panneau expandé */}
               <div
                 className={`grid transition-all duration-200 ease-in-out ${isExpanded ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
               >
@@ -152,7 +207,7 @@ export function DataTable<T>({
         })}
       </div>
 
-      {/* Desktop: Table View */}
+      {/* ── Desktop/tablette : vue table ── */}
       <div className="hidden md:block overflow-x-auto">
         <table className="w-full">
           <thead>
@@ -160,9 +215,9 @@ export function DataTable<T>({
               {columns.map((col, i) => (
                 <th
                   key={col.key}
-                  className={`px-3 lg:px-6 py-3 text-xs font-semibold text-slate-500 dark:text-violet-300 uppercase tracking-wider ${
+                  className={`px-3 lg:px-6 py-3 text-[10px] lg:text-xs font-semibold text-slate-500 dark:text-violet-300 uppercase tracking-wider ${
                     i < columns.length - 1 ? "border-r border-slate-200 dark:border-violet-500/20" : ""
-                  } ${col.align === "right" ? "text-right" : col.align === "center" ? "text-center" : "text-left"}`}
+                  } ${col.align === "right" ? "text-right" : col.align === "center" ? "text-center" : "text-left"} ${col.headerClassName ?? ""}`}
                 >
                   {col.sortable ? (
                     <button
@@ -177,7 +232,7 @@ export function DataTable<T>({
                 </th>
               ))}
               {actions && (
-                <th className="w-20 px-2 py-3 text-center text-xs font-semibold text-slate-500 dark:text-violet-300 uppercase tracking-wider">
+                <th className="w-12 px-1 py-3 text-center text-xs font-semibold text-slate-500 dark:text-violet-300 uppercase tracking-wider">
                 </th>
               )}
             </tr>
@@ -191,7 +246,7 @@ export function DataTable<T>({
                     onClick={() => onRowClick?.(item)}
                     className={`px-3 lg:px-6 py-3.5 ${
                       i < columns.length - 1 || actions ? "border-r border-slate-200 dark:border-violet-500/15" : ""
-                    } ${col.align === "right" ? "text-right" : col.align === "center" ? "text-center" : ""}`}
+                    } ${col.align === "right" ? "text-right" : col.align === "center" ? "text-center" : ""} ${col.cellClassName ?? ""}`}
                   >
                     {col.render ? col.render(item) : (
                       <span className="text-xs lg:text-sm text-slate-700 dark:text-slate-300">
@@ -201,7 +256,7 @@ export function DataTable<T>({
                   </td>
                 ))}
                 {actions && (
-                  <td className="w-20 px-2 py-3.5 text-center">
+                  <td className="w-12 px-1 py-3.5 text-center">
                     {actions(item)}
                   </td>
                 )}
