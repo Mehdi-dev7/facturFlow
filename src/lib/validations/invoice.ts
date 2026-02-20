@@ -37,7 +37,7 @@ export const INVOICE_TYPE_CONFIG: Record<
 		showCategory: false,
 	},
 	freelance_heures: {
-		descriptionLabel: "Description de la tâche",
+		descriptionLabel: "Description",
 		quantityLabel: "Heures",
 		priceLabel: "Taux horaire (€/h)",
 		showCategory: false,

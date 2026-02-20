@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Printer, Download, Send, Copy, Pencil, X } from "lucide-react";
+import { Printer, Download, Send, Pencil, X, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import type { SavedDeposit } from "@/lib/types/deposits";
@@ -49,7 +49,7 @@ export function DepositPreviewModal({
   const router = useRouter();
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [isSendingEmail, setIsSendingEmail] = useState(false);
-  const [isDuplicating, setIsDuplicating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // ── Handlers ───────────────────────────────────────────────────────────
 
@@ -58,20 +58,6 @@ export function DepositPreviewModal({
     router.push(`/dashboard/deposits/${deposit.id}/edit`);
     onOpenChange(false);
   }, [deposit, router, onOpenChange]);
-
-  const handleDuplicate = useCallback(async () => {
-    if (!deposit) return;
-    setIsDuplicating(true);
-    try {
-      // TODO: Implémenter la duplication d'acompte
-      toast.success("Acompte dupliqué !");
-      onOpenChange(false);
-    } catch {
-      toast.error("Erreur lors de la duplication");
-    } finally {
-      setIsDuplicating(false);
-    }
-  }, [deposit, onOpenChange]);
 
   const handleGeneratePdf = useCallback(async () => {
     if (!deposit) return;
@@ -145,6 +131,26 @@ export function DepositPreviewModal({
     }, 100); // Délai de 100ms
   }, [deposit]);
 
+  const handleDelete = useCallback(async () => {
+    if (!deposit || isDeleting) return;
+    
+    const confirmed = window.confirm(`Êtes-vous sûr de vouloir supprimer l'acompte ${deposit.number} ?`);
+    if (!confirmed) return;
+
+    setIsDeleting(true);
+    try {
+      // Note: Il faudra créer useDeleteDeposit dans les hooks
+      // await deleteMutation.mutateAsync(deposit.id);
+      toast.success("Acompte supprimé");
+      onOpenChange(false); // Fermer la modal après suppression
+    } catch (error) {
+      console.error("Erreur suppression:", error);
+      toast.error("Erreur lors de la suppression");
+    } finally {
+      setIsDeleting(false);
+    }
+  }, [deposit, isDeleting, onOpenChange]);
+
   // ── Données calculées ──────────────────────────────────────────────────
 
   const clientName = useMemo(() => {
@@ -173,14 +179,14 @@ export function DepositPreviewModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="sm:max-w-3xl lg:max-w-5xl bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25 shadow-lg dark:shadow-violet-950/40 rounded-xl overflow-hidden p-0"
+        className="w-[95vw] h-[90vh] sm:w-[90vw] sm:h-auto sm:max-w-2xl md:max-w-3xl lg:max-w-5xl bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25 shadow-lg dark:shadow-violet-950/40 rounded-xl overflow-hidden p-0"
         showCloseButton={false}
       >
         {/* ── Header du modal : titre + bouton fermer + 5 actions ─────── */}
-        <DialogHeader data-print-hide className="px-6 pt-5 pb-4 border-b border-slate-200 dark:border-violet-500/20">
+        <DialogHeader data-print-hide className="px-2 sm:px-4 md:px-6 pt-2 sm:pt-3 md:pt-5 pb-2 sm:pb-3 md:pb-4 border-b border-slate-200 dark:border-violet-500/20 mx-2 md:mx-0">
           {/* Première ligne : numéro d'acompte + croix */}
           <div className="flex items-center justify-between">
-            <DialogTitle className="text-slate-900 dark:text-slate-100 text-base font-semibold">
+            <DialogTitle className="text-slate-900 dark:text-slate-100 text-base font-semibold mx-2 md:mx-0">
               {deposit ? deposit.number : "Acompte"}
             </DialogTitle>
             <button
@@ -192,76 +198,138 @@ export function DepositPreviewModal({
             </button>
           </div>
 
-          {/* Deuxième ligne : 5 boutons d'action */}
-          <div className="flex flex-wrap gap-2 mt-3">
-            {/* Imprimer */}
-            <button
-              onClick={handlePrint}
-              disabled={!deposit}
-              className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-slate-300 text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-            >
-              <Printer size={14} />
-              Imprimer
-            </button>
+          {/* Deuxième ligne : boutons d'action responsive */}
+          <div className="mt-3 mx-2 md:mx-0">
+            {/* Version mobile : logos en haut, supprimer à droite, envois en bas */}
+            <div className="block md:hidden">
+              {/* Ligne 1 : Logos + Supprimer à droite */}
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex gap-2">
+                  {/* Imprimer - Logo seul */}
+                  <button
+                    onClick={handlePrint}
+                    disabled={!deposit}
+                    className="rounded-lg border p-2 text-sm font-medium transition-colors border-slate-300 text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  >
+                    <Printer size={16} />
+                  </button>
 
-            {/* Télécharger PDF */}
-            <button
-              onClick={handleGeneratePdf}
-              disabled={!deposit || isGeneratingPdf}
-              className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-sky-300 text-sky-600 hover:bg-sky-50 dark:border-sky-500 dark:text-sky-400 dark:hover:bg-sky-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-            >
-              <Download size={14} />
-              {isGeneratingPdf ? "..." : "PDF"}
-            </button>
+                  {/* PDF - Logo seul */}
+                  <button
+                    onClick={handleGeneratePdf}
+                    disabled={!deposit || isGeneratingPdf}
+                    className="rounded-lg border p-2 text-sm font-medium transition-colors border-sky-300 text-sky-600 hover:bg-sky-50 dark:border-sky-500 dark:text-sky-400 dark:hover:bg-sky-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  >
+                    <Download size={16} />
+                  </button>
 
-            {/* Envoyer */}
-            <button
-              onClick={handleSendEmail}
-              disabled={!deposit || isSendingEmail}
-              className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-violet-300 text-violet-600 hover:bg-violet-50 dark:border-violet-500 dark:text-violet-400 dark:hover:bg-violet-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-            >
-              <Send size={14} />
-              {isSendingEmail ? "Envoi..." : "Envoyer"}
-            </button>
+                  {/* Éditer - Logo seul */}
+                  <button
+                    onClick={handleEdit}
+                    disabled={!deposit}
+                    className="rounded-lg border p-2 text-sm font-medium transition-colors border-emerald-300 text-emerald-600 hover:bg-emerald-50 dark:border-emerald-500 dark:text-emerald-400 dark:hover:bg-emerald-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  >
+                    <Pencil size={16} />
+                  </button>
+                </div>
 
-            {/* Dupliquer */}
-            <button
-              onClick={handleDuplicate}
-              disabled={!deposit || isDuplicating}
-              className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-amber-300 text-amber-600 hover:bg-amber-50 dark:border-amber-500 dark:text-amber-400 dark:hover:bg-amber-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-            >
-              <Copy size={14} />
-              {isDuplicating ? "Duplication..." : "Dupliquer"}
-            </button>
+                {/* Supprimer - Seul à droite */}
+                <button
+                  onClick={handleDelete}
+                  disabled={!deposit || isDeleting}
+                  className="rounded-lg border p-2 text-sm font-medium transition-colors border-red-300 text-red-600 hover:bg-red-50 dark:border-red-500 dark:text-red-400 dark:hover:bg-red-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
 
-            {/* Éditer */}
-            <button
-              onClick={handleEdit}
-              disabled={!deposit}
-              className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-emerald-300 text-emerald-600 hover:bg-emerald-50 dark:border-emerald-500 dark:text-emerald-400 dark:hover:bg-emerald-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-            >
-              <Pencil size={14} />
-              Éditer
-            </button>
+              {/* Ligne 2 : Boutons d'envoi avec texte */}
+              <div className="flex flex-wrap gap-2">
+                {/* Envoyer */}
+                <button
+                  onClick={handleSendEmail}
+                  disabled={!deposit || isSendingEmail}
+                  className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-violet-300 text-violet-600 hover:bg-violet-50 dark:border-violet-500 dark:text-violet-400 dark:hover:bg-violet-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  <Send size={14} />
+                  {isSendingEmail ? "Envoi..." : "Envoyer"}
+                </button>
+              </div>
+            </div>
 
+            {/* Version desktop : boutons principaux + supprimer isolé à droite */}
+            <div className="hidden md:flex items-center justify-between">
+              {/* Boutons principaux à gauche */}
+              <div className="flex flex-wrap gap-2">
+                {/* Imprimer */}
+                <button
+                  onClick={handlePrint}
+                  disabled={!deposit}
+                  className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-slate-300 text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  <Printer size={14} />
+                  Imprimer
+                </button>
+
+                {/* Télécharger PDF */}
+                <button
+                  onClick={handleGeneratePdf}
+                  disabled={!deposit || isGeneratingPdf}
+                  className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-sky-300 text-sky-600 hover:bg-sky-50 dark:border-sky-500 dark:text-sky-400 dark:hover:bg-sky-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  <Download size={14} />
+                  {isGeneratingPdf ? "..." : "PDF"}
+                </button>
+
+                {/* Éditer */}
+                <button
+                  onClick={handleEdit}
+                  disabled={!deposit}
+                  className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-emerald-300 text-emerald-600 hover:bg-emerald-50 dark:border-emerald-500 dark:text-emerald-400 dark:hover:bg-emerald-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  <Pencil size={14} />
+                  Éditer
+                </button>
+
+                {/* Envoyer */}
+                <button
+                  onClick={handleSendEmail}
+                  disabled={!deposit || isSendingEmail}
+                  className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-violet-300 text-violet-600 hover:bg-violet-50 dark:border-violet-500 dark:text-violet-400 dark:hover:bg-violet-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  <Send size={14} />
+                  {isSendingEmail ? "Envoi..." : "Envoyer"}
+                </button>
+              </div>
+
+              {/* Supprimer isolé à droite */}
+              <button
+                onClick={handleDelete}
+                disabled={!deposit || isDeleting}
+                className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-red-300 text-red-600 hover:bg-red-50 dark:border-red-500 dark:text-red-400 dark:hover:bg-red-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              >
+                <Trash2 size={14} />
+                {isDeleting ? "Suppression..." : "Supprimer"}
+              </button>
+            </div>
           </div>
         </DialogHeader>
 
         {/* ── Corps scrollable : aperçu statique de l'acompte ─────────── */}
-        <div id="deposit-print-area" className="overflow-y-auto max-h-[70vh] p-6">
-          <div className="bg-white dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 p-6 space-y-6 shadow-sm">
+        <div id="deposit-print-area" className="overflow-y-auto max-h-[calc(100vh-200px)] sm:max-h-[80vh] md:max-h-[70vh] p-2 sm:p-4 md:p-6">
+          <div className="bg-white dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 p-3 md:p-6 space-y-6 shadow-sm">
             {/* En-tête du document avec bandeau coloré */}
             <div className="bg-linear-to-r from-violet-600 to-purple-600 dark:from-violet-500 dark:to-purple-500 rounded-lg p-4 text-white mb-6">
               <div className="flex justify-between items-start">
                 <div>
-                  <h1 className="text-xl font-bold mb-1">
-                    DEMANDE D&apos;ACOMPTE
+                  <h1 className="text-lg md:text-xl font-bold mb-1">
+                    ACOMPTE
                   </h1>
-                  <p className="text-white/90 text-sm">
+                  <p className="text-white/90 text-xs md:text-sm">
                     N° {deposit.number}
                   </p>
                 </div>
-                <div className="text-right text-sm">
+                <div className="text-right text-xs md:text-sm">
                   <p className="text-white/90">
                     Date : {formatDateShort(deposit.date)}
                   </p>
@@ -281,24 +349,24 @@ export function DepositPreviewModal({
                 </h3>
                 <div className="text-sm space-y-0.5">
                   {deposit.user.companyName && (
-                    <p className="font-medium text-slate-900 dark:text-slate-50">{deposit.user.companyName}</p>
+                    <p className="font-medium text-slate-900 dark:text-slate-50 text-xs lg:text-sm">{deposit.user.companyName}</p>
                   )}
                   {deposit.user.companyAddress && (
-                    <p className="text-slate-600 dark:text-slate-400">{deposit.user.companyAddress}</p>
+                    <p className="text-slate-600 dark:text-slate-400 text-[11px] lg:text-xs">{deposit.user.companyAddress}</p>
                   )}
                   {deposit.user.companyPostalCode && deposit.user.companyCity && (
-                    <p className="text-slate-600 dark:text-slate-400">
+                    <p className="text-slate-600 dark:text-slate-400 text-[11px] lg:text-xs">
                       {deposit.user.companyPostalCode} {deposit.user.companyCity}
                     </p>
                   )}
                   {deposit.user.companyEmail && (
-                    <p className="text-slate-600 dark:text-slate-400">{deposit.user.companyEmail}</p>
+                    <p className="text-slate-600 dark:text-slate-400 text-[11px] lg:text-xs">{deposit.user.companyEmail}</p>
                   )}
                   {deposit.user.companyPhone && (
-                    <p className="text-slate-600 dark:text-slate-400">{deposit.user.companyPhone}</p>
+                    <p className="text-slate-600 dark:text-slate-400 text-[11px] lg:text-xs">{deposit.user.companyPhone}</p>
                   )}
                   {deposit.user.companySiret && (
-                    <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">
+                    <p className="text-[11px] lg:text-xs text-slate-500 dark:text-slate-500 mt-1">
                       SIRET : {deposit.user.companySiret}
                     </p>
                   )}
@@ -311,19 +379,21 @@ export function DepositPreviewModal({
                   Destinataire
                 </h3>
                 <div className="text-sm space-y-0.5">
-                  <p className="font-medium text-slate-900 dark:text-slate-50">{clientName}</p>
+                  <p className="font-medium text-slate-900 dark:text-slate-50 text-xs lg:text-sm">{clientName}</p>
                   {clientAddress && (
-                    <p className="text-slate-600 dark:text-slate-400">{clientAddress}</p>
+                    <p className="text-slate-600 dark:text-slate-400 text-[11px] lg:text-xs">{clientAddress}</p>
                   )}
                   {deposit.client.email && (
-                    <p className="text-slate-600 dark:text-slate-400">{deposit.client.email}</p>
+                    <p className="text-slate-600 dark:text-slate-400 text-[11px] lg:text-xs">{deposit.client.email}</p>
                   )}
                   {deposit.client.phone && (
-                    <p className="text-slate-600 dark:text-slate-400">{deposit.client.phone}</p>
+                    <p className="text-slate-600 dark:text-slate-400 text-[11px] lg:text-xs">{deposit.client.phone}</p>
                   )}
                 </div>
               </div>
             </div>
+
+            <div className="h-px bg-slate-200 dark:bg-slate-700 mt-2 mb-5" />
 
             {/* Détails de l'acompte */}
             <div>
@@ -334,33 +404,21 @@ export function DepositPreviewModal({
                 <table className="w-full">
                   <thead className="bg-linear-to-r from-violet-50 to-purple-50 dark:from-violet-950/50 dark:to-purple-950/50">
                     <tr>
-                      <th className="text-left p-3 text-xs font-medium text-violet-700 dark:text-violet-300 uppercase tracking-wide">
+                      <th className="text-left p-2 lg:p-3 text-xs font-medium text-violet-700 dark:text-violet-300 uppercase tracking-wide">
                         Description
                       </th>
-                      <th className="text-right p-3 text-xs font-medium text-violet-700 dark:text-violet-300 uppercase tracking-wide">
-                        Montant HT
-                      </th>
-                      <th className="text-right p-3 text-xs font-medium text-violet-700 dark:text-violet-300 uppercase tracking-wide">
-                        TVA
-                      </th>
-                      <th className="text-right p-3 text-xs font-medium text-violet-700 dark:text-violet-300 uppercase tracking-wide">
-                        Total TTC
+                      <th className="text-right p-2 lg:p-3 text-xs font-medium text-violet-700 dark:text-violet-300 uppercase tracking-wide">
+                        Total HT
                       </th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr className="border-t border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30">
-                      <td className="p-3 text-sm text-slate-900 dark:text-slate-50">
+                      <td className="p-2 lg:p-3 text-xs lg:text-sm text-slate-900 dark:text-slate-50">
                         {deposit.description}
                       </td>
-                      <td className="p-3 text-sm text-right text-slate-900 dark:text-slate-50">
+                      <td className="p-2 lg:p-3 text-xs lg:text-sm text-right font-medium text-violet-600 dark:text-violet-400">
                         {fmt(deposit.subtotal)} €
-                      </td>
-                      <td className="p-3 text-sm text-right text-slate-900 dark:text-slate-50">
-                        {fmt(deposit.taxTotal)} €
-                      </td>
-                      <td className="p-3 text-sm text-right font-medium text-violet-600 dark:text-violet-400">
-                        {fmt(deposit.total)} €
                       </td>
                     </tr>
                   </tbody>
@@ -368,18 +426,20 @@ export function DepositPreviewModal({
               </div>
             </div>
 
+            <div className="h-px bg-slate-200 dark:bg-slate-700 mt-2 mb-5" />
+
             {/* Récapitulatif */}
             <div className="flex justify-end">
-              <div className="w-64 space-y-2 bg-linear-to-br from-violet-50 to-purple-50 dark:from-violet-950/50 dark:to-purple-950/50 rounded-lg p-4 border border-violet-200/50 dark:border-violet-500/20">
-                <div className="flex justify-between text-sm">
-                  <span className="text-violet-700 dark:text-violet-300">Sous-total HT :</span>
+              <div className="w-64 space-y-2 bg-violet-50 dark:bg-violet-950/20 border border-violet-100 dark:border-violet-500/20 rounded-lg p-4">
+                <div className="flex justify-between text-xs lg:text-sm">
+                  <span className="text-slate-500 dark:text-slate-400">Sous-total HT :</span>
                   <span className="text-slate-900 dark:text-slate-50 font-medium">{fmt(deposit.subtotal)} €</span>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-violet-700 dark:text-violet-300">TVA ({deposit.vatRate}%) :</span>
+                <div className="flex justify-between text-xs lg:text-sm">
+                  <span className="text-slate-500 dark:text-slate-400">TVA ({deposit.vatRate}%) :</span>
                   <span className="text-slate-900 dark:text-slate-50 font-medium">{fmt(deposit.taxTotal)} €</span>
                 </div>
-                <div className="flex justify-between text-lg font-bold border-t border-violet-200 dark:border-violet-500/30 pt-2">
+                <div className="flex justify-between text-sm lg:text-base font-bold border-t border-violet-200 dark:border-violet-500/30 pt-2">
                   <span className="text-slate-900 dark:text-slate-50">Total TTC :</span>
                   <span className="text-violet-600 dark:text-violet-400">{fmt(deposit.total)} €</span>
                 </div>
@@ -389,11 +449,11 @@ export function DepositPreviewModal({
             {/* Notes */}
             {deposit.notes && deposit.notes.trim() && (
               <div>
-                <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide text-violet-600 dark:text-violet-400">
+                <h3 className="font-semibold mb-2 text-xs lg:text-sm uppercase tracking-wide text-violet-600 dark:text-violet-400">
                   Notes
                 </h3>
                 <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3">
-                  <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap">
+                  <p className="text-[11px] lg:text-xs text-slate-700 dark:text-slate-300 whitespace-pre-wrap">
                     {deposit.notes}
                   </p>
                 </div>
@@ -402,10 +462,10 @@ export function DepositPreviewModal({
 
             {/* Liens de paiement */}
             <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
-              <h3 className="font-semibold mb-3 text-xs uppercase tracking-wide text-violet-600 dark:text-violet-400">
+              <h3 className="font-semibold mb-3 text-xs lg:text-sm uppercase tracking-wide text-violet-600 dark:text-violet-400">
                 Modalités de paiement
               </h3>
-              <div className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
+              <div className="space-y-2 text-[11px] lg:text-xs text-slate-600 dark:text-slate-400">
                 <p>• Paiement attendu avant le {formatDateShort(deposit.dueDate)}</p>
                 <p>• Liens de paiement sécurisés inclus dans l&apos;email</p>
                 

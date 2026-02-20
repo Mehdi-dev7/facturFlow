@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Printer, Download, Send, Copy, Pencil, X, FileCheck2, ShieldCheck, Trash2 } from "lucide-react";
+import { Printer, Download, Send, Pencil, X, FileCheck2, ShieldCheck, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useDuplicateInvoice, useDeleteInvoice } from "@/hooks/use-invoices";
@@ -290,6 +290,7 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
           </div>
         </div>
       </div>
+      <div className="h-px bg-slate-200 dark:bg-slate-700 mt-2 mb-5" />
 
       {/* Détails de la facture */}
       <div>
@@ -319,7 +320,7 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
           />
         )}
       </div>
-
+      <div className="h-px bg-slate-200 dark:bg-slate-700 mt-2 mb-5" />
       {/* Récapitulatif */}
       <div className="flex justify-end">
         <div className="w-64 space-y-2 bg-linear-to-br from-violet-50 to-purple-50 dark:from-violet-950/50 dark:to-purple-950/50 rounded-lg p-4 border border-violet-200/50 dark:border-violet-500/20">
@@ -543,11 +544,7 @@ export function InvoicePreviewModal({
     setIsSending(false);
   }, [invoice, isSending]);
 
-  const handleDuplicate = useCallback(() => {
-    if (!invoice) return;
-    duplicateMutation.mutate(invoice.id);
-  }, [invoice, duplicateMutation]);
-
+  
   const handleDelete = useCallback(async () => {
     if (!invoice || isDeleting) return;
     
@@ -603,7 +600,7 @@ export function InvoicePreviewModal({
         <DialogHeader data-print-hide className="px-2 sm:px-4 md:px-6 pt-2 sm:pt-3 md:pt-5 pb-2 sm:pb-3 md:pb-4 border-b border-slate-200 dark:border-violet-500/20">
           {/* Première ligne : numéro de facture + croix */}
           <div className="flex items-center justify-between">
-            <DialogTitle className="text-slate-900 dark:text-slate-100 text-base font-semibold">
+            <DialogTitle className="text-slate-900 dark:text-slate-100 text-base font-semibold mx-2 md:mx-0">
               {invoice ? invoice.number : "Facture"}
             </DialogTitle>
             <button
@@ -616,7 +613,7 @@ export function InvoicePreviewModal({
           </div>
 
           {/* Deuxième ligne : boutons d'action responsive */}
-          <div className="mt-3">
+          <div className="mt-3 mx-2 md:mx-0">
             {/* Version mobile : logos en haut, supprimer à droite, envois en bas */}
             <div className="block md:hidden">
               {/* Ligne 1 : Logos + Supprimer à droite */}

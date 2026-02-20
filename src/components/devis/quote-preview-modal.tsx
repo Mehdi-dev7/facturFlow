@@ -9,10 +9,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Printer, Download, Send, Copy, Pencil, X } from "lucide-react";
+import { Printer, Download, Send, Copy, Pencil, X, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { useDuplicateQuote } from "@/hooks/use-quotes";
+import { useDuplicateQuote, useDeleteQuote } from "@/hooks/use-quotes";
 import type { SavedQuote } from "@/hooks/use-quotes";
 import { sendQuoteEmail } from "@/lib/actions/send-quote-email";
 import {
@@ -179,15 +179,15 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
     : [];
 
   return (
-    <div className="bg-white dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 p-6 space-y-6 shadow-sm">
+    <div className="bg-white dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 p-3 md:p-6 space-y-6 shadow-sm">
       {/* En-tête du document avec bandeau coloré */}
       <div className="bg-linear-to-r from-emerald-600 to-green-600 dark:from-emerald-500 dark:to-green-500 rounded-lg p-4 text-white mb-6">
         <div className="flex justify-between items-start">
           <div>
-            <h1 className="text-xl font-bold mb-1">
+            <h1 className="text-lg md:text-xl font-bold mb-1">
               DEVIS
             </h1>
-            <p className="text-white/90 text-sm">
+            <p className="text-white/90 text-xs md:text-sm">
               N° {quote.number}
             </p>
             {quoteType !== "basic" && (
@@ -196,77 +196,78 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
               </span>
             )}
           </div>
-          <div className="text-right text-sm">
+          <div className="text-right text-xs md:text-sm">
             <p className="text-white/90">
               Date : {formatDate(quote.date)}
             </p>
-            <p className="text-white/90">
+            <p className="text-white/90 ">
               Validité : {formatDate(quote.validUntil)}
             </p>
           </div>
         </div>
       </div>
 
-      <div className="p-6 flex-1 flex flex-col gap-5">
-        {/* Emetteur / Destinataire */}
-        <div className="grid grid-cols-2 gap-6">
-          {/* Emetteur */}
+      {/* Émetteur et destinataire */}
+      <div className="grid grid-cols-2 gap-6">
+          {/* Émetteur */}
           <div>
-            <p className="text-[10px] uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1 font-semibold">
+            <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide text-emerald-600 dark:text-emerald-400">
               Émetteur
-            </p>
+            </h3>
             {emitter.companyName ? (
               <div className="text-sm space-y-0.5">
-                <p className="font-semibold text-slate-800 dark:text-slate-100">
+                <p className="font-medium text-slate-900 dark:text-slate-50 text-xs lg:text-sm">
                   {emitter.companyName}
                 </p>
                 {emitter.companyAddress && (
-                  <p className="text-slate-500 dark:text-slate-400">
+                  <p className="text-slate-600 dark:text-slate-400 text-[11px] lg:text-xs">
                     {emitter.companyAddress}
                   </p>
                 )}
                 {(emitter.companyPostalCode || emitter.companyCity) && (
-                  <p className="text-slate-500 dark:text-slate-400">
+                  <p className="text-slate-600 dark:text-slate-400 text-[11px] lg:text-xs">
                     {[emitter.companyPostalCode, emitter.companyCity]
                       .filter(Boolean)
                       .join(" ")}
                   </p>
                 )}
                 {emitter.companySiret && (
-                  <p className="text-slate-500 dark:text-slate-400">
+                  <p className="text-slate-600 dark:text-slate-400 text-[11px] lg:text-xs">
                     SIRET : {emitter.companySiret}
                   </p>
                 )}
                 {emitter.companyEmail && (
-                  <p className="text-slate-500 dark:text-slate-400">
+                  <p className="text-slate-600 dark:text-slate-400 text-[11px] lg:text-xs">
                     {emitter.companyEmail}
                   </p>
                 )}
               </div>
             ) : (
-              <p className="text-xs text-slate-400 italic">Non renseigné</p>
+              <p className="text-slate-400 text-xs lg:text-sm italic">
+                Informations émetteur manquantes
+              </p>
             )}
           </div>
 
           {/* Destinataire */}
           <div>
-            <p className="text-[10px] uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1 font-semibold">
+            <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide text-emerald-600 dark:text-emerald-400">
               Destinataire
-            </p>
+            </h3>
             <div className="text-sm space-y-0.5">
-              <p className="font-semibold text-slate-800 dark:text-slate-100">
+              <p className="font-medium text-slate-900 dark:text-slate-50 text-xs lg:text-sm">
                 {getClientName(quote.client)}
               </p>
-              <p className="text-slate-500 dark:text-slate-400">
+              <p className="text-slate-600 dark:text-slate-400 text-[11px] lg:text-xs">
                 {quote.client.email}
               </p>
               {quote.client.address && (
-                <p className="text-slate-500 dark:text-slate-400">
+                <p className="text-slate-600 dark:text-slate-400 text-[11px] lg:text-xs">
                   {quote.client.address}
                 </p>
               )}
               {(quote.client.postalCode || quote.client.city) && (
-                <p className="text-slate-500 dark:text-slate-400">
+                <p className="text-slate-600 dark:text-slate-400 text-[11px] lg:text-xs">
                   {[quote.client.postalCode, quote.client.city]
                     .filter(Boolean)
                     .join(" ")}
@@ -276,7 +277,7 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
           </div>
         </div>
 
-        <div className="h-px bg-slate-200 dark:bg-slate-700 mt-2 mb-1" />
+        <div className="h-px bg-slate-200 dark:bg-slate-700 mt-2 mb-5" />
 
         {/* Lignes */}
         {isArtisan ? (
@@ -303,31 +304,31 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
             typeConfig={typeConfig}
           />
         )}
-
+      <div className="h-px bg-slate-200 dark:bg-slate-700 mt-2 mb-5" />
         {/* Spacer : pousse les totaux vers le bas */}
         <div className="flex-1" />
 
         {/* Totaux */}
         <div className="flex justify-end">
-          <div className="w-64 space-y-1.5">
+          <div className="w-64 space-y-1.5 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-500/20 rounded-lg p-3">
             {/* Sous-total HT */}
-            <div className="flex justify-between text-sm">
+            <div className="flex justify-between text-xs lg:text-sm">
               <span className="text-slate-500 dark:text-slate-400">Sous-total HT</span>
               <span className="text-slate-800 dark:text-slate-100 font-medium">
-                {fmt(quote.subtotal)} \u20AC
+                {fmt(quote.subtotal)} €
               </span>
             </div>
 
             {/* Reduction */}
             {discount > 0 && (
-              <div className="flex justify-between text-sm">
+              <div className="flex justify-between text-xs lg:text-sm">
                 <span className="text-slate-500 dark:text-slate-400">Réduction</span>
                 <span className="text-rose-600 font-medium">−{fmt(discount)} €</span>
               </div>
             )}
 
             {/* TVA */}
-            <div className="flex justify-between text-sm">
+            <div className="flex justify-between text-xs lg:text-sm">
               <span className="text-slate-500 dark:text-slate-400">TVA ({vatRate}%)</span>
               <span className="text-slate-800 dark:text-slate-100 font-medium">
                 {fmt(quote.taxTotal)} €
@@ -337,10 +338,10 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
             <div className="h-px bg-slate-200 dark:bg-slate-700 my-1" />
 
             {/* Total TTC */}
-            <div className="flex justify-between text-base font-bold">
+            <div className="flex justify-between text-sm lg:text-base font-bold">
               <span className="text-slate-900 dark:text-slate-50">Total TTC</span>
               <span className="text-emerald-600 dark:text-emerald-400">
-                {fmt(quote.total)} 
+                {fmt(quote.total)} €
               </span>
             </div>
 
@@ -360,17 +361,16 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
 
         {/* Notes */}
         {quote.notes && (
-          <div className="rounded-lg bg-slate-50 dark:bg-[#2a2254]/60 border border-slate-100 dark:border-violet-500/20 p-3 text-xs text-slate-600 dark:text-slate-300">
-            <p className="font-medium text-slate-700 dark:text-slate-200 mb-1">Notes</p>
+          <div className="rounded-lg bg-slate-50 dark:bg-[#1f4a3c]/60 border border-slate-100 dark:border-emerald-500/20 p-3 text-[11px] lg:text-xs text-slate-600 dark:text-slate-300">
+            <p className="font-medium text-slate-700 dark:text-slate-200 mb-1 text-xs lg:text-sm">Notes</p>
             <p className="whitespace-pre-line">{quote.notes}</p>
           </div>
         )}
 
         {/* Footer */}
-        <div className="text-center text-[10px] text-slate-400 dark:text-slate-500 pt-4 border-t border-slate-100 dark:border-slate-700">
+        <div className="text-center text-[10px] lg:text-xs text-slate-400 dark:text-slate-500 pt-4 border-t border-slate-100 dark:border-slate-700">
           <p>Document généré par FacturFlow</p>
         </div>
-      </div>
     </div>
   );
 }
@@ -416,7 +416,11 @@ export function QuotePreviewModal({
   onOpenChange,
 }: QuotePreviewModalProps) {
   const router = useRouter();
-  const duplicateMutation = useDuplicateQuote();
+  const deleteMutation = useDeleteQuote();
+
+  const [isSending, setIsSending] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
   // ── Handlers des boutons d'action ──────────────────────────────────────
 
@@ -449,9 +453,6 @@ export function QuotePreviewModal({
     win.onload = () => { win.print(); win.close(); };
     setTimeout(() => { try { win.print(); win.close(); } catch { /* already closed */ } }, 1500);
   }, [quote]);
-
-  const [isSending, setIsSending] = useState(false);
-  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
   const handleGeneratePdf = useCallback(async () => {
     if (!quote) return;
@@ -501,10 +502,6 @@ export function QuotePreviewModal({
     setIsSending(false);
   }, [quote, isSending]);
 
-  const handleDuplicate = useCallback(() => {
-    if (!quote) return;
-    duplicateMutation.mutate(quote.id);
-  }, [quote, duplicateMutation]);
 
   const handleEdit = useCallback(() => {
     if (!quote) return;
@@ -512,19 +509,36 @@ export function QuotePreviewModal({
     onOpenChange(false);
   }, [quote, router, onOpenChange]);
 
+  const handleDelete = useCallback(async () => {
+    if (!quote || isDeleting) return;
+    
+    const confirmed = window.confirm(`Êtes-vous sûr de vouloir supprimer le devis ${quote.number} ?`);
+    if (!confirmed) return;
+
+    setIsDeleting(true);
+    try {
+      await deleteMutation.mutateAsync(quote.id);
+      onOpenChange(false); // Fermer la modal après suppression
+    } catch (error) {
+      console.error("Erreur suppression:", error);
+    } finally {
+      setIsDeleting(false);
+    }
+  }, [quote, isDeleting, deleteMutation, onOpenChange]);
+
   // ── Render ────────────────────────────────────────────────────────────────
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="sm:max-w-3xl lg:max-w-5xl bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25 shadow-lg dark:shadow-violet-950/40 rounded-xl overflow-hidden p-0"
+        className="w-[95vw] h-[90vh] sm:w-[90vw] sm:h-auto sm:max-w-2xl md:max-w-3xl lg:max-w-5xl bg-linear-to-b from-emerald-50 via-white to-white dark:from-[#1f4a3c] dark:via-[#1a3d35] dark:to-[#1a3d35] border border-primary/20 dark:border-emerald-400/25 shadow-lg dark:shadow-emerald-950/40 rounded-xl overflow-hidden p-0"
         showCloseButton={false}
       >
         {/* Header du modal : titre + bouton fermer + actions */}
-        <DialogHeader data-print-hide className="px-6 pt-5 pb-4 border-b border-slate-200 dark:border-violet-500/20">
+        <DialogHeader data-print-hide className="px-2 sm:px-4 md:px-6 pt-2 sm:pt-3 md:pt-5 pb-2 sm:pb-3 md:pb-4 border-b border-slate-200 dark:border-emerald-500/20">
           {/* Premiere ligne : numero de devis + croix */}
           <div className="flex items-center justify-between">
-            <DialogTitle className="text-slate-900 dark:text-slate-100 text-base font-semibold">
+            <DialogTitle className="text-slate-900 dark:text-slate-100 text-base font-semibold mx-2 md:mx-0">
               {quote ? quote.number : "Devis"}
             </DialogTitle>
             <button
@@ -536,62 +550,125 @@ export function QuotePreviewModal({
             </button>
           </div>
 
-          {/* Deuxieme ligne : boutons d'action */}
-          <div className="flex flex-wrap gap-2 mt-3">
-            {/* Imprimer */}
-            <button
-              onClick={handlePrint}
-              disabled={!quote}
-              className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-slate-300 text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-            >
-              <Printer size={14} />
-              Imprimer
-            </button>
+          {/* Deuxième ligne : boutons d'action responsive */}
+          <div className="mt-3 mx-2 md:mx-0">
+            {/* Version mobile : logos en haut, supprimer à droite, envois en bas */}
+            <div className="block md:hidden">
+              {/* Ligne 1 : Logos + Supprimer à droite */}
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex gap-2">
+                  {/* Imprimer - Logo seul */}
+                  <button
+                    onClick={handlePrint}
+                    disabled={!quote}
+                    className="rounded-lg border p-2 text-sm font-medium transition-colors border-slate-300 text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  >
+                    <Printer size={16} />
+                  </button>
 
-            {/* Télécharger PDF */}
-            <button
-              onClick={handleGeneratePdf}
-              disabled={!quote || isGeneratingPdf}
-              className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-sky-300 text-sky-600 hover:bg-sky-50 dark:border-sky-500 dark:text-sky-400 dark:hover:bg-sky-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-            >
-              <Download size={14} />
-              {isGeneratingPdf ? "..." : "PDF"}
-            </button>
+                  {/* PDF - Logo seul */}
+                  <button
+                    onClick={handleGeneratePdf}
+                    disabled={!quote || isGeneratingPdf}
+                    className="rounded-lg border p-2 text-sm font-medium transition-colors border-sky-300 text-sky-600 hover:bg-sky-50 dark:border-sky-500 dark:text-sky-400 dark:hover:bg-sky-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  >
+                    <Download size={16} />
+                  </button>
 
-            {/* Envoyer */}
-            <button
-              onClick={handleSend}
-              disabled={!quote || isSending}
-              className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-emerald-300 text-emerald-600 hover:bg-emerald-50 dark:border-emerald-500 dark:text-emerald-400 dark:hover:bg-emerald-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-            >
-              <Send size={14} />
-              {isSending ? "Envoi..." : "Envoyer"}
-            </button>
+                  {/* Éditer - Logo seul */}
+                  <button
+                    onClick={handleEdit}
+                    disabled={!quote}
+                    className="rounded-lg border p-2 text-sm font-medium transition-colors border-emerald-300 text-emerald-600 hover:bg-emerald-50 dark:border-emerald-500 dark:text-emerald-400 dark:hover:bg-emerald-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  >
+                    <Pencil size={16} />
+                  </button>
+                </div>
 
-            {/* Dupliquer */}
-            <button
-              onClick={handleDuplicate}
-              disabled={!quote || duplicateMutation.isPending}
-              className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-amber-300 text-amber-600 hover:bg-amber-50 dark:border-amber-500 dark:text-amber-400 dark:hover:bg-amber-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-            >
-              <Copy size={14} />
-              {duplicateMutation.isPending ? "Duplication..." : "Dupliquer"}
-            </button>
+                {/* Supprimer - Seul à droite */}
+                <button
+                  onClick={handleDelete}
+                  disabled={!quote || isDeleting}
+                  className="rounded-lg border p-2 text-sm font-medium transition-colors border-red-300 text-red-600 hover:bg-red-50 dark:border-red-500 dark:text-red-400 dark:hover:bg-red-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
 
-            {/* Éditer */}
-            <button
-              onClick={handleEdit}
-              disabled={!quote}
-              className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-violet-300 text-violet-600 hover:bg-violet-50 dark:border-violet-500 dark:text-violet-400 dark:hover:bg-violet-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-            >
-              <Pencil size={14} />
-              Éditer
-            </button>
+              {/* Ligne 2 : Boutons d'envoi avec texte */}
+              <div className="flex flex-wrap gap-2">
+                {/* Envoyer */}
+                <button
+                  onClick={handleSend}
+                  disabled={!quote || isSending}
+                  className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-emerald-300 text-emerald-600 hover:bg-emerald-50 dark:border-emerald-500 dark:text-emerald-400 dark:hover:bg-emerald-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  <Send size={14} />
+                  {isSending ? "Envoi..." : "Envoyer"}
+                </button>
+              </div>
+            </div>
+
+            {/* Version desktop : boutons principaux + supprimer isolé à droite */}
+            <div className="hidden md:flex items-center justify-between">
+              {/* Boutons principaux à gauche */}
+              <div className="flex flex-wrap gap-2">
+                {/* Imprimer */}
+                <button
+                  onClick={handlePrint}
+                  disabled={!quote}
+                  className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-slate-300 text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  <Printer size={14} />
+                  Imprimer
+                </button>
+
+                {/* Télécharger PDF */}
+                <button
+                  onClick={handleGeneratePdf}
+                  disabled={!quote || isGeneratingPdf}
+                  className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-sky-300 text-sky-600 hover:bg-sky-50 dark:border-sky-500 dark:text-sky-400 dark:hover:bg-sky-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  <Download size={14} />
+                  {isGeneratingPdf ? "..." : "PDF"}
+                </button>
+
+                {/* Éditer */}
+                <button
+                  onClick={handleEdit}
+                  disabled={!quote}
+                  className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-emerald-300 text-emerald-600 hover:bg-emerald-50 dark:border-emerald-500 dark:text-emerald-400 dark:hover:bg-emerald-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  <Pencil size={14} />
+                  Éditer
+                </button>
+
+                {/* Envoyer */}
+                <button
+                  onClick={handleSend}
+                  disabled={!quote || isSending}
+                  className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-emerald-300 text-emerald-600 hover:bg-emerald-50 dark:border-emerald-500 dark:text-emerald-400 dark:hover:bg-emerald-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  <Send size={14} />
+                  {isSending ? "Envoi..." : "Envoyer"}
+                </button>
+              </div>
+
+              {/* Supprimer isolé à droite */}
+              <button
+                onClick={handleDelete}
+                disabled={!quote || isDeleting}
+                className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-red-300 text-red-600 hover:bg-red-50 dark:border-red-500 dark:text-red-400 dark:hover:bg-red-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              >
+                <Trash2 size={14} />
+                {isDeleting ? "Suppression..." : "Supprimer"}
+              </button>
+            </div>
           </div>
         </DialogHeader>
 
         {/* Corps scrollable : aperçu statique du devis */}
-        <div id="quote-print-area" className="overflow-y-auto max-h-[70vh] p-6">
+        <div id="quote-print-area" className="overflow-y-auto max-h-[calc(100vh-200px)] sm:max-h-[80vh] md:max-h-[70vh] p-2 sm:p-4 md:p-6">
           {quote ? (
             <QuotePreviewStatic quote={quote} />
           ) : (
