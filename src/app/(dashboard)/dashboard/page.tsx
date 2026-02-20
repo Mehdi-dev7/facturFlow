@@ -241,19 +241,19 @@ export default function DashboardPage() {
               {sortedInvoices.map((inv) => (
                 <tr key={inv.id} className="border-b border-slate-200 dark:border-violet-500/20 hover:bg-violet-200/30 dark:hover:bg-violet-500/10 transition-colors cursor-pointer group">
                   <td className="px-3 lg:px-6 py-3.5 border-r border-slate-200 dark:border-violet-500/15 md:w-[120px] lg:w-auto">
-                    <span className="text-[11px] lg:text-xs font-semibold text-violet-600 dark:text-violet-400 group-hover:text-violet-800 transition-colors block truncate md:max-w-[100px] lg:max-w-none">{inv.id}</span>
+                    <span className="text-[11px] lg:text-xs xl:text-sm font-semibold text-violet-600 dark:text-violet-400 group-hover:text-violet-800 transition-colors block truncate md:max-w-[100px] lg:max-w-none">{inv.id}</span>
                   </td>
                   <td className="px-3 lg:px-6 py-3.5 border-r border-slate-200 dark:border-violet-500/15 md:w-[120px] lg:w-auto">
-                    <span className="text-[11px] lg:text-xs text-slate-700 dark:text-slate-300 block truncate md:max-w-[100px] lg:max-w-none">{inv.client}</span>
+                    <span className="text-[11px] lg:text-xs xl:text-sm text-slate-700 dark:text-slate-300 block truncate md:max-w-[100px] lg:max-w-none">{inv.client}</span>
                   </td>
                   <td className="px-3 lg:px-6 py-3.5 border-r border-slate-200 dark:border-violet-500/15">
-                    <span className="text-[10px] lg:text-xs text-slate-500 dark:text-slate-400">{inv.date}</span>
+                    <span className="text-[10px] lg:text-sm text-slate-500 dark:text-slate-400">{inv.date}</span>
                   </td>
                   <td className="px-3 lg:px-6 py-3.5 border-r border-slate-200 dark:border-violet-500/15">
-                    <span className="text-[10px] lg:text-xs text-slate-500 dark:text-slate-400">{inv.echeance}</span>
+                    <span className="text-[10px] lg:text-sm text-slate-500 dark:text-slate-400">{inv.echeance}</span>
                   </td>
                   <td className="px-3 lg:px-6 py-3.5 text-right border-r border-slate-200 dark:border-violet-500/15">
-                    <span className="text-[10px] lg:text-xs font-semibold text-slate-900 dark:text-slate-100">{inv.amount}</span>
+                    <span className="text-[10px] lg:text-sm font-semibold text-slate-900 dark:text-slate-100">{inv.amount}</span>
                   </td>
                   <td className="px-3 lg:px-6 py-3.5 text-center md:w-[115px] lg:w-auto">
                     <StatusBadge status={inv.status} />

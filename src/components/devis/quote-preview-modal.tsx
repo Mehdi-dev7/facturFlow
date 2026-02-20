@@ -74,19 +74,19 @@ function StaticLinesTable({ title, lines, isForfait, typeConfig }: StaticLinesTa
         <table className="w-full">
           <thead className="bg-linear-to-r from-emerald-50 to-green-50 dark:from-emerald-950/50 dark:to-green-950/50">
             <tr>
-              <th className="text-left p-3 text-xs font-medium text-emerald-700 dark:text-emerald-300 uppercase tracking-wide">
+              <th className="text-left p-2 lg:p-3 text-xs font-medium text-emerald-700 dark:text-emerald-300 uppercase tracking-wide">
                 {typeConfig.descriptionLabel}
               </th>
               {!isForfait && (
-                <th className="text-right p-3 text-xs font-medium text-emerald-700 dark:text-emerald-300 uppercase tracking-wide">
+                <th className="text-right p-2 lg:p-3 text-xs font-medium text-emerald-700 dark:text-emerald-300 uppercase tracking-wide">
                   {typeConfig.quantityLabel}
                 </th>
               )}
-              <th className="text-right p-3 text-xs font-medium text-emerald-700 dark:text-emerald-300 uppercase tracking-wide">
+              <th className="text-right p-2 lg:p-3 text-xs font-medium text-emerald-700 dark:text-emerald-300 uppercase tracking-wide">
                 {isForfait ? "Montant" : "Prix unit."}
               </th>
               {!isForfait && (
-                <th className="text-right p-3 text-xs font-medium text-emerald-700 dark:text-emerald-300 uppercase tracking-wide">
+                <th className="text-right p-2 lg:p-3 text-xs font-medium text-emerald-700 dark:text-emerald-300 uppercase tracking-wide">
                   Total HT
                 </th>
               )}
@@ -95,19 +95,19 @@ function StaticLinesTable({ title, lines, isForfait, typeConfig }: StaticLinesTa
           <tbody>
             {lines.map((line) => (
               <tr key={line.id} className="border-t border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30">
-                <td className="p-3 text-sm text-slate-900 dark:text-slate-50">
+                <td className="p-2 lg:p-3 text-xs lg:text-sm text-slate-900 dark:text-slate-50">
                   {line.description}
                 </td>
                 {!isForfait && (
-                  <td className="p-3 text-sm text-right text-slate-900 dark:text-slate-50">
+                  <td className="p-2 lg:p-3 text-xs lg:text-sm text-right text-slate-900 dark:text-slate-50">
                     {line.quantity}
                   </td>
                 )}
-                <td className="p-3 text-sm text-right text-slate-900 dark:text-slate-50">
+                <td className="p-2 lg:p-3 text-xs lg:text-sm text-right text-slate-900 dark:text-slate-50">
                   {fmt(line.unitPrice)} €
                 </td>
                 {!isForfait && (
-                  <td className="p-3 text-sm text-right font-medium text-emerald-600 dark:text-emerald-400">
+                  <td className="p-2 lg:p-3 text-xs lg:text-sm text-right font-medium text-emerald-600 dark:text-emerald-400">
                     {fmt(line.subtotal)} €
                   </td>
                 )}
@@ -117,7 +117,7 @@ function StaticLinesTable({ title, lines, isForfait, typeConfig }: StaticLinesTa
               <tr>
                 <td
                   colSpan={isForfait ? 2 : 4}
-                  className="py-6 text-center text-sm text-slate-400 italic"
+                  className="py-6 text-center text-xs lg:text-sm text-slate-400 italic"
                 >
                   Aucune ligne
                 </td>

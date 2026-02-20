@@ -9,10 +9,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Printer, Download, Send, Copy, Pencil, X, FileCheck2, ShieldCheck } from "lucide-react";
+import { Printer, Download, Send, Copy, Pencil, X, FileCheck2, ShieldCheck, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { useDuplicateInvoice } from "@/hooks/use-invoices";
+import { useDuplicateInvoice, useDeleteInvoice } from "@/hooks/use-invoices";
 import type { SavedInvoice } from "@/lib/actions/invoices";
 import { sendInvoiceEmail } from "@/lib/actions/send-invoice-email";
 import { sendEInvoice } from "@/lib/actions/send-einvoice";
@@ -79,19 +79,19 @@ function StaticLinesTable({ title, lines, isForfait, typeConfig }: StaticLinesTa
         <table className="w-full">
           <thead className="bg-linear-to-r from-violet-50 to-purple-50 dark:from-violet-950/50 dark:to-purple-950/50">
             <tr>
-              <th className="text-left p-3 text-xs font-medium text-violet-700 dark:text-violet-300 uppercase tracking-wide">
+              <th className="text-left p-2 lg:p-3 text-xs font-medium text-violet-700 dark:text-violet-300 uppercase tracking-wide">
                 {typeConfig.descriptionLabel}
               </th>
               {!isForfait && (
-                <th className="text-right p-3 text-xs font-medium text-violet-700 dark:text-violet-300 uppercase tracking-wide">
+                <th className="text-right p-2 lg:p-3 text-xs font-medium text-violet-700 dark:text-violet-300 uppercase tracking-wide">
                   {typeConfig.quantityLabel}
                 </th>
               )}
-              <th className="text-right p-3 text-xs font-medium text-violet-700 dark:text-violet-300 uppercase tracking-wide">
+              <th className="text-right p-2 lg:p-3 text-xs font-medium text-violet-700 dark:text-violet-300 uppercase tracking-wide">
                 {isForfait ? "Montant" : "Prix unit."}
               </th>
               {!isForfait && (
-                <th className="text-right p-3 text-xs font-medium text-violet-700 dark:text-violet-300 uppercase tracking-wide">
+                <th className="text-right p-2 lg:p-3 text-xs font-medium text-violet-700 dark:text-violet-300 uppercase tracking-wide">
                   Total HT
                 </th>
               )}
@@ -100,19 +100,19 @@ function StaticLinesTable({ title, lines, isForfait, typeConfig }: StaticLinesTa
           <tbody>
             {lines.map((line) => (
               <tr key={line.id} className="border-t border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30">
-                <td className="p-3 text-sm text-slate-900 dark:text-slate-50">
+                <td className="p-2 lg:p-3 text-xs lg:text-sm text-slate-900 dark:text-slate-50">
                   {line.description}
                 </td>
                 {!isForfait && (
-                  <td className="p-3 text-sm text-right text-slate-900 dark:text-slate-50">
+                  <td className="p-2 lg:p-3 text-xs lg:text-sm text-right text-slate-900 dark:text-slate-50">
                     {line.quantity}
                   </td>
                 )}
-                <td className="p-3 text-sm text-right text-slate-900 dark:text-slate-50">
+                <td className="p-2 lg:p-3 text-xs lg:text-sm text-right text-slate-900 dark:text-slate-50">
                   {fmt(line.unitPrice)} €
                 </td>
                 {!isForfait && (
-                  <td className="p-3 text-sm text-right font-medium text-violet-600 dark:text-violet-400">
+                  <td className="p-2 lg:p-3 text-xs lg:text-sm text-right font-medium text-violet-600 dark:text-violet-400">
                     {fmt(line.subtotal)} €
                   </td>
                 )}
@@ -190,32 +190,32 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
     : [];
 
   return (
-    <div className="bg-white dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 p-6 space-y-6 shadow-sm">
+    <div className="bg-white dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 p-3 md:p-6 space-y-6 shadow-sm">
       {/* En-tête du document avec bandeau coloré */}
       <div className="bg-linear-to-r from-violet-600 to-indigo-600 dark:from-violet-500 dark:to-indigo-500 rounded-lg p-4 text-white mb-6">
         <div className="flex justify-between items-start">
           <div>
-            <h1 className="text-xl font-bold mb-1">
+            <h1 className="text-lg md:text-xl font-bold mb-1">
               FACTURE
             </h1>
-            <p className="text-white/90 text-sm">
+            <p className="text-white/90 text-xs md:text-sm">
               N° {invoice.number}
             </p>
+          </div>
+          <div className="text-right text-xs md:text-sm">
+            <p className="text-white/90">
+              Date : {formatDate(invoice.date)}
+            </p>
+            <p className="text-white/90 ">
+              Échéance : {formatDate(invoice.dueDate)}
+            </p>
+          </div>
+        </div>
             {invoiceType !== "basic" && (
               <span className="inline-block mt-1.5 text-[10px] bg-white/20 px-2 py-0.5 rounded-full font-medium tracking-wide">
                 {INVOICE_TYPE_LABELS[invoiceType]}
               </span>
             )}
-          </div>
-          <div className="text-right text-sm">
-            <p className="text-white/90">
-              Date : {formatDate(invoice.date)}
-            </p>
-            <p className="text-white/90">
-              Échéance : {formatDate(invoice.dueDate)}
-            </p>
-          </div>
-        </div>
       </div>
 
       {/* Émetteur et destinataire */}
@@ -227,28 +227,28 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
           </h3>
           {emitter.companyName ? (
             <div className="text-sm space-y-0.5">
-              <p className="font-medium text-slate-900 dark:text-slate-50">
+              <p className="font-medium text-slate-900 dark:text-slate-50 text-xs lg:text-sm">
                 {emitter.companyName}
               </p>
               {emitter.companyAddress && (
-                <p className="text-slate-600 dark:text-slate-400">
+                <p className="text-slate-600 dark:text-slate-400 text-[11px] lg:text-xs">
                   {emitter.companyAddress}
                 </p>
               )}
               {(emitter.companyPostalCode || emitter.companyCity) && (
-                <p className="text-slate-600 dark:text-slate-400">
+                <p className="text-slate-600 dark:text-slate-400 text-[11px] lg:text-xs">
                   {[emitter.companyPostalCode, emitter.companyCity]
                     .filter(Boolean)
                     .join(" ")}
                 </p>
               )}
               {emitter.companySiret && (
-                <p className="text-slate-600 dark:text-slate-400">
+                <p className="text-slate-600 dark:text-slate-400 text-[11px] lg:text-xs">
                   SIRET : {emitter.companySiret}
                 </p>
               )}
               {emitter.companyEmail && (
-                <p className="text-slate-600 dark:text-slate-400">
+                <p className="text-slate-600 dark:text-slate-400 text-[11px] lg:text-xs">
                   {emitter.companyEmail}
                 </p>
               )}
@@ -264,29 +264,29 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
             Destinataire
           </h3>
           <div className="text-sm space-y-0.5">
-            <p className="font-medium text-slate-900 dark:text-slate-50">
+            <p className="font-medium text-slate-900 dark:text-slate-50 text-xs lg:text-sm">
               {getClientName(invoice.client)}
             </p>
-            <p className="text-slate-600 dark:text-slate-400">
-              {invoice.client.email}
-            </p>
             {invoice.client.address && (
-              <p className="text-slate-600 dark:text-slate-400">
+              <p className="text-slate-600 dark:text-slate-400 text-[11px] lg:text-xs">
                 {invoice.client.address}
               </p>
             )}
             {(invoice.client.postalCode || invoice.client.city) && (
-              <p className="text-slate-600 dark:text-slate-400">
+              <p className="text-slate-600 dark:text-slate-400 text-[11px] lg:text-xs">
                 {[invoice.client.postalCode, invoice.client.city]
                   .filter(Boolean)
                   .join(" ")}
               </p>
             )}
             {invoice.client.companySiret && (
-              <p className="text-slate-600 dark:text-slate-400">
+              <p className="text-slate-600 dark:text-slate-400 text-[11px] lg:text-xs">
                 SIRET : {invoice.client.companySiret}
               </p>
             )}
+            <p className="text-slate-600 dark:text-slate-400 text-[11px] lg:text-xs">
+              {invoice.client.email}
+            </p>
           </div>
         </div>
       </div>
@@ -325,7 +325,7 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
         <div className="w-64 space-y-2 bg-linear-to-br from-violet-50 to-purple-50 dark:from-violet-950/50 dark:to-purple-950/50 rounded-lg p-4 border border-violet-200/50 dark:border-violet-500/20">
           {/* Sous-total HT */}
           <div className="flex justify-between text-sm">
-            <span className="text-violet-700 dark:text-violet-300">Sous-total HT :</span>
+            <span className="text-violet-700 dark:text-violet-300 ">Sous-total HT :</span>
             <span className="text-slate-900 dark:text-slate-50 font-medium">{fmt(invoice.subtotal)} €</span>
           </div>
 
@@ -345,22 +345,22 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
 
           {/* Total TTC */}
           <div className="flex justify-between text-lg font-bold border-t border-violet-200 dark:border-violet-500/30 pt-2">
-            <span className="text-slate-900 dark:text-slate-50">Total TTC :</span>
-            <span className="text-violet-600 dark:text-violet-400">{fmt(invoice.total)} €</span>
+            <span className="text-slate-900 dark:text-slate-50 text-base lg:text-lg">Total TTC :</span>
+            <span className="text-violet-600 dark:text-violet-400 text-base lg:text-lg">{fmt(invoice.total)} €</span>
           </div>
 
           {/* Acompte + NET À PAYER */}
           {deposit > 0 && (
             <>
               <div className="flex justify-between text-sm border-t border-violet-200 dark:border-violet-500/30 pt-2">
-                <span className="text-violet-700 dark:text-violet-300">Acompte versé :</span>
-                <span className="text-rose-600 font-medium">−{fmt(deposit)} €</span>
+                <span className="text-violet-700 dark:text-violet-300 text-base lg:text-lg">Acompte versé :</span>
+                <span className="text-rose-600 font-medium text-base lg:text-lg">−{fmt(deposit)} €</span>
               </div>
               <div className="flex justify-between items-center pt-2 border-t-2 border-violet-300 dark:border-violet-500 mt-1">
-                <span className="text-sm font-extrabold text-slate-900 dark:text-slate-50 tracking-tight">
+                <span className="text-base lg:text-lg font-extrabold text-slate-900 dark:text-slate-50 tracking-tight">
                   NET À PAYER
                 </span>
-                <span className="text-base font-extrabold text-violet-700 dark:text-violet-400">
+                <span className="text-base lg:text-lg font-extrabold text-violet-700 dark:text-violet-400">
                   {fmt(netAPayer)} €
                 </span>
               </div>
@@ -388,7 +388,7 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
         <h3 className="font-semibold mb-3 text-xs uppercase tracking-wide text-violet-600 dark:text-violet-400">
           Modalités de paiement
         </h3>
-        <div className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
+        <div className="space-y-2 text-xs md:text-sm text-slate-600 dark:text-slate-400">
           <p>• Paiement attendu avant le {formatDate(invoice.dueDate)}</p>
           <p>• Liens de paiement sécurisés inclus dans l&apos;email</p>
           
@@ -463,6 +463,7 @@ export function InvoicePreviewModal({
 }: InvoicePreviewModalProps) {
   const router = useRouter();
   const duplicateMutation = useDuplicateInvoice();
+  const deleteMutation = useDeleteInvoice();
 
   // ── Handlers des 6 boutons d'action ──────────────────────────────────────
 
@@ -508,6 +509,7 @@ export function InvoicePreviewModal({
   }, [invoice]);
 
   const [isSending, setIsSending] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleSend = useCallback(async () => {
     if (!invoice || isSending) return;
@@ -546,6 +548,23 @@ export function InvoicePreviewModal({
     duplicateMutation.mutate(invoice.id);
   }, [invoice, duplicateMutation]);
 
+  const handleDelete = useCallback(async () => {
+    if (!invoice || isDeleting) return;
+    
+    const confirmed = window.confirm(`Êtes-vous sûr de vouloir supprimer la facture ${invoice.number} ?`);
+    if (!confirmed) return;
+
+    setIsDeleting(true);
+    try {
+      await deleteMutation.mutateAsync(invoice.id);
+      onOpenChange(false); // Fermer la modal après suppression
+    } catch (error) {
+      console.error("Erreur suppression:", error);
+    } finally {
+      setIsDeleting(false);
+    }
+  }, [invoice, isDeleting, deleteMutation, onOpenChange]);
+
   const handleEdit = useCallback(() => {
     if (!invoice) return;
     router.push(`/dashboard/invoices/${invoice.id}/edit`);
@@ -576,12 +595,12 @@ export function InvoicePreviewModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="sm:max-w-3xl lg:max-w-5xl bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25 shadow-lg dark:shadow-violet-950/40 rounded-xl overflow-hidden p-0"
+        className="w-[95vw] h-[90vh] sm:w-[90vw] sm:h-auto sm:max-w-2xl md:max-w-3xl lg:max-w-5xl bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25 shadow-lg dark:shadow-violet-950/40 rounded-xl overflow-hidden p-0"
         // On désactive le bouton de fermeture par défaut pour en mettre un custom dans le header
         showCloseButton={false}
       >
         {/* ── Header du modal : titre + bouton fermer + 5 actions ─────── */}
-        <DialogHeader data-print-hide className="px-6 pt-5 pb-4 border-b border-slate-200 dark:border-violet-500/20">
+        <DialogHeader data-print-hide className="px-2 sm:px-4 md:px-6 pt-2 sm:pt-3 md:pt-5 pb-2 sm:pb-3 md:pb-4 border-b border-slate-200 dark:border-violet-500/20">
           {/* Première ligne : numéro de facture + croix */}
           <div className="flex items-center justify-between">
             <DialogTitle className="text-slate-900 dark:text-slate-100 text-base font-semibold">
@@ -596,68 +615,142 @@ export function InvoicePreviewModal({
             </button>
           </div>
 
-          {/* Deuxième ligne : 5 boutons d'action */}
-          <div className="flex flex-wrap gap-2 mt-3">
-            {/* Imprimer */}
-            <button
-              onClick={handlePrint}
-              disabled={!invoice}
-              className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-slate-300 text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-            >
-              <Printer size={14} />
-              Imprimer
-            </button>
+          {/* Deuxième ligne : boutons d'action responsive */}
+          <div className="mt-3">
+            {/* Version mobile : logos en haut, supprimer à droite, envois en bas */}
+            <div className="block md:hidden">
+              {/* Ligne 1 : Logos + Supprimer à droite */}
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex gap-2">
+                  {/* Imprimer - Logo seul */}
+                  <button
+                    onClick={handlePrint}
+                    disabled={!invoice}
+                    className="rounded-lg border p-2 text-sm font-medium transition-colors border-slate-300 text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  >
+                    <Printer size={16} />
+                  </button>
 
-            {/* Télécharger PDF */}
-            <button
-              onClick={handleDownload}
-              disabled={!invoice}
-              className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-sky-300 text-sky-600 hover:bg-sky-50 dark:border-sky-500 dark:text-sky-400 dark:hover:bg-sky-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-            >
-              <Download size={14} />
-               PDF
-            </button>
+                  {/* PDF - Logo seul */}
+                  <button
+                    onClick={handleDownload}
+                    disabled={!invoice}
+                    className="rounded-lg border p-2 text-sm font-medium transition-colors border-sky-300 text-sky-600 hover:bg-sky-50 dark:border-sky-500 dark:text-sky-400 dark:hover:bg-sky-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  >
+                    <Download size={16} />
+                  </button>
 
-            {/* Envoyer */}
-            <button
-              onClick={handleSend}
-              disabled={!invoice || isSending}
-              className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-violet-300 text-violet-600 hover:bg-violet-50 dark:border-violet-500 dark:text-violet-400 dark:hover:bg-violet-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-            >
-              <Send size={14} />
-              {isSending ? "Envoi..." : "Envoyer"}
-            </button>
+                  {/* Éditer - Logo seul */}
+                  <button
+                    onClick={handleEdit}
+                    disabled={!invoice}
+                    className="rounded-lg border p-2 text-sm font-medium transition-colors border-emerald-300 text-emerald-600 hover:bg-emerald-50 dark:border-emerald-500 dark:text-emerald-400 dark:hover:bg-emerald-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  >
+                    <Pencil size={16} />
+                  </button>
+                </div>
 
-            {/* Dupliquer */}
-            <button
-              onClick={handleDuplicate}
-              disabled={!invoice || duplicateMutation.isPending}
-              className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-amber-300 text-amber-600 hover:bg-amber-50 dark:border-amber-500 dark:text-amber-400 dark:hover:bg-amber-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-            >
-              <Copy size={14} />
-              {duplicateMutation.isPending ? "Duplication..." : "Dupliquer"}
-            </button>
+                {/* Supprimer - Seul à droite */}
+                <button
+                  onClick={handleDelete}
+                  disabled={!invoice || isDeleting}
+                  className="rounded-lg border p-2 text-sm font-medium transition-colors border-red-300 text-red-600 hover:bg-red-50 dark:border-red-500 dark:text-red-400 dark:hover:bg-red-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
 
-            {/* Éditer */}
-            <button
-              onClick={handleEdit}
-              disabled={!invoice}
-              className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-emerald-300 text-emerald-600 hover:bg-emerald-50 dark:border-emerald-500 dark:text-emerald-400 dark:hover:bg-emerald-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-            >
-              <Pencil size={14} />
-              Éditer
-            </button>
+              {/* Ligne 2 : Boutons d'envoi avec texte */}
+              <div className="flex flex-wrap gap-2">
+                {/* Envoyer */}
+                <button
+                  onClick={handleSend}
+                  disabled={!invoice || isSending}
+                  className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-violet-300 text-violet-600 hover:bg-violet-50 dark:border-violet-500 dark:text-violet-400 dark:hover:bg-violet-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  <Send size={14} />
+                  {isSending ? "Envoi..." : "Envoyer"}
+                </button>
 
-            {/* Envoyer électroniquement — désactivé si déjà envoyé */}
-            <button
-              onClick={handleSendEInvoice}
-              disabled={!invoice || isSendingEInvoice || !!invoice?.einvoiceRef}
-              className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-indigo-300 text-indigo-600 hover:bg-indigo-50 dark:border-indigo-500 dark:text-indigo-400 dark:hover:bg-indigo-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-              title={invoice?.einvoiceRef ? "Déjà envoyée électroniquement" : "Envoyer via le réseau Peppol (certifié DGFiP)"}
-            >
-              <FileCheck2 size={14} />
-              {isSendingEInvoice ? "Envoi élec..." : invoice?.einvoiceRef ? "Envoyée élec." : "Envoyer élec."}
-            </button>
+                {/* Envoyer électroniquement */}
+                <button
+                  onClick={handleSendEInvoice}
+                  disabled={!invoice || isSendingEInvoice || !!invoice?.einvoiceRef}
+                  className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-indigo-300 text-indigo-600 hover:bg-indigo-50 dark:border-indigo-500 dark:text-indigo-400 dark:hover:bg-indigo-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  title={invoice?.einvoiceRef ? "Déjà envoyée électroniquement" : "Envoyer via le réseau Peppol (certifié DGFiP)"}
+                >
+                  <FileCheck2 size={14} />
+                  {isSendingEInvoice ? "Envoi élec..." : invoice?.einvoiceRef ? "Envoyée élec." : "Envoyer élec."}
+                </button>
+              </div>
+            </div>
+
+            {/* Version desktop : boutons principaux + supprimer isolé à droite */}
+            <div className="hidden md:flex items-center justify-between">
+              {/* Boutons principaux à gauche */}
+              <div className="flex flex-wrap gap-2">
+                {/* Imprimer */}
+                <button
+                  onClick={handlePrint}
+                  disabled={!invoice}
+                  className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-slate-300 text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  <Printer size={14} />
+                  Imprimer
+                </button>
+
+                {/* Télécharger PDF */}
+                <button
+                  onClick={handleDownload}
+                  disabled={!invoice}
+                  className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-sky-300 text-sky-600 hover:bg-sky-50 dark:border-sky-500 dark:text-sky-400 dark:hover:bg-sky-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  <Download size={14} />
+                  PDF
+                </button>
+
+                {/* Éditer */}
+                <button
+                  onClick={handleEdit}
+                  disabled={!invoice}
+                  className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-emerald-300 text-emerald-600 hover:bg-emerald-50 dark:border-emerald-500 dark:text-emerald-400 dark:hover:bg-emerald-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  <Pencil size={14} />
+                  Éditer
+                </button>
+
+                {/* Envoyer */}
+                <button
+                  onClick={handleSend}
+                  disabled={!invoice || isSending}
+                  className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-violet-300 text-violet-600 hover:bg-violet-50 dark:border-violet-500 dark:text-violet-400 dark:hover:bg-violet-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  <Send size={14} />
+                  {isSending ? "Envoi..." : "Envoyer"}
+                </button>
+
+                {/* Envoyer électroniquement */}
+                <button
+                  onClick={handleSendEInvoice}
+                  disabled={!invoice || isSendingEInvoice || !!invoice?.einvoiceRef}
+                  className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-indigo-300 text-indigo-600 hover:bg-indigo-50 dark:border-indigo-500 dark:text-indigo-400 dark:hover:bg-indigo-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  title={invoice?.einvoiceRef ? "Déjà envoyée électroniquement" : "Envoyer via le réseau Peppol (certifié DGFiP)"}
+                >
+                  <FileCheck2 size={14} />
+                  {isSendingEInvoice ? "Envoi élec..." : invoice?.einvoiceRef ? "Envoyée élec." : "Envoyer élec."}
+                </button>
+              </div>
+
+              {/* Supprimer isolé à droite */}
+              <button
+                onClick={handleDelete}
+                disabled={!invoice || isDeleting}
+                className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-red-300 text-red-600 hover:bg-red-50 dark:border-red-500 dark:text-red-400 dark:hover:bg-red-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              >
+                <Trash2 size={14} />
+                {isDeleting ? "Suppression..." : "Supprimer"}
+              </button>
+            </div>
           </div>
 
           {/* Badge de statut e-invoice — visible uniquement si envoyée */}
@@ -686,7 +779,7 @@ export function InvoicePreviewModal({
         </DialogHeader>
 
         {/* ── Corps scrollable : aperçu statique de la facture ─────────── */}
-        <div id="invoice-print-area" className="overflow-y-auto max-h-[70vh] p-6">
+        <div id="invoice-print-area" className="overflow-y-auto max-h-[calc(100vh-200px)] sm:max-h-[80vh] md:max-h-[70vh] p-2 sm:p-4 md:p-6">
           {invoice ? (
             <InvoicePreviewStatic invoice={invoice} />
           ) : (

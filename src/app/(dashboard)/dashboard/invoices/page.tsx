@@ -258,7 +258,7 @@ function InvoicesPageContent() {
       headerClassName: "md:w-[120px] lg:w-auto",
       cellClassName: "md:w-[120px] lg:w-auto",
       render: (row) => (
-        <span className="text-[11px] lg:text-xs font-semibold text-violet-600 dark:text-violet-400 group-hover:text-violet-800 transition-colors block truncate md:max-w-[100px] lg:max-w-none">
+        <span className="text-[11px] lg:text-xs xl:text-sm font-semibold text-violet-600 dark:text-violet-400 group-hover:text-violet-800 transition-colors block truncate md:max-w-[100px] lg:max-w-none">
           {row.number}
         </span>
       ),
@@ -269,7 +269,7 @@ function InvoicesPageContent() {
       headerClassName: "md:w-[120px] lg:w-auto",
       cellClassName: "md:w-[120px] lg:w-auto",
       render: (row) => (
-        <span className="text-[11px] lg:text-xs text-slate-700 dark:text-slate-300 block truncate md:max-w-[100px] lg:max-w-none">{row.client}</span>
+        <span className="text-[11px] lg:text-xs xl:text-sm text-slate-700 dark:text-slate-300 block truncate md:max-w-[100px] lg:max-w-none">{row.client}</span>
       ),
     },
     {
@@ -278,7 +278,7 @@ function InvoicesPageContent() {
       sortable: true,
       getValue: (row) => new Date(row.date.split("/").reverse().join("-")).getTime(),
       render: (row) => (
-        <span className="text-xs lg:text-sm text-slate-500 dark:text-slate-400">{row.date}</span>
+        <span className="text-xs lg:text-sm  text-slate-500 dark:text-slate-400">{row.date}</span>
       ),
     },
     {
