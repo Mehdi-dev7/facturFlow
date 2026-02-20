@@ -10,7 +10,6 @@ import {
   MonthSelector,
   DataTable,
   ActionButtons,
-  ActionMenuMobile,
   ArchiveSection,
 } from "@/components/dashboard";
 import type { KpiData, Column } from "@/components/dashboard";
@@ -256,8 +255,10 @@ function InvoicesPageContent() {
     {
       key: "number",
       label: "N° Facture",
+      headerClassName: "md:w-[120px] lg:w-auto",
+      cellClassName: "md:w-[120px] lg:w-auto",
       render: (row) => (
-        <span className="text-[10px] lg:text-xs font-semibold text-violet-600 dark:text-violet-400 group-hover:text-violet-800 transition-colors">
+        <span className="text-[10px] lg:text-xs font-semibold text-violet-600 dark:text-violet-400 group-hover:text-violet-800 transition-colors block truncate md:max-w-[100px] lg:max-w-none">
           {row.number}
         </span>
       ),
@@ -265,8 +266,10 @@ function InvoicesPageContent() {
     {
       key: "client",
       label: "Client",
+      headerClassName: "md:w-[120px] lg:w-auto",
+      cellClassName: "md:w-[120px] lg:w-auto",
       render: (row) => (
-        <span className="text-[10px] lg:text-xs text-slate-700 dark:text-slate-300">{row.client}</span>
+        <span className="text-[10px] lg:text-xs text-slate-700 dark:text-slate-300 block truncate md:max-w-[100px] lg:max-w-none">{row.client}</span>
       ),
     },
     {
@@ -303,7 +306,8 @@ function InvoicesPageContent() {
       align: "center" as const,
       sortable: true,
       getValue: (row) => statusOrder[row.status],
-      // StatusDropdown : badge cliquable avec menu de transition (stoppe la propagation)
+      headerClassName: "md:w-[115px] lg:w-auto",
+      cellClassName: "md:w-[115px] lg:w-auto",
       render: (row) => (
         <StatusDropdown invoiceId={row.id} dbStatus={row.dbStatus} />
       ),
@@ -428,12 +432,6 @@ function InvoicesPageContent() {
           onRowClick={handleRowClick}
           actions={(row) => (
             <ActionButtons
-              onEdit={() => handleEdit(row)}
-              onDelete={() => setDeleteTargetId(row.id)}
-            />
-          )}
-          mobileActions={(row) => (
-            <ActionMenuMobile
               onEdit={() => handleEdit(row)}
               onDelete={() => setDeleteTargetId(row.id)}
             />

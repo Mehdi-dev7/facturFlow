@@ -59,18 +59,23 @@ export function StatusDropdown({ invoiceId, dbStatus }: StatusDropdownProps) {
   const uiStatus = DB_TO_UI[dbStatus] ?? "à envoyer";
   const transitions = TRANSITIONS[dbStatus] ?? [];
 
-  // Statut final → badge statique
+  // Statut final → badge statique partout
   if (transitions.length === 0) {
     return <StatusBadge status={uiStatus} />;
   }
 
   return (
-    // stopPropagation pour ne pas ouvrir la modal de prévisualisation
     <div onClick={(e) => e.stopPropagation()}>
+      {/* Mobile/tablette : badge statique, pas de dropdown */}
+      <span className="lg:hidden">
+        <StatusBadge status={uiStatus} />
+      </span>
+
+      {/* Desktop lg+ : dropdown interactif */}
       <DropdownMenuPrimitive.Root>
         <DropdownMenuPrimitive.Trigger asChild>
           <button
-            className="inline-flex items-center gap-1 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 hover:opacity-80 transition-opacity cursor-pointer"
+            className="hidden lg:inline-flex items-center gap-1 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 hover:opacity-80 transition-opacity cursor-pointer"
             aria-label="Changer le statut"
           >
             <StatusBadge status={uiStatus} />

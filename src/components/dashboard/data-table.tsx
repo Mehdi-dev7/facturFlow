@@ -177,9 +177,9 @@ export function DataTable<T>({
                     onClick={() => setExpandedId(isExpanded ? null : id)}
                     className={`h-4 w-4 text-slate-400 transition-transform duration-200 cursor-pointer ${isExpanded ? "rotate-180" : ""}`}
                   />
-                  {(mobileActions ?? actions) && (
+                  {mobileActions && (
                     <div onClick={(e) => e.stopPropagation()}>
-                      {(mobileActions ?? actions)!(item)}
+                      {mobileActions(item)}
                     </div>
                   )}
                 </div>
@@ -232,7 +232,7 @@ export function DataTable<T>({
                 </th>
               ))}
               {actions && (
-                <th className="w-12 px-1 py-3 text-center text-xs font-semibold text-slate-500 dark:text-violet-300 uppercase tracking-wider">
+                <th className="hidden lg:table-cell w-12 px-1 py-3 text-center text-xs font-semibold text-slate-500 dark:text-violet-300 uppercase tracking-wider">
                 </th>
               )}
             </tr>
@@ -256,7 +256,7 @@ export function DataTable<T>({
                   </td>
                 ))}
                 {actions && (
-                  <td className="w-12 px-1 py-3.5 text-center">
+                  <td className="hidden lg:table-cell w-12 px-1 py-3.5 text-center">
                     {actions(item)}
                   </td>
                 )}

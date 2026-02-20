@@ -213,24 +213,24 @@ export default function DashboardPage() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-slate-200 dark:border-violet-500/20 bg-violet-200/90 dark:bg-violet-950/50">
-                <th className="px-3 lg:px-6 py-3 text-left text-xs font-semibold text-slate-500 dark:text-violet-300 uppercase tracking-wider border-r border-slate-200 dark:border-violet-500/20">N° Facture</th>
-                <th className="px-3 lg:px-6 py-3 text-left text-xs font-semibold text-slate-500 dark:text-violet-300 uppercase tracking-wider border-r border-slate-200 dark:border-violet-500/20">Client</th>
-                <th className="px-3 lg:px-6 py-3 text-left text-xs font-semibold text-slate-500 dark:text-violet-300 uppercase tracking-wider border-r border-slate-200 dark:border-violet-500/20">
+                <th className="px-3 lg:px-6 py-3 text-left text-[10px] lg:text-xs font-semibold text-slate-500 dark:text-violet-300 uppercase tracking-wider border-r border-slate-200 dark:border-violet-500/20 md:w-[120px] lg:w-auto">N° Facture</th>
+                <th className="px-3 lg:px-6 py-3 text-left text-[10px] lg:text-xs font-semibold text-slate-500 dark:text-violet-300 uppercase tracking-wider border-r border-slate-200 dark:border-violet-500/20 md:w-[120px] lg:w-auto">Client</th>
+                <th className="px-3 lg:px-6 py-3 text-left text-[10px] lg:text-xs font-semibold text-slate-500 dark:text-violet-300 uppercase tracking-wider border-r border-slate-200 dark:border-violet-500/20">
                   <button onClick={() => handleSort("date")} className="inline-flex items-center gap-1.5 cursor-pointer hover:text-primary transition-colors">
                     Émission <SortIcon direction={sortKey === "date" ? sortDir : null} />
                   </button>
                 </th>
-                <th className="px-3 lg:px-6 py-3 text-left text-xs font-semibold text-slate-500 dark:text-violet-300 uppercase tracking-wider border-r border-slate-200 dark:border-violet-500/20">
+                <th className="px-3 lg:px-6 py-3 text-left text-[10px] lg:text-xs font-semibold text-slate-500 dark:text-violet-300 uppercase tracking-wider border-r border-slate-200 dark:border-violet-500/20">
                   <button onClick={() => handleSort("echeance")} className="inline-flex items-center gap-1.5 cursor-pointer hover:text-primary transition-colors">
                     Échéance <SortIcon direction={sortKey === "echeance" ? sortDir : null} />
                   </button>
                 </th>
-                <th className="px-3 lg:px-6 py-3 text-right text-xs font-semibold text-slate-500 dark:text-violet-300 uppercase tracking-wider border-r border-slate-200 dark:border-violet-500/20">
+                <th className="px-3 lg:px-6 py-3 text-right text-[10px] lg:text-xs font-semibold text-slate-500 dark:text-violet-300 uppercase tracking-wider border-r border-slate-200 dark:border-violet-500/20">
                   <button onClick={() => handleSort("amount")} className="inline-flex items-center gap-1.5 cursor-pointer hover:text-primary transition-colors ml-auto">
                     Montant <SortIcon direction={sortKey === "amount" ? sortDir : null} />
                   </button>
                 </th>
-                <th className="px-3 lg:px-6 py-3 text-center text-xs font-semibold text-slate-500 dark:text-violet-300 uppercase tracking-wider">
+                <th className="px-3 lg:px-6 py-3 text-center text-[10px] lg:text-xs font-semibold text-slate-500 dark:text-violet-300 uppercase tracking-wider md:w-[115px] lg:w-auto">
                   <button onClick={() => handleSort("status")} className="inline-flex items-center gap-1.5 cursor-pointer hover:text-primary transition-colors mx-auto">
                     Statut <SortIcon direction={sortKey === "status" ? sortDir : null} />
                   </button>
@@ -240,22 +240,22 @@ export default function DashboardPage() {
             <tbody>
               {sortedInvoices.map((inv) => (
                 <tr key={inv.id} className="border-b border-slate-200 dark:border-violet-500/20 hover:bg-violet-200/30 dark:hover:bg-violet-500/10 transition-colors cursor-pointer group">
-                  <td className="px-3 lg:px-6 py-3.5 border-r border-slate-200 dark:border-violet-500/15">
-                    <span className="text-xs lg:text-sm font-semibold text-violet-600 dark:text-violet-400 group-hover:text-violet-800 transition-colors">{inv.id}</span>
+                  <td className="px-3 lg:px-6 py-3.5 border-r border-slate-200 dark:border-violet-500/15 md:w-[120px] lg:w-auto">
+                    <span className="text-[10px] lg:text-xs font-semibold text-violet-600 dark:text-violet-400 group-hover:text-violet-800 transition-colors block truncate md:max-w-[100px] lg:max-w-none">{inv.id}</span>
+                  </td>
+                  <td className="px-3 lg:px-6 py-3.5 border-r border-slate-200 dark:border-violet-500/15 md:w-[120px] lg:w-auto">
+                    <span className="text-[10px] lg:text-xs text-slate-700 dark:text-slate-300 block truncate md:max-w-[100px] lg:max-w-none">{inv.client}</span>
                   </td>
                   <td className="px-3 lg:px-6 py-3.5 border-r border-slate-200 dark:border-violet-500/15">
-                    <span className="text-xs lg:text-sm text-slate-700 dark:text-slate-300">{inv.client}</span>
+                    <span className="text-[10px] lg:text-xs text-slate-500 dark:text-slate-400">{inv.date}</span>
                   </td>
                   <td className="px-3 lg:px-6 py-3.5 border-r border-slate-200 dark:border-violet-500/15">
-                    <span className="text-xs lg:text-sm text-slate-500 dark:text-slate-400">{inv.date}</span>
-                  </td>
-                  <td className="px-3 lg:px-6 py-3.5 border-r border-slate-200 dark:border-violet-500/15">
-                    <span className="text-xs lg:text-sm text-slate-500 dark:text-slate-400">{inv.echeance}</span>
+                    <span className="text-[10px] lg:text-xs text-slate-500 dark:text-slate-400">{inv.echeance}</span>
                   </td>
                   <td className="px-3 lg:px-6 py-3.5 text-right border-r border-slate-200 dark:border-violet-500/15">
-                    <span className="text-xs lg:text-sm font-semibold text-slate-900 dark:text-slate-100">{inv.amount}</span>
+                    <span className="text-[10px] lg:text-xs font-semibold text-slate-900 dark:text-slate-100">{inv.amount}</span>
                   </td>
-                  <td className="px-3 lg:px-6 py-3.5 text-center">
+                  <td className="px-3 lg:px-6 py-3.5 text-center md:w-[115px] lg:w-auto">
                     <StatusBadge status={inv.status} />
                   </td>
                 </tr>
