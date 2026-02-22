@@ -9,7 +9,6 @@ import {
   MonthSelector,
   DataTable,
   ActionButtons,
-  ActionMenuMobile,
   ArchiveSection,
   StatusBadge,
 } from "@/components/dashboard";
@@ -387,11 +386,6 @@ function DepositsPageContent() {
           onRowClick={handleRowClick}
           actions={(row) => (
             <ActionButtons
-              onDelete={() => setDeleteTargetId(row.id)}
-            />
-          )}
-          mobileActions={(row) => (
-            <ActionMenuMobile
               onDelete={() => setDeleteTargetId(row.id)}
             />
           )}

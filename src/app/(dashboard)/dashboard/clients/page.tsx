@@ -8,7 +8,6 @@ import {
   SearchBar,
   DataTable,
   ActionButtons,
-  ActionMenuMobile,
 } from "@/components/dashboard";
 import type { KpiData, Column } from "@/components/dashboard";
 import { useClients, useDeleteClient, type SavedClient } from "@/hooks/use-clients";
@@ -250,12 +249,6 @@ export default function ClientsPage() {
           mobileFields={["name", "type"]}
           actions={(client) => (
             <ActionButtons
-              onEdit={() => handleEdit(client)}
-              onDelete={() => handleDelete(client)}
-            />
-          )}
-          mobileActions={(client) => (
-            <ActionMenuMobile
               onEdit={() => handleEdit(client)}
               onDelete={() => handleDelete(client)}
             />

@@ -10,7 +10,6 @@ import {
   MonthSelector,
   DataTable,
   ActionButtons,
-  ActionMenuMobile,
   ArchiveSection,
 } from "@/components/dashboard";
 import type { KpiData, Column } from "@/components/dashboard";
@@ -409,15 +408,11 @@ function QuotesPageContent() {
           columns={columns}
           getRowId={(row) => row.id}
           mobileFields={["number", "client"]}
+          mobileStatusKey="status"
+          mobileAmountKey="amount"
           onRowClick={handleRowClick}
           actions={(row) => (
             <ActionButtons
-              onEdit={() => handleEdit(row)}
-              onDelete={() => setDeleteTargetId(row.id)}
-            />
-          )}
-          mobileActions={(row) => (
-            <ActionMenuMobile
               onEdit={() => handleEdit(row)}
               onDelete={() => setDeleteTargetId(row.id)}
             />

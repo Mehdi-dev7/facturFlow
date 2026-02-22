@@ -66,16 +66,11 @@ export function StatusDropdown({ invoiceId, dbStatus }: StatusDropdownProps) {
 
   return (
     <div onClick={(e) => e.stopPropagation()}>
-      {/* Mobile/tablette : badge statique, pas de dropdown */}
-      <span className="lg:hidden">
-        <StatusBadge status={uiStatus} />
-      </span>
-
-      {/* Desktop lg+ : dropdown interactif */}
+      {/* Dropdown interactif sur tous les écrans */}
       <DropdownMenuPrimitive.Root>
         <DropdownMenuPrimitive.Trigger asChild>
           <button
-            className="hidden lg:inline-flex items-center gap-1 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 hover:opacity-80 transition-opacity cursor-pointer"
+            className="inline-flex items-center gap-1 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 hover:opacity-80 transition-opacity cursor-pointer"
             aria-label="Changer le statut"
           >
             <StatusBadge status={uiStatus} />

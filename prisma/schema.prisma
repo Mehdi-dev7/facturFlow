@@ -125,6 +125,7 @@ model User {
   nextQuoteNumber   Int    @default(1)
   nextCreditNumber  Int    @default(1)
   nextDepositNumber Int    @default(1)
+  nextReceiptNumber Int    @default(1)
 
   // Payment Terms
   defaultPaymentTerms  Int      @default(30)

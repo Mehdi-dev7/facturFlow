@@ -10,7 +10,6 @@ import {
   MonthSelector,
   DataTable,
   ActionButtons,
-  ActionMenuMobile,
   ArchiveSection,
   StatusDropdownDeposit,
 } from "@/components/dashboard";
@@ -418,15 +417,11 @@ export function DepositsPageContent() {
           data={filteredRows}
           getRowId={(row) => row.id}
           mobileFields={["number", "client"]}
+          mobileStatusKey="status"
+          mobileAmountKey="amount"
           onRowClick={handleRowClick}
           actions={(row) => (
             <ActionButtons
-              onEdit={() => handleEdit(row)}
-              onDelete={() => setDeleteTargetId(row.id)}
-            />
-          )}
-          mobileActions={(row) => (
-            <ActionMenuMobile
               onEdit={() => handleEdit(row)}
               onDelete={() => setDeleteTargetId(row.id)}
             />

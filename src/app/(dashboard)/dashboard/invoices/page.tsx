@@ -429,6 +429,7 @@ function InvoicesPageContent() {
           getRowId={(row) => row.id}
           mobileFields={["number", "client"]}
           mobileStatusKey="status"
+          mobileAmountKey="amount"
           onRowClick={handleRowClick}
           actions={(row) => (
             <ActionButtons
