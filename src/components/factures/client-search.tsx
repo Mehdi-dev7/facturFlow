@@ -339,7 +339,7 @@ export function ClientSearch({
 							<div>
 								<Label
 									htmlFor="newClientZipCode"
-									className="text-slate-700 dark:text-violet-200"
+									className="text-slate-700 text-xs xs:text-sm dark:text-violet-200"
 								>
 									Code postal
 								</Label>
@@ -349,20 +349,20 @@ export function ClientSearch({
 									placeholder="75001"
 									maxLength={5}
 									inputMode="numeric"
-									className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50"
+									className="bg-white/90 text-xs xs:text-sm dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50"
 								/>
 							</div>
 							<div>
 								<Label
 									htmlFor="newClientCity"
-									className="text-slate-700 dark:text-violet-200"
+									className="text-slate-700 text-xs xs:text-sm dark:text-violet-200"
 								>
 									Ville *
 								</Label>
 								<Input
 									id="newClientCity"
 									{...registerNew("city")}
-									className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50"
+									className="bg-white/90 text-xs xs:text-sm dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50"
 									aria-invalid={!!newErrors.city}
 								/>
 								{newErrors.city && (
@@ -380,7 +380,7 @@ export function ClientSearch({
 									e.stopPropagation();
 									handleSubmitNew(onSubmitNew)();
 								}}
-								className="cursor-pointer transition-all duration-300 dark:text-slate-200 hover:scale-101"
+								className="cursor-pointer text-xs xs:text-sm transition-all duration-300 dark:text-slate-200 hover:scale-101"
 							>
 								Ajouter le client
 							</Button>
