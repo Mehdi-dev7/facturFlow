@@ -2,7 +2,8 @@
 
 import { useState, useMemo, useCallback, Suspense } from "react";
 import dynamic from "next/dynamic";
-import { Plus, Trash2, FileCheck, Download, Loader2 } from "lucide-react";
+import { Plus, Trash2, FileCheck, Download, Loader2, Send, CheckCircle2 } from "lucide-react";
+import { toast } from "sonner";
 import {
   PageHeader,
   KpiCard,
@@ -35,10 +36,10 @@ import { ReceiptModal } from "@/components/receipts/receipt-modal";
 import { ReceiptPreviewModal } from "@/components/receipts/receipt-preview-modal";
 import { RECEIPT_PAYMENT_METHODS } from "@/lib/types/receipts";
 import { ReceiptPdfDocument } from "@/lib/pdf/receipt-pdf-document";
+import { sendReceiptFromInvoice } from "@/lib/actions/send-receipt-email";
 import type { SavedInvoice } from "@/lib/actions/invoices";
 
 // PDFDownloadLink chargé côté client uniquement (utilise des APIs navigateur)
-// ReceiptPdfDocument importé normalement — pas de browser API, juste des objets react-pdf
 const PDFDownloadLink = dynamic(
   () => import("@react-pdf/renderer").then((m) => m.PDFDownloadLink),
   { ssr: false, loading: () => null },
@@ -159,6 +160,8 @@ function buildKpis(receipts: SavedReceipt[]): KpiData[] {
 function InvoiceReceiptGenerator() {
   const { data: allInvoices = [] } = useInvoices();
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<string>("");
+  const [isSending, setIsSending] = useState(false);
+  const [wasSent, setWasSent] = useState(false);
 
   // Filtrer les factures payées
   const paidInvoices = useMemo(
@@ -171,7 +174,13 @@ function InvoiceReceiptGenerator() {
     [paidInvoices, selectedInvoiceId],
   );
 
-  // Construire un SavedReceipt "virtuel" depuis la facture sélectionnée
+  // Réinitialiser le badge "Envoyé" quand on change de facture
+  const handleSelectChange = useCallback((value: string) => {
+    setSelectedInvoiceId(value);
+    setWasSent(false);
+  }, []);
+
+  // Construire un SavedReceipt "virtuel" depuis la facture sélectionnée (pour PDFDownloadLink)
   const virtualReceipt = useMemo((): SavedReceipt | null => {
     if (!selectedInvoice) return null;
     return {
@@ -181,11 +190,11 @@ function InvoiceReceiptGenerator() {
       date: selectedInvoice.date,
       total: selectedInvoice.total,
       description: `Paiement de la facture ${selectedInvoice.number}`,
-      paymentMethod: "TRANSFER",
+      paymentMethod: "CARD",
       notes: null,
       client: {
         ...selectedInvoice.client,
-        phone: null,           // SavedInvoice.client n'a pas phone
+        phone: null,
         address: selectedInvoice.client.address ?? null,
         postalCode: selectedInvoice.client.postalCode ?? null,
       },
@@ -197,6 +206,23 @@ function InvoiceReceiptGenerator() {
     };
   }, [selectedInvoice]);
 
+  // Envoi du reçu par email
+  const handleSend = useCallback(async () => {
+    if (!selectedInvoice || isSending) return;
+    setIsSending(true);
+
+    const result = await sendReceiptFromInvoice(selectedInvoice.id);
+
+    if (result.success) {
+      toast.success(`Reçu envoyé à ${selectedInvoice.client.email}`);
+      setWasSent(true);
+    } else {
+      toast.error(result.error ?? "Erreur lors de l'envoi");
+    }
+
+    setIsSending(false);
+  }, [selectedInvoice, isSending]);
+
   if (paidInvoices.length === 0) {
     return (
       <p className="text-xs text-slate-400 dark:text-violet-400/60 italic">
@@ -207,8 +233,9 @@ function InvoiceReceiptGenerator() {
 
   return (
     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-      <div className="flex-1">
-        <Select value={selectedInvoiceId} onValueChange={setSelectedInvoiceId}>
+      {/* Sélecteur de facture + badge "Envoyé" */}
+      <div className="flex-1 flex items-center gap-2">
+        <Select value={selectedInvoiceId} onValueChange={handleSelectChange}>
           <SelectTrigger className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50 cursor-pointer">
             <SelectValue placeholder="Sélectionner une facture payée..." />
           </SelectTrigger>
@@ -227,38 +254,65 @@ function InvoiceReceiptGenerator() {
             ))}
           </SelectContent>
         </Select>
+
+        {/* Badge "Envoyé" — visible uniquement après un envoi réussi */}
+        {wasSent && (
+          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-500/40 shrink-0">
+            <CheckCircle2 size={12} />
+            Envoyé
+          </span>
+        )}
       </div>
 
-      {virtualReceipt ? (
-        <PDFDownloadLink
-          document={<ReceiptPdfDocument receipt={virtualReceipt} />}
-          fileName={`${virtualReceipt.number}.pdf`}
-        >
-          {({ loading }) => (
-            <Button
-              type="button"
-              disabled={loading || !selectedInvoice}
-              className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white font-semibold shrink-0 cursor-pointer"
-            >
-              {loading ? (
-                <Loader2 className="size-4 animate-spin mr-2" />
-              ) : (
-                <Download className="size-4 mr-2" />
-              )}
-              Générer le PDF
-            </Button>
-          )}
-        </PDFDownloadLink>
-      ) : (
+      {/* Boutons : Générer PDF + Envoyer */}
+      <div className="flex gap-2 shrink-0">
+        {/* Générer le PDF */}
+        {virtualReceipt ? (
+          <PDFDownloadLink
+            document={<ReceiptPdfDocument receipt={virtualReceipt} />}
+            fileName={`${virtualReceipt.number}.pdf`}
+          >
+            {({ loading }) => (
+              <Button
+                type="button"
+                disabled={loading || !selectedInvoice}
+                className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white font-semibold cursor-pointer"
+              >
+                {loading ? (
+                  <Loader2 className="size-4 animate-spin mr-2" />
+                ) : (
+                  <Download className="size-4 mr-2" />
+                )}
+                Générer le PDF
+              </Button>
+            )}
+          </PDFDownloadLink>
+        ) : (
+          <Button
+            type="button"
+            disabled
+            className="bg-gradient-to-r from-violet-600 to-purple-600 text-white font-semibold opacity-50 cursor-not-allowed"
+          >
+            <Download className="size-4 mr-2" />
+            Générer le PDF
+          </Button>
+        )}
+
+        {/* Envoyer par email */}
         <Button
           type="button"
-          disabled
-          className="bg-gradient-to-r from-violet-600 to-purple-600 text-white font-semibold shrink-0 opacity-50 cursor-not-allowed"
+          disabled={!selectedInvoice || isSending}
+          onClick={handleSend}
+          className="border border-violet-300 text-violet-600 hover:bg-violet-50 dark:border-violet-500 dark:text-violet-400 dark:hover:bg-violet-950 bg-transparent font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <Download className="size-4 mr-2" />
-          Générer le PDF
+          {isSending ? (
+            <Loader2 className="size-4 animate-spin mr-2" />
+          ) : (
+            <Send className="size-4 mr-2" />
+          )}
+          {isSending ? "Envoi..." : "Envoyer"}
         </Button>
-      )}
+      </div>
     </div>
   );
 }
@@ -275,7 +329,7 @@ function ReceiptsPageContent() {
   const { data: allReceipts = [], isLoading } = useReceipts();
   const deleteMutation = useDeleteReceipt();
 
-  // Map id → SavedReceipt
+  // Map id → SavedReceipt pour accès O(1) dans les callbacks
   const receiptMap = useMemo(() => {
     const m = new Map<string, SavedReceipt>();
     for (const r of allReceipts) m.set(r.id, r);
@@ -305,8 +359,10 @@ function ReceiptsPageContent() {
       {
         key: "number",
         label: "N° Reçu",
+        headerClassName: "md:w-[120px] lg:w-auto",
+        cellClassName: "md:w-[120px] lg:w-auto overflow-hidden",
         render: (row) => (
-          <span className="text-xs lg:text-sm font-semibold text-violet-600 dark:text-violet-400">
+          <span className="text-[11px] lg:text-xs xl:text-sm font-semibold text-violet-600 dark:text-violet-400 group-hover:text-violet-800 transition-colors block truncate md:max-w-[100px] lg:max-w-none">
             {row.number}
           </span>
         ),
@@ -314,8 +370,10 @@ function ReceiptsPageContent() {
       {
         key: "client",
         label: "Client",
+        headerClassName: "md:w-[120px] lg:w-auto",
+        cellClassName: "md:w-[120px] lg:w-auto overflow-hidden",
         render: (row) => (
-          <span className="text-xs lg:text-sm text-slate-700 dark:text-slate-300">
+          <span className="text-[11px] lg:text-xs xl:text-sm text-slate-700 dark:text-slate-300 block truncate md:max-w-[100px] lg:max-w-none">
             {row.client}
           </span>
         ),
@@ -414,7 +472,7 @@ function ReceiptsPageContent() {
               Générer un reçu depuis une facture payée
             </h3>
             <p className="text-[11px] text-slate-400 dark:text-violet-400/60">
-              Sélectionnez une facture — le PDF est généré sans être stocké
+              Sélectionnez une facture — PDF instantané ou envoi par email
             </p>
           </div>
         </div>
@@ -472,7 +530,7 @@ function ReceiptsPageContent() {
         onOpenChange={setPreviewOpen}
       />
 
-      {/* Dialog de confirmation de suppression */}
+      {/* Dialog de confirmation de suppression depuis le tableau */}
       <AlertDialog
         open={!!deleteTargetId}
         onOpenChange={(o) => !o && setDeleteTargetId(null)}

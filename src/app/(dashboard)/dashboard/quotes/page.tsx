@@ -197,7 +197,7 @@ function QuotesPageContent() {
       {
         label: "Acceptés",
         value: String(accepted),
-        change: `${accepted} accept\u00E9${accepted > 1 ? "s" : ""}`,
+        change: `${accepted} accepté${accepted > 1 ? "s" : ""}`,
         changeType: "up",
         icon: "check",
         iconBg: "bg-emerald-500",
@@ -210,7 +210,7 @@ function QuotesPageContent() {
       {
         label: "Envoyés",
         value: String(sent),
-        change: `${sent} envoy\u00E9${sent > 1 ? "s" : ""}`,
+        change: `${sent} envoyé${sent > 1 ? "s" : ""}`,
         changeType: "neutral",
         icon: "clock",
         iconBg: "bg-amber-500",
@@ -223,7 +223,7 @@ function QuotesPageContent() {
       {
         label: "Refusés",
         value: String(rejected),
-        change: `${rejected} refus\u00E9${rejected > 1 ? "s" : ""}`,
+        change: `${rejected} refusé${rejected > 1 ? "s" : ""}`,
         changeType: "down",
         icon: "alert",
         iconBg: "bg-red-500",
@@ -241,8 +241,10 @@ function QuotesPageContent() {
     {
       key: "number",
       label: "N° Devis",
+      headerClassName: "md:w-[120px] lg:w-auto",
+      cellClassName: "md:w-[120px] lg:w-auto overflow-hidden",
       render: (row) => (
-        <span className="text-xs lg:text-sm font-semibold text-violet-600 dark:text-violet-400 group-hover:text-violet-800 transition-colors">
+        <span className="text-[11px] lg:text-xs xl:text-sm font-semibold text-violet-600 dark:text-violet-400 group-hover:text-violet-800 transition-colors block truncate md:max-w-[100px] lg:max-w-none">
           {row.number}
         </span>
       ),
@@ -250,8 +252,10 @@ function QuotesPageContent() {
     {
       key: "client",
       label: "Client",
+      headerClassName: "md:w-[120px] lg:w-auto",
+      cellClassName: "md:w-[120px] lg:w-auto overflow-hidden",
       render: (row) => (
-        <span className="text-xs lg:text-sm text-slate-700 dark:text-slate-300">{row.client}</span>
+        <span className="text-[11px] lg:text-xs xl:text-sm text-slate-700 dark:text-slate-300 block truncate md:max-w-[100px] lg:max-w-none">{row.client}</span>
       ),
     },
     {

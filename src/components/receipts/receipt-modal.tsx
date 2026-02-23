@@ -24,6 +24,7 @@ import { Loader2 } from "lucide-react";
 import { ClientSearch } from "@/components/factures/client-search";
 import { useCreateReceipt } from "@/hooks/use-receipts";
 import { receiptSchema, RECEIPT_PAYMENT_METHODS, type ReceiptFormData } from "@/lib/types/receipts";
+import type { QuickClientData } from "@/lib/validations/invoice";
 
 // ─── Props ───────────────────────────────────────────────────────────────────
 
@@ -68,7 +69,15 @@ export function ReceiptModal({ open, onOpenChange }: ReceiptModalProps) {
   }, [amount]);
 
   const handleSelectClient = useCallback(
-    (clientId: string) => setValue("clientId", clientId, { shouldValidate: false }),
+    (clientId: string, clientData?: QuickClientData) => {
+      setValue("clientId", clientId, { shouldValidate: false });
+      // Si nouveau client (pas encore en DB), on stocke ses données pour les envoyer au serveur
+      if (clientId === "__new__" && clientData) {
+        setValue("newClient", clientData, { shouldValidate: false });
+      } else {
+        setValue("newClient", undefined, { shouldValidate: false });
+      }
+    },
     [setValue],
   );
 
@@ -171,7 +180,7 @@ export function ReceiptModal({ open, onOpenChange }: ReceiptModalProps) {
                     <SelectTrigger className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50 cursor-pointer">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-gradient-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25">
+                    <SelectContent className="bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25">
                       {RECEIPT_PAYMENT_METHODS.map((m) => (
                         <SelectItem
                           key={m.value}

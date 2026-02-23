@@ -256,7 +256,7 @@ function InvoicesPageContent() {
       key: "number",
       label: "N° Facture",
       headerClassName: "md:w-[120px] lg:w-auto",
-      cellClassName: "md:w-[120px] lg:w-auto",
+      cellClassName: "md:w-[120px] lg:w-auto overflow-hidden",
       render: (row) => (
         <span className="text-[11px] lg:text-xs xl:text-sm font-semibold text-violet-600 dark:text-violet-400 group-hover:text-violet-800 transition-colors block truncate md:max-w-[100px] lg:max-w-none">
           {row.number}
@@ -267,7 +267,7 @@ function InvoicesPageContent() {
       key: "client",
       label: "Client",
       headerClassName: "md:w-[120px] lg:w-auto",
-      cellClassName: "md:w-[120px] lg:w-auto",
+      cellClassName: "md:w-[120px] lg:w-auto overflow-hidden",
       render: (row) => (
         <span className="text-[11px] lg:text-xs xl:text-sm text-slate-700 dark:text-slate-300 block truncate md:max-w-[100px] lg:max-w-none">{row.client}</span>
       ),

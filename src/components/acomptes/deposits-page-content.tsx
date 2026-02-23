@@ -97,8 +97,10 @@ const columns: Column<DepositRow>[] = [
   {
     key: "number",
     label: "N° Acompte",
+    headerClassName: "md:w-[120px] lg:w-auto",
+    cellClassName: "md:w-[120px] lg:w-auto overflow-hidden",
     render: (row) => (
-      <span className="text-xs lg:text-sm font-semibold text-violet-600 dark:text-violet-400 group-hover:text-violet-800 transition-colors">
+      <span className="text-[11px] lg:text-xs xl:text-sm font-semibold text-violet-600 dark:text-violet-400 group-hover:text-violet-800 transition-colors block truncate md:max-w-[100px] lg:max-w-none">
         {row.number}
       </span>
     ),
@@ -106,8 +108,12 @@ const columns: Column<DepositRow>[] = [
   {
     key: "client",
     label: "Client",
+    headerClassName: "md:w-[120px] lg:w-auto",
+    cellClassName: "md:w-[120px] lg:w-auto overflow-hidden",
     render: (row) => (
-      <span className="text-xs lg:text-sm text-slate-700 dark:text-slate-300">{row.client}</span>
+      <span className="text-[11px] lg:text-xs xl:text-sm text-slate-700 dark:text-slate-300 block truncate md:max-w-[100px] lg:max-w-none">
+        {row.client}
+      </span>
     ),
   },
   {
@@ -143,6 +149,8 @@ const columns: Column<DepositRow>[] = [
     label: "Statut",
     align: "center" as const,
     sortable: true,
+    headerClassName: "md:w-[115px] lg:w-auto",
+    cellClassName: "md:w-[115px] lg:w-auto",
     getValue: (row) => statusOrder[row.status],
     render: (row) => <StatusDropdownDeposit depositId={row._raw.id} dbStatus={row.dbStatus} />,
   },
@@ -222,7 +230,7 @@ export function DepositsPageContent() {
       {
         label: "En attente",
         value: String(sent),
-        change: sentAmount > 0 ? formatAmountFR(sentAmount) : "—",
+        change: formatAmountFR(sentAmount),
         changeType: "neutral",
         icon: "clock",
         iconBg: "bg-amber-500",
@@ -235,7 +243,7 @@ export function DepositsPageContent() {
       {
         label: "Impayés",
         value: String(overdue),
-        change: overdueAmount > 0 ? formatAmountFR(overdueAmount) : "—",
+        change: formatAmountFR(overdueAmount),
         changeType: overdue > 0 ? "down" : "neutral",
         icon: "alert",
         iconBg: "bg-red-500",

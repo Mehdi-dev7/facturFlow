@@ -69,6 +69,45 @@ function mapToSavedReceipt(doc: PrismaReceiptWithRelations): SavedReceipt {
   };
 }
 
+// ─── Résoudre le client (existant ou nouveau à créer) ───────────────────────
+
+async function resolveClient(data: z.infer<typeof receiptSchema>, userId: string) {
+  // Nouveau client à créer à la volée
+  if (data.newClient) {
+    const nc = data.newClient;
+    const hasSiret = !!nc.siret?.trim();
+
+    // Réutiliser le client s'il existe déjà (même email + userId)
+    const existing = await prisma.client.findFirst({
+      where: { email: nc.email, userId },
+    });
+    if (existing) return existing;
+
+    return prisma.client.create({
+      data: {
+        userId,
+        type: hasSiret ? "COMPANY" : "INDIVIDUAL",
+        companyName: hasSiret ? nc.name : null,
+        companySiret: hasSiret ? nc.siret! : null,
+        companySiren: hasSiret ? nc.siret!.substring(0, 9) : null,
+        firstName: hasSiret ? null : (nc.name.split(" ")[0] ?? nc.name),
+        lastName: hasSiret ? null : (nc.name.split(" ").slice(1).join(" ") || null),
+        email: nc.email,
+        address: nc.address,
+        postalCode: nc.zipCode ?? null,
+        city: nc.city,
+      },
+    });
+  }
+
+  // Client existant
+  const client = await prisma.client.findFirst({
+    where: { id: data.clientId, userId },
+  });
+  if (!client) throw new Error("Client introuvable");
+  return client;
+}
+
 // ─── Action : créer un reçu manuel ──────────────────────────────────────────
 
 export async function createReceipt(data: z.infer<typeof receiptSchema>) {
@@ -89,11 +128,11 @@ export async function createReceipt(data: z.infer<typeof receiptSchema>) {
   }
 
   try {
-    // Vérifier que le client appartient à l'utilisateur
-    const client = await prisma.client.findFirst({
-      where: { id: data.clientId, userId },
-    });
-    if (!client) {
+    // Résoudre le client (existant ou création à la volée)
+    let client;
+    try {
+      client = await resolveClient(data, userId);
+    } catch {
       return { success: false, error: "Client introuvable" } as const;
     }
 
@@ -112,7 +151,7 @@ export async function createReceipt(data: z.infer<typeof receiptSchema>) {
     const doc = await prisma.document.create({
       data: {
         userId,
-        clientId: data.clientId,
+        clientId: client.id,
         type: "RECEIPT",
         number: receiptNumber,
         date: data.date ? new Date(data.date) : new Date(),

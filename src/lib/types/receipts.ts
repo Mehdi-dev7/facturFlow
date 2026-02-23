@@ -4,10 +4,9 @@ import { z } from "zod";
 // ─── Modes de paiement acceptés ─────────────────────────────────────────────
 
 export const RECEIPT_PAYMENT_METHODS = [
-  { value: "CASH",     label: "Espèces" },
-  { value: "CHECK",    label: "Chèque" },
-  { value: "CARD",     label: "Carte bancaire" },
-  { value: "TRANSFER", label: "Virement" },
+  { value: "CASH",  label: "Espèces" },
+  { value: "CHECK", label: "Chèque" },
+  { value: "CARD",  label: "Carte bancaire" },
 ] as const;
 
 export type ReceiptPaymentMethod = typeof RECEIPT_PAYMENT_METHODS[number]["value"];
@@ -49,13 +48,27 @@ export interface SavedReceipt {
 
 // ─── Schema Zod du formulaire ────────────────────────────────────────────────
 
+// Sous-schema pour un nouveau client créé à la volée
+const newClientSchema = z.object({
+  name:    z.string().min(2),
+  email:   z.string().email(),
+  address: z.string().min(5),
+  zipCode: z.string().optional(),
+  city:    z.string().min(2),
+  siret:   z.string().optional(),
+});
+
 export const receiptSchema = z.object({
-  clientId:      z.string().min(1, "Client requis"),
+  clientId:      z.string(),
+  newClient:     newClientSchema.optional(),
   amount:        z.number().min(0.01, "Montant requis"),
   description:   z.string().min(1, "Description requise"),
-  paymentMethod: z.enum(["CASH", "CHECK", "CARD", "TRANSFER"]),
+  paymentMethod: z.enum(["CASH", "CHECK", "CARD"]),
   date:          z.string().optional(),
   notes:         z.string().optional(),
+}).refine((d) => d.clientId || d.newClient, {
+  message: "Client requis",
+  path: ["clientId"],
 });
 
 export type ReceiptFormData = z.infer<typeof receiptSchema>;
