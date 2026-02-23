@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import { useState, useCallback } from "react";
 import type { UseFormReturn } from "react-hook-form";
-import { ChevronLeft, ChevronRight, Check, Eye } from "lucide-react";
+import { ChevronRight, Check, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
 	Sheet,
@@ -41,15 +41,16 @@ export function InvoiceStepper({
 }: InvoiceStepperProps) {
 	const [step, setStep] = useState(1);
 
+	// Champs à valider avant de passer à l'étape suivante
 	const validateStep = useCallback(
 		async (currentStep: number) => {
 			const fieldsMap: Record<number, (keyof InvoiceFormData)[]> = {
-				1: ["clientId"],
+				1: ["clientId", "date", "dueDate"],
 				2: ["lines"],
-				3: ["notes"],
+				3: [], // notes et liens de paiement sont optionnels
 			};
 			const fields = fieldsMap[currentStep];
-			if (!fields) return true;
+			if (!fields || fields.length === 0) return true;
 			return await form.trigger(fields);
 		},
 		[form],
@@ -68,11 +69,12 @@ export function InvoiceStepper({
 
 	return (
 		<div className="flex flex-col h-full">
-			{/* Progress bar */}
+			{/* Progress bar + indicateurs d'étapes */}
 			<div className="px-4 pt-4 pb-2">
 				<div className="flex items-center gap-2 mb-3">
 					{STEPS.map((s) => (
 						<div key={s.id} className="flex items-center gap-1.5 flex-1">
+							{/* Cercle numéroté */}
 							<div
 								className={`flex items-center justify-center size-7 rounded-full text-xs font-semibold transition-all duration-300 ${
 									step >= s.id
@@ -82,8 +84,9 @@ export function InvoiceStepper({
 							>
 								{step > s.id ? <Check className="size-3.5" /> : s.id}
 							</div>
+							{/* Label d'étape — caché sur mobile */}
 							<span
-								className={`text-xs hidden sm:inline transition-colors ${
+								className={`text-[10px] sm:text-xs hidden sm:inline transition-colors ${
 									step >= s.id
 										? "text-violet-600 dark:text-violet-400 font-medium"
 										: "text-slate-400 dark:text-violet-400/60"
@@ -91,6 +94,7 @@ export function InvoiceStepper({
 							>
 								{s.label}
 							</span>
+							{/* Trait de connexion entre étapes */}
 							{s.id < STEPS.length && (
 								<div
 									className={`flex-1 h-0.5 rounded-full transition-colors duration-300 ${
@@ -103,6 +107,7 @@ export function InvoiceStepper({
 						</div>
 					))}
 				</div>
+				{/* Barre de progression globale */}
 				<div className="h-1 bg-slate-200 dark:bg-violet-950/40 rounded-full overflow-hidden">
 					<div
 						className="h-full bg-gradient-to-r from-violet-600 to-indigo-600 rounded-full transition-all duration-500 ease-out"
@@ -111,96 +116,98 @@ export function InvoiceStepper({
 				</div>
 			</div>
 
-			{/* Content */}
+			{/* Contenu de l'étape courante */}
 			<div className="flex-1 overflow-y-auto px-4 py-4">
 				{step < 4 ? (
+					// Étapes 1-3 : affiche uniquement les sections de l'étape active
 					<InvoiceForm
 						form={form}
 						onSubmit={onSubmit}
 						invoiceNumber={invoiceNumber}
 						companyInfo={companyInfo}
 						onCompanyChange={onCompanyChange}
+						visibleStep={step as 1 | 2 | 3}
+						hideSubmit
 					/>
 				) : (
-					<div className="space-y-4">
-						<h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+					// Étape 4 : récapitulatif compact (pas la facture finale)
+					<div className="space-y-3">
+						<h3 className="text-xs font-semibold text-slate-500 dark:text-violet-400 uppercase tracking-wider">
 							Récapitulatif
 						</h3>
 						<InvoicePreview
 							form={form}
 							invoiceNumber={invoiceNumber}
 							companyInfo={companyInfo}
+							compact
 						/>
-						<Button
-							type="button"
-							variant="gradient"
-							className="w-full h-11 cursor-pointer transition-all duration-300 hover:scale-105"
-							onClick={form.handleSubmit(onSubmit)}
-						>
-							{submitLabel}
-						</Button>
 					</div>
 				)}
 			</div>
 
-			{/* Navigation */}
-			<div className="border-t border-slate-200 dark:border-violet-500/20 p-4 flex items-center justify-between gap-3 bg-white/50 dark:bg-[#1a1438]/50 backdrop-blur-sm">
-				<Button
-					type="button"
-					variant="outline"
-					size="sm"
-					onClick={handlePrev}
-					disabled={step === 1}
-					className="border-primary/20 dark:border-violet-500/30 hover:bg-violet-50 dark:hover:bg-violet-500/10 dark:text-slate-200 transition-all duration-300 cursor-pointer"
-				>
-					<ChevronLeft className="size-4" />
-					Précédent
-				</Button>
+			{/* Navigation bas de page */}
+			<div className="border-t border-slate-200 dark:border-violet-500/20 px-4 pt-3 pb-2 bg-white/50 dark:bg-[#1a1438]/50 backdrop-blur-sm space-y-2">
+				{/* Ligne 1 : Précédent + Suivant/Créer */}
+				<div className="flex items-center justify-between gap-3">
+					<Button
+						type="button"
+						variant="outline"
+						size="sm"
+						onClick={handlePrev}
+						disabled={step === 1}
+						className="border-primary/20 dark:border-violet-500/30 hover:bg-violet-50 dark:hover:bg-violet-500/10 dark:text-slate-200 transition-all duration-300 cursor-pointer"
+					>
+						Précédent
+					</Button>
 
-				<Sheet>
-					<SheetTrigger asChild>
+					{step < 4 ? (
 						<Button
 							type="button"
-							variant="ghost"
 							size="sm"
-							className="text-slate-400 hover:text-primary hover:bg-primary/20 dark:text-violet-400 dark:hover:text-violet-300 dark:hover:bg-primary/80 transition-all duration-300 cursor-pointer"
+							onClick={handleNext}
+							className="cursor-pointer transition-all duration-300 hover:scale-105"
 						>
-							<Eye className="size-4" />
-							Aperçu
+							Suivant
+							<ChevronRight className="size-4" />
 						</Button>
-					</SheetTrigger>
-					<SheetContent side="bottom" className="h-[80vh] overflow-y-auto bg-linear-to-b from-violet-50 via-white to-white dark:from-[#1e1b4b] dark:via-[#1a1438] dark:to-[#1a1438]">
-						<SheetHeader>
-							<SheetTitle className="text-slate-900 dark:text-slate-100">Aperçu de la facture</SheetTitle>
-						</SheetHeader>
-						<div className="p-4">
-							<InvoicePreview form={form} invoiceNumber={invoiceNumber} companyInfo={companyInfo} />
-						</div>
-					</SheetContent>
-				</Sheet>
+					) : (
+						<Button
+							type="button"
+							variant="gradient"
+							size="sm"
+							onClick={form.handleSubmit(onSubmit)}
+							className="cursor-pointer transition-all duration-300 hover:scale-105"
+						>
+							Créer
+							<Check className="size-4" />
+						</Button>
+					)}
+				</div>
 
-				{step < 4 ? (
-					<Button
-						type="button"
-						size="sm"
-						onClick={handleNext}
-						className="cursor-pointer transition-all duration-300 hover:scale-105"
-					>
-						Suivant
-						<ChevronRight className="size-4" />
-					</Button>
-				) : (
-					<Button
-						type="button"
-						variant="gradient"
-						size="sm"
-						onClick={form.handleSubmit(onSubmit)}
-						className="cursor-pointer transition-all duration-300 hover:scale-105"
-					>
-						Créer
-						<Check className="size-4" />
-					</Button>
-				)}
+				{/* Ligne 2 : Aperçu centré en dessous */}
+				<div className="flex justify-center">
+					<Sheet>
+						<SheetTrigger asChild>
+							<Button
+								type="button"
+								variant="ghost"
+								size="sm"
+								className="text-slate-400 hover:text-primary hover:bg-primary/20 dark:text-violet-400 dark:hover:text-violet-300 dark:hover:bg-primary/80 transition-all duration-300 cursor-pointer text-xs border border-slate-200 dark:border-violet-500/30"
+							>
+								<Eye className="size-3.5" />
+								Aperçu
+							</Button>
+						</SheetTrigger>
+						<SheetContent side="bottom" className="h-[80vh] overflow-y-auto bg-linear-to-b from-violet-50 via-white to-white dark:from-[#1e1b4b] dark:via-[#1a1438] dark:to-[#1a1438]">
+							<SheetHeader>
+								<SheetTitle className="text-slate-900 dark:text-slate-100">Aperçu de la facture</SheetTitle>
+							</SheetHeader>
+							<div className="px-4 pb-4">
+								<InvoicePreview form={form} invoiceNumber={invoiceNumber} companyInfo={companyInfo} compact />
+							</div>
+						</SheetContent>
+					</Sheet>
+				</div>
 			</div>
 		</div>
 	);

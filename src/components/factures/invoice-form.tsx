@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback } from "react";
 import {
 	useFieldArray,
 	useWatch,
@@ -64,6 +64,10 @@ interface InvoiceFormProps {
 	onCompanyChange: (data: CompanyInfo) => void;
 	isSubmitting?: boolean;
 	submitLabel?: string;
+	/** Quand défini, n'affiche que les sections de cette étape (stepper) */
+	visibleStep?: 1 | 2 | 3;
+	/** Cache le bouton de soumission (le stepper gère sa propre navigation) */
+	hideSubmit?: boolean;
 }
 
 // ─── Composant ───────────────────────────────────────────────────────────────
@@ -76,6 +80,8 @@ export function InvoiceForm({
 	onCompanyChange,
 	isSubmitting = false,
 	submitLabel = "Créer la facture",
+	visibleStep,
+	hideSubmit = false,
 }: InvoiceFormProps) {
 	const {
 		register,
@@ -239,575 +245,617 @@ export function InvoiceForm({
 			/>
 
 			<form onSubmit={handleSubmit(onSubmit, onError)} className="space-y-6">
-				{/* ── Émetteur ────────────────────────────────────────── */}
-				<section className="space-y-3">
-					<div className="flex items-center justify-between">
-						<h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-							<Building2 className="size-4 text-violet-600 dark:text-violet-400" />
-							Émetteur
-						</h3>
-						<Button
-							type="button"
-							variant="ghost"
-							size="xs"
-							onClick={() => setShowCompanyModal(true)}
-							className="text-slate-400 hover:text-primary hover:bg-primary/20 dark:text-violet-400 dark:hover:text-violet-300 dark:hover:bg-primary/80 transition-all duration-300 cursor-pointer"
-						>
-							{companyInfo ? "Modifier" : "Compléter"}
-						</Button>
-					</div>
-					{companyInfo ? (
-						<div className="rounded-xl border border-violet-200 dark:border-violet-400/25 bg-violet-100/60 dark:bg-[#251e4d] p-3.5 text-sm shadow-sm">
-							<p className="font-semibold text-slate-800 dark:text-slate-100">{companyInfo.name}</p>
-							<p className="text-slate-500 dark:text-violet-300/80 mt-0.5">SIRET : {companyInfo.siret}</p>
-							<p className="text-slate-500 dark:text-violet-300/80">
-								{companyInfo.address}, {companyInfo.city}
-							</p>
-							<p className="text-slate-500 dark:text-violet-300/80">
-								{companyInfo.email}
-								{companyInfo.phone ? ` — ${companyInfo.phone}` : ""}
-							</p>
-						</div>
-					) : (
-						<button
-							type="button"
-							className="w-full rounded-xl border-2 border-dashed border-amber-400 dark:border-amber-400/50 bg-amber-50/80 dark:bg-amber-900/15 p-4 text-center cursor-pointer hover:bg-amber-100 dark:hover:bg-amber-900/25 transition-all duration-300"
-							onClick={() => setShowCompanyModal(true)}
-						>
-							<AlertCircle className="size-5 text-amber-500 dark:text-amber-400 mx-auto mb-1" />
-							<p className="text-sm font-medium text-amber-700 dark:text-amber-300">
-								Informations entreprise manquantes
-							</p>
-							<p className="text-xs text-amber-600/70 dark:text-amber-400/60">Cliquez pour compléter</p>
-						</button>
-					)}
-				</section>
 
-				<div className={dividerClass} />
-
-				{/* ── Destinataire ─────────────────────────────────────── */}
-				<section className="space-y-3" data-section="client">
-					<h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100">Destinataire</h3>
-					<ClientSearch
-						selectedClientId={clientId}
-						onSelectClient={handleSelectClient}
-						onClear={handleClearClient}
-						error={errors.clientId?.message}
-					/>
-				</section>
-
-				<div className={dividerClass} />
-
-				{/* ── Informations ─────────────────────────────────────── */}
-				<section className="space-y-3">
-					<h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100">Informations</h3>
-					<div className="grid grid-cols-3 gap-3">
-						<div>
-							<Label className="text-slate-600 dark:text-violet-200">N° Facture</Label>
-							<Input
-								value={invoiceNumber}
-								disabled
-								className="bg-slate-100 dark:bg-[#1e1845] border-slate-300 dark:border-violet-400/70 rounded-xl text-slate-500 dark:text-violet-100/80"
-							/>
-						</div>
-						<div>
-							<Label className="text-slate-600 dark:text-violet-200">Date</Label>
-							<Controller
-								name="date"
-								control={control}
-								render={({ field }) => (
-									<Input
-										type="date"
-										value={field.value}
-										onChange={field.onChange}
-										onBlur={field.onBlur}
-										className={`${inputClass} dark:[&::-webkit-calendar-picker-indicator]:invert`}
-										aria-invalid={!!errors.date}
-									/>
-								)}
-							/>
-							{errors.date && (
-								<p className="text-xs text-red-500 dark:text-red-400 mt-1">{errors.date.message}</p>
-							)}
-						</div>
-						<div>
-							<Label className="text-slate-600 dark:text-violet-200">Échéance</Label>
-							<Controller
-								name="dueDate"
-								control={control}
-								render={({ field }) => (
-									<Input
-										type="date"
-										value={field.value}
-										onChange={field.onChange}
-										onBlur={field.onBlur}
-										className={`${inputClass} dark:[&::-webkit-calendar-picker-indicator]:invert`}
-										aria-invalid={!!errors.dueDate}
-									/>
-								)}
-							/>
-							{errors.dueDate && (
-								<p className="text-xs text-red-500 dark:text-red-400 mt-1">{errors.dueDate.message}</p>
-							)}
-						</div>
-					</div>
-				</section>
-
-				<div className={dividerClass} />
-
-				{/* ── Type de facture ──────────────────────────────────── */}
-				<section className="space-y-3">
-					<h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-						<Layers className="size-4 text-violet-600 dark:text-violet-400" />
-						Type de facture
-					</h3>
-					<Controller
-						name="invoiceType"
-						control={control}
-						render={({ field }) => (
-							<Select
-								value={field.value ?? "basic"}
-								onValueChange={(v) =>
-									field.onChange(v as InvoiceType)
-								}
-							>
-								<SelectTrigger className={`h-9 w-full ${inputClass}`}>
-									<SelectValue placeholder="Choisir un type…" />
-								</SelectTrigger>
-								<SelectContent side="bottom" avoidCollisions={false} className={selectContentClass}>
-									{INVOICE_TYPES.map((t) => (
-										<SelectItem key={t} value={t} className={selectItemClass}>
-											{INVOICE_TYPE_LABELS[t]}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
-						)}
-					/>
-				</section>
-
-				<div className={dividerClass} />
-
-				{/* ── Lignes ───────────────────────────────────────────── */}
-				<section className="space-y-3">
-					<div className="flex items-center justify-between">
-						<h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100">
-							{invoiceType === "artisan" ? "Prestations" : "Lignes de facture"}
-						</h3>
-						<Button
-							type="button"
-							variant="outline"
-							size="xs"
-							onClick={handleAddLine}
-							className="border-primary/20 dark:border-violet-400/30 hover:bg-violet-50 dark:hover:bg-violet-500/15 dark:text-slate-100 transition-all duration-300 cursor-pointer"
-						>
-							<Plus className="size-3.5" />
-							Ajouter
-						</Button>
-					</div>
-
-					{errors.lines?.root && (
-						<p className="text-xs text-red-500 dark:text-red-400">{errors.lines.root.message}</p>
-					)}
-					{errors.lines?.message && (
-						<p className="text-xs text-red-500 dark:text-red-400">{errors.lines.message}</p>
-					)}
-
-					<div className="space-y-3">
-						{fields.map((field, index) => {
-							const lineErrors = errors.lines?.[index];
-							const qty = Number(lines?.[index]?.quantity) || 0;
-							const price = Number(lines?.[index]?.unitPrice) || 0;
-							const effectiveQty = typeConfig.quantityLabel === null ? 1 : qty;
-							const lineHT = effectiveQty * price;
-
-							return (
-								<div
-									key={field.id}
-									className="rounded-xl border border-violet-200 dark:border-violet-400/25 p-3.5 space-y-2.5 bg-violet-100/45 dark:bg-[#251e4d] transition-all duration-300 hover:shadow-md hover:border-violet-300 dark:hover:border-violet-400/40 shadow-sm"
+				{/* ══════════════════════════════════════════════════════════
+				    ÉTAPE 1 — Émetteur, Destinataire, Informations
+				    ══════════════════════════════════════════════════════════ */}
+				{(!visibleStep || visibleStep === 1) && (
+					<>
+						{/* ── Émetteur ──────────────────────────────────── */}
+						<section className="space-y-3">
+							<div className="flex items-center justify-between">
+								<h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+									<Building2 className="size-4 text-violet-600 dark:text-violet-400" />
+									Émetteur
+								</h3>
+								<Button
+									type="button"
+									variant="ghost"
+									size="xs"
+									onClick={() => setShowCompanyModal(true)}
+									className="text-slate-400 hover:text-primary hover:bg-primary/20 dark:text-violet-400 dark:hover:text-violet-300 dark:hover:bg-primary/80 transition-all duration-300 cursor-pointer"
 								>
-									{/* Catégorie artisan */}
-									{typeConfig.showCategory && (
+									{companyInfo ? "Modifier" : "Compléter"}
+								</Button>
+							</div>
+							{companyInfo ? (
+								<div className="rounded-xl border border-violet-200 dark:border-violet-400/25 bg-violet-100/60 dark:bg-[#251e4d] p-2.5 xs:p-3.5 text-[10px] xs:text-xs md:text-sm shadow-sm">
+									<p className="font-semibold text-slate-800 dark:text-slate-100 truncate">{companyInfo.name}</p>
+									<p className="text-slate-500 dark:text-violet-300/80 mt-0.5">SIRET : {companyInfo.siret}</p>
+									<p className="text-slate-500 dark:text-violet-300/80">
+										{companyInfo.address}, {companyInfo.city}
+									</p>
+									<p className="text-slate-500 dark:text-violet-300/80">
+										{companyInfo.email}
+										{companyInfo.phone ? ` — ${companyInfo.phone}` : ""}
+									</p>
+								</div>
+							) : (
+								<button
+									type="button"
+									className="w-full rounded-xl border-2 border-dashed border-amber-400 dark:border-amber-400/50 bg-amber-50/80 dark:bg-amber-900/15 p-4 text-center cursor-pointer hover:bg-amber-100 dark:hover:bg-amber-900/25 transition-all duration-300"
+									onClick={() => setShowCompanyModal(true)}
+								>
+									<AlertCircle className="size-5 text-amber-500 dark:text-amber-400 mx-auto mb-1" />
+									<p className="text-sm font-medium text-amber-700 dark:text-amber-300">
+										Informations entreprise manquantes
+									</p>
+									<p className="text-xs text-amber-600/70 dark:text-amber-400/60">Cliquez pour compléter</p>
+								</button>
+							)}
+						</section>
+
+						<div className={dividerClass} />
+
+						{/* ── Destinataire ──────────────────────────────── */}
+						<section className="space-y-3" data-section="client">
+							<h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100">Destinataire</h3>
+							<ClientSearch
+								selectedClientId={clientId}
+								onSelectClient={handleSelectClient}
+								onClear={handleClearClient}
+								error={errors.clientId?.message}
+							/>
+						</section>
+
+						<div className={dividerClass} />
+
+						{/* ── Informations (N° facture, date, échéance) ─── */}
+						<section className="space-y-3">
+							<h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100">Informations</h3>
+							{/* N° Facture au-dessus avec max-width, dates alignées en dessous */}
+							<div className="space-y-2">
+								<div className="max-w-[130px] xs:max-w-xs">
+									<Label className="text-xs text-slate-600 dark:text-violet-200">N° Facture</Label>
+									<Input
+										value={invoiceNumber}
+										disabled
+										className="bg-slate-100 dark:bg-[#1e1845] border-slate-300 dark:border-violet-400/70 rounded-xl text-xs sm:text-sm text-slate-500 dark:text-violet-100/80"
+									/>
+								</div>
+								<div className="grid grid-cols-2 gap-2">
+									<div>
+										<Label className="text-xs text-slate-600 dark:text-violet-200">Date</Label>
 										<Controller
-											name={`lines.${index}.category`}
+											name="date"
 											control={control}
-											render={({ field: f }) => (
-												<div className="flex items-center gap-2">
-													<Tag className="size-3.5 text-violet-400" />
-													<Select
-														value={f.value ?? "main_oeuvre"}
-														onValueChange={f.onChange}
-													>
-														<SelectTrigger className="h-7 w-44 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-lg text-xs text-slate-900 dark:text-slate-50">
-															<SelectValue />
-														</SelectTrigger>
-														<SelectContent side="bottom" avoidCollisions={false} className={selectContentClass}>
-															<SelectItem value="main_oeuvre" className={selectItemClass}>
-																Main d&apos;œuvre
-															</SelectItem>
-															<SelectItem value="materiel" className={selectItemClass}>
-																Matériaux
-															</SelectItem>
-														</SelectContent>
-													</Select>
-												</div>
+											render={({ field }) => (
+												<Input
+													type="date"
+													value={field.value}
+													onChange={field.onChange}
+													onBlur={field.onBlur}
+													className={`${inputClass} text-xs sm:text-sm dark:[&::-webkit-calendar-picker-indicator]:invert`}
+													aria-invalid={!!errors.date}
+												/>
 											)}
 										/>
-									)}
-
-									{/* Description + bouton suppr */}
-									<div className="flex items-start gap-2">
-										<div className="flex-1">
-											<Controller
-												name={`lines.${index}.description`}
-												control={control}
-												render={({ field: f }) => (
-													<Input
-														placeholder={typeConfig.descriptionLabel}
-														value={f.value ?? ""}
-														onChange={(e) => f.onChange(e.target.value)}
-														onBlur={f.onBlur}
-														ref={f.ref}
-														className={inputClass}
-														aria-invalid={!!lineErrors?.description}
-													/>
-												)}
-											/>
-											{lineErrors?.description && (
-												<p className="text-xs text-red-500 dark:text-red-400 mt-1">
-													{lineErrors.description.message}
-												</p>
-											)}
-										</div>
-										{fields.length > 1 && (
-											<Button
-												type="button"
-												variant="ghost"
-												size="icon-xs"
-												className="text-slate-400 hover:text-red-600 hover:bg-red-100 dark:text-red-400/60 dark:hover:text-red-400 dark:hover:bg-red-500/20 transition-all duration-300 cursor-pointer mt-1"
-												onClick={() => remove(index)}
-											>
-												<Trash2 className="size-3.5" />
-											</Button>
+										{errors.date && (
+											<p className="text-xs text-red-500 dark:text-red-400 mt-1">{errors.date.message}</p>
 										)}
 									</div>
-
-									{/* Qté + Prix + Total */}
-									<div
-										className={`grid gap-2 ${
-											typeConfig.quantityLabel === null ? "grid-cols-2" : "grid-cols-3"
-										}`}
-									>
-										{/* Quantité — cachée pour freelance_tache */}
-										{typeConfig.quantityLabel !== null && (
-											<div>
-												<Label className="text-xs text-slate-500 dark:text-violet-200">
-													{typeConfig.quantityLabel}
-												</Label>
-												<Controller
-													name={`lines.${index}.quantity`}
-													control={control}
-													render={({ field: f }) => (
-														<Input
-															type="number"
-															min={0}
-															step="any"
-															value={f.value === 0 ? "" : f.value}
-															onChange={(e) => {
-																const v = e.target.value;
-																f.onChange(v === "" ? 0 : Number(v));
-															}}
-															onBlur={(e) => {
-																const num = Number(e.target.value);
-																if (!e.target.value || num <= 0)
-																	f.onChange(1);
-																f.onBlur();
-															}}
-															className={inputClass}
-															aria-invalid={!!lineErrors?.quantity}
-														/>
-													)}
+									<div>
+										<Label className="text-xs text-slate-600 dark:text-violet-200">Échéance</Label>
+										<Controller
+											name="dueDate"
+											control={control}
+											render={({ field }) => (
+												<Input
+													type="date"
+													value={field.value}
+													onChange={field.onChange}
+													onBlur={field.onBlur}
+													className={`${inputClass} text-xs sm:text-sm dark:[&::-webkit-calendar-picker-indicator]:invert`}
+													aria-invalid={!!errors.dueDate}
 												/>
-												{lineErrors?.quantity && (
-													<p className="text-xs text-red-500 dark:text-red-400 mt-1">{lineErrors.quantity.message}</p>
-												)}
-											</div>
+											)}
+										/>
+										{errors.dueDate && (
+											<p className="text-xs text-red-500 dark:text-red-400 mt-1">{errors.dueDate.message}</p>
 										)}
-
-										{/* Prix unitaire */}
-										<div>
-											<Label className="text-xs text-slate-500 dark:text-violet-200">
-												{typeConfig.priceLabel}
-											</Label>
-											<Controller
-												name={`lines.${index}.unitPrice`}
-												control={control}
-												render={({ field: f }) => (
-													<Input
-														type="number"
-														min={0}
-														step={0.01}
-														value={f.value || ""}
-														onChange={(e) => {
-															const v = e.target.value;
-															f.onChange(v === "" ? 0 : Number(v));
-														}}
-														onBlur={(e) => {
-															if (!e.target.value) f.onChange(0);
-															f.onBlur();
-														}}
-														className={inputClass}
-														aria-invalid={!!lineErrors?.unitPrice}
-													/>
-												)}
-											/>
-										</div>
-
-										{/* Total HT */}
-										<div>
-											<Label className="text-xs text-slate-500 dark:text-violet-200">
-												Total HT
-											</Label>
-											<div className="h-9 flex items-center text-sm font-bold text-violet-700 dark:text-violet-300">
-												{lineHT.toLocaleString("fr-FR", {
-													minimumFractionDigits: 2,
-													maximumFractionDigits: 2,
-												})}{" "}
-												€
-											</div>
-										</div>
 									</div>
 								</div>
-							);
-						})}
-					</div>
+							</div>
+						</section>
+					</>
+				)}
 
-					{fields.length === 0 && (
-						<Button
-							type="button"
-							variant="outline"
-							className="w-full border-primary/20 dark:border-violet-400/30 hover:bg-violet-50 dark:hover:bg-violet-500/15 dark:text-slate-100 transition-all duration-300 cursor-pointer rounded-xl"
-							onClick={handleAddLine}
-						>
-							<Plus className="size-4" />
-							Ajouter une ligne
-						</Button>
-					)}
-				</section>
+				{/* ══════════════════════════════════════════════════════════
+				    ÉTAPE 2 — Type de facture, Lignes, Totaux
+				    ══════════════════════════════════════════════════════════ */}
+				{(!visibleStep || visibleStep === 2) && (
+					<>
+						{/* Séparateur entre étapes uniquement en mode non-filtré */}
+						{!visibleStep && <div className={dividerClass} />}
 
-				<div className={dividerClass} />
-
-				{/* ── Totaux ───────────────────────────────────────────── */}
-				<section className="rounded-xl border border-violet-200 dark:border-violet-400/25 bg-violet-100/60 dark:bg-[#251e4d] p-4 space-y-2 shadow-sm">
-					{/* Sous-total HT */}
-					<div className="flex justify-between text-sm">
-						<span className="text-slate-500 dark:text-violet-200">Sous-total HT</span>
-						<span className="font-medium text-slate-800 dark:text-slate-100">
-							{fmt(totals.subtotal)} €
-						</span>
-					</div>
-
-					{/* Réduction */}
-					<div className="flex items-center justify-between text-sm">
-						<div className="flex items-center gap-2 flex-wrap">
-							<span className="text-slate-500 dark:text-violet-200">Réduction</span>
+						{/* ── Type de facture ───────────────────────────── */}
+						<section className="space-y-3">
+							<h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+								<Layers className="size-4 text-violet-600 dark:text-violet-400" />
+								Type de facture
+							</h3>
 							<Controller
-								name="discountType"
+								name="invoiceType"
 								control={control}
 								render={({ field }) => (
 									<Select
-										value={field.value ?? "none"}
+										value={field.value ?? "basic"}
 										onValueChange={(v) =>
-											field.onChange(v === "none" ? undefined : v)
+											field.onChange(v as InvoiceType)
 										}
 									>
-										<SelectTrigger className="h-7 w-28 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-lg text-xs text-slate-900 dark:text-slate-50">
-											<SelectValue placeholder="Aucune" />
+										<SelectTrigger className={`h-9 w-full ${inputClass}`}>
+											<SelectValue placeholder="Choisir un type…" />
 										</SelectTrigger>
 										<SelectContent side="bottom" avoidCollisions={false} className={selectContentClass}>
-											<SelectItem value="none" className={selectItemClass}>Aucune</SelectItem>
-											<SelectItem value="pourcentage" className={selectItemClass}>
-												Pourcentage (%)
-											</SelectItem>
-											<SelectItem value="montant" className={selectItemClass}>
-												Montant fixe (€)
-											</SelectItem>
+											{INVOICE_TYPES.map((t) => (
+												<SelectItem key={t} value={t} className={selectItemClass}>
+													{INVOICE_TYPE_LABELS[t]}
+												</SelectItem>
+											))}
 										</SelectContent>
 									</Select>
 								)}
 							/>
-							{discountType && (
-								<Controller
-									name="discountValue"
-									control={control}
-									render={({ field: f }) => (
-										<Input
-											type="number"
-											min={0}
-											step={discountType === "pourcentage" ? 1 : 0.01}
-											max={discountType === "pourcentage" ? 100 : undefined}
-											placeholder={discountType === "pourcentage" ? "%" : "€"}
-											value={f.value || ""}
-											onChange={(e) => {
-												const v = e.target.value;
-												f.onChange(v === "" ? 0 : Number(v));
-											}}
-											className="h-7 w-20 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-lg text-xs text-slate-900 dark:text-slate-50"
+						</section>
+
+						<div className={dividerClass} />
+
+						{/* ── Lignes de facture ─────────────────────────── */}
+						<section className="space-y-3">
+							<div className="flex items-center justify-between">
+								<h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+									{invoiceType === "artisan" ? "Prestations" : "Lignes de facture"}
+								</h3>
+								<Button
+									type="button"
+									variant="outline"
+									size="xs"
+									onClick={handleAddLine}
+									className="border-primary/20 dark:border-violet-400/30 hover:bg-violet-50 dark:hover:bg-violet-500/15 dark:text-slate-100 transition-all duration-300 cursor-pointer"
+								>
+									<Plus className="size-3.5" />
+									Ajouter
+								</Button>
+							</div>
+
+							{errors.lines?.root && (
+								<p className="text-xs text-red-500 dark:text-red-400">{errors.lines.root.message}</p>
+							)}
+							{errors.lines?.message && (
+								<p className="text-xs text-red-500 dark:text-red-400">{errors.lines.message}</p>
+							)}
+
+							<div className="space-y-3">
+								{fields.map((field, index) => {
+									const lineErrors = errors.lines?.[index];
+									const qty = Number(lines?.[index]?.quantity) || 0;
+									const price = Number(lines?.[index]?.unitPrice) || 0;
+									const effectiveQty = typeConfig.quantityLabel === null ? 1 : qty;
+									const lineHT = effectiveQty * price;
+
+									return (
+										<div
+											key={field.id}
+											className="rounded-xl border border-violet-200 dark:border-violet-400/25 p-2 xs:p-3 space-y-2 bg-violet-100/45 dark:bg-[#251e4d] transition-all duration-300 hover:shadow-md hover:border-violet-300 dark:hover:border-violet-400/40 shadow-sm"
+										>
+											{/* Catégorie artisan */}
+											{typeConfig.showCategory && (
+												<Controller
+													name={`lines.${index}.category`}
+													control={control}
+													render={({ field: f }) => (
+														<div className="flex items-center gap-2">
+															<Tag className="size-3.5 text-violet-400" />
+															<Select
+																value={f.value ?? "main_oeuvre"}
+																onValueChange={f.onChange}
+															>
+																<SelectTrigger className="h-7 w-44 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-lg text-xs text-slate-900 dark:text-slate-50">
+																	<SelectValue />
+																</SelectTrigger>
+																<SelectContent side="bottom" avoidCollisions={false} className={selectContentClass}>
+																	<SelectItem value="main_oeuvre" className={selectItemClass}>
+																		Main d&apos;oeuvre
+																	</SelectItem>
+																	<SelectItem value="materiel" className={selectItemClass}>
+																		Matériaux
+																	</SelectItem>
+																</SelectContent>
+															</Select>
+														</div>
+													)}
+												/>
+											)}
+
+											{/* Description + bouton suppr */}
+											<div className="flex items-start gap-2">
+												<div className="flex-1">
+													<Controller
+														name={`lines.${index}.description`}
+														control={control}
+														render={({ field: f }) => (
+															<Input
+																placeholder={typeConfig.descriptionLabel}
+																value={f.value ?? ""}
+																onChange={(e) => f.onChange(e.target.value)}
+																onBlur={f.onBlur}
+																ref={f.ref}
+																className={inputClass}
+																aria-invalid={!!lineErrors?.description}
+															/>
+														)}
+													/>
+													{lineErrors?.description && (
+														<p className="text-xs text-red-500 dark:text-red-400 mt-1">
+															{lineErrors.description.message}
+														</p>
+													)}
+												</div>
+												{fields.length > 1 && (
+													<Button
+														type="button"
+														variant="ghost"
+														size="icon-xs"
+														className="text-slate-400 hover:text-red-600 hover:bg-red-100 dark:text-red-400/60 dark:hover:text-red-400 dark:hover:bg-red-500/20 transition-all duration-300 cursor-pointer mt-1"
+														onClick={() => remove(index)}
+													>
+														<Trash2 className="size-3.5" />
+													</Button>
+												)}
+											</div>
+
+											{/* Qté + Prix + Total */}
+											<div
+												className={`grid gap-2 ${
+													visibleStep
+														? typeConfig.quantityLabel === null ? "grid-cols-1" : "grid-cols-2"
+														: typeConfig.quantityLabel === null ? "grid-cols-2" : "grid-cols-3"
+												}`}
+											>
+												{/* Quantité — cachée pour freelance_tache */}
+												{typeConfig.quantityLabel !== null && (
+													<div>
+														<Label className="text-xs text-slate-500 dark:text-violet-200">
+															{typeConfig.quantityLabel}
+														</Label>
+														<Controller
+															name={`lines.${index}.quantity`}
+															control={control}
+															render={({ field: f }) => (
+																<Input
+																	type="number"
+																	min={0}
+																	step="any"
+																	value={f.value === 0 ? "" : f.value}
+																	onChange={(e) => {
+																		const v = e.target.value;
+																		f.onChange(v === "" ? 0 : Number(v));
+																	}}
+																	onBlur={(e) => {
+																		const num = Number(e.target.value);
+																		if (!e.target.value || num <= 0)
+																			f.onChange(1);
+																		f.onBlur();
+																	}}
+																	className={inputClass}
+																	aria-invalid={!!lineErrors?.quantity}
+																/>
+															)}
+														/>
+														{lineErrors?.quantity && (
+															<p className="text-xs text-red-500 dark:text-red-400 mt-1">{lineErrors.quantity.message}</p>
+														)}
+													</div>
+												)}
+
+												{/* Prix unitaire */}
+												<div>
+													<Label className="text-xs text-slate-500 dark:text-violet-200">
+														{typeConfig.priceLabel}
+													</Label>
+													<Controller
+														name={`lines.${index}.unitPrice`}
+														control={control}
+														render={({ field: f }) => (
+															<Input
+																type="number"
+																min={0}
+																step={0.01}
+																value={f.value || ""}
+																onChange={(e) => {
+																	const v = e.target.value;
+																	f.onChange(v === "" ? 0 : Number(v));
+																}}
+																onBlur={(e) => {
+																	if (!e.target.value) f.onChange(0);
+																	f.onBlur();
+																}}
+																className={inputClass}
+																aria-invalid={!!lineErrors?.unitPrice}
+															/>
+														)}
+													/>
+												</div>
+
+												{/* Total HT — dans le grid hors stepper */}
+												{!visibleStep && (
+													<div>
+														<Label className="text-xs text-slate-500 dark:text-violet-200">
+															Total HT
+														</Label>
+														<div className="h-9 flex items-center text-sm font-bold text-violet-700 dark:text-violet-300">
+															{lineHT.toLocaleString("fr-FR", {
+																minimumFractionDigits: 2,
+																maximumFractionDigits: 2,
+															})}{" "}
+															€
+														</div>
+													</div>
+												)}
+											</div>
+											{/* Total HT en mode stepper — en dessous du grid */}
+											{visibleStep && (
+												<div className="flex items-center justify-between border-t border-violet-100 dark:border-violet-400/20 pt-2 mt-1">
+													<span className="text-xs text-slate-500 dark:text-violet-200">Total HT</span>
+													<span className="text-sm font-bold text-violet-700 dark:text-violet-300">
+														{lineHT.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
+													</span>
+												</div>
+											)}
+										</div>
+									);
+								})}
+							</div>
+
+							{fields.length === 0 && (
+								<Button
+									type="button"
+									variant="outline"
+									className="w-full border-primary/20 dark:border-violet-400/30 hover:bg-violet-50 dark:hover:bg-violet-500/15 dark:text-slate-100 transition-all duration-300 cursor-pointer rounded-xl"
+									onClick={handleAddLine}
+								>
+									<Plus className="size-4" />
+									Ajouter une ligne
+								</Button>
+							)}
+						</section>
+
+						<div className={dividerClass} />
+
+						{/* ── Totaux ────────────────────────────────────── */}
+						<section className="rounded-xl border border-violet-200 dark:border-violet-400/25 bg-violet-100/60 dark:bg-[#251e4d] p-4 space-y-2 shadow-sm">
+							{/* Sous-total HT */}
+							<div className="flex justify-between text-sm">
+								<span className="text-slate-500 dark:text-violet-200">Sous-total HT</span>
+								<span className="font-medium text-slate-800 dark:text-slate-100">
+									{fmt(totals.subtotal)} €
+								</span>
+							</div>
+
+							{/* Réduction */}
+							<div className="flex items-center justify-between text-sm">
+								<div className="flex items-center gap-2 flex-wrap">
+									<span className="text-slate-500 dark:text-violet-200">Réduction</span>
+									<Controller
+										name="discountType"
+										control={control}
+										render={({ field }) => (
+											<Select
+												value={field.value ?? "none"}
+												onValueChange={(v) =>
+													field.onChange(v === "none" ? undefined : v)
+												}
+											>
+												<SelectTrigger className="h-7 w-28 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-lg text-xs text-slate-900 dark:text-slate-50">
+													<SelectValue placeholder="Aucune" />
+												</SelectTrigger>
+												<SelectContent side="bottom" avoidCollisions={false} className={selectContentClass}>
+													<SelectItem value="none" className={selectItemClass}>Aucune</SelectItem>
+													<SelectItem value="pourcentage" className={selectItemClass}>
+														Pourcentage (%)
+													</SelectItem>
+													<SelectItem value="montant" className={selectItemClass}>
+														Montant fixe (€)
+													</SelectItem>
+												</SelectContent>
+											</Select>
+										)}
+									/>
+									{discountType && (
+										<Controller
+											name="discountValue"
+											control={control}
+											render={({ field: f }) => (
+												<Input
+													type="number"
+													min={0}
+													step={discountType === "pourcentage" ? 1 : 0.01}
+													max={discountType === "pourcentage" ? 100 : undefined}
+													placeholder={discountType === "pourcentage" ? "%" : "€"}
+													value={f.value || ""}
+													onChange={(e) => {
+														const v = e.target.value;
+														f.onChange(v === "" ? 0 : Number(v));
+													}}
+													className="h-7 w-20 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-lg text-xs text-slate-900 dark:text-slate-50"
+												/>
+											)}
 										/>
 									)}
-								/>
+								</div>
+								<span className="font-medium text-rose-600 dark:text-rose-400">
+									{totals.discountAmount > 0 ? `−${fmt(totals.discountAmount)} €` : "—"}
+								</span>
+							</div>
+
+							{/* Net HT */}
+							{totals.discountAmount > 0 && (
+								<div className="flex justify-between text-sm border-t border-violet-200 dark:border-violet-400/20 pt-2">
+									<span className="text-slate-600 dark:text-violet-200 font-medium">Net HT</span>
+									<span className="font-medium text-slate-800 dark:text-slate-100">
+										{fmt(totals.netHT)} €
+									</span>
+								</div>
 							)}
-						</div>
-						<span className="font-medium text-rose-600 dark:text-rose-400">
-							{totals.discountAmount > 0 ? `−${fmt(totals.discountAmount)} €` : "—"}
-						</span>
-					</div>
 
-					{/* Net HT */}
-					{totals.discountAmount > 0 && (
-						<div className="flex justify-between text-sm border-t border-violet-200 dark:border-violet-400/20 pt-2">
-							<span className="text-slate-600 dark:text-violet-200 font-medium">Net HT</span>
-							<span className="font-medium text-slate-800 dark:text-slate-100">
-								{fmt(totals.netHT)} €
-							</span>
-						</div>
-					)}
+							{/* TVA */}
+							<div className="flex justify-between items-center text-sm">
+								<div className="flex items-center gap-2">
+									<span className="text-slate-500 dark:text-violet-200">TVA</span>
+									<Select
+										value={String(vatRate ?? 20)}
+										onValueChange={(v) =>
+											setValue("vatRate", Number(v) as 0 | 5.5 | 10 | 20, {
+												shouldValidate: true,
+												shouldDirty: true,
+											})
+										}
+									>
+										<SelectTrigger className="h-7 w-20 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-lg text-xs text-slate-900 dark:text-slate-50">
+											<SelectValue />
+										</SelectTrigger>
+										<SelectContent side="bottom" avoidCollisions={false} className={selectContentClass}>
+											{VAT_RATES.map((rate) => (
+												<SelectItem key={rate} value={String(rate)} className={selectItemClass}>
+													{rate}%
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
+								</div>
+								<span className="font-medium text-slate-800 dark:text-slate-100">
+									{fmt(totals.taxTotal)} €
+								</span>
+							</div>
 
-					{/* TVA */}
-					<div className="flex justify-between items-center text-sm">
-						<div className="flex items-center gap-2">
-							<span className="text-slate-500 dark:text-violet-200">TVA</span>
-							<Select
-								value={String(vatRate ?? 20)}
-								onValueChange={(v) =>
-									setValue("vatRate", Number(v) as 0 | 5.5 | 10 | 20, {
-										shouldValidate: true,
-										shouldDirty: true,
-									})
-								}
-							>
-								<SelectTrigger className="h-7 w-20 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-lg text-xs text-slate-900 dark:text-slate-50">
-									<SelectValue />
-								</SelectTrigger>
-								<SelectContent side="bottom" avoidCollisions={false} className={selectContentClass}>
-									{VAT_RATES.map((rate) => (
-										<SelectItem key={rate} value={String(rate)} className={selectItemClass}>
-											{rate}%
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
-						</div>
-						<span className="font-medium text-slate-800 dark:text-slate-100">
-							{fmt(totals.taxTotal)} €
-						</span>
-					</div>
+							{/* Séparateur */}
+							<div className="h-px bg-linear-to-r from-transparent via-primary/30 dark:via-violet-300/30 to-transparent" />
 
-					{/* Séparateur */}
-					<div className="h-px bg-linear-to-r from-transparent via-primary/30 dark:via-violet-300/30 to-transparent" />
+							{/* Total TTC */}
+							<div className="flex justify-between text-base font-bold">
+								<span className="text-slate-800 dark:text-slate-50">Total TTC</span>
+								<span className="text-violet-600 dark:text-violet-300">{fmt(totals.totalTTC)} €</span>
+							</div>
 
-					{/* Total TTC */}
-					<div className="flex justify-between text-base font-bold">
-						<span className="text-slate-800 dark:text-slate-50">Total TTC</span>
-						<span className="text-violet-600 dark:text-violet-300">{fmt(totals.totalTTC)} €</span>
-					</div>
-
-					{/* Acompte versé */}
-					<div className="flex items-center justify-between text-sm pt-1">
-						<div className="flex items-center gap-2">
-							<span className="text-slate-500 dark:text-violet-200">Acompte versé</span>
-							<Controller
-								name="depositAmount"
-								control={control}
-								render={({ field: f }) => (
-									<Input
-										type="number"
-										min={0}
-										step={0.01}
-										placeholder="0.00"
-										value={f.value || ""}
-										onChange={(e) => {
-											const v = e.target.value;
-											f.onChange(v === "" ? 0 : Number(v));
-										}}
-										className="h-7 w-24 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-lg text-xs text-slate-900 dark:text-slate-50"
+							{/* Acompte versé */}
+							<div className="flex items-center justify-between text-sm pt-1">
+								<div className="flex items-center gap-2">
+									<span className="text-slate-500 dark:text-violet-200">Acompte versé</span>
+									<Controller
+										name="depositAmount"
+										control={control}
+										render={({ field: f }) => (
+											<Input
+												type="number"
+												min={0}
+												step={0.01}
+												placeholder="0.00"
+												value={f.value || ""}
+												onChange={(e) => {
+													const v = e.target.value;
+													f.onChange(v === "" ? 0 : Number(v));
+												}}
+												className="h-7 w-24 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-lg text-xs text-slate-900 dark:text-slate-50"
+											/>
+										)}
 									/>
-								)}
+								</div>
+								<span className="font-medium text-rose-600 dark:text-rose-400">
+									{depositAmount > 0 ? `−${fmt(depositAmount)} €` : "—"}
+								</span>
+							</div>
+
+							{/* NET À PAYER */}
+							<div className="flex justify-between items-center pt-2 border-t-2 border-violet-300 dark:border-violet-400/40 mt-1">
+								<span className="text-base font-extrabold text-slate-900 dark:text-slate-50 tracking-tight">
+									NET À PAYER
+								</span>
+								<span className="text-xl font-extrabold text-violet-700 dark:text-violet-200">
+									{fmt(totals.netAPayer)} €
+								</span>
+							</div>
+						</section>
+					</>
+				)}
+
+				{/* ══════════════════════════════════════════════════════════
+				    ÉTAPE 3 — Notes & conditions, Liens de paiement
+				    ══════════════════════════════════════════════════════════ */}
+				{(!visibleStep || visibleStep === 3) && (
+					<>
+						{/* Séparateur entre étapes uniquement en mode non-filtré */}
+						{!visibleStep && <div className={dividerClass} />}
+
+						{/* ── Notes & conditions ────────────────────────── */}
+						<section className="space-y-3">
+							<h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+								Notes & conditions
+							</h3>
+							<Textarea
+								placeholder="Conditions de paiement, mentions particulières..."
+								{...register("notes")}
+								className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-violet-300/50"
 							/>
-						</div>
-						<span className="font-medium text-rose-600 dark:text-rose-400">
-							{depositAmount > 0 ? `−${fmt(depositAmount)} €` : "—"}
-						</span>
-					</div>
+						</section>
 
-					{/* NET À PAYER */}
-					<div className="flex justify-between items-center pt-2 border-t-2 border-violet-300 dark:border-violet-400/40 mt-1">
-						<span className="text-base font-extrabold text-slate-900 dark:text-slate-50 tracking-tight">
-							NET À PAYER
-						</span>
-						<span className="text-xl font-extrabold text-violet-700 dark:text-violet-200">
-							{fmt(totals.netAPayer)} €
-						</span>
-					</div>
-				</section>
-
-				{/* ── Notes ───────────────────────────────────────────── */}
-				<section className="space-y-3">
-					<h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100">
-						Notes & conditions
-					</h3>
-					<Textarea
-						placeholder="Conditions de paiement, mentions particulières..."
-						{...register("notes")}
-						className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-violet-300/50"
-					/>
-				</section>
-
-				{/* ── Liens de paiement ───────────────────────────────── */}
-				<section className="space-y-3">
-					<div className="flex items-center gap-2">
-						<Checkbox
-							id="togglePayments"
-							checked={showPaymentLinks}
-							onCheckedChange={(v) => setShowPaymentLinks(!!v)}
-						/>
-						<Label
-							htmlFor="togglePayments"
-							className="flex items-center gap-1.5 cursor-pointer text-slate-700 dark:text-violet-200"
-						>
-							<LinkIcon className="size-3.5" />
-							Liens de paiement
-						</Label>
-					</div>
-					{showPaymentLinks && (
-						<div className="space-y-2 pl-6">
-							<div>
-								<Label className="text-xs text-slate-500 dark:text-violet-200">Stripe</Label>
-								<Input
-									placeholder="https://checkout.stripe.com/..."
-									{...register("paymentLinks.stripe")}
-									className={inputClass}
+						{/* ── Liens de paiement ─────────────────────────── */}
+						<section className="space-y-3">
+							<div className="flex items-center gap-2">
+								<Checkbox
+									id="togglePayments"
+									checked={showPaymentLinks}
+									onCheckedChange={(v) => setShowPaymentLinks(!!v)}
 								/>
+								<Label
+									htmlFor="togglePayments"
+									className="flex items-center gap-1.5 cursor-pointer text-slate-700 dark:text-violet-200"
+								>
+									<LinkIcon className="size-3.5" />
+									Liens de paiement
+								</Label>
 							</div>
-							<div>
-								<Label className="text-xs text-slate-500 dark:text-violet-200">PayPal</Label>
-								<Input
-									placeholder="https://paypal.me/..."
-									{...register("paymentLinks.paypal")}
-									className={inputClass}
-								/>
-							</div>
-							<div>
-								<Label className="text-xs text-slate-500 dark:text-violet-200">GoCardless</Label>
-								<Input
-									placeholder="https://pay.gocardless.com/..."
-									{...register("paymentLinks.gocardless")}
-									className={inputClass}
-								/>
-							</div>
-						</div>
-					)}
-				</section>
+							{showPaymentLinks && (
+								<div className="space-y-2 pl-6">
+									<div>
+										<Label className="text-xs text-slate-500 dark:text-violet-200">Stripe</Label>
+										<Input
+											placeholder="https://checkout.stripe.com/..."
+											{...register("paymentLinks.stripe")}
+											className={inputClass}
+										/>
+									</div>
+									<div>
+										<Label className="text-xs text-slate-500 dark:text-violet-200">PayPal</Label>
+										<Input
+											placeholder="https://paypal.me/..."
+											{...register("paymentLinks.paypal")}
+											className={inputClass}
+										/>
+									</div>
+									<div>
+										<Label className="text-xs text-slate-500 dark:text-violet-200">GoCardless</Label>
+										<Input
+											placeholder="https://pay.gocardless.com/..."
+											{...register("paymentLinks.gocardless")}
+											className={inputClass}
+										/>
+									</div>
+								</div>
+							)}
+						</section>
+					</>
+				)}
 
 				{/* Erreur client globale */}
 				{errors.clientId?.message && (
@@ -816,16 +864,19 @@ export function InvoiceForm({
 					</p>
 				)}
 
-				<div className="lg:ml-auto lg:w-1/3">
-					<Button
-						type="submit"
-						variant="gradient"
-						disabled={isSubmitting}
-						className="w-full h-11 cursor-pointer transition-all duration-300 hover:scale-101 disabled:opacity-70 disabled:cursor-not-allowed"
-					>
-						{isSubmitting ? "En cours…" : submitLabel}
-					</Button>
-				</div>
+				{/* Bouton de soumission — caché quand le stepper gère la navigation */}
+				{!hideSubmit && (
+					<div className="lg:ml-auto lg:w-1/3">
+						<Button
+							type="submit"
+							variant="gradient"
+							disabled={isSubmitting}
+							className="w-full h-11 cursor-pointer transition-all duration-300 hover:scale-101 disabled:opacity-70 disabled:cursor-not-allowed"
+						>
+							{isSubmitting ? "En cours…" : submitLabel}
+						</Button>
+					</div>
+				)}
 			</form>
 		</>
 	);

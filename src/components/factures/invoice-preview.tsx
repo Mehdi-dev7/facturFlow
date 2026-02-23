@@ -11,9 +11,10 @@ interface InvoicePreviewProps {
 	form: UseFormReturn<InvoiceFormData>;
 	invoiceNumber: string;
 	companyInfo: CompanyInfo | null;
+	compact?: boolean;
 }
 
-export function InvoicePreview({ form, invoiceNumber, companyInfo }: InvoicePreviewProps) {
+export function InvoicePreview({ form, invoiceNumber, companyInfo, compact = false }: InvoicePreviewProps) {
 	const clientId     = useWatch({ control: form.control, name: "clientId" });
 	const newClient    = useWatch({ control: form.control, name: "newClient" });
 	const lines        = useWatch({ control: form.control, name: "lines" });
@@ -93,7 +94,110 @@ export function InvoicePreview({ form, invoiceNumber, companyInfo }: InvoicePrev
 	const isForfait       = typeConfig.quantityLabel === null;
 
 	// ── Render ─────────────────────────────────────────────────────────────
-	// Conteneur A4 : ratio 210/297 (ISO A4), fond blanc, ombre
+
+	// ── Mode compact (recap stepper) ──────────────────────────────────────
+	if (compact) {
+		return (
+			<div className="space-y-3 text-xs">
+				{/* Infos facture */}
+				<div className="flex items-center justify-between text-[10px] text-slate-400 dark:text-violet-400/70 border-b border-slate-100 dark:border-violet-500/20 pb-2">
+					<span className="font-semibold text-violet-600 dark:text-violet-400">{invoiceNumber}</span>
+					<span>{formatDate(date)} · éch. {formatDate(dueDate)}</span>
+				</div>
+
+				{/* Émetteur */}
+				<div>
+					<p className="text-[10px] uppercase tracking-wider text-slate-400 dark:text-violet-400/60 mb-0.5 font-semibold">Émetteur</p>
+					{companyInfo ? (
+						<div className="text-xs space-y-0.5 text-slate-700 dark:text-slate-300">
+							<p className="font-semibold">{companyInfo.name}</p>
+							<p className="text-slate-500 dark:text-slate-400">{companyInfo.address}, {companyInfo.city}</p>
+							<p className="text-slate-500 dark:text-slate-400">{companyInfo.email}</p>
+						</div>
+					) : (
+						<p className="text-xs text-slate-400 italic">Non renseigné</p>
+					)}
+				</div>
+
+				{/* Destinataire */}
+				<div>
+					<p className="text-[10px] uppercase tracking-wider text-slate-400 dark:text-violet-400/60 mb-0.5 font-semibold">Destinataire</p>
+					{client ? (
+						<div className="text-xs space-y-0.5 text-slate-700 dark:text-slate-300">
+							<p className="font-semibold">{client.name}</p>
+							{client.email && <p className="text-slate-500 dark:text-slate-400">{client.email}</p>}
+							{client.city && <p className="text-slate-500 dark:text-slate-400">{client.city}</p>}
+						</div>
+					) : (
+						<p className="text-xs text-slate-400 italic">Aucun client sélectionné</p>
+					)}
+				</div>
+
+				<div className="h-px bg-slate-100 dark:bg-violet-500/20" />
+
+				{/* Lignes */}
+				<div className="space-y-1">
+					{safeLines.length === 0 ? (
+						<p className="text-xs text-slate-400 italic">Aucune ligne</p>
+					) : safeLines.map((line, i) => {
+						const qty = isForfait ? 1 : (line.quantity || 0);
+						const ht = qty * (line.unitPrice || 0);
+						return (
+							<div key={i} className="flex justify-between gap-2">
+								<span className="text-slate-700 dark:text-slate-300 truncate flex-1">
+									{line.description || <span className="italic text-slate-300">Ligne {i + 1}</span>}
+								</span>
+								<span className="text-slate-500 dark:text-slate-400 shrink-0">{fmt(ht)} €</span>
+							</div>
+						);
+					})}
+				</div>
+
+				<div className="h-px bg-slate-100 dark:bg-violet-500/20" />
+
+				{/* Totaux */}
+				<div className="space-y-1">
+					<div className="flex justify-between text-slate-500 dark:text-slate-400">
+						<span>Sous-total HT</span>
+						<span>{fmt(totals.subtotal)} €</span>
+					</div>
+					{totals.discountAmount > 0 && (
+						<div className="flex justify-between text-rose-500">
+							<span>Réduction</span>
+							<span>−{fmt(totals.discountAmount)} €</span>
+						</div>
+					)}
+					<div className="flex justify-between text-slate-500 dark:text-slate-400">
+						<span>TVA ({vatRate ?? 0}%)</span>
+						<span>{fmt(totals.taxTotal)} €</span>
+					</div>
+					<div className="flex justify-between font-bold text-slate-800 dark:text-slate-100 pt-1 border-t border-slate-200 dark:border-violet-500/20">
+						<span>Total TTC</span>
+						<span className="text-violet-600 dark:text-violet-400">{fmt(totals.totalTTC)} €</span>
+					</div>
+					{totals.depositAmount > 0 && (
+						<div className="flex justify-between text-rose-500">
+							<span>Acompte versé</span>
+							<span>−{fmt(totals.depositAmount)} €</span>
+						</div>
+					)}
+					{(totals.depositAmount > 0 || totals.discountAmount > 0) && (
+						<div className="flex justify-between font-extrabold text-slate-900 dark:text-slate-50 pt-1 border-t-2 border-violet-300 dark:border-violet-400/40">
+							<span>NET À PAYER</span>
+							<span className="text-violet-600 dark:text-violet-300">{fmt(totals.netAPayer)} €</span>
+						</div>
+					)}
+				</div>
+
+				{/* Notes */}
+				{notes && (
+					<p className="text-[10px] text-slate-500 dark:text-slate-400 italic border-t border-slate-100 dark:border-violet-500/20 pt-2">{notes}</p>
+				)}
+			</div>
+		);
+	}
+
+	// ── Mode normal (desktop preview A4) ──────────────────────────────────
 	return (
 		<div className="w-full min-h-[800px] bg-white rounded-2xl border border-slate-300/80 shadow-lg shadow-slate-200/50 overflow-hidden flex flex-col">
 			{/* Header */}

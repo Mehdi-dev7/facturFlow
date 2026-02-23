@@ -122,18 +122,18 @@ export function ClientModal({ open, onOpenChange, editClient, onSuccess }: Clien
   const inputClass =
     "bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-violet-300/50";
 
-  const labelClass = "text-sm font-medium text-slate-700 dark:text-violet-200";
+  const labelClass = "text-xs xs:text-sm font-medium text-slate-700 dark:text-violet-200";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto bg-gradient-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25 shadow-lg dark:shadow-violet-950/40 rounded-xl">
         <DialogHeader>
-          <DialogTitle className="text-lg font-bold text-slate-900 dark:text-slate-100">
+          <DialogTitle className="text-base xs:text-lg font-bold text-slate-900 dark:text-slate-100">
             {isEdit ? "Modifier le client" : "Nouveau client"}
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 pt-2">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-2">
           {/* ─── Recherche SIRET ─── */}
           <section className="space-y-2">
             <h3 className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide">
@@ -153,7 +153,7 @@ export function ClientModal({ open, onOpenChange, editClient, onSuccess }: Clien
               <button
                 type="button"
                 onClick={() => setValue("type", "entreprise")}
-                className={`flex items-center gap-3 rounded-xl border p-3 transition-all duration-200 cursor-pointer text-left ${
+                className={`flex items-center gap-2 xs:gap-3 rounded-xl border p-2 xs:p-3 transition-all duration-200 cursor-pointer text-left ${
                   clientType === "entreprise"
                     ? "border-primary bg-violet-100/70 dark:border-violet-400 dark:bg-violet-500/20"
                     : "border-slate-200 dark:border-violet-400/20 hover:border-primary/50 dark:hover:border-violet-400/50"
@@ -171,7 +171,7 @@ export function ClientModal({ open, onOpenChange, editClient, onSuccess }: Clien
                   }`} />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-slate-900 dark:text-slate-100">Entreprise</p>
+                  <p className="text-xs xs:text-sm font-medium text-slate-900 dark:text-slate-100">Entreprise</p>
                   <p className="text-[11px] text-slate-500 dark:text-violet-400/70">B2B</p>
                 </div>
               </button>
@@ -179,7 +179,7 @@ export function ClientModal({ open, onOpenChange, editClient, onSuccess }: Clien
               <button
                 type="button"
                 onClick={() => setValue("type", "particulier")}
-                className={`flex items-center gap-3 rounded-xl border p-3 transition-all duration-200 cursor-pointer text-left ${
+                className={`flex items-center gap-2 xs:gap-3 rounded-xl border p-2 xs:p-3 transition-all duration-200 cursor-pointer text-left ${
                   clientType === "particulier"
                     ? "border-primary bg-violet-100/70 dark:border-violet-400 dark:bg-violet-500/20"
                     : "border-slate-200 dark:border-violet-400/20 hover:border-primary/50 dark:hover:border-violet-400/50"
@@ -197,7 +197,7 @@ export function ClientModal({ open, onOpenChange, editClient, onSuccess }: Clien
                   }`} />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-slate-900 dark:text-slate-100">PME & Freelance</p>
+                  <p className="text-xs xs:text-sm font-medium text-slate-900 dark:text-slate-100">PME & Freelance</p>
                   <p className="text-[11px] text-slate-500 dark:text-violet-400/70">Auto-entrepreneur</p>
                 </div>
               </button>

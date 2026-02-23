@@ -180,11 +180,11 @@ function InvoicesPageContent() {
   const kpis = useMemo((): KpiData[] => {
     const total = monthRows.length;
     const paid = monthRows.filter((r) => r.status === "payée").length;
-    const pending = monthRows.filter((r) => r.status === "en attente").length;
+    const pending = monthRows.filter((r) => r.status === "envoyée").length;
     const unpaid = monthRows.filter((r) => r.status === "impayée").length;
 
     const pendingAmount = monthRows
-      .filter((r) => r.status === "en attente")
+      .filter((r) => r.status === "envoyée")
       .reduce((s, r) => s + (invoiceMap.get(r.id)?.total ?? 0), 0);
     const unpaidAmount = monthRows
       .filter((r) => r.status === "impayée")

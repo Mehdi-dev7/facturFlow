@@ -232,11 +232,11 @@ function InvoiceReceiptGenerator() {
   }
 
   return (
-    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-      {/* Sélecteur de facture + badge "Envoyé" */}
-      <div className="flex-1 flex items-center gap-2">
+    <div className="space-y-3">
+      {/* Ligne 1 : sélecteur + badge */}
+      <div className="flex items-center gap-2">
         <Select value={selectedInvoiceId} onValueChange={handleSelectChange}>
-          <SelectTrigger className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50 cursor-pointer">
+          <SelectTrigger className="flex-1 max-w-xs sm:max-w-sm bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50 cursor-pointer">
             <SelectValue placeholder="Sélectionner une facture payée..." />
           </SelectTrigger>
           <SelectContent className="bg-gradient-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25">
@@ -264,9 +264,8 @@ function InvoiceReceiptGenerator() {
         )}
       </div>
 
-      {/* Boutons : Générer PDF + Envoyer */}
-      <div className="flex gap-2 shrink-0">
-        {/* Générer le PDF */}
+      {/* Ligne 2 : boutons Générer PDF + Envoyer */}
+      <div className="flex gap-2">
         {virtualReceipt ? (
           <PDFDownloadLink
             document={<ReceiptPdfDocument receipt={virtualReceipt} />}
@@ -276,12 +275,12 @@ function InvoiceReceiptGenerator() {
               <Button
                 type="button"
                 disabled={loading || !selectedInvoice}
-                className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white font-semibold cursor-pointer"
+                className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white font-semibold cursor-pointer text-xs sm:text-sm"
               >
                 {loading ? (
-                  <Loader2 className="size-4 animate-spin mr-2" />
+                  <Loader2 className="size-3.5 sm:size-4 animate-spin mr-1.5" />
                 ) : (
-                  <Download className="size-4 mr-2" />
+                  <Download className="size-3.5 sm:size-4 mr-1.5" />
                 )}
                 Générer le PDF
               </Button>
@@ -291,24 +290,23 @@ function InvoiceReceiptGenerator() {
           <Button
             type="button"
             disabled
-            className="bg-gradient-to-r from-violet-600 to-purple-600 text-white font-semibold opacity-50 cursor-not-allowed"
+            className="bg-gradient-to-r from-violet-600 to-purple-600 text-white font-semibold opacity-50 cursor-not-allowed text-xs sm:text-sm"
           >
-            <Download className="size-4 mr-2" />
+            <Download className="size-3.5 sm:size-4 mr-1.5" />
             Générer le PDF
           </Button>
         )}
 
-        {/* Envoyer par email */}
         <Button
           type="button"
           disabled={!selectedInvoice || isSending}
           onClick={handleSend}
-          className="border border-violet-300 text-violet-600 hover:bg-violet-50 dark:border-violet-500 dark:text-violet-400 dark:hover:bg-violet-950 bg-transparent font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          className="border border-violet-300 text-violet-600 hover:bg-violet-50 dark:border-violet-500 dark:text-violet-400 dark:hover:bg-violet-950 bg-transparent font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-sm"
         >
           {isSending ? (
-            <Loader2 className="size-4 animate-spin mr-2" />
+            <Loader2 className="size-3.5 sm:size-4 animate-spin mr-1.5" />
           ) : (
-            <Send className="size-4 mr-2" />
+            <Send className="size-3.5 sm:size-4 mr-1.5" />
           )}
           {isSending ? "Envoi..." : "Envoyer"}
         </Button>
