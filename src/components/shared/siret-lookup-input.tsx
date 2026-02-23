@@ -69,12 +69,12 @@ export function SiretLookupInput({ onFound }: SiretLookupInputProps) {
 				Remplir automatiquement via SIRET
 			</p>
 
-			<div className="flex gap-2">
+			<div className="flex flex-col xs:flex-row gap-2">
 				{/* Input SIRET — on filtre les non-chiffres et on limite à 14 */}
 				<div className="relative flex-1">
 					<Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-slate-400 dark:text-violet-400 pointer-events-none" />
 					<Input
-						placeholder="14 chiffres (ex: 41816609600069)"
+						placeholder="14 chiffres"
 						value={siret}
 						onChange={(e) => {
 							setSiret(e.target.value.replace(/\D/g, "").slice(0, 14));
@@ -84,7 +84,7 @@ export function SiretLookupInput({ onFound }: SiretLookupInputProps) {
 						onKeyDown={handleKeyDown}
 						maxLength={14}
 						inputMode="numeric"
-						className="pl-9 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-500 dark:text-slate-400 font-mono text-sm tracking-widest h-9"
+						className="pl-9 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-500 dark:text-slate-400 font-mono text-xs xs:text-sm tracking-widest h-9"
 						aria-label="Numéro SIRET"
 					/>
 				</div>
@@ -95,7 +95,7 @@ export function SiretLookupInput({ onFound }: SiretLookupInputProps) {
 					size="sm"
 					onClick={handleSearch}
 					disabled={loading || !isReady}
-					className="shrink-0 h-9 border-violet-300 dark:border-violet-400/30 hover:bg-violet-100 dark:hover:bg-violet-500/10 dark:text-slate-200 cursor-pointer rounded-xl transition-all duration-300"
+					className="w-full xs:w-auto shrink-0 h-9 border-violet-300 dark:border-violet-400/30 hover:bg-violet-100 dark:hover:bg-violet-500/10 dark:text-slate-200 cursor-pointer rounded-xl transition-all duration-300"
 					aria-busy={loading}
 				>
 					{loading ? (
