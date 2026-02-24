@@ -54,7 +54,7 @@ import { calcInvoiceTotals } from "@/lib/utils/calculs-facture";
 const dividerClass =
 	"mx-0 h-px bg-linear-to-r from-transparent via-primary/30 dark:via-violet-300/30 to-transparent";
 const inputClass =
-	"bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-violet-300/50 autofill:shadow-[inset_0_0_0_30px_white] dark:autofill:shadow-[inset_0_0_0_30px_#2a2254] autofill:[-webkit-text-fill-color:theme(--color-slate-900)] dark:autofill:[-webkit-text-fill-color:theme(--color-slate-50)]";
+	"bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-xs xs:text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-violet-300/50 autofill:shadow-[inset_0_0_0_30px_white] dark:autofill:shadow-[inset_0_0_0_30px_#2a2254] autofill:[-webkit-text-fill-color:theme(--color-slate-900)] dark:autofill:[-webkit-text-fill-color:theme(--color-slate-50)]";
 
 interface QuoteFormProps {
 	form: UseFormReturn<QuoteFormData>;
@@ -239,7 +239,7 @@ export function QuoteForm({
 						</Button>
 					</div>
 					{companyInfo ? (
-						<div className="rounded-xl border border-violet-200 dark:border-violet-400/25 bg-violet-100/60 dark:bg-[#251e4d] p-3.5 text-sm shadow-sm">
+						<div className="rounded-xl border border-violet-200 dark:border-violet-400/25 bg-violet-100/60 dark:bg-[#251e4d] p-3.5 text-xs xs:text-sm shadow-sm">
 							<p className="font-semibold text-slate-800 dark:text-slate-100">
 								{companyInfo.name}
 							</p>
@@ -543,7 +543,7 @@ export function QuoteForm({
 											<Label className="text-xs text-slate-500 dark:text-violet-200">
 												Total HT
 											</Label>
-											<div className="h-9 flex items-center text-sm font-bold text-violet-700 dark:text-violet-300">
+											<div className="h-9 flex items-center text-xs xs:text-sm font-bold text-violet-700 dark:text-violet-300">
 												{fmt(lineHT)} €
 											</div>
 										</div>
@@ -680,7 +680,7 @@ export function QuoteForm({
 											}
 										}}
 									>
-										<SelectTrigger className="h-7 w-28 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-lg text-xs text-slate-900 dark:text-slate-50">
+										<SelectTrigger className="h-6 w-24 xs:h-7 xs:w-28 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-lg text-xs text-slate-900 dark:text-slate-50">
 											<SelectValue placeholder="Aucune" />
 										</SelectTrigger>
 										<SelectContent side="bottom" avoidCollisions={false} className="bg-linear-to-b from-violet-100 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/30 rounded-xl shadow-xl dark:shadow-violet-950/50 z-50">
@@ -711,7 +711,7 @@ export function QuoteForm({
 												const v = e.target.value;
 												f.onChange(v === "" ? 0 : Number(v));
 											}}
-											className="h-7 w-20 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-lg text-xs text-slate-900 dark:text-slate-50"
+											className="h-6 w-16 xs:h-7 xs:w-20 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-lg text-xs text-slate-900 dark:text-slate-50"
 										/>
 									)}
 								/>
@@ -724,7 +724,7 @@ export function QuoteForm({
 
 					{/* Net HT */}
 					{totals.discountAmount > 0 && (
-						<div className="flex justify-between text-sm border-t border-violet-200 dark:border-violet-400/20 pt-2">
+						<div className="flex justify-between text-xs xs:text-sm border-t border-violet-200 dark:border-violet-400/20 pt-2">
 							<span className="text-slate-600 dark:text-violet-200 font-medium">Net HT</span>
 							<span className="font-medium text-slate-800 dark:text-slate-100">
 								{fmt(totals.netHT)} €
@@ -745,7 +745,7 @@ export function QuoteForm({
 									})
 								}
 							>
-								<SelectTrigger className="h-7 w-20 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-lg text-xs text-slate-900 dark:text-slate-50">
+								<SelectTrigger className="h-6 w-16 xs:h-7 xs:w-20 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-lg text-xs text-slate-900 dark:text-slate-50">
 									<SelectValue />
 								</SelectTrigger>
 								<SelectContent side="bottom" avoidCollisions={false} className="bg-linear-to-b from-violet-100 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/30 rounded-xl shadow-xl dark:shadow-violet-950/50 z-50">
@@ -769,7 +769,7 @@ export function QuoteForm({
 					<div className="mx-0 h-px bg-linear-to-r from-transparent via-primary/30 dark:via-violet-300/30 to-transparent" />
 
 					{/* Total TTC */}
-					<div className="flex justify-between text-base font-bold">
+					<div className="flex justify-between text-sm xs:text-base font-bold">
 						<span className="text-slate-800 dark:text-slate-50">Total TTC</span>
 						<span className="text-emerald-600 dark:text-emerald-400">
 							{fmt(totals.totalTTC)} €
@@ -797,7 +797,7 @@ export function QuoteForm({
 					<Textarea
 						placeholder="Conditions d'acceptation, mentions particulières..."
 						{...register("notes")}
-						className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-violet-300/50"
+						className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-xs xs:text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-violet-300/50"
 					/>
 				</section>
 

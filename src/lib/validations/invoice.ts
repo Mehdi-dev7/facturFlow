@@ -105,9 +105,9 @@ export const invoiceFormSchema = z
 		notes: z.string().optional(),
 		paymentLinks: z
 			.object({
-				stripe: z.union([z.literal(""), z.url()]).optional(),
-				paypal: z.union([z.literal(""), z.url()]).optional(),
-				gocardless: z.union([z.literal(""), z.url()]).optional(),
+				stripe: z.union([z.literal(""), z.literal("enabled"), z.url()]).optional(),
+				paypal: z.union([z.literal(""), z.literal("enabled"), z.url()]).optional(),
+				gocardless: z.union([z.literal(""), z.literal("enabled"), z.url()]).optional(),
 			})
 			.optional(),
 	})

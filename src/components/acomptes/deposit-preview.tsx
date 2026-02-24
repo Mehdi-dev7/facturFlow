@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { useWatch, type UseFormReturn } from "react-hook-form";
 import { Eye } from "lucide-react";
+import { SiStripe, SiPaypal } from "react-icons/si";
 import type { CompanyInfo } from "@/lib/validations/invoice";
 
 interface DepositFormData {
@@ -204,24 +205,21 @@ export function DepositPreview({ form, depositNumber, companyInfo }: DepositPrev
               <p>• Liens de paiement sécurisés inclus dans l&apos;email</p>
               
               {(formData.paymentLinks?.stripe || formData.paymentLinks?.paypal || formData.paymentLinks?.sepa) && (
-                <div className="mt-3 space-y-2">
+                <div className="mt-3 flex flex-wrap gap-2">
                   {formData.paymentLinks?.stripe && (
-                    <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
-                      <div className="w-3 h-3 rounded bg-blue-500"></div>
-                      <span>Carte bancaire (Stripe)</span>
-                    </div>
+                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-gradient-to-r from-[#635BFF] to-[#7C3AED] px-3 py-1.5 rounded-lg">
+                      <SiStripe className="size-3.5" /> Carte bancaire
+                    </span>
                   )}
                   {formData.paymentLinks?.paypal && (
-                    <div className="flex items-center gap-2 text-yellow-600 dark:text-yellow-400">
-                      <div className="w-3 h-3 rounded bg-linear-to-r from-blue-500 to-yellow-500"></div>
-                      <span>PayPal</span>
-                    </div>
+                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-gradient-to-r from-[#003087] to-[#009CDE] px-3 py-1.5 rounded-lg">
+                      <SiPaypal className="size-3.5" /> PayPal
+                    </span>
                   )}
                   {formData.paymentLinks?.sepa && (
-                    <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
-                      <div className="w-3 h-3 rounded bg-emerald-500"></div>
-                      <span>Prélèvement SEPA (GoCardless)</span>
-                    </div>
+                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-gradient-to-r from-[#0F766E] to-[#059669] px-3 py-1.5 rounded-lg">
+                      <span className="font-black text-[10px]">GC</span> SEPA
+                    </span>
                   )}
                 </div>
               )}

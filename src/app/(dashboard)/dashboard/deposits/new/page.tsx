@@ -10,6 +10,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { DepositForm } from "@/components/acomptes/deposit-form";
 import { DepositPreview } from "@/components/acomptes/deposit-preview";
+import { DepositStepper } from "@/components/acomptes/deposit-stepper";
 import { toast } from "sonner";
 import { useCreateDeposit, useSaveDraftDeposit } from "@/hooks/use-deposits";
 import { getNextDepositNumber } from "@/lib/actions/deposits";
@@ -243,11 +244,12 @@ export default function NewDepositPage() {
         </div>
       </div>
 
-      {/* Mobile : form simple */}
-      <div className="lg:hidden rounded-2xl border border-slate-300/80 dark:border-violet-500/20 bg-white/75 dark:bg-[#1a1438] backdrop-blur-lg shadow-lg shadow-slate-200/50 dark:shadow-violet-950/40 min-h-[70vh] p-6">
-        <DepositForm
+      {/* Mobile : stepper */}
+      <div className="lg:hidden rounded-2xl border border-slate-300/80 dark:border-violet-500/20 bg-white/75 dark:bg-[#1a1438] backdrop-blur-lg shadow-lg shadow-slate-200/50 dark:shadow-violet-950/40 min-h-[70vh]">
+        <DepositStepper
           form={form}
           onSubmit={onSubmit}
+          depositNumber={depositNumber}
           companyInfo={companyInfo}
           onCompanyChange={handleCompanyChange}
           isSubmitting={createDeposit.isPending}

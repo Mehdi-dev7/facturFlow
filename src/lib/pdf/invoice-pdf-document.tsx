@@ -7,6 +7,7 @@ import {
   Text,
   View,
   StyleSheet,
+  Link,
 } from "@react-pdf/renderer";
 import type { SavedInvoice } from "@/lib/actions/invoices";
 import { INVOICE_TYPE_CONFIG } from "@/lib/validations/invoice";
@@ -175,6 +176,38 @@ const S = StyleSheet.create({
     fontSize: 8,
     color: "#94a3b8",
   },
+  paymentSection: {
+    marginTop: 16,
+    padding: 10,
+    backgroundColor: "#f5f3ff",
+    borderRadius: 4,
+  },
+  paymentTitle: {
+    fontFamily: "Helvetica-Bold",
+    fontSize: 9,
+    color: "#7c3aed",
+    marginBottom: 8,
+    textTransform: "uppercase",
+    letterSpacing: 1,
+  },
+  paymentButtons: {
+    flexDirection: "row",
+    gap: 8,
+    flexWrap: "wrap",
+  },
+  paymentBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 4,
+    gap: 4,
+  },
+  paymentBtnText: {
+    fontSize: 9,
+    fontFamily: "Helvetica-Bold",
+    color: "#fff",
+  },
 });
 
 // ─── Sous-composant : tableau de lignes ──────────────────────────────────────
@@ -247,6 +280,13 @@ export default function InvoicePdfDocument({ invoice }: { invoice: SavedInvoice 
   const discount = invoice.discount ?? 0;
   const deposit = invoice.depositAmount ?? 0;
   const netAPayer = invoice.total - deposit;
+
+  // Liens de paiement stockés dans businessMetadata
+  const paymentLinks = invoice.businessMetadata?.paymentLinks as
+    | { stripe?: string; paypal?: string; gocardless?: string }
+    | undefined;
+  const hasPaymentLinks =
+    paymentLinks && (paymentLinks.stripe || paymentLinks.paypal || paymentLinks.gocardless);
 
   const sortedLines = [...invoice.lineItems].sort((a, b) => a.order - b.order);
   const mainOeuvreLines = isArtisan
@@ -373,6 +413,54 @@ export default function InvoicePdfDocument({ invoice }: { invoice: SavedInvoice 
           <View style={S.notes}>
             <Text style={S.notesTitle}>Notes</Text>
             <Text style={S.muted}>{invoice.notes}</Text>
+          </View>
+        )}
+
+        {/* Liens de paiement */}
+        {hasPaymentLinks && (
+          <View style={S.paymentSection}>
+            <Text style={S.paymentTitle}>Payer cette facture</Text>
+            <View style={S.paymentButtons}>
+              {paymentLinks?.stripe && (
+                paymentLinks.stripe.startsWith("http") ? (
+                  <Link src={paymentLinks.stripe} style={{ textDecoration: "none" }}>
+                    <View style={[S.paymentBtn, { backgroundColor: "#635BFF" }]}>
+                      <Text style={S.paymentBtnText}>Carte bancaire (Stripe)</Text>
+                    </View>
+                  </Link>
+                ) : (
+                  <View style={[S.paymentBtn, { backgroundColor: "#635BFF" }]}>
+                    <Text style={S.paymentBtnText}>Carte bancaire (Stripe)</Text>
+                  </View>
+                )
+              )}
+              {paymentLinks?.paypal && (
+                paymentLinks.paypal.startsWith("http") ? (
+                  <Link src={paymentLinks.paypal} style={{ textDecoration: "none" }}>
+                    <View style={[S.paymentBtn, { backgroundColor: "#003087" }]}>
+                      <Text style={S.paymentBtnText}>PayPal</Text>
+                    </View>
+                  </Link>
+                ) : (
+                  <View style={[S.paymentBtn, { backgroundColor: "#003087" }]}>
+                    <Text style={S.paymentBtnText}>PayPal</Text>
+                  </View>
+                )
+              )}
+              {paymentLinks?.gocardless && (
+                paymentLinks.gocardless.startsWith("http") ? (
+                  <Link src={paymentLinks.gocardless} style={{ textDecoration: "none" }}>
+                    <View style={[S.paymentBtn, { backgroundColor: "#0F766E" }]}>
+                      <Text style={S.paymentBtnText}>Prélèvement SEPA (GoCardless)</Text>
+                    </View>
+                  </Link>
+                ) : (
+                  <View style={[S.paymentBtn, { backgroundColor: "#0F766E" }]}>
+                    <Text style={S.paymentBtnText}>Prélèvement SEPA (GoCardless)</Text>
+                  </View>
+                )
+              )}
+            </View>
           </View>
         )}
 

@@ -64,12 +64,12 @@ export function CompanyInfoModal({
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="sm:max-w-md bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25 shadow-lg dark:shadow-violet-950/40 rounded-xl">
+			<DialogContent className="sm:max-w-md bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25 shadow-lg dark:shadow-violet-950/40 rounded-xl max-h-[90dvh] overflow-y-auto">
 				<DialogHeader>
 					<DialogTitle className="text-slate-900 dark:text-slate-100">
 						Informations de votre entreprise
 					</DialogTitle>
-					<DialogDescription className="text-slate-500 dark:text-slate-400">
+					<DialogDescription className="text-xs xs:text-sm text-slate-500 dark:text-slate-400">
 						Ces informations apparaîtront sur vos factures en tant qu&apos;émetteur.
 					</DialogDescription>
 				</DialogHeader>
@@ -81,13 +81,13 @@ export function CompanyInfoModal({
 					<SiretLookupInput onFound={handleSiretFound} />
 
 					<div>
-						<Label htmlFor="companyName" className="text-slate-700 dark:text-violet-200">
+						<Label htmlFor="companyName" className="text-xs xs:text-sm text-slate-700 dark:text-violet-200">
 							Nom de l&apos;entreprise *
 						</Label>
 						<Input
 							id="companyName"
 							{...register("name")}
-							className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50"
+							className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-xs xs:text-sm text-slate-900 dark:text-slate-50"
 							aria-invalid={!!errors.name}
 						/>
 						{errors.name && (
@@ -96,7 +96,7 @@ export function CompanyInfoModal({
 					</div>
 
 					<div>
-						<Label htmlFor="companySiret" className="text-slate-700 dark:text-violet-200">
+						<Label htmlFor="companySiret" className="text-xs xs:text-sm text-slate-700 dark:text-violet-200">
 							SIRET *
 						</Label>
 						<Input
@@ -105,7 +105,7 @@ export function CompanyInfoModal({
 							placeholder="14 chiffres"
 							maxLength={14}
 							inputMode="numeric"
-							className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50 font-mono tracking-widest"
+							className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-xs xs:text-sm text-slate-900 dark:text-slate-50 font-mono tracking-widest"
 							aria-invalid={!!errors.siret}
 						/>
 						{errors.siret && (
@@ -114,13 +114,13 @@ export function CompanyInfoModal({
 					</div>
 
 					<div>
-						<Label htmlFor="companyAddress" className="text-slate-700 dark:text-violet-200">
+						<Label htmlFor="companyAddress" className="text-xs xs:text-sm text-slate-700 dark:text-violet-200">
 							Adresse *
 						</Label>
 						<Input
 							id="companyAddress"
 							{...register("address")}
-							className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50"
+							className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-xs xs:text-sm text-slate-900 dark:text-slate-50"
 							aria-invalid={!!errors.address}
 						/>
 						{errors.address && (
@@ -130,7 +130,7 @@ export function CompanyInfoModal({
 
 					<div className="grid grid-cols-2 gap-3">
 						<div>
-							<Label htmlFor="companyZipCode" className="text-slate-700 dark:text-violet-200">
+							<Label htmlFor="companyZipCode" className="text-xs xs:text-sm text-slate-700 dark:text-violet-200">
 								Code postal
 							</Label>
 							<Input
@@ -139,17 +139,17 @@ export function CompanyInfoModal({
 								placeholder="75001"
 								maxLength={5}
 								inputMode="numeric"
-								className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50"
+								className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-xs xs:text-sm text-slate-900 dark:text-slate-50"
 							/>
 						</div>
 						<div>
-							<Label htmlFor="companyCity" className="text-slate-700 dark:text-violet-200">
+							<Label htmlFor="companyCity" className="text-xs xs:text-sm text-slate-700 dark:text-violet-200">
 								Ville *
 							</Label>
 							<Input
 								id="companyCity"
 								{...register("city")}
-								className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50"
+								className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-xs xs:text-sm text-slate-900 dark:text-slate-50"
 								aria-invalid={!!errors.city}
 							/>
 							{errors.city && (
@@ -159,14 +159,14 @@ export function CompanyInfoModal({
 					</div>
 
 					<div>
-						<Label htmlFor="companyEmail" className="text-slate-700 dark:text-violet-200">
+						<Label htmlFor="companyEmail" className="text-xs xs:text-sm text-slate-700 dark:text-violet-200">
 							Email *
 						</Label>
 						<Input
 							id="companyEmail"
 							type="email"
 							{...register("email")}
-							className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50"
+							className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-xs xs:text-sm text-slate-900 dark:text-slate-50"
 							aria-invalid={!!errors.email}
 						/>
 						{errors.email && (
@@ -175,20 +175,20 @@ export function CompanyInfoModal({
 					</div>
 
 					<div>
-						<Label htmlFor="companyPhone" className="text-slate-700 dark:text-violet-200">
+						<Label htmlFor="companyPhone" className="text-xs xs:text-sm text-slate-700 dark:text-violet-200">
 							Téléphone
 						</Label>
 						<Input
 							id="companyPhone"
 							type="tel"
 							{...register("phone")}
-							className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50"
+							className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-xs xs:text-sm text-slate-900 dark:text-slate-50"
 						/>
 					</div>
 
 					<div className="mx-0 h-px bg-linear-to-r from-transparent via-primary/30 dark:via-violet-200/30 to-transparent" />
 
-					<DialogFooter className="gap-2 sm:gap-0">
+					<DialogFooter className="flex-col xs:flex-row gap-2 xs:gap-0">
 						<Button
 							type="button"
 							variant="outline"

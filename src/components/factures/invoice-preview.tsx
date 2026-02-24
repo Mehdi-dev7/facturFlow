@@ -6,6 +6,7 @@ import { useClients } from "@/hooks/use-clients";
 import type { InvoiceFormData, CompanyInfo, InvoiceType } from "@/lib/validations/invoice";
 import { INVOICE_TYPE_LABELS, INVOICE_TYPE_CONFIG } from "@/lib/validations/invoice";
 import { calcInvoiceTotals } from "@/lib/utils/calculs-facture";
+import { SiStripe, SiPaypal } from "react-icons/si";
 
 interface InvoicePreviewProps {
 	form: UseFormReturn<InvoiceFormData>;
@@ -362,22 +363,25 @@ export function InvoicePreview({ form, invoiceNumber, companyInfo, compact = fal
 				{/* Liens de paiement */}
 				{paymentLinks &&
 					(paymentLinks.stripe || paymentLinks.paypal || paymentLinks.gocardless) && (
-						<div className="rounded-lg border border-violet-200 bg-violet-50 p-3">
-							<p className="text-xs font-medium text-violet-700 mb-2">Liens de paiement</p>
+						<div className="space-y-1.5">
+							<p className="text-[10px] font-medium text-slate-400 dark:text-violet-400 uppercase tracking-wider">Payer par</p>
 							<div className="flex flex-wrap gap-2">
 								{paymentLinks.stripe && (
-									<span className="text-xs bg-violet-100 text-violet-700 px-2.5 py-1 rounded-full font-medium">
-										Stripe
+									<span className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-gradient-to-r from-[#635BFF] to-[#7C3AED] px-3 py-1.5 rounded-lg">
+										<SiStripe className="size-3.5" />
+										Carte bancaire
 									</span>
 								)}
 								{paymentLinks.paypal && (
-									<span className="text-xs bg-blue-100 text-blue-700 px-2.5 py-1 rounded-full font-medium">
+									<span className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-gradient-to-r from-[#003087] to-[#009CDE] px-3 py-1.5 rounded-lg">
+										<SiPaypal className="size-3.5" />
 										PayPal
 									</span>
 								)}
 								{paymentLinks.gocardless && (
-									<span className="text-xs bg-teal-100 text-teal-700 px-2.5 py-1 rounded-full font-medium">
-										GoCardless
+									<span className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-gradient-to-r from-[#0F766E] to-[#059669] px-3 py-1.5 rounded-lg">
+										<span className="flex size-3.5 items-center justify-center rounded bg-white/25 text-[7px] font-bold">GC</span>
+										SEPA
 									</span>
 								)}
 							</div>

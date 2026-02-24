@@ -17,6 +17,7 @@ import {
 	Layers,
 	Tag,
 } from "lucide-react";
+import { SiStripe, SiPaypal } from "react-icons/si";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -48,7 +49,7 @@ import {
 const dividerClass =
 	"mx-0 h-px bg-linear-to-r from-transparent via-primary/30 dark:via-violet-300/30 to-transparent";
 const inputClass =
-	"bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-violet-300/50 autofill:shadow-[inset_0_0_0_30px_white] dark:autofill:shadow-[inset_0_0_0_30px_#2a2254] autofill:[-webkit-text-fill-color:theme(--color-slate-900)] dark:autofill:[-webkit-text-fill-color:theme(--color-slate-50)]";
+	"bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-xs xs:text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-violet-300/50 autofill:shadow-[inset_0_0_0_30px_white] dark:autofill:shadow-[inset_0_0_0_30px_#2a2254] autofill:[-webkit-text-fill-color:theme(--color-slate-900)] dark:autofill:[-webkit-text-fill-color:theme(--color-slate-50)]";
 const selectContentClass =
 	"bg-linear-to-b from-violet-100 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/30 rounded-xl shadow-xl dark:shadow-violet-950/50 z-50";
 const selectItemClass =
@@ -95,6 +96,22 @@ export function InvoiceForm({
 
 	const [showCompanyModal, setShowCompanyModal] = useState(false);
 	const [showPaymentLinks, setShowPaymentLinks] = useState(false);
+
+	const [activePayments, setActivePayments] = useState(() => {
+		const links = form.getValues("paymentLinks");
+		return {
+			stripe: !!(links?.stripe),
+			paypal: !!(links?.paypal),
+			gocardless: !!(links?.gocardless),
+		};
+	});
+	const togglePayment = useCallback((key: "stripe" | "paypal" | "gocardless") => {
+		setActivePayments((prev) => {
+			const next = !prev[key];
+			setValue(`paymentLinks.${key}`, next ? "enabled" : "", { shouldDirty: true });
+			return { ...prev, [key]: next };
+		});
+	}, [setValue]);
 
 	// ── Watch ──────────────────────────────────────────────────────────────
 	const lines = useWatch({ control, name: "lines" });
@@ -414,7 +431,7 @@ export function InvoiceForm({
 						{/* ── Lignes de facture ─────────────────────────── */}
 						<section className="space-y-3">
 							<div className="flex items-center justify-between">
-								<h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+								<h3 className="text-xs xs:text-sm font-semibold text-slate-800 dark:text-slate-100">
 									{invoiceType === "artisan" ? "Prestations" : "Lignes de facture"}
 								</h3>
 								<Button
@@ -422,9 +439,9 @@ export function InvoiceForm({
 									variant="outline"
 									size="xs"
 									onClick={handleAddLine}
-									className="border-primary/20 dark:border-violet-400/30 hover:bg-violet-50 dark:hover:bg-violet-500/15 dark:text-slate-100 transition-all duration-300 cursor-pointer"
+									className="border-primary/20 text-xs xs:text-sm dark:border-violet-400/30 hover:bg-violet-50 dark:hover:bg-violet-500/15 dark:text-slate-100 transition-all duration-300 cursor-pointer"
 								>
-									<Plus className="size-3.5" />
+									<Plus className="size-3 xs:size-3.5" />
 									Ajouter
 								</Button>
 							</div>
@@ -461,7 +478,7 @@ export function InvoiceForm({
 																value={f.value ?? "main_oeuvre"}
 																onValueChange={f.onChange}
 															>
-																<SelectTrigger className="h-7 w-44 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-lg text-xs text-slate-900 dark:text-slate-50">
+																<SelectTrigger className="h-7 w-44 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-lg text-xs xs:text-sm text-slate-900 dark:text-slate-50">
 																	<SelectValue />
 																</SelectTrigger>
 																<SelectContent side="bottom" avoidCollisions={false} className={selectContentClass}>
@@ -634,9 +651,9 @@ export function InvoiceForm({
 						<div className={dividerClass} />
 
 						{/* ── Totaux ────────────────────────────────────── */}
-						<section className="rounded-xl border border-violet-200 dark:border-violet-400/25 bg-violet-100/60 dark:bg-[#251e4d] p-4 space-y-2 shadow-sm">
+						<section className="rounded-xl border border-violet-200 dark:border-violet-400/25 bg-violet-100/60 dark:bg-[#251e4d] p-3 xs:p-4 space-y-2 shadow-sm">
 							{/* Sous-total HT */}
-							<div className="flex justify-between text-sm">
+							<div className="flex justify-between text-xs xs:text-sm">
 								<span className="text-slate-500 dark:text-violet-200">Sous-total HT</span>
 								<span className="font-medium text-slate-800 dark:text-slate-100">
 									{fmt(totals.subtotal)} €
@@ -644,7 +661,7 @@ export function InvoiceForm({
 							</div>
 
 							{/* Réduction */}
-							<div className="flex items-center justify-between text-sm">
+							<div className="flex items-center justify-between text-xs xs:text-sm">
 								<div className="flex items-center gap-2 flex-wrap">
 									<span className="text-slate-500 dark:text-violet-200">Réduction</span>
 									<Controller
@@ -657,7 +674,7 @@ export function InvoiceForm({
 													field.onChange(v === "none" ? undefined : v)
 												}
 											>
-												<SelectTrigger className="h-7 w-28 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-lg text-xs text-slate-900 dark:text-slate-50">
+												<SelectTrigger className="h-6 w-24 xs:h-7 xs:w-28 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-lg text-xs text-slate-900 dark:text-slate-50">
 													<SelectValue placeholder="Aucune" />
 												</SelectTrigger>
 												<SelectContent side="bottom" avoidCollisions={false} className={selectContentClass}>
@@ -688,7 +705,7 @@ export function InvoiceForm({
 														const v = e.target.value;
 														f.onChange(v === "" ? 0 : Number(v));
 													}}
-													className="h-7 w-20 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-lg text-xs text-slate-900 dark:text-slate-50"
+													className="h-6 w-16 xs:h-7 xs:w-20 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-lg text-xs text-slate-900 dark:text-slate-50"
 												/>
 											)}
 										/>
@@ -701,7 +718,7 @@ export function InvoiceForm({
 
 							{/* Net HT */}
 							{totals.discountAmount > 0 && (
-								<div className="flex justify-between text-sm border-t border-violet-200 dark:border-violet-400/20 pt-2">
+								<div className="flex justify-between text-xs xs:text-sm border-t border-violet-200 dark:border-violet-400/20 pt-2">
 									<span className="text-slate-600 dark:text-violet-200 font-medium">Net HT</span>
 									<span className="font-medium text-slate-800 dark:text-slate-100">
 										{fmt(totals.netHT)} €
@@ -710,7 +727,7 @@ export function InvoiceForm({
 							)}
 
 							{/* TVA */}
-							<div className="flex justify-between items-center text-sm">
+							<div className="flex justify-between items-center text-xs xs:text-sm">
 								<div className="flex items-center gap-2">
 									<span className="text-slate-500 dark:text-violet-200">TVA</span>
 									<Select
@@ -722,7 +739,7 @@ export function InvoiceForm({
 											})
 										}
 									>
-										<SelectTrigger className="h-7 w-20 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-lg text-xs text-slate-900 dark:text-slate-50">
+										<SelectTrigger className="h-6 w-16 xs:h-7 xs:w-20 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-lg text-xs text-slate-900 dark:text-slate-50">
 											<SelectValue />
 										</SelectTrigger>
 										<SelectContent side="bottom" avoidCollisions={false} className={selectContentClass}>
@@ -743,7 +760,7 @@ export function InvoiceForm({
 							<div className="h-px bg-linear-to-r from-transparent via-primary/30 dark:via-violet-300/30 to-transparent" />
 
 							{/* Total TTC */}
-							<div className="flex justify-between text-base font-bold">
+							<div className="flex justify-between text-xs xs:text-sm font-bold">
 								<span className="text-slate-800 dark:text-slate-50">Total TTC</span>
 								<span className="text-violet-600 dark:text-violet-300">{fmt(totals.totalTTC)} €</span>
 							</div>
@@ -751,7 +768,7 @@ export function InvoiceForm({
 							{/* Acompte versé */}
 							<div className="flex items-center justify-between text-sm pt-1">
 								<div className="flex items-center gap-2">
-									<span className="text-slate-500 dark:text-violet-200">Acompte versé</span>
+									<span className="text-slate-500 text-xs xs:text-sm dark:text-violet-200">Acompte versé</span>
 									<Controller
 										name="depositAmount"
 										control={control}
@@ -766,7 +783,7 @@ export function InvoiceForm({
 													const v = e.target.value;
 													f.onChange(v === "" ? 0 : Number(v));
 												}}
-												className="h-7 w-24 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-lg text-xs text-slate-900 dark:text-slate-50"
+												className="h-6 w-20 xs:h-7 xs:w-24 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-lg text-xs text-slate-900 dark:text-slate-50"
 											/>
 										)}
 									/>
@@ -778,10 +795,10 @@ export function InvoiceForm({
 
 							{/* NET À PAYER */}
 							<div className="flex justify-between items-center pt-2 border-t-2 border-violet-300 dark:border-violet-400/40 mt-1">
-								<span className="text-base font-extrabold text-slate-900 dark:text-slate-50 tracking-tight">
+								<span className="text-base font-bold text-slate-900 dark:text-slate-50 tracking-tight">
 									NET À PAYER
 								</span>
-								<span className="text-xl font-extrabold text-violet-700 dark:text-violet-200">
+								<span className="text-xl font-bold text-violet-700 dark:text-violet-200">
 									{fmt(totals.netAPayer)} €
 								</span>
 							</div>
@@ -816,41 +833,48 @@ export function InvoiceForm({
 									id="togglePayments"
 									checked={showPaymentLinks}
 									onCheckedChange={(v) => setShowPaymentLinks(!!v)}
+									className="border-2 border-violet-400 dark:border-violet-400 bg-white dark:bg-[#2a2254] data-[state=checked]:bg-violet-600 data-[state=checked]:border-violet-600 dark:data-[state=checked]:bg-violet-500 dark:data-[state=checked]:border-violet-500 data-[state=checked]:text-white"
 								/>
 								<Label
 									htmlFor="togglePayments"
-									className="flex items-center gap-1.5 cursor-pointer text-slate-700 dark:text-violet-200"
+									className="flex items-center gap-1.5 cursor-pointer text-xs xs:text-sm font-medium text-slate-800 dark:text-slate-200"
 								>
 									<LinkIcon className="size-3.5" />
 									Liens de paiement
 								</Label>
 							</div>
 							{showPaymentLinks && (
-								<div className="space-y-2 pl-6">
-									<div>
-										<Label className="text-xs text-slate-500 dark:text-violet-200">Stripe</Label>
-										<Input
-											placeholder="https://checkout.stripe.com/..."
-											{...register("paymentLinks.stripe")}
-											className={inputClass}
-										/>
-									</div>
-									<div>
-										<Label className="text-xs text-slate-500 dark:text-violet-200">PayPal</Label>
-										<Input
-											placeholder="https://paypal.me/..."
-											{...register("paymentLinks.paypal")}
-											className={inputClass}
-										/>
-									</div>
-									<div>
-										<Label className="text-xs text-slate-500 dark:text-violet-200">GoCardless</Label>
-										<Input
-											placeholder="https://pay.gocardless.com/..."
-											{...register("paymentLinks.gocardless")}
-											className={inputClass}
-										/>
-									</div>
+								<div className="space-y-2">
+									<button
+										type="button"
+										onClick={() => togglePayment("stripe")}
+										className={`w-full flex items-center gap-3 rounded-xl px-4 py-3 transition-all duration-200 cursor-pointer ${activePayments.stripe ? "bg-gradient-to-r from-[#635BFF] to-[#7C3AED] hover:scale-[1.02] hover:shadow-lg hover:shadow-violet-500/30" : "bg-slate-100 dark:bg-slate-800/40 border-2 border-dashed border-slate-300 dark:border-slate-600/50"}`}
+										aria-pressed={activePayments.stripe}
+									>
+										<SiStripe className={`size-5 shrink-0 transition-colors ${activePayments.stripe ? "text-white" : "text-slate-400 dark:text-slate-500"}`} />
+										<span className={`text-xs xs:text-sm font-semibold transition-colors ${activePayments.stripe ? "text-white" : "text-slate-400 dark:text-slate-500"}`}>Payer par carte bancaire</span>
+										{activePayments.stripe && <span className="ml-auto text-[10px] bg-white/20 text-white rounded-full px-2 py-0.5 shrink-0">Actif</span>}
+									</button>
+									<button
+										type="button"
+										onClick={() => togglePayment("paypal")}
+										className={`w-full flex items-center gap-3 rounded-xl px-4 py-3 transition-all duration-200 cursor-pointer ${activePayments.paypal ? "bg-gradient-to-r from-[#003087] to-[#009CDE] hover:scale-[1.02] hover:shadow-lg hover:shadow-blue-500/30" : "bg-slate-100 dark:bg-slate-800/40 border-2 border-dashed border-slate-300 dark:border-slate-600/50"}`}
+										aria-pressed={activePayments.paypal}
+									>
+										<SiPaypal className={`size-5 shrink-0 transition-colors ${activePayments.paypal ? "text-white" : "text-slate-400 dark:text-slate-500"}`} />
+										<span className={`text-xs xs:text-sm font-semibold transition-colors ${activePayments.paypal ? "text-white" : "text-slate-400 dark:text-slate-500"}`}>Payer par PayPal</span>
+										{activePayments.paypal && <span className="ml-auto text-[10px] bg-white/20 text-white rounded-full px-2 py-0.5 shrink-0">Actif</span>}
+									</button>
+									<button
+										type="button"
+										onClick={() => togglePayment("gocardless")}
+										className={`w-full flex items-center gap-3 rounded-xl px-4 py-3 transition-all duration-200 cursor-pointer ${activePayments.gocardless ? "bg-gradient-to-r from-[#0F766E] to-[#059669] hover:scale-[1.02] hover:shadow-lg hover:shadow-teal-500/30" : "bg-slate-100 dark:bg-slate-800/40 border-2 border-dashed border-slate-300 dark:border-slate-600/50"}`}
+										aria-pressed={activePayments.gocardless}
+									>
+										<span className={`flex size-5 items-center justify-center rounded text-[9px] font-bold shrink-0 transition-colors ${activePayments.gocardless ? "bg-white/25 text-white" : "bg-slate-300 dark:bg-slate-600 text-slate-500 dark:text-slate-400"}`}>GC</span>
+										<span className={`text-xs xs:text-sm font-semibold transition-colors ${activePayments.gocardless ? "text-white" : "text-slate-400 dark:text-slate-500"}`}>Prélèvement SEPA</span>
+										{activePayments.gocardless && <span className="ml-auto text-[10px] bg-white/20 text-white rounded-full px-2 py-0.5 shrink-0">Actif</span>}
+									</button>
 								</div>
 							)}
 						</section>

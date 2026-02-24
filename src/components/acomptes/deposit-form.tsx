@@ -9,13 +9,11 @@ import {
   Euro,
   FileText,
   Save,
-  Link as LinkIcon,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -23,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { SiStripe, SiPaypal } from "react-icons/si";
 import { toast } from "sonner";
 import { ClientSearch } from "@/components/factures/client-search";
 import { CompanyInfoModal } from "@/components/factures/company-info-modal";
@@ -56,7 +55,7 @@ interface DepositFormProps {
 // ─── Styles partagés ─────────────────────────────────────────────────────────
 
 const dividerClass = "mx-0 h-px bg-linear-to-r from-transparent via-primary/30 dark:via-violet-300/30 to-transparent";
-const inputClass = "bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-violet-300/50";
+const inputClass = "bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-xs xs:text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-violet-300/50";
 
 // ─── Composant principal ──────────────────────────────────────────────────────
 
@@ -70,6 +69,21 @@ export function DepositForm({
   const [showCompanyModal, setShowCompanyModal] = useState(false);
 
   const { register, handleSubmit, setValue, control, formState: { errors } } = form;
+
+  // Toggles locaux pour les boutons de paiement gradient
+  const [activePayments, setActivePayments] = useState({
+    stripe: form.getValues("paymentLinks.stripe"),
+    paypal: form.getValues("paymentLinks.paypal"),
+    sepa: form.getValues("paymentLinks.sepa"),
+  });
+
+  const togglePayment = useCallback((key: "stripe" | "paypal" | "sepa") => {
+    setActivePayments((prev) => {
+      const next = !prev[key];
+      setValue(`paymentLinks.${key}` as "paymentLinks.stripe" | "paymentLinks.paypal" | "paymentLinks.sepa", next, { shouldDirty: true });
+      return { ...prev, [key]: next };
+    });
+  }, [setValue]);
   // register est utilisé pour date, dueDate, description, notes
 
   // Watch les champs pour la réactivité temps réel
@@ -326,81 +340,68 @@ export function DepositForm({
         <div className={dividerClass} />
 
         {/* ── Liens de paiement ──────────────────────────────────── */}
-        <section className="space-y-4">
-          <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-            <LinkIcon className="size-4 text-violet-600 dark:text-violet-400" />
+        <section className="space-y-3">
+          <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100">
             Liens de paiement
           </h3>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <Controller
-              name="paymentLinks.stripe"
-              control={control}
-              render={({ field }) => (
-                <div className={`flex items-center space-x-2 rounded-lg border-2 p-3 transition-all ${
-                  field.value 
-                    ? 'border-blue-300 bg-blue-50 dark:border-blue-500/30 dark:bg-blue-950/20' 
-                    : 'border-slate-200 dark:border-slate-700 hover:border-blue-200 dark:hover:border-blue-600/30'
-                }`}>
-                  <Checkbox
-                    id="stripe"
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                    className="text-slate-500 dark:text-violet-400"
-                  />
-                  <Label htmlFor="stripe" className="text-sm font-medium cursor-pointer flex items-center gap-2 text-slate-900 dark:text-slate-100">
-                    <div className="w-3 h-3 rounded bg-blue-500 "></div>
-                    Carte bancaire (Stripe)
-                  </Label>
-                </div>
+          <div className="flex flex-wrap gap-2 xs:gap-3">
+            {/* Stripe */}
+            <button
+              type="button"
+              onClick={() => togglePayment("stripe")}
+              className={`flex items-center gap-2 px-3 xs:px-4 py-2 xs:py-2.5 rounded-xl border-2 transition-all duration-300 cursor-pointer text-xs xs:text-sm font-semibold ${
+                activePayments.stripe
+                  ? "border-[#635BFF]/40 bg-gradient-to-r from-[#635BFF]/10 to-[#7C3AED]/10 text-[#635BFF] dark:text-violet-300 shadow-sm"
+                  : "border-dashed border-slate-300 dark:border-violet-400/20 text-slate-400 dark:text-violet-400/50 hover:border-[#635BFF]/40 hover:text-[#635BFF] dark:hover:border-violet-400/40"
+              }`}
+            >
+              <SiStripe className="size-3.5 xs:size-4" />
+              Stripe
+              {activePayments.stripe && (
+                <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-gradient-to-r from-[#635BFF] to-[#7C3AED] text-white">
+                  Actif
+                </span>
               )}
-            />
+            </button>
 
-            <Controller
-              name="paymentLinks.paypal"
-              control={control}
-              render={({ field }) => (
-                <div className={`flex items-center space-x-2 rounded-lg border-2 p-3 transition-all ${
-                  field.value 
-                    ? 'border-yellow-300 bg-yellow-50 dark:border-yellow-500/30 dark:bg-yellow-950/20' 
-                    : 'border-slate-200 dark:border-slate-700 hover:border-yellow-200 dark:hover:border-yellow-600/30'
-                }`}>
-                  <Checkbox
-                    id="paypal"
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                    className="text-slate-500 dark:text-violet-400"
-                  />
-                  <Label htmlFor="paypal" className="text-sm font-medium cursor-pointer flex items-center gap-2 text-slate-900 dark:text-slate-100">
-                    <div className="w-3 h-3 rounded bg-linear-to-r from-blue-500 to-yellow-500"></div>
-                    PayPal
-                  </Label>
-                </div>
+            {/* PayPal */}
+            <button
+              type="button"
+              onClick={() => togglePayment("paypal")}
+              className={`flex items-center gap-2 px-3 xs:px-4 py-2 xs:py-2.5 rounded-xl border-2 transition-all duration-300 cursor-pointer text-xs xs:text-sm font-semibold ${
+                activePayments.paypal
+                  ? "border-[#003087]/30 bg-gradient-to-r from-[#003087]/10 to-[#009CDE]/10 text-[#003087] dark:text-blue-300 shadow-sm"
+                  : "border-dashed border-slate-300 dark:border-violet-400/20 text-slate-400 dark:text-violet-400/50 hover:border-[#003087]/30 hover:text-[#003087] dark:hover:border-blue-400/40"
+              }`}
+            >
+              <SiPaypal className="size-3.5 xs:size-4" />
+              PayPal
+              {activePayments.paypal && (
+                <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-gradient-to-r from-[#003087] to-[#009CDE] text-white">
+                  Actif
+                </span>
               )}
-            />
+            </button>
 
-            <Controller
-              name="paymentLinks.sepa"
-              control={control}
-              render={({ field }) => (
-                <div className={`flex items-center space-x-2 rounded-lg border-2 p-3  transition-all ${
-                  field.value 
-                    ? 'border-emerald-300 bg-emerald-50 dark:border-emerald-500/30 dark:bg-emerald-950/20' 
-                    : 'border-slate-200 dark:border-slate-700 hover:border-emerald-200 dark:hover:border-emerald-600/30'
-                }`}>
-                  <Checkbox
-                    id="sepa"
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                    className="text-slate-500 dark:text-violet-400"
-                  />
-                  <Label htmlFor="sepa" className="text-sm font-medium cursor-pointer flex items-center gap-2 text-slate-900 dark:text-slate-100">
-                    <div className="w-3 h-3 rounded bg-emerald-500"></div>
-                    Prélèvement SEPA (GoCardless)
-                  </Label>
-                </div>
+            {/* GoCardless SEPA */}
+            <button
+              type="button"
+              onClick={() => togglePayment("sepa")}
+              className={`flex items-center gap-2 px-3 xs:px-4 py-2 xs:py-2.5 rounded-xl border-2 transition-all duration-300 cursor-pointer text-xs xs:text-sm font-semibold ${
+                activePayments.sepa
+                  ? "border-[#0F766E]/30 bg-gradient-to-r from-[#0F766E]/10 to-[#059669]/10 text-[#0F766E] dark:text-emerald-300 shadow-sm"
+                  : "border-dashed border-slate-300 dark:border-violet-400/20 text-slate-400 dark:text-violet-400/50 hover:border-[#0F766E]/30 hover:text-[#0F766E] dark:hover:border-emerald-400/40"
+              }`}
+            >
+              <span className="size-3.5 xs:size-4 flex items-center justify-center font-black text-[10px]">GC</span>
+              SEPA
+              {activePayments.sepa && (
+                <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-gradient-to-r from-[#0F766E] to-[#059669] text-white">
+                  Actif
+                </span>
               )}
-            />
+            </button>
           </div>
         </section>
 
