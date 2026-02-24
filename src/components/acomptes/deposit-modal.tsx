@@ -112,7 +112,7 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-lg bg-gradient-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25 shadow-lg dark:shadow-violet-950/40">
+      <DialogContent className="w-[95vw] sm:max-w-lg max-h-[90dvh] overflow-y-auto bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25 shadow-lg dark:shadow-violet-950/40">
         <DialogHeader>
           <DialogTitle className="text-lg font-bold text-slate-900 dark:text-slate-100">
             Nouvel acompte
@@ -170,7 +170,7 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
                   <SelectTrigger className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-gradient-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25">
+                  <SelectContent className="bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25">
                     <SelectItem value="0">0%</SelectItem>
                     <SelectItem value="5.5">5,5%</SelectItem>
                     <SelectItem value="10">10%</SelectItem>
@@ -226,7 +226,7 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
           <Button
             type="submit"
             disabled={createMutation.isPending}
-            className="w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white font-semibold cursor-pointer transition-all duration-300 hover:scale-[1.02]"
+            className="w-full bg-linear-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white font-semibold cursor-pointer transition-all duration-300 hover:scale-[1.02]"
           >
             {createMutation.isPending ? (
               <>

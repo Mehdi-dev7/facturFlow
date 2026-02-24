@@ -1,11 +1,11 @@
 "use client";
 
-import React from "react";
+import { useMemo } from "react";
 import { useWatch, type UseFormReturn } from "react-hook-form";
 import { CheckCircle2, XCircle, Lock } from "lucide-react";
 import type { QuoteFormData, CompanyInfo, InvoiceType } from "@/lib/validations/quote";
 import { INVOICE_TYPE_LABELS, INVOICE_TYPE_CONFIG } from "@/lib/validations/quote";
-import { mockClients } from "@/lib/mock-data/clients";
+import { useClients } from "@/hooks/use-clients";
 import { calcInvoiceTotals } from "@/lib/utils/calculs-facture";
 
 interface QuotePreviewProps {
@@ -16,9 +16,11 @@ interface QuotePreviewProps {
 	acceptUrl?: string;
 	/** URL de refus — disponible uniquement après sauvegarde du devis */
 	refuseUrl?: string;
+	/** Mode compact pour le récapitulatif du stepper */
+	compact?: boolean;
 }
 
-export function QuotePreview({ form, quoteNumber, companyInfo, acceptUrl, refuseUrl }: QuotePreviewProps) {
+export function QuotePreview({ form, quoteNumber, companyInfo, acceptUrl, refuseUrl, compact = false }: QuotePreviewProps) {
 	const clientId      = useWatch({ control: form.control, name: "clientId" });
 	const newClient     = useWatch({ control: form.control, name: "newClient" });
 	const lines         = useWatch({ control: form.control, name: "lines" });
@@ -31,13 +33,35 @@ export function QuotePreview({ form, quoteNumber, companyInfo, acceptUrl, refuse
 	const discountValue = useWatch({ control: form.control, name: "discountValue" }) ?? 0;
 	const depositAmt    = (useWatch({ control: form.control, name: "depositAmount" }) ?? 0) as number;
 
+	// ── Lookup client existant depuis la DB ────────────────────────────────
+	const { data: clients = [] } = useClients();
+	const selectedClient = useMemo(
+		() => clients.find((c) => c.id === clientId),
+		[clients, clientId],
+	);
+
+	// ── Résolution du client ───────────────────────────────────────────────
 	const client = (() => {
+		if (newClient) return {
+			name: newClient.name,
+			email: newClient.email,
+			address: newClient.address,
+			postalCode: null as string | null,
+			city: newClient.city,
+			siret: newClient.siret,
+		};
 		if (clientId && clientId !== "__new__") {
-			const found = mockClients.find((c) => c.id === clientId);
-			if (found) return { name: found.name, email: found.email, city: found.city };
-		}
-		if (newClient) {
-			return { name: newClient.name, email: newClient.email, city: newClient.city };
+			if (selectedClient) {
+				return {
+					name: selectedClient.name,
+					email: selectedClient.email ?? "",
+					address: selectedClient.address ?? "",
+					postalCode: selectedClient.postalCode ?? null,
+					city: selectedClient.city ?? "",
+					siret: selectedClient.siret ?? undefined,
+				};
+			}
+			return { name: "Chargement…", email: "", address: "", postalCode: null as string | null, city: "", siret: undefined };
 		}
 		return null;
 	})();
@@ -55,7 +79,7 @@ export function QuotePreview({ form, quoteNumber, companyInfo, acceptUrl, refuse
 		vatRate: vatRate ?? 20,
 		discountType,
 		discountValue,
-		// depositAmt n'est pas passé : l'acompte est informatif, ne change pas le total
+		// depositAmt n'est pas passé : l'acompte est informatif, ne change pas le total TTC
 	});
 
 	const fmt = (n: number) =>
@@ -63,8 +87,7 @@ export function QuotePreview({ form, quoteNumber, companyInfo, acceptUrl, refuse
 
 	const formatDate = (dateStr: string) => {
 		if (!dateStr) return "—";
-		const d = new Date(dateStr);
-		return d.toLocaleDateString("fr-FR", {
+		return new Date(dateStr).toLocaleDateString("fr-FR", {
 			day: "2-digit",
 			month: "long",
 			year: "numeric",
@@ -78,21 +101,128 @@ export function QuotePreview({ form, quoteNumber, companyInfo, acceptUrl, refuse
 		? safeLines.filter((l) => l.category === "materiel")
 		: [];
 
+	// ── Mode compact (recap stepper) ──────────────────────────────────────
+	if (compact) {
+		return (
+			<div className="space-y-3 text-xs">
+				{/* Infos devis */}
+				<div className="flex items-center justify-between text-[10px] text-slate-400 dark:text-violet-400/70 border-b border-slate-100 dark:border-violet-500/20 pb-2">
+					<span className="font-semibold text-emerald-600 dark:text-emerald-400">{quoteNumber}</span>
+					<span>{formatDate(date)} · val. {formatDate(validUntil)}</span>
+				</div>
+
+				{/* Émetteur */}
+				<div>
+					<p className="text-[10px] uppercase tracking-wider text-slate-400 dark:text-violet-400/60 mb-0.5 font-semibold">Émetteur</p>
+					{companyInfo ? (
+						<div className="text-xs space-y-0.5 text-slate-700 dark:text-slate-300">
+							<p className="font-semibold">{companyInfo.name}</p>
+							{companyInfo.address && <p className="text-slate-500 dark:text-slate-400 text-[10px]">{companyInfo.address}</p>}
+							{(companyInfo.zipCode || companyInfo.city) && (
+								<p className="text-slate-500 dark:text-slate-400 text-[10px]">
+									{[companyInfo.zipCode, companyInfo.city].filter(Boolean).join(" ")}
+								</p>
+							)}
+							<p className="text-slate-500 dark:text-slate-400">{companyInfo.email}</p>
+						</div>
+					) : (
+						<p className="text-xs text-slate-400 italic">Non renseigné</p>
+					)}
+				</div>
+
+				{/* Destinataire */}
+				<div>
+					<p className="text-[10px] uppercase tracking-wider text-slate-400 dark:text-violet-400/60 mb-0.5 font-semibold">Destinataire</p>
+					{client ? (
+						<div className="text-xs space-y-0.5 text-slate-700 dark:text-slate-300">
+							<p className="font-semibold">{client.name}</p>
+							{client.address && <p className="text-slate-500 dark:text-slate-400 text-[10px]">{client.address}</p>}
+							{(client.postalCode || client.city) && (
+								<p className="text-slate-500 dark:text-slate-400 text-[10px]">
+									{[client.postalCode, client.city].filter(Boolean).join(" ")}
+								</p>
+							)}
+							{client.email && <p className="text-slate-500 dark:text-slate-400">{client.email}</p>}
+						</div>
+					) : (
+						<p className="text-xs text-slate-400 italic">Aucun client sélectionné</p>
+					)}
+				</div>
+
+				<div className="h-px bg-slate-100 dark:bg-violet-500/20" />
+
+				{/* Lignes */}
+				<div className="space-y-1">
+					{safeLines.length === 0 ? (
+						<p className="text-xs text-slate-400 italic">Aucune ligne</p>
+					) : safeLines.map((line, i) => {
+						const qty = isForfait ? 1 : (line.quantity || 0);
+						const ht = qty * (line.unitPrice || 0);
+						return (
+							<div key={i} className="flex justify-between gap-2">
+								<span className="text-slate-700 dark:text-slate-300 truncate flex-1">
+									{line.description || <span className="italic text-slate-300">Ligne {i + 1}</span>}
+								</span>
+								<span className="text-slate-500 dark:text-slate-400 shrink-0">{fmt(ht)} €</span>
+							</div>
+						);
+					})}
+				</div>
+
+				<div className="h-px bg-slate-100 dark:bg-violet-500/20" />
+
+				{/* Totaux */}
+				<div className="space-y-1">
+					<div className="flex justify-between text-slate-500 dark:text-slate-400">
+						<span>Sous-total HT</span>
+						<span>{fmt(totals.subtotal)} €</span>
+					</div>
+					{totals.discountAmount > 0 && (
+						<div className="flex justify-between text-rose-500">
+							<span>Réduction</span>
+							<span>−{fmt(totals.discountAmount)} €</span>
+						</div>
+					)}
+					<div className="flex justify-between text-slate-500 dark:text-slate-400">
+						<span>TVA ({vatRate ?? 0}%)</span>
+						<span>{fmt(totals.taxTotal)} €</span>
+					</div>
+					<div className="flex justify-between font-bold text-slate-800 dark:text-slate-100 pt-1 border-t border-slate-200 dark:border-violet-500/20">
+						<span>Total TTC</span>
+						<span className="text-emerald-600 dark:text-emerald-400">{fmt(totals.totalTTC)} €</span>
+					</div>
+					{depositAmt > 0 && (
+						<div className="flex justify-between text-emerald-600 dark:text-emerald-400 pt-1 border-t border-slate-100 dark:border-violet-500/20">
+							<span className="font-medium">Acompte à verser</span>
+							<span className="font-bold">{fmt(depositAmt)} €</span>
+						</div>
+					)}
+				</div>
+
+				{/* Notes */}
+				{notes && (
+					<p className="text-[10px] text-slate-500 dark:text-slate-400 italic border-t border-slate-100 dark:border-violet-500/20 pt-2">{notes}</p>
+				)}
+			</div>
+		);
+	}
+
+	// ── Mode normal (desktop preview A4) ──────────────────────────────────
 	return (
 		<div className="bg-white rounded-2xl border border-slate-300/80 shadow-lg shadow-slate-200/50 overflow-hidden">
-			{/* Header band — vert émeraude pour différencier du devis */}
+			{/* Header band — vert émeraude pour différencier de la facture */}
 			<div className="bg-linear-to-r from-emerald-600 to-teal-600 px-6 py-5 text-white">
 				<div className="flex items-start justify-between">
 					<div>
 						<h2 className="text-lg font-bold tracking-tight font-heading">DEVIS</h2>
-						<p className="text-emerald-200 text-sm mt-0.5">{quoteNumber}</p>
+						<p className="text-emerald-200 text-xs 2xl:text-sm mt-0.5">{quoteNumber}</p>
 						{quoteType !== "basic" && (
 							<span className="inline-block mt-1.5 text-[10px] bg-white/20 px-2 py-0.5 rounded-full font-medium tracking-wide">
 								{INVOICE_TYPE_LABELS[quoteType]}
 							</span>
 						)}
 					</div>
-					<div className="text-right text-sm">
+					<div className="text-right text-xs 2xl:text-sm">
 						<p>Date : {formatDate(date)}</p>
 						<p>Validité : {formatDate(validUntil)}</p>
 					</div>
@@ -107,11 +237,17 @@ export function QuotePreview({ form, quoteNumber, companyInfo, acceptUrl, refuse
 							Émetteur
 						</p>
 						{companyInfo ? (
-							<div className="text-sm space-y-0.5">
+							<div className="text-xs space-y-0.5">
 								<p className="font-semibold text-slate-800">{companyInfo.name}</p>
-								<p className="text-slate-500">{companyInfo.address}, {companyInfo.city}</p>
-								<p className="text-slate-500">SIRET : {companyInfo.siret}</p>
+								{companyInfo.address && <p className="text-slate-500 text-[11px]">{companyInfo.address}</p>}
+						{(companyInfo.zipCode || companyInfo.city) && (
+							<p className="text-slate-500 text-[11px]">
+								{[companyInfo.zipCode, companyInfo.city].filter(Boolean).join(" ")}
+							</p>
+						)}
+								<p className="text-slate-500 text-[11px]">SIRET : {companyInfo.siret}</p>
 								<p className="text-slate-500">{companyInfo.email}</p>
+								{companyInfo.phone && <p className="text-slate-500 text-[11px]">{companyInfo.phone}</p>}
 							</div>
 						) : (
 							<p className="text-xs text-slate-400 italic">Non renseigné</p>
@@ -122,10 +258,14 @@ export function QuotePreview({ form, quoteNumber, companyInfo, acceptUrl, refuse
 							Destinataire
 						</p>
 						{client ? (
-							<div className="text-sm space-y-0.5">
+							<div className="text-xs space-y-0.5">
 								<p className="font-semibold text-slate-800">{client.name}</p>
-								<p className="text-slate-500">{client.email}</p>
-								<p className="text-slate-500">{client.city}</p>
+								{client.address && <p className="text-slate-500 text-[11px]">{client.address}</p>}
+								{(client.postalCode || client.city) && (
+									<p className="text-slate-500 text-[11px]">{[client.postalCode, client.city].filter(Boolean).join(" ")}</p>
+								)}
+								{client.siret && <p className="text-slate-500 text-[11px]">SIRET : {client.siret}</p>}
+								{client.email && <p className="text-slate-500">{client.email}</p>}
 							</div>
 						) : (
 							<p className="text-xs text-slate-400 italic">Aucun client sélectionné</p>
@@ -168,13 +308,11 @@ export function QuotePreview({ form, quoteNumber, companyInfo, acceptUrl, refuse
 				{/* Totaux */}
 				<div className="flex justify-end">
 					<div className="w-64 space-y-1.5">
-						{/* Sous-total HT */}
 						<div className="flex justify-between text-sm">
 							<span className="text-slate-500">Sous-total HT</span>
 							<span className="text-slate-800 font-medium">{fmt(totals.subtotal)} €</span>
 						</div>
 
-						{/* Réduction */}
 						{totals.discountAmount > 0 && (
 							<>
 								<div className="flex justify-between text-sm">
@@ -191,7 +329,6 @@ export function QuotePreview({ form, quoteNumber, companyInfo, acceptUrl, refuse
 							</>
 						)}
 
-						{/* TVA */}
 						<div className="flex justify-between text-sm">
 							<span className="text-slate-500">TVA ({vatRate ?? 0}%)</span>
 							<span className="text-slate-800 font-medium">{fmt(totals.taxTotal)} €</span>
@@ -199,7 +336,6 @@ export function QuotePreview({ form, quoteNumber, companyInfo, acceptUrl, refuse
 
 						<div className="h-px bg-slate-200 my-1" />
 
-						{/* Total TTC */}
 						<div className="flex justify-between text-base font-bold">
 							<span className="text-slate-900">Total TTC</span>
 							<span className="text-emerald-600">{fmt(totals.totalTTC)} €</span>
@@ -228,23 +364,23 @@ export function QuotePreview({ form, quoteNumber, companyInfo, acceptUrl, refuse
 				)}
 
 				{/* Acompte à verser — callout informatif */}
-			{depositAmt > 0 && (
-				<div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 flex items-center justify-between gap-3">
-					<div>
-						<p className="text-xs font-semibold text-emerald-800 uppercase tracking-wide">
-							Acompte à verser
-						</p>
-						<p className="text-[11px] text-emerald-600 mt-0.5">
-							À régler avant le démarrage du projet
-						</p>
+				{depositAmt > 0 && (
+					<div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 flex items-center justify-between gap-3">
+						<div>
+							<p className="text-xs font-semibold text-emerald-800 uppercase tracking-wide">
+								Acompte à verser
+							</p>
+							<p className="text-[11px] text-emerald-600 mt-0.5">
+								À régler avant le démarrage du projet
+							</p>
+						</div>
+						<span className="text-base font-bold text-emerald-700 shrink-0">
+							{fmt(depositAmt)} €
+						</span>
 					</div>
-					<span className="text-base font-bold text-emerald-700 shrink-0">
-						{fmt(depositAmt)} €
-					</span>
-				</div>
-			)}
+				)}
 
-			{/* Actions accepter / refuser */}
+				{/* Actions accepter / refuser */}
 				{acceptUrl && refuseUrl ? (
 					<div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
 						<p className="text-xs text-slate-500 text-center mb-3 font-medium">

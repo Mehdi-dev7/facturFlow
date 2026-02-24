@@ -30,6 +30,7 @@ export const companyInfoSchema = z.object({
 	name: z.string().min(2, "Le nom de l'entreprise est requis"),
 	siret: z.string().min(14, "Le SIRET doit contenir 14 chiffres").max(14),
 	address: z.string().min(5, "L'adresse est requise"),
+	zipCode: z.string().optional(),
 	city: z.string().min(2, "La ville est requise"),
 	email: z.string().email("Email invalide"),
 	phone: z.string().optional(),

@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Printer, Download, Send, Copy, Pencil, X, Trash2 } from "lucide-react";
+import { Printer, Download, Send, Pencil, X, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useDuplicateQuote, useDeleteQuote } from "@/hooks/use-quotes";
@@ -39,7 +39,7 @@ function fmt(n: number) {
 }
 
 function formatDate(dateStr: string | null) {
-  if (!dateStr) return "\u2014";
+  if (!dateStr) return "—";
   return new Date(dateStr).toLocaleDateString("fr-FR", {
     day: "2-digit",
     month: "long",
@@ -283,14 +283,14 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
         {isArtisan ? (
           <div className="space-y-4">
             <StaticLinesTable
-              title="Main d'\u0153uvre"
+              title="Main d'œuvre"
               lines={mainOeuvreLines}
               isForfait={false}
               typeConfig={typeConfig}
             />
             {materiauLines.length > 0 && (
               <StaticLinesTable
-                title="Mat\u00E9riaux"
+                title="Matériaux"
                 lines={materiauLines}
                 isForfait={false}
                 typeConfig={typeConfig}

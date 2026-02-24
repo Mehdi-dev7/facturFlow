@@ -286,13 +286,20 @@ export function InvoiceForm({
 								</Button>
 							</div>
 							{companyInfo ? (
-								<div className="rounded-xl border border-violet-200 dark:border-violet-400/25 bg-violet-100/60 dark:bg-[#251e4d] p-2.5 xs:p-3.5 text-[10px] xs:text-xs md:text-sm shadow-sm">
-									<p className="font-semibold text-slate-800 dark:text-slate-100 truncate">{companyInfo.name}</p>
-									<p className="text-slate-500 dark:text-violet-300/80 mt-0.5">SIRET : {companyInfo.siret}</p>
-									<p className="text-slate-500 dark:text-violet-300/80">
-										{companyInfo.address}, {companyInfo.city}
+								<div className="rounded-xl border border-violet-200 dark:border-violet-400/25 bg-violet-100/60 dark:bg-[#251e4d] p-2.5 xs:p-3.5 text-[10px] xs:text-xs 2xl:text-sm shadow-sm">
+									<p className="font-semibold text-slate-800 dark:text-slate-100 truncate">
+										{companyInfo.name}
 									</p>
-									<p className="text-slate-500 dark:text-violet-300/80">
+									<p className="text-slate-500 text-[10px] xs:text-xs dark:text-violet-300/80 mt-0.5">
+										SIRET : {companyInfo.siret}
+									</p>
+									<p className="text-slate-500 text-[10px] xs:text-xs dark:text-violet-300/80">
+										{companyInfo.address}
+									</p>
+									<p className="text-slate-500 dark:text-violet-300/80 text-[10px] xs:text-xs">
+										{companyInfo.zipCode} {companyInfo.city}
+									</p>
+									<p className="text-slate-500 text-[10px] xs:text-xs dark:text-violet-300/80">
 										{companyInfo.email}
 										{companyInfo.phone ? ` — ${companyInfo.phone}` : ""}
 									</p>
