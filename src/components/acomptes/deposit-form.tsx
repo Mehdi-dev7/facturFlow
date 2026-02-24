@@ -352,14 +352,14 @@ export function DepositForm({
               onClick={() => togglePayment("stripe")}
               className={`flex items-center gap-2 px-3 xs:px-4 py-2 xs:py-2.5 rounded-xl border-2 transition-all duration-300 cursor-pointer text-xs xs:text-sm font-semibold ${
                 activePayments.stripe
-                  ? "border-[#635BFF]/40 bg-gradient-to-r from-[#635BFF]/10 to-[#7C3AED]/10 text-[#635BFF] dark:text-violet-300 shadow-sm"
+                  ? "border-[#635BFF]/40 bg-linear-to-r from-[#635BFF]/10 to-[#7C3AED]/10 text-[#635BFF] dark:text-violet-300 shadow-sm"
                   : "border-dashed border-slate-300 dark:border-violet-400/20 text-slate-400 dark:text-violet-400/50 hover:border-[#635BFF]/40 hover:text-[#635BFF] dark:hover:border-violet-400/40"
               }`}
             >
               <SiStripe className="size-3.5 xs:size-4" />
               Stripe
               {activePayments.stripe && (
-                <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-gradient-to-r from-[#635BFF] to-[#7C3AED] text-white">
+                <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-linear-to-r from-[#635BFF] to-[#7C3AED] text-white">
                   Actif
                 </span>
               )}
@@ -371,14 +371,14 @@ export function DepositForm({
               onClick={() => togglePayment("paypal")}
               className={`flex items-center gap-2 px-3 xs:px-4 py-2 xs:py-2.5 rounded-xl border-2 transition-all duration-300 cursor-pointer text-xs xs:text-sm font-semibold ${
                 activePayments.paypal
-                  ? "border-[#003087]/30 bg-gradient-to-r from-[#003087]/10 to-[#009CDE]/10 text-[#003087] dark:text-blue-300 shadow-sm"
+                  ? "border-[#003087]/30 bg-linear-to-r from-[#003087]/10 to-[#009CDE]/10 text-[#003087] dark:text-blue-300 shadow-sm"
                   : "border-dashed border-slate-300 dark:border-violet-400/20 text-slate-400 dark:text-violet-400/50 hover:border-[#003087]/30 hover:text-[#003087] dark:hover:border-blue-400/40"
               }`}
             >
               <SiPaypal className="size-3.5 xs:size-4" />
               PayPal
               {activePayments.paypal && (
-                <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-gradient-to-r from-[#003087] to-[#009CDE] text-white">
+                <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-linear-to-r from-[#003087] to-[#009CDE] text-white">
                   Actif
                 </span>
               )}
@@ -390,14 +390,14 @@ export function DepositForm({
               onClick={() => togglePayment("sepa")}
               className={`flex items-center gap-2 px-3 xs:px-4 py-2 xs:py-2.5 rounded-xl border-2 transition-all duration-300 cursor-pointer text-xs xs:text-sm font-semibold ${
                 activePayments.sepa
-                  ? "border-[#0F766E]/30 bg-gradient-to-r from-[#0F766E]/10 to-[#059669]/10 text-[#0F766E] dark:text-emerald-300 shadow-sm"
+                  ? "border-[#0F766E]/30 bg-linear-to-r from-[#0F766E]/10 to-[#059669]/10 text-[#0F766E] dark:text-emerald-300 shadow-sm"
                   : "border-dashed border-slate-300 dark:border-violet-400/20 text-slate-400 dark:text-violet-400/50 hover:border-[#0F766E]/30 hover:text-[#0F766E] dark:hover:border-emerald-400/40"
               }`}
             >
               <span className="size-3.5 xs:size-4 flex items-center justify-center font-black text-[10px]">GC</span>
               SEPA
               {activePayments.sepa && (
-                <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-gradient-to-r from-[#0F766E] to-[#059669] text-white">
+                <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-linear-to-r from-[#0F766E] to-[#059669] text-white">
                   Actif
                 </span>
               )}

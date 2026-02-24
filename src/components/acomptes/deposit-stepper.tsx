@@ -127,7 +127,7 @@ export function DepositStepper({
         </div>
         <div className="h-1 bg-slate-200 dark:bg-violet-950/40 rounded-full overflow-hidden">
           <div
-            className="h-full bg-gradient-to-r from-violet-600 to-purple-600 rounded-full transition-all duration-500 ease-out"
+            className="h-full bg-linear-to-r from-violet-600 to-purple-600 rounded-full transition-all duration-500 ease-out"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -202,7 +202,7 @@ export function DepositStepper({
           </SheetTrigger>
           <SheetContent
             side="bottom"
-            className="h-[80vh] overflow-y-auto bg-gradient-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48]"
+            className="h-[80vh] overflow-y-auto bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48]"
           >
             <SheetHeader>
               <SheetTitle className="text-slate-900 dark:text-slate-100">
