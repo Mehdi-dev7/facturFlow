@@ -67,33 +67,34 @@ interface StaticLinesTableProps {
   lines: SavedInvoice["lineItems"];
   isForfait: boolean;
   typeConfig: { descriptionLabel: string; quantityLabel: string | null; priceLabel: string };
+  themeColor: string;
 }
 
-function StaticLinesTable({ title, lines, isForfait, typeConfig }: StaticLinesTableProps) {
+function StaticLinesTable({ title, lines, isForfait, typeConfig, themeColor }: StaticLinesTableProps) {
   return (
     <div>
       {title && (
-        <h3 className="font-semibold mb-3 text-xs uppercase tracking-wide text-violet-600 dark:text-violet-400">
+        <h3 className="font-semibold mb-3 text-xs uppercase tracking-wide" style={{ color: themeColor }}>
           {title}
         </h3>
       )}
       <div className="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
         <table className="w-full">
-          <thead className="bg-linear-to-r from-violet-50 to-purple-50 dark:from-violet-950/50 dark:to-purple-950/50">
+          <thead style={{ backgroundColor: themeColor + "1a" }}>
             <tr>
-              <th className="text-left p-2 lg:p-3 text-xs font-medium text-violet-700 dark:text-violet-300 uppercase tracking-wide">
+              <th className="text-left p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: themeColor }}>
                 {typeConfig.descriptionLabel}
               </th>
               {!isForfait && (
-                <th className="text-right p-2 lg:p-3 text-xs font-medium text-violet-700 dark:text-violet-300 uppercase tracking-wide">
+                <th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: themeColor }}>
                   {typeConfig.quantityLabel}
                 </th>
               )}
-              <th className="text-right p-2 lg:p-3 text-xs font-medium text-violet-700 dark:text-violet-300 uppercase tracking-wide">
+              <th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: themeColor }}>
                 {isForfait ? "Montant" : "Prix unit."}
               </th>
               {!isForfait && (
-                <th className="text-right p-2 lg:p-3 text-xs font-medium text-violet-700 dark:text-violet-300 uppercase tracking-wide">
+                <th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: themeColor }}>
                   Total HT
                 </th>
               )}
@@ -114,7 +115,7 @@ function StaticLinesTable({ title, lines, isForfait, typeConfig }: StaticLinesTa
                   {fmt(line.unitPrice)} €
                 </td>
                 {!isForfait && (
-                  <td className="p-2 lg:p-3 text-xs lg:text-sm text-right font-medium text-violet-600 dark:text-violet-400">
+                  <td className="p-2 lg:p-3 text-xs lg:text-sm text-right font-medium" style={{ color: themeColor }}>
                     {fmt(line.subtotal)} €
                   </td>
                 )}
@@ -191,40 +192,50 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
     ? sortedLines.filter((l) => l.category === "materiel")
     : [];
 
+  // Couleur thème dynamique
+  const themeColor = invoice.user.themeColor ?? "#7c3aed";
+  const logo = invoice.user.companyLogo;
+  const displayName = emitter.companyName ?? "";
+
   return (
     <div className="bg-white dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 p-2 xs:p-3 md:p-5 space-y-6 shadow-sm">
-      {/* En-tête du document avec bandeau coloré */}
-      <div className="bg-linear-to-r from-violet-600 to-indigo-600 dark:from-violet-500 dark:to-indigo-500 rounded-lg p-4 text-white mb-6">
-        <div className="flex justify-between items-start">
-          <div>
-            <h1 className="text-lg md:text-xl font-bold mb-1">
-              FACTURE
-            </h1>
-            <p className="text-white/90 text-xs md:text-sm">
-              N° {invoice.number}
-            </p>
-          </div>
-          <div className="text-right text-xs md:text-sm">
-            <p className="text-white/90">
-              Date : {formatDate(invoice.date)}
-            </p>
-            <p className="text-white/90 ">
-              Échéance : {formatDate(invoice.dueDate)}
-            </p>
-          </div>
-        </div>
+      {/* En-tête 3 colonnes : type+N° | logo+nom centré | dates à droite */}
+      <div className="rounded-lg p-4 text-white mb-6" style={{ backgroundColor: themeColor }}>
+        <div className="flex items-start gap-4">
+          {/* Gauche : FACTURE + N° */}
+          <div className="flex-1">
+            <h1 className="text-lg md:text-xl font-bold mb-1">FACTURE</h1>
+            <p className="text-white/90 text-xs md:text-sm">N° {invoice.number}</p>
             {invoiceType !== "basic" && (
               <span className="inline-block mt-1.5 text-[10px] bg-white/20 px-2 py-0.5 rounded-full font-medium tracking-wide">
                 {INVOICE_TYPE_LABELS[invoiceType]}
               </span>
             )}
+          </div>
+          {/* Centre : logo circulaire + nom entreprise */}
+          <div className="flex-1 flex flex-col items-center gap-1.5">
+            {logo && (
+              <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-white/30 shrink-0">
+                <img src={logo} alt="Logo" className="w-full h-full object-cover" />
+              </div>
+            )}
+            {displayName && (
+              <p className="text-white/90 text-xs text-center font-medium">{displayName}</p>
+            )}
+          </div>
+          {/* Droite : dates */}
+          <div className="flex-1 flex flex-col items-end text-right text-xs md:text-sm">
+            <p className="text-white/90">Date : {formatDate(invoice.date)}</p>
+            <p className="text-white/90">Échéance : {formatDate(invoice.dueDate)}</p>
+          </div>
+        </div>
       </div>
 
       {/* Émetteur et destinataire */}
       <div className="grid grid-cols-2 gap-6">
         {/* Émetteur */}
         <div>
-          <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide text-violet-600 dark:text-violet-400">
+          <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: themeColor }}>
             Émetteur
           </h3>
           {emitter.companyName ? (
@@ -262,7 +273,7 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
 
         {/* Destinataire */}
         <div>
-          <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide text-violet-600 dark:text-violet-400">
+          <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: themeColor }}>
             Destinataire
           </h3>
           <div className="text-sm space-y-0.5">
@@ -303,6 +314,7 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
               lines={mainOeuvreLines}
               isForfait={false}
               typeConfig={typeConfig}
+              themeColor={themeColor}
             />
             {materiauLines.length > 0 && (
               <StaticLinesTable
@@ -310,6 +322,7 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
                 lines={materiauLines}
                 isForfait={false}
                 typeConfig={typeConfig}
+                themeColor={themeColor}
               />
             )}
           </div>
@@ -319,51 +332,64 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
             lines={sortedLines}
             isForfait={isForfait}
             typeConfig={typeConfig}
+            themeColor={themeColor}
           />
         )}
       </div>
       <div className="h-px bg-slate-200 dark:bg-slate-700 mt-2 mb-5" />
       {/* Récapitulatif */}
       <div className="flex justify-end">
-        <div className="w-64 space-y-2 bg-linear-to-br from-violet-50 to-purple-50 dark:from-violet-950/50 dark:to-purple-950/50 rounded-lg p-3 border border-violet-200/50 dark:border-violet-500/20">
+        <div
+          className="w-64 space-y-2 rounded-lg p-3 border"
+          style={{ backgroundColor: themeColor + "0d", borderColor: themeColor + "33" }}
+        >
           {/* Sous-total HT */}
           <div className="flex justify-between text-sm">
-            <span className="text-violet-700 dark:text-violet-300 ">Sous-total HT :</span>
+            <span style={{ color: themeColor }}>Sous-total HT :</span>
             <span className="text-slate-900 dark:text-slate-50 font-medium">{fmt(invoice.subtotal)} €</span>
           </div>
 
           {/* Réduction */}
           {discount > 0 && (
             <div className="flex justify-between text-sm">
-              <span className="text-violet-700 dark:text-violet-300">Réduction :</span>
+              <span style={{ color: themeColor }}>Réduction :</span>
               <span className="text-rose-600 font-medium">−{fmt(discount)} €</span>
             </div>
           )}
 
           {/* TVA */}
           <div className="flex justify-between text-sm">
-            <span className="text-violet-700 dark:text-violet-300">TVA ({vatRate}%) :</span>
+            <span style={{ color: themeColor }}>TVA ({vatRate}%) :</span>
             <span className="text-slate-900 dark:text-slate-50 font-medium">{fmt(invoice.taxTotal)} €</span>
           </div>
 
           {/* Total TTC */}
-          <div className="flex justify-between  font-bold border-t border-violet-200 dark:border-violet-500/30 pt-2">
+          <div
+            className="flex justify-between font-bold pt-2"
+            style={{ borderTop: `1px solid ${themeColor}33` }}
+          >
             <span className="text-slate-900 dark:text-slate-50 text-sm sm:text-base">Total TTC :</span>
-            <span className="text-violet-600 dark:text-violet-400 text-sm lg:text-base">{fmt(invoice.total)} €</span>
+            <span className="text-sm lg:text-base" style={{ color: themeColor }}>{fmt(invoice.total)} €</span>
           </div>
 
           {/* Acompte + NET À PAYER */}
           {deposit > 0 && (
             <>
-              <div className="flex justify-between text-sm border-t border-violet-200 dark:border-violet-500/30 pt-2">
-                <span className="text-violet-700 dark:text-violet-300 text-sm lg:text-md">Acompte versé :</span>
+              <div
+                className="flex justify-between text-sm pt-2"
+                style={{ borderTop: `1px solid ${themeColor}33` }}
+              >
+                <span className="text-sm lg:text-md" style={{ color: themeColor }}>Acompte versé :</span>
                 <span className="text-rose-600 font-medium text-sm lg:text-md">−{fmt(deposit)} €</span>
               </div>
-              <div className="flex justify-between items-center pt-2 border-t-2 border-violet-300 dark:border-violet-500 mt-1">
+              <div
+                className="flex justify-between items-center pt-2 mt-1"
+                style={{ borderTop: `2px solid ${themeColor}66` }}
+              >
                 <span className="text-base lg:text-lg font-bold text-slate-900 dark:text-slate-50 tracking-tight">
                   NET À PAYER
                 </span>
-                <span className="text-base lg:text-lg font-bold text-violet-700 dark:text-violet-400">
+                <span className="text-base lg:text-lg font-bold" style={{ color: themeColor }}>
                   {fmt(netAPayer)} €
                 </span>
               </div>
@@ -375,7 +401,7 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
       {/* Notes */}
       {invoice.notes && invoice.notes.trim() && (
         <div>
-          <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide text-violet-600 dark:text-violet-400">
+          <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: themeColor }}>
             Notes
           </h3>
           <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3">
@@ -388,7 +414,7 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
 
       {/* Liens de paiement */}
       <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
-        <h3 className="font-semibold mb-3 text-xs uppercase tracking-wide text-violet-600 dark:text-violet-400">
+        <h3 className="font-semibold mb-3 text-xs uppercase tracking-wide" style={{ color: themeColor }}>
           Modalités de paiement
         </h3>
         <div className="space-y-2 text-xs md:text-sm text-slate-600 dark:text-slate-400">

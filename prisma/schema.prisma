@@ -112,6 +112,10 @@ model User {
   iban String?
   bic  String?
 
+  // Appearance
+  themeColor   String?  // hex ex: "#7c3aed"
+  companyFont  String?  // id: "inter" | "playfair" | "script" | "orbitron" | "bebas"
+
   // Settings
   currency String @default("EUR")
   locale   String @default("fr-FR")

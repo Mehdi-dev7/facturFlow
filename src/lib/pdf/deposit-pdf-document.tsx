@@ -7,6 +7,7 @@ import {
   Text,
   View,
   StyleSheet,
+  Image,
 } from "@react-pdf/renderer";
 import type { SavedDeposit } from "@/lib/types/deposits";
 
@@ -34,7 +35,16 @@ function getClientName(client: SavedDeposit["client"]) {
   return parts.join(" ") || client.email;
 }
 
-// ─── Styles PDF ───────────────────────────────────────────────────────────────
+/** Convertit hex 6 chiffres + alpha 0-1 en rgba() pour react-pdf */
+function hexToRgba(hex: string, alpha: number): string {
+  const h = hex.replace("#", "");
+  const r = parseInt(h.substring(0, 2), 16);
+  const g = parseInt(h.substring(2, 4), 16);
+  const b = parseInt(h.substring(4, 6), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+// ─── Styles PDF statiques ────────────────────────────────────────────────────
 
 const S = StyleSheet.create({
   page: {
@@ -44,118 +54,82 @@ const S = StyleSheet.create({
     paddingBottom: 50,
     color: "#1e293b",
   },
-  header: {
-    backgroundColor: "#7c3aed", // Couleur violette pour les acomptes
-    padding: 20,
-    marginBottom: 30,
-    borderRadius: 8,
-  },
+  // ── Header ────
+  headerBox: { padding: 20, marginBottom: 24, borderRadius: 8 },
+  headerRow: { flexDirection: "row", alignItems: "flex-start" },
+  headerLeft: { flex: 1 },
   headerTitle: {
-    fontSize: 24,
-    fontWeight: "bold",
+    fontSize: 22,
+    fontFamily: "Helvetica-Bold",
     color: "#ffffff",
-    marginBottom: 5,
+    marginBottom: 4,
   },
-  headerSubtitle: {
-    fontSize: 12,
-    color: "#e9d5ff",
+  headerNumber: { fontSize: 12, color: "#ffffffcc" },
+  headerCenter: { flex: 1, flexDirection: "column", alignItems: "center", gap: 4 },
+  headerLogoWrapper: { width: 48, height: 48, borderRadius: 24, overflow: "hidden" },
+  headerLogo: { width: 48, height: 48 },
+  headerCompanyName: { fontSize: 9, color: "#ffffffcc", textAlign: "center" },
+  headerRight: { flex: 1, flexDirection: "column", alignItems: "flex-end" },
+  headerDateLabel: { fontSize: 9, color: "#ffffffbb", marginBottom: 2 },
+  headerDateValue: {
+    fontSize: 10,
+    color: "#ffffff",
+    fontFamily: "Helvetica-Bold",
+    marginBottom: 6,
+    textAlign: "right",
   },
-  section: {
-    marginBottom: 20,
-  },
-  row: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 15,
-  },
-  col: {
-    flex: 1,
-  },
-  colRight: {
-    flex: 1,
-    alignItems: "flex-end",
-  },
+  // ── Parties ───
+  partiesRow: { flexDirection: "row", gap: 16, marginBottom: 20 },
+  partyBlock: { flex: 1 },
   sectionTitle: {
-    fontSize: 12,
-    fontWeight: "bold",
-    color: "#7c3aed",
-    marginBottom: 8,
+    fontSize: 9,
+    fontFamily: "Helvetica-Bold",
     textTransform: "uppercase",
     letterSpacing: 0.5,
+    marginBottom: 6,
   },
-  text: {
-    fontSize: 10,
-    lineHeight: 1.4,
-    marginBottom: 2,
-  },
-  textBold: {
-    fontSize: 10,
-    fontWeight: "bold",
-    marginBottom: 2,
-  },
-  textMuted: {
-    fontSize: 9,
-    color: "#64748b",
-  },
-  depositSection: {
-    marginTop: 20,
-    marginBottom: 20,
-    padding: 20,
+  text: { fontSize: 10, lineHeight: 1.4, marginBottom: 2 },
+  textBold: { fontSize: 10, fontFamily: "Helvetica-Bold", marginBottom: 2 },
+  textMuted: { fontSize: 9, color: "#64748b" },
+  // ── Détail acompte ──
+  depositBox: {
+    marginBottom: 16,
+    padding: 16,
     backgroundColor: "#f8fafc",
-    borderRadius: 8,
+    borderRadius: 6,
     border: "1px solid #e2e8f0",
   },
-  depositTitle: {
-    fontSize: 14,
-    fontWeight: "bold",
-    color: "#7c3aed",
-    marginBottom: 10,
-  },
+  depositTitle: { fontSize: 11, fontFamily: "Helvetica-Bold", marginBottom: 8 },
   depositDescription: {
-    fontSize: 12,
+    fontSize: 10,
     lineHeight: 1.5,
-    marginBottom: 15,
     color: "#374151",
+    marginBottom: 12,
   },
-  totalsSection: {
-    marginTop: 20,
-    alignItems: "flex-end",
-  },
-  totalRow: {
+  // ── Totaux ────
+  totalsSection: { alignItems: "flex-end", marginBottom: 4 },
+  totalBox: { width: 220, padding: 12, borderRadius: 6 },
+  totalRow: { flexDirection: "row", justifyContent: "space-between", marginBottom: 5 },
+  totalLabel: { fontSize: 10, color: "#374151" },
+  totalValue: { fontSize: 10, fontFamily: "Helvetica-Bold", color: "#1e293b" },
+  totalFinalRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    width: 200,
-    marginBottom: 5,
-    paddingHorizontal: 10,
+    marginTop: 6,
+    paddingTop: 8,
   },
-  totalRowFinal: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: 200,
-    marginBottom: 5,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    backgroundColor: "#f3f4f6",
+  totalFinalLabel: { fontSize: 12, fontFamily: "Helvetica-Bold" },
+  totalFinalValue: { fontSize: 12, fontFamily: "Helvetica-Bold" },
+  // ── Notes ─────
+  notesBox: {
+    marginBottom: 16,
+    padding: 12,
+    backgroundColor: "#f8fafc",
     borderRadius: 4,
   },
-  totalLabel: {
-    fontSize: 10,
-    color: "#374151",
-  },
-  totalValue: {
-    fontSize: 10,
-    fontWeight: "bold",
-  },
-  totalFinalLabel: {
-    fontSize: 12,
-    fontWeight: "bold",
-    color: "#7c3aed",
-  },
-  totalFinalValue: {
-    fontSize: 12,
-    fontWeight: "bold",
-    color: "#7c3aed",
-  },
+  notesText: { fontSize: 9, color: "#64748b", lineHeight: 1.5 },
+  divider: { height: 1, backgroundColor: "#e2e8f0", marginBottom: 12 },
+  // ── Footer ────
   footer: {
     position: "absolute",
     bottom: 30,
@@ -177,21 +151,61 @@ interface DepositPdfDocumentProps {
 
 export default function DepositPdfDocument({ deposit }: DepositPdfDocumentProps) {
   const clientName = getClientName(deposit.client);
-  
+  const themeColor = deposit.user.themeColor ?? "#7c3aed";
+  const logo = deposit.user.companyLogo;
+  const displayName = deposit.user.companyName ?? "";
+
+  // Couleurs dynamiques (inline car react-pdf ne supporte pas les classes dynamiques)
+  const headerBg = { backgroundColor: themeColor };
+  const sectionTitleColor = { color: themeColor };
+  const depositTitleColor = { color: themeColor };
+  const totalBoxStyle = {
+    backgroundColor: hexToRgba(themeColor, 0.07),
+    border: `1px solid ${hexToRgba(themeColor, 0.2)}`,
+  };
+  const totalFinalBorder = { borderTop: `1.5px solid ${hexToRgba(themeColor, 0.35)}` };
+  const totalFinalColor = { color: themeColor };
+
   return (
     <Document>
       <Page size="A4" style={S.page}>
-        {/* Header */}
-        <View style={S.header}>
-          <Text style={S.headerTitle}>ACOMPTE</Text>
-          <Text style={S.headerSubtitle}>{deposit.number}</Text>
+        {/* ── Header 3 colonnes ─────────────────────────────────────── */}
+        <View style={[S.headerBox, headerBg]}>
+          <View style={S.headerRow}>
+            {/* Gauche : ACOMPTE + N° */}
+            <View style={S.headerLeft}>
+              <Text style={S.headerTitle}>ACOMPTE</Text>
+              <Text style={S.headerNumber}>{deposit.number}</Text>
+            </View>
+
+            {/* Centre : Logo circulaire + nom entreprise */}
+            <View style={S.headerCenter}>
+              {logo && (
+                <View style={S.headerLogoWrapper}>
+                  <Image src={logo} style={S.headerLogo} />
+                </View>
+              )}
+              {displayName ? <Text style={S.headerCompanyName}>{displayName}</Text> : null}
+            </View>
+
+            {/* Droite : dates */}
+            <View style={S.headerRight}>
+              <Text style={S.headerDateLabel}>Date d&apos;émission</Text>
+              <Text style={S.headerDateValue}>{fmtDate(deposit.date)}</Text>
+              {deposit.dueDate && (
+                <>
+                  <Text style={S.headerDateLabel}>Échéance</Text>
+                  <Text style={S.headerDateValue}>{fmtDate(deposit.dueDate)}</Text>
+                </>
+              )}
+            </View>
+          </View>
         </View>
 
-        {/* Informations principales */}
-        <View style={S.row}>
-          {/* Émetteur */}
-          <View style={S.col}>
-            <Text style={S.sectionTitle}>Émetteur</Text>
+        {/* ── Émetteur / Destinataire ───────────────────────────────── */}
+        <View style={S.partiesRow}>
+          <View style={S.partyBlock}>
+            <Text style={[S.sectionTitle, sectionTitleColor]}>Émetteur</Text>
             {deposit.user.companyName && (
               <Text style={S.textBold}>{deposit.user.companyName}</Text>
             )}
@@ -211,9 +225,8 @@ export default function DepositPdfDocument({ deposit }: DepositPdfDocumentProps)
             )}
           </View>
 
-          {/* Destinataire */}
-          <View style={S.colRight}>
-            <Text style={S.sectionTitle}>Destinataire</Text>
+          <View style={S.partyBlock}>
+            <Text style={[S.sectionTitle, sectionTitleColor]}>Destinataire</Text>
             <Text style={S.textBold}>{clientName}</Text>
             {deposit.client.address && (
               <Text style={S.text}>{deposit.client.address}</Text>
@@ -224,57 +237,44 @@ export default function DepositPdfDocument({ deposit }: DepositPdfDocumentProps)
               </Text>
             )}
             <Text style={S.text}>{deposit.client.email}</Text>
-            {deposit.client.phone && (
-              <Text style={S.text}>{deposit.client.phone}</Text>
-            )}
+            {deposit.client.phone && <Text style={S.text}>{deposit.client.phone}</Text>}
           </View>
         </View>
 
-        {/* Dates et informations */}
-        <View style={S.row}>
-          <View style={S.col}>
-            <Text style={S.text}>
-              <Text style={S.textBold}>Date d'émission :</Text> {fmtDate(deposit.date)}
-            </Text>
-            {deposit.dueDate && (
-              <Text style={S.text}>
-                <Text style={S.textBold}>Date d'échéance :</Text> {fmtDate(deposit.dueDate)}
-              </Text>
-            )}
-          </View>
-        </View>
+        <View style={S.divider} />
 
-        {/* Section Acompte */}
-        <View style={S.depositSection}>
-          <Text style={S.depositTitle}>Détail de l'acompte</Text>
+        {/* ── Détail de l'acompte ───────────────────────────────────── */}
+        <View style={S.depositBox}>
+          <Text style={[S.depositTitle, depositTitleColor]}>Détail de l&apos;acompte</Text>
           <Text style={S.depositDescription}>{deposit.description}</Text>
-          
-          {/* Totaux */}
+
           <View style={S.totalsSection}>
-            <View style={S.totalRow}>
-              <Text style={S.totalLabel}>Montant HT :</Text>
-              <Text style={S.totalValue}>{fmtN(deposit.amount)} €</Text>
-            </View>
-            <View style={S.totalRow}>
-              <Text style={S.totalLabel}>TVA ({deposit.vatRate}%) :</Text>
-              <Text style={S.totalValue}>{fmtN(deposit.taxTotal)} €</Text>
-            </View>
-            <View style={S.totalRowFinal}>
-              <Text style={S.totalFinalLabel}>Total TTC :</Text>
-              <Text style={S.totalFinalValue}>{fmtN(deposit.total)} €</Text>
+            <View style={[S.totalBox, totalBoxStyle]}>
+              <View style={S.totalRow}>
+                <Text style={S.totalLabel}>Montant HT :</Text>
+                <Text style={S.totalValue}>{fmtN(deposit.amount)} €</Text>
+              </View>
+              <View style={S.totalRow}>
+                <Text style={S.totalLabel}>TVA ({deposit.vatRate}%) :</Text>
+                <Text style={S.totalValue}>{fmtN(deposit.taxTotal)} €</Text>
+              </View>
+              <View style={[S.totalFinalRow, totalFinalBorder]}>
+                <Text style={[S.totalFinalLabel, totalFinalColor]}>Total TTC :</Text>
+                <Text style={[S.totalFinalValue, totalFinalColor]}>{fmtN(deposit.total)} €</Text>
+              </View>
             </View>
           </View>
         </View>
 
-        {/* Notes */}
+        {/* ── Notes ─────────────────────────────────────────────────── */}
         {deposit.notes && (
-          <View style={S.section}>
-            <Text style={S.sectionTitle}>Notes</Text>
-            <Text style={S.text}>{deposit.notes}</Text>
+          <View style={S.notesBox}>
+            <Text style={[S.sectionTitle, sectionTitleColor, { marginBottom: 4 }]}>Notes</Text>
+            <Text style={S.notesText}>{deposit.notes}</Text>
           </View>
         )}
 
-        {/* Footer */}
+        {/* ── Footer ────────────────────────────────────────────────── */}
         <Text style={S.footer}>
           Acompte généré par FacturFlow • {new Date().toLocaleDateString("fr-FR")}
         </Text>

@@ -65,18 +65,37 @@ function getPaymentLabel(method: string): string {
 function ReceiptPreviewContent({ receipt }: { receipt: SavedReceipt }) {
   const clientName = getClientName(receipt.client);
   const emitterName = receipt.user.companyName ?? receipt.user.name;
+  const themeColor = receipt.user.themeColor ?? "#7c3aed";
+  const logo = receipt.user.companyLogo;
+  const displayName = receipt.user.companyName ?? "";
 
   return (
     <div className="bg-white dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 p-2 xs:p-3 md:p-5 space-y-6 shadow-sm">
-      {/* Bandeau header gradient violet */}
-      <div className="bg-linear-to-r from-violet-600 to-indigo-600 dark:from-violet-500 dark:to-indigo-500 rounded-lg p-4 text-white">
-        <div className="flex justify-between items-start">
-          <div>
+      {/* En-tête 3 colonnes : type+N° | logo+nom centré | date+badge */}
+      <div className="rounded-lg p-4 text-white" style={{ backgroundColor: themeColor }}>
+        <div className="flex items-start gap-4">
+          {/* Gauche : REÇU + N° */}
+          <div className="flex-1">
             <h1 className="text-lg md:text-xl font-bold mb-1">REÇU</h1>
             <p className="text-white/90 text-xs md:text-sm">N° {receipt.number}</p>
           </div>
-          <div className="text-right text-xs md:text-sm">
+          {/* Centre : logo circulaire + nom entreprise */}
+          <div className="flex-1 flex flex-col items-center gap-1.5">
+            {logo && (
+              <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-white/30 shrink-0">
+                <img src={logo} alt="Logo" className="w-full h-full object-cover" />
+              </div>
+            )}
+            {displayName && (
+              <p className="text-white/90 text-xs text-center font-medium">{displayName}</p>
+            )}
+          </div>
+          {/* Droite : date + badge */}
+          <div className="flex-1 flex flex-col items-end text-right text-xs md:text-sm">
             <p className="text-white/90">Date : {fmtDate(receipt.date)}</p>
+            <span className="mt-2 inline-block bg-white/20 px-2 py-0.5 rounded-full text-[10px] font-semibold tracking-wide">
+              PAIEMENT REÇU
+            </span>
           </div>
         </div>
       </div>
@@ -85,7 +104,7 @@ function ReceiptPreviewContent({ receipt }: { receipt: SavedReceipt }) {
       <div className="grid grid-cols-2 gap-6">
         {/* Émetteur */}
         <div>
-          <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide text-violet-600 dark:text-violet-400">
+          <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: themeColor }}>
             Émis par
           </h3>
           <div className="text-sm space-y-0.5">
@@ -119,7 +138,7 @@ function ReceiptPreviewContent({ receipt }: { receipt: SavedReceipt }) {
 
         {/* Destinataire */}
         <div>
-          <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide text-violet-600 dark:text-violet-400">
+          <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: themeColor }}>
             Reçu de
           </h3>
           <div className="text-sm space-y-0.5">
@@ -156,32 +175,38 @@ function ReceiptPreviewContent({ receipt }: { receipt: SavedReceipt }) {
 
       {/* Récapitulatif paiement */}
       <div>
-        <h3 className="font-semibold mb-3 text-xs uppercase tracking-wide text-violet-600 dark:text-violet-400">
+        <h3 className="font-semibold mb-3 text-xs uppercase tracking-wide" style={{ color: themeColor }}>
           Récapitulatif du paiement
         </h3>
-        <div className="bg-linear-to-br from-violet-50 to-purple-50 dark:from-violet-950/50 dark:to-purple-950/50 rounded-lg p-3 border border-violet-200/50 dark:border-violet-500/20 space-y-3">
+        <div
+          className="rounded-lg p-3 border space-y-3"
+          style={{ backgroundColor: themeColor + "0d", borderColor: themeColor + "33" }}
+        >
           <div className="flex justify-between text-xs lg:text-sm">
-            <span className="text-violet-700 dark:text-violet-300">Objet</span>
+            <span style={{ color: themeColor }}>Objet</span>
             <span className="text-slate-900 dark:text-slate-50 text-right max-w-[60%]">
               {receipt.description}
             </span>
           </div>
           <div className="flex justify-between text-xs lg:text-sm">
-            <span className="text-violet-700 dark:text-violet-300">Date du paiement</span>
+            <span style={{ color: themeColor }}>Date du paiement</span>
             <span className="text-slate-900 dark:text-slate-50">{fmtDateShort(receipt.date)}</span>
           </div>
           <div className="flex justify-between text-xs lg:text-sm">
-            <span className="text-violet-700 dark:text-violet-300">Mode de paiement</span>
+            <span style={{ color: themeColor }}>Mode de paiement</span>
             <span className="text-slate-900 dark:text-slate-50">
               {getPaymentLabel(receipt.paymentMethod)}
             </span>
           </div>
           {/* Montant encaissé — mis en avant */}
-          <div className="flex justify-between items-center border-t border-violet-200 dark:border-violet-500/30 pt-3 mt-1">
-            <span className="text-sm lg:text-base font-bold text-violet-700 dark:text-violet-300">
+          <div
+            className="flex justify-between items-center pt-3 mt-1"
+            style={{ borderTop: `1px solid ${themeColor}33` }}
+          >
+            <span className="text-sm lg:text-base font-bold" style={{ color: themeColor }}>
               Montant encaissé
             </span>
-            <span className="text-md lg:text-base font-bold text-violet-700 dark:text-violet-300">
+            <span className="text-md lg:text-base font-bold" style={{ color: themeColor }}>
               {fmtAmount(receipt.total)}
             </span>
           </div>
@@ -191,7 +216,7 @@ function ReceiptPreviewContent({ receipt }: { receipt: SavedReceipt }) {
       {/* Notes */}
       {receipt.notes && (
         <div>
-          <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide text-violet-600 dark:text-violet-400">
+          <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: themeColor }}>
             Notes
           </h3>
           <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3">

@@ -61,33 +61,34 @@ interface StaticLinesTableProps {
   lines: SavedQuote["lineItems"];
   isForfait: boolean;
   typeConfig: { descriptionLabel: string; quantityLabel: string | null; priceLabel: string };
+  themeColor: string;
 }
 
-function StaticLinesTable({ title, lines, isForfait, typeConfig }: StaticLinesTableProps) {
+function StaticLinesTable({ title, lines, isForfait, typeConfig, themeColor }: StaticLinesTableProps) {
   return (
     <div>
       {title && (
-        <h3 className="font-semibold mb-3 text-xs uppercase tracking-wide text-emerald-600 dark:text-emerald-400">
+        <h3 className="font-semibold mb-3 text-xs uppercase tracking-wide" style={{ color: themeColor }}>
           {title}
         </h3>
       )}
       <div className="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
         <table className="w-full">
-          <thead className="bg-linear-to-r from-emerald-50 to-green-50 dark:from-emerald-950/50 dark:to-green-950/50">
+          <thead style={{ backgroundColor: themeColor + "1a" }}>
             <tr>
-              <th className="text-left p-2 lg:p-3 text-xs font-medium text-emerald-700 dark:text-emerald-300 uppercase tracking-wide">
+              <th className="text-left p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: themeColor }}>
                 {typeConfig.descriptionLabel}
               </th>
               {!isForfait && (
-                <th className="text-right p-2 lg:p-3 text-xs font-medium text-emerald-700 dark:text-emerald-300 uppercase tracking-wide">
+                <th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: themeColor }}>
                   {typeConfig.quantityLabel}
                 </th>
               )}
-              <th className="text-right p-2 lg:p-3 text-xs font-medium text-emerald-700 dark:text-emerald-300 uppercase tracking-wide">
+              <th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: themeColor }}>
                 {isForfait ? "Montant" : "Prix unit."}
               </th>
               {!isForfait && (
-                <th className="text-right p-2 lg:p-3 text-xs font-medium text-emerald-700 dark:text-emerald-300 uppercase tracking-wide">
+                <th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: themeColor }}>
                   Total HT
                 </th>
               )}
@@ -108,7 +109,7 @@ function StaticLinesTable({ title, lines, isForfait, typeConfig }: StaticLinesTa
                   {fmt(line.unitPrice)} €
                 </td>
                 {!isForfait && (
-                  <td className="p-2 lg:p-3 text-xs lg:text-sm text-right font-medium text-emerald-600 dark:text-emerald-400">
+                  <td className="p-2 lg:p-3 text-xs lg:text-sm text-right font-medium" style={{ color: themeColor }}>
                     {fmt(line.subtotal)} €
                   </td>
                 )}
@@ -179,31 +180,41 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
     ? sortedLines.filter((l) => l.category === "materiel")
     : [];
 
+  // Couleur thème dynamique
+  const themeColor = quote.user.themeColor ?? "#7c3aed";
+  const logo = quote.user.companyLogo;
+  const displayName = quote.user.companyName ?? "";
+
   return (
     <div className="bg-white dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 p-3 md:p-6 space-y-6 shadow-sm">
-      {/* En-tête du document avec bandeau coloré */}
-      <div className="bg-linear-to-r from-emerald-600 to-green-600 dark:from-emerald-500 dark:to-green-500 rounded-lg p-4 text-white mb-6">
-        <div className="flex justify-between items-start">
-          <div>
-            <h1 className="text-lg md:text-xl font-bold mb-1">
-              DEVIS
-            </h1>
-            <p className="text-white/90 text-xs md:text-sm">
-              N° {quote.number}
-            </p>
+      {/* En-tête 3 colonnes : type+N° | logo+nom centré | dates à droite */}
+      <div className="rounded-lg p-4 text-white mb-6" style={{ backgroundColor: themeColor }}>
+        <div className="flex items-start gap-4">
+          {/* Gauche : DEVIS + N° */}
+          <div className="flex-1">
+            <h1 className="text-lg md:text-xl font-bold mb-1">DEVIS</h1>
+            <p className="text-white/90 text-xs md:text-sm">N° {quote.number}</p>
             {quoteType !== "basic" && (
               <span className="inline-block mt-1.5 text-[10px] bg-white/20 px-2 py-0.5 rounded-full font-medium tracking-wide">
                 {INVOICE_TYPE_LABELS[quoteType]}
               </span>
             )}
           </div>
-          <div className="text-right text-xs md:text-sm">
-            <p className="text-white/90">
-              Date : {formatDate(quote.date)}
-            </p>
-            <p className="text-white/90 ">
-              Validité : {formatDate(quote.validUntil)}
-            </p>
+          {/* Centre : logo circulaire + nom entreprise */}
+          <div className="flex-1 flex flex-col items-center gap-1.5">
+            {logo && (
+              <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-white/30 shrink-0">
+                <img src={logo} alt="Logo" className="w-full h-full object-cover" />
+              </div>
+            )}
+            {displayName && (
+              <p className="text-white/90 text-xs text-center font-medium">{displayName}</p>
+            )}
+          </div>
+          {/* Droite : dates */}
+          <div className="flex-1 flex flex-col items-end text-right text-xs md:text-sm">
+            <p className="text-white/90">Date : {formatDate(quote.date)}</p>
+            <p className="text-white/90">Validité : {formatDate(quote.validUntil)}</p>
           </div>
         </div>
       </div>
@@ -212,7 +223,7 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
       <div className="grid grid-cols-2 gap-6">
           {/* Émetteur */}
           <div>
-            <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide text-emerald-600 dark:text-emerald-400">
+            <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: themeColor }}>
               Émetteur
             </h3>
             {emitter.companyName ? (
@@ -252,7 +263,7 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
 
           {/* Destinataire */}
           <div>
-            <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide text-emerald-600 dark:text-emerald-400">
+            <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: themeColor }}>
               Destinataire
             </h3>
             <div className="text-sm space-y-0.5">
@@ -288,6 +299,7 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
               lines={mainOeuvreLines}
               isForfait={false}
               typeConfig={typeConfig}
+              themeColor={themeColor}
             />
             {materiauLines.length > 0 && (
               <StaticLinesTable
@@ -295,6 +307,7 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
                 lines={materiauLines}
                 isForfait={false}
                 typeConfig={typeConfig}
+                themeColor={themeColor}
               />
             )}
           </div>
@@ -303,6 +316,7 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
             lines={sortedLines}
             isForfait={isForfait}
             typeConfig={typeConfig}
+            themeColor={themeColor}
           />
         )}
       <div className="h-px bg-slate-200 dark:bg-slate-700 mt-2 mb-5" />
@@ -311,7 +325,10 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
 
         {/* Totaux */}
         <div className="flex justify-end">
-          <div className="w-64 space-y-1.5 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-500/20 rounded-lg p-3">
+          <div
+            className="w-64 space-y-1.5 rounded-lg p-3 border"
+            style={{ backgroundColor: themeColor + "0d", borderColor: themeColor + "33" }}
+          >
             {/* Sous-total HT */}
             <div className="flex justify-between text-xs lg:text-sm">
               <span className="text-slate-500 dark:text-slate-400">Sous-total HT</span>
@@ -341,18 +358,21 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
             {/* Total TTC */}
             <div className="flex justify-between text-sm lg:text-base font-bold">
               <span className="text-slate-900 dark:text-slate-50">Total TTC</span>
-              <span className="text-emerald-600 dark:text-emerald-400">
+              <span style={{ color: themeColor }}>
                 {fmt(quote.total)} €
               </span>
             </div>
 
             {/* Acompte a verser (informatif) */}
             {deposit > 0 && (
-              <div className="flex justify-between text-sm pt-1 border-t border-emerald-200 dark:border-emerald-500/30 mt-1">
-                <span className="text-emerald-700 dark:text-emerald-400 font-medium">
+              <div
+                className="flex justify-between text-sm pt-1 mt-1"
+                style={{ borderTop: `1px solid ${themeColor}33` }}
+              >
+                <span className="font-medium" style={{ color: themeColor }}>
                   Acompte à verser
                 </span>
-                <span className="text-emerald-700 dark:text-emerald-400 font-bold">
+                <span className="font-bold" style={{ color: themeColor }}>
                   {fmt(deposit)} €
                 </span>
               </div>
@@ -362,8 +382,8 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
 
         {/* Notes */}
         {quote.notes && (
-          <div className="rounded-lg bg-slate-50 dark:bg-[#1f4a3c]/60 border border-slate-100 dark:border-emerald-500/20 p-3 text-[11px] lg:text-xs text-slate-600 dark:text-slate-300">
-            <p className="font-medium text-slate-700 dark:text-slate-200 mb-1 text-xs lg:text-sm">Notes</p>
+          <div className="rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 p-3 text-[11px] lg:text-xs text-slate-600 dark:text-slate-300">
+            <p className="font-medium mb-1 text-xs lg:text-sm" style={{ color: themeColor }}>Notes</p>
             <p className="whitespace-pre-line">{quote.notes}</p>
           </div>
         )}

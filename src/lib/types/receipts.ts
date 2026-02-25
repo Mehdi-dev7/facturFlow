@@ -42,6 +42,9 @@ export interface SavedReceipt {
     companyCity: string | null;
     companyEmail: string | null;
     companyPhone: string | null;
+    themeColor: string | null;
+    companyFont: string | null;
+    companyLogo: string | null;
   };
   createdAt: string;
 }

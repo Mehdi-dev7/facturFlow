@@ -50,6 +50,9 @@ export async function sendInvoiceEmail(
             companyCity: true,
             companyEmail: true,
             companyPhone: true,
+            themeColor: true,
+            companyFont: true,
+            companyLogo: true,
           },
         },
       },
@@ -109,6 +112,9 @@ export async function sendInvoiceEmail(
         companyCity: doc.user.companyCity || emitterFallback?.companyCity || null,
         companyEmail: doc.user.companyEmail || emitterFallback?.companyEmail || null,
         companyPhone: doc.user.companyPhone ?? null,
+        themeColor: doc.user.themeColor ?? null,
+        companyFont: doc.user.companyFont ?? null,
+        companyLogo: doc.user.companyLogo ?? null,
       },
     };
 

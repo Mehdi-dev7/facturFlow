@@ -35,6 +35,9 @@ const receiptUserSelect = {
   companyCity: true,
   companyEmail: true,
   companyPhone: true,
+  themeColor: true,
+  companyFont: true,
+  companyLogo: true,
 } as const;
 
 // ─── Helper : label de mode de paiement ──────────────────────────────────────

@@ -59,6 +59,9 @@ export interface SavedQuote {
 		companyCity: string | null;
 		companyEmail: string | null;
 		companyPhone: string | null;
+		themeColor: string | null;
+		companyFont: string | null;
+		companyLogo: string | null;
 	};
 }
 
@@ -87,6 +90,9 @@ const quoteInclude = {
 			companyCity: true,
 			companyEmail: true,
 			companyPhone: true,
+			themeColor: true,
+			companyFont: true,
+			companyLogo: true,
 		},
 	},
 } as const;

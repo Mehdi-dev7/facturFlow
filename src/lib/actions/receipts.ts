@@ -34,6 +34,9 @@ const receiptInclude = {
       companyCity: true,
       companyEmail: true,
       companyPhone: true,
+      themeColor: true,
+      companyFont: true,
+      companyLogo: true,
     },
   },
 } as const;

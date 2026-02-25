@@ -36,6 +36,9 @@ export interface SavedDeposit {
     companyCity: string | null;
     companyEmail: string | null;
     companyPhone: string | null;
+    themeColor: string | null;
+    companyFont: string | null;
+    companyLogo: string | null;
   };
   // Propriétés additionnelles pour la prévisualisation (calculées ou extraites de businessMetadata)
   amount: number;

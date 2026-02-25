@@ -60,6 +60,9 @@ export interface SavedInvoice {
     companyCity: string | null;
     companyEmail: string | null;
     companyPhone: string | null;
+    themeColor: string | null;
+    companyFont: string | null;
+    companyLogo: string | null;
   };
 }
 
@@ -243,6 +246,9 @@ type PrismaDocumentWithRelations = {
     companyCity: string | null;
     companyEmail: string | null;
     companyPhone: string | null;
+    themeColor: string | null;
+    companyFont: string | null;
+    companyLogo: string | null;
   };
 };
 
@@ -313,6 +319,9 @@ const documentInclude = {
       companyCity: true,
       companyEmail: true,
       companyPhone: true,
+      themeColor: true,
+      companyFont: true,
+      companyLogo: true,
     },
   },
 } as const;
