@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useCallback, Suspense } from "react";
 import dynamic from "next/dynamic";
-import { Plus, Trash2, FileCheck, Download, Loader2, Send, CheckCircle2 } from "lucide-react";
+import { Plus, FileCheck, Download, Loader2, Send, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import {
   PageHeader,
@@ -12,16 +12,7 @@ import {
   ActionButtons,
 } from "@/components/dashboard";
 import type { KpiData, Column } from "@/components/dashboard";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { DeleteConfirmModal } from "@/components/shared/delete-confirm-modal";
 import {
   Select,
   SelectContent,
@@ -234,22 +225,30 @@ function InvoiceReceiptGenerator() {
   return (
     <div className="space-y-3">
       {/* Ligne 1 : sélecteur + badge */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1">
         <Select value={selectedInvoiceId} onValueChange={handleSelectChange}>
-          <SelectTrigger className="flex-1 max-w-xs sm:max-w-sm bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50 cursor-pointer">
+          <SelectTrigger className="flex-1 max-w-xs sm:max-w-sm md:max-w-lg h-auto min-h-9 py-1.5 bg-white/90 dark:bg-[#2a2254]/80 border-slate-300 dark:border-violet-400/30 rounded-xl text-[11px] xs:text-xs sm:text-sm text-slate-900 dark:text-violet-100 cursor-pointer">
             <SelectValue placeholder="Sélectionner une facture payée..." />
           </SelectTrigger>
-          <SelectContent className="bg-gradient-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25">
+          <SelectContent className="max-w-[92vw] xs:max-w-sm md:max-w-lg rounded-xl shadow-lg dark:shadow-violet-950/50 bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#1e1845] dark:to-[#1a1438] border border-primary/20 dark:border-violet-400/30">
             {paidInvoices.map((inv) => (
               <SelectItem
                 key={inv.id}
                 value={inv.id}
-                className="focus:bg-violet-100 dark:focus:bg-violet-500/20 focus:text-slate-900 dark:focus:text-slate-100 cursor-pointer"
+                className="text-slate-800 dark:text-violet-100 focus:bg-violet-100 dark:focus:bg-violet-500/25 focus:text-slate-900 dark:focus:text-violet-50 cursor-pointer py-2.5"
               >
-                <span className="font-semibold">{inv.number}</span>
-                <span className="text-slate-400 dark:text-violet-300/60 ml-2">
-                  — {getInvoiceClientName(inv.client)} — {formatAmount(inv.total)}
-                </span>
+                {/* Numéro | Client (milieu tronqué) | Montant (droite) */}
+                <div className="flex items-center gap-2 xs:gap-3 w-full min-w-0">
+                  <span className="font-bold text-[11px] xs:text-xs sm:text-sm text-violet-700 dark:text-violet-300 shrink-0">
+                    {inv.number}
+                  </span>
+                  <span className="flex-1 text-[10px] xs:text-[11px] sm:text-xs text-slate-500 dark:text-violet-400/80 truncate">
+                    {getInvoiceClientName(inv.client)}
+                  </span>
+                  <span className="text-[11px] xs:text-xs sm:text-sm font-semibold text-slate-700 dark:text-violet-200 tabular-nums shrink-0 ml-auto">
+                    {formatAmount(inv.total)}
+                  </span>
+                </div>
               </SelectItem>
             ))}
           </SelectContent>
@@ -460,7 +459,7 @@ function ReceiptsPageContent() {
       </div>
 
       {/* Générateur de reçu depuis une facture payée */}
-      <div className="rounded-2xl border border-slate-300/80 dark:border-violet-500/20 shadow-md shadow-slate-200/50 dark:shadow-violet-950/30 bg-white/75 dark:bg-[#1a1438] backdrop-blur-lg p-5 mb-6">
+      <div className="rounded-2xl border border-slate-300/80 dark:border-violet-500/20 shadow-md shadow-slate-200/50 dark:shadow-violet-950/30 bg-white/75 dark:bg-[#1a1438] backdrop-blur-lg p-2.5 lg:p-3 mb-6">
         <div className="flex items-center gap-2 mb-4">
           <div className="p-1.5 rounded-lg bg-violet-100 dark:bg-violet-500/20">
             <FileCheck className="size-4 text-violet-600 dark:text-violet-400" />
@@ -528,30 +527,15 @@ function ReceiptsPageContent() {
         onOpenChange={setPreviewOpen}
       />
 
-      {/* Dialog de confirmation de suppression depuis le tableau */}
-      <AlertDialog
+      {/* Modale de confirmation de suppression depuis le tableau */}
+      <DeleteConfirmModal
         open={!!deleteTargetId}
         onOpenChange={(o) => !o && setDeleteTargetId(null)}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Supprimer ce reçu ?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Cette action est irréversible. Le reçu sera définitivement supprimé.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Annuler</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeleteConfirm}
-              className="bg-red-600 hover:bg-red-700 text-white"
-            >
-              <Trash2 className="size-4 mr-1.5" />
-              Supprimer
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        onConfirm={handleDeleteConfirm}
+        isDeleting={deleteMutation.isPending}
+        documentLabel="le reçu"
+        documentNumber={deleteTargetId ? (receiptMap.get(deleteTargetId)?.number ?? "") : ""}
+      />
     </div>
   );
 }

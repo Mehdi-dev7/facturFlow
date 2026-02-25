@@ -12,8 +12,10 @@ import {
 import type { KpiData, Column } from "@/components/dashboard";
 import { useClients, useDeleteClient, type SavedClient } from "@/hooks/use-clients";
 import { ClientModal } from "@/components/clients/client-modal";
+import { ClientPreviewModal } from "@/components/clients/client-preview-modal";
+import { DeleteClientConfirmModal } from "@/components/clients/delete-client-confirm-modal";
 
-// ─── Formater un montant en euros ───────────────────────────────────────────
+// ─── Formater un montant en euros ────────────────────────────────────────────
 
 function formatEuros(amount: number): string {
   return new Intl.NumberFormat("fr-FR", {
@@ -78,7 +80,7 @@ function TypeBadge({ type }: { type: SavedClient["type"] }) {
     <span
       className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] lg:text-xs font-semibold ${
         isEntreprise
-          ? "bg-violet-100 text-violet-700 dark:bg-violet-500/20 dark:text-violet-300 border border-violet-300 dark:border-violet-500/40"
+          ? "bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-300 border border-orange-300 dark:border-orange-500/40"
           : "bg-sky-100 text-sky-700 dark:bg-sky-500/20 dark:text-sky-300 border border-sky-300 dark:border-sky-500/40"
       }`}
     >
@@ -87,7 +89,7 @@ function TypeBadge({ type }: { type: SavedClient["type"] }) {
   );
 }
 
-/* ─── Table Columns ─── */
+/* ─── Table Columns (sans la colonne Ville) ─── */
 const columns: Column<SavedClient>[] = [
   {
     key: "name",
@@ -128,17 +130,6 @@ const columns: Column<SavedClient>[] = [
     ),
   },
   {
-    key: "city",
-    label: "Ville",
-    sortable: true,
-    getValue: (c) => c.city ?? "",
-    render: (c) => (
-      <span className="text-xs lg:text-sm text-slate-700 dark:text-slate-300">
-        {c.city ?? "—"}
-      </span>
-    ),
-  },
-  {
     key: "totalInvoiced",
     label: "Total facturé",
     sortable: true,
@@ -155,8 +146,18 @@ const columns: Column<SavedClient>[] = [
 /* ─── Clients Page ─── */
 export default function ClientsPage() {
   const [search, setSearch] = useState("");
+
+  // État modale édition/création
   const [modalOpen, setModalOpen] = useState(false);
   const [editClient, setEditClient] = useState<SavedClient | null>(null);
+
+  // État modale de prévisualisation
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewClient, setPreviewClient] = useState<SavedClient | null>(null);
+
+  // État modale de confirmation de suppression
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [clientToDelete, setClientToDelete] = useState<SavedClient | null>(null);
 
   // Données réelles depuis la DB
   const { data: clients = [], isLoading } = useClients();
@@ -180,21 +181,50 @@ export default function ClientsPage() {
     setSearch(value);
   }, []);
 
-  // Ouvrir la modale en mode édition
+  // Ouvrir la modale de prévisualisation au clic sur une ligne
+  const handlePreview = useCallback((client: SavedClient) => {
+    setPreviewClient(client);
+    setPreviewOpen(true);
+  }, []);
+
+  // Ouvrir l'édition directement depuis le tableau (bouton action)
   const handleEdit = useCallback((client: SavedClient) => {
     setEditClient(client);
     setModalOpen(true);
   }, []);
 
-  // Supprimer un client
-  const handleDelete = useCallback(
-    (client: SavedClient) => {
-      if (window.confirm(`Supprimer le client "${client.name}" ?`)) {
-        deleteMutation.mutate(client.id);
-      }
-    },
-    [deleteMutation],
-  );
+  // Éditer depuis la modale de prévisualisation
+  const handleEditFromPreview = useCallback((client: SavedClient) => {
+    setPreviewOpen(false);
+    setEditClient(client);
+    setModalOpen(true);
+  }, []);
+
+  // Ouvrir la modale de confirmation (depuis le tableau OU la preview)
+  const handleDelete = useCallback((client: SavedClient) => {
+    setClientToDelete(client);
+    setDeleteConfirmOpen(true);
+  }, []);
+
+  // Même handler pour la preview (ferme la preview en plus)
+  const handleDeleteFromPreview = useCallback((client: SavedClient) => {
+    setClientToDelete(client);
+    setDeleteConfirmOpen(true);
+  }, []);
+
+  // Exécuter la suppression après confirmation
+  const handleConfirmDelete = useCallback(() => {
+    if (!clientToDelete) return;
+    deleteMutation.mutate(clientToDelete.id, {
+      onSuccess: (result) => {
+        if (result.success) {
+          setDeleteConfirmOpen(false);
+          setClientToDelete(null);
+          setPreviewOpen(false); // ferme la preview si ouverte
+        }
+      },
+    });
+  }, [clientToDelete, deleteMutation]);
 
   // Ouvrir la modale en mode création
   const handleNewClient = useCallback(() => {
@@ -246,7 +276,11 @@ export default function ClientsPage() {
           data={filteredClients}
           columns={columns}
           getRowId={(c) => c.id}
-          mobileFields={["name", "type"]}
+          // Mobile : ligne 1 = Nom (gauche) + TypeBadge (droite via mobileStatusKey)
+          //          ligne 2 = Email (gauche)
+          mobileFields={["name", "email"]}
+          mobileStatusKey="type"
+          onRowClick={handlePreview}
           actions={(client) => (
             <ActionButtons
               onEdit={() => handleEdit(client)}
@@ -258,11 +292,30 @@ export default function ClientsPage() {
         />
       </div>
 
+      {/* Modale de prévisualisation (clic sur une ligne) */}
+      <ClientPreviewModal
+        client={previewClient}
+        open={previewOpen}
+        onOpenChange={setPreviewOpen}
+        onEdit={handleEditFromPreview}
+        onDelete={handleDeleteFromPreview}
+        isDeleting={deleteMutation.isPending}
+      />
+
       {/* Modale de création/édition */}
       <ClientModal
         open={modalOpen}
         onOpenChange={setModalOpen}
         editClient={editClient}
+      />
+
+      {/* Modale de confirmation de suppression */}
+      <DeleteClientConfirmModal
+        client={clientToDelete}
+        open={deleteConfirmOpen}
+        onOpenChange={setDeleteConfirmOpen}
+        onConfirm={handleConfirmDelete}
+        isDeleting={deleteMutation.isPending}
       />
     </div>
   );

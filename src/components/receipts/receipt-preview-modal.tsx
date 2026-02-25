@@ -12,6 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Download, Printer, Send, Trash2, X, CheckCircle2, Loader2 } from "lucide-react";
+import { DeleteConfirmModal } from "@/components/shared/delete-confirm-modal";
 import { ReceiptPdfDocument } from "@/lib/pdf/receipt-pdf-document";
 import type { SavedReceipt } from "@/lib/types/receipts";
 import { RECEIPT_PAYMENT_METHODS } from "@/lib/types/receipts";
@@ -66,7 +67,7 @@ function ReceiptPreviewContent({ receipt }: { receipt: SavedReceipt }) {
   const emitterName = receipt.user.companyName ?? receipt.user.name;
 
   return (
-    <div className="bg-white dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 p-4 md:p-6 space-y-6 shadow-sm">
+    <div className="bg-white dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 p-2 xs:p-3 md:p-5 space-y-6 shadow-sm">
       {/* Bandeau header gradient violet */}
       <div className="bg-linear-to-r from-violet-600 to-indigo-600 dark:from-violet-500 dark:to-indigo-500 rounded-lg p-4 text-white">
         <div className="flex justify-between items-start">
@@ -158,18 +159,18 @@ function ReceiptPreviewContent({ receipt }: { receipt: SavedReceipt }) {
         <h3 className="font-semibold mb-3 text-xs uppercase tracking-wide text-violet-600 dark:text-violet-400">
           Récapitulatif du paiement
         </h3>
-        <div className="bg-linear-to-br from-violet-50 to-purple-50 dark:from-violet-950/50 dark:to-purple-950/50 rounded-lg p-4 border border-violet-200/50 dark:border-violet-500/20 space-y-3">
-          <div className="flex justify-between text-sm">
+        <div className="bg-linear-to-br from-violet-50 to-purple-50 dark:from-violet-950/50 dark:to-purple-950/50 rounded-lg p-3 border border-violet-200/50 dark:border-violet-500/20 space-y-3">
+          <div className="flex justify-between text-xs lg:text-sm">
             <span className="text-violet-700 dark:text-violet-300">Objet</span>
             <span className="text-slate-900 dark:text-slate-50 text-right max-w-[60%]">
               {receipt.description}
             </span>
           </div>
-          <div className="flex justify-between text-sm">
+          <div className="flex justify-between text-xs lg:text-sm">
             <span className="text-violet-700 dark:text-violet-300">Date du paiement</span>
             <span className="text-slate-900 dark:text-slate-50">{fmtDateShort(receipt.date)}</span>
           </div>
-          <div className="flex justify-between text-sm">
+          <div className="flex justify-between text-xs lg:text-sm">
             <span className="text-violet-700 dark:text-violet-300">Mode de paiement</span>
             <span className="text-slate-900 dark:text-slate-50">
               {getPaymentLabel(receipt.paymentMethod)}
@@ -177,10 +178,10 @@ function ReceiptPreviewContent({ receipt }: { receipt: SavedReceipt }) {
           </div>
           {/* Montant encaissé — mis en avant */}
           <div className="flex justify-between items-center border-t border-violet-200 dark:border-violet-500/30 pt-3 mt-1">
-            <span className="text-base font-bold text-violet-700 dark:text-violet-300">
+            <span className="text-sm lg:text-base font-bold text-violet-700 dark:text-violet-300">
               Montant encaissé
             </span>
-            <span className="text-xl lg:text-2xl font-bold text-violet-700 dark:text-violet-300">
+            <span className="text-md lg:text-base font-bold text-violet-700 dark:text-violet-300">
               {fmtAmount(receipt.total)}
             </span>
           </div>
@@ -213,6 +214,7 @@ export function ReceiptPreviewModal({
 }: ReceiptPreviewModalProps) {
   const [isSending, setIsSending] = useState(false);
   const [wasSent, setWasSent] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const deleteMutation = useDeleteReceipt();
 
   // Réinitialiser wasSent à la fermeture
@@ -241,17 +243,20 @@ export function ReceiptPreviewModal({
     setIsSending(false);
   }, [receipt, isSending]);
 
-  // Suppression avec confirmation native (window.confirm)
-  const handleDelete = useCallback(async () => {
+  // Ferme la preview puis ouvre la modale de confirmation (évite la double fenêtre)
+  const handleDelete = useCallback(() => {
     if (!receipt) return;
-    const confirmed = window.confirm(
-      `Êtes-vous sûr de vouloir supprimer le reçu ${receipt.number} ?`,
-    );
-    if (!confirmed) return;
+    handleOpenChange(false);
+    setDeleteConfirmOpen(true);
+  }, [receipt, handleOpenChange]);
 
+  // Exécute la suppression après confirmation
+  const handleConfirmDelete = useCallback(() => {
+    if (!receipt) return;
     deleteMutation.mutate(receipt.id, {
       onSuccess: (result) => {
         if (result.success) {
+          setDeleteConfirmOpen(false);
           onOpenChange(false);
         }
       },
@@ -263,6 +268,7 @@ export function ReceiptPreviewModal({
   const fileName = `${receipt.number}.pdf`;
 
   return (
+    <>
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent
         className="w-[95vw] sm:w-[90vw] sm:max-w-2xl md:max-w-3xl bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25 shadow-lg dark:shadow-violet-950/40 rounded-xl overflow-hidden p-0"
@@ -366,6 +372,18 @@ export function ReceiptPreviewModal({
           <ReceiptPreviewContent receipt={receipt} />
         </div>
       </DialogContent>
+
     </Dialog>
+
+    {/* Modale de confirmation de suppression — hors du Dialog pour éviter les conflits de z-index */}
+    <DeleteConfirmModal
+      open={deleteConfirmOpen}
+      onOpenChange={setDeleteConfirmOpen}
+      onConfirm={handleConfirmDelete}
+      isDeleting={deleteMutation.isPending}
+      documentLabel="le reçu"
+      documentNumber={receipt?.number ?? ""}
+    />
+    </>
   );
 }

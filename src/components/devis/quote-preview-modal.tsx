@@ -10,6 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Printer, Download, Send, Pencil, X, Trash2 } from "lucide-react";
+import { DeleteConfirmModal } from "@/components/shared/delete-confirm-modal";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useDuplicateQuote, useDeleteQuote } from "@/hooks/use-quotes";
@@ -421,6 +422,7 @@ export function QuotePreviewModal({
   const [isSending, setIsSending] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
   // ── Handlers des boutons d'action ──────────────────────────────────────
 
@@ -509,16 +511,21 @@ export function QuotePreviewModal({
     onOpenChange(false);
   }, [quote, router, onOpenChange]);
 
-  const handleDelete = useCallback(async () => {
-    if (!quote || isDeleting) return;
-    
-    const confirmed = window.confirm(`Êtes-vous sûr de vouloir supprimer le devis ${quote.number} ?`);
-    if (!confirmed) return;
+  // Ferme la preview puis ouvre la modale de confirmation (évite la double fenêtre)
+  const handleDelete = useCallback(() => {
+    if (!quote) return;
+    onOpenChange(false);
+    setDeleteConfirmOpen(true);
+  }, [quote, onOpenChange]);
 
+  // Exécute la suppression après confirmation
+  const handleConfirmDelete = useCallback(async () => {
+    if (!quote || isDeleting) return;
     setIsDeleting(true);
     try {
       await deleteMutation.mutateAsync(quote.id);
-      onOpenChange(false); // Fermer la modal après suppression
+      setDeleteConfirmOpen(false);
+      onOpenChange(false);
     } catch (error) {
       console.error("Erreur suppression:", error);
     } finally {
@@ -529,6 +536,7 @@ export function QuotePreviewModal({
   // ── Render ────────────────────────────────────────────────────────────────
 
   return (
+    <>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className="w-[95vw] h-[90vh] sm:w-[90vw] sm:h-auto sm:max-w-2xl md:max-w-3xl lg:max-w-5xl bg-linear-to-b from-emerald-50 via-white to-white dark:from-[#1f4a3c] dark:via-[#1a3d35] dark:to-[#1a3d35] border border-primary/20 dark:border-emerald-400/25 shadow-lg dark:shadow-emerald-950/40 rounded-xl overflow-hidden p-0"
@@ -668,7 +676,7 @@ export function QuotePreviewModal({
         </DialogHeader>
 
         {/* Corps scrollable : aperçu statique du devis */}
-        <div id="quote-print-area" className="overflow-y-auto max-h-[calc(100vh-200px)] sm:max-h-[80vh] md:max-h-[70vh] p-2 sm:p-4 md:p-6">
+        <div id="quote-print-area" className="overflow-y-auto max-h-[calc(100vh-200px)] sm:max-h-[80vh] md:max-h-[70vh] p-2 xs:p-3 md:p-5">
           {quote ? (
             <QuotePreviewStatic quote={quote} />
           ) : (
@@ -676,6 +684,18 @@ export function QuotePreviewModal({
           )}
         </div>
       </DialogContent>
+
     </Dialog>
+
+    {/* Modale de confirmation de suppression — hors du Dialog pour éviter les conflits de z-index */}
+    <DeleteConfirmModal
+      open={deleteConfirmOpen}
+      onOpenChange={setDeleteConfirmOpen}
+      onConfirm={handleConfirmDelete}
+      isDeleting={isDeleting}
+      documentLabel="le devis"
+      documentNumber={quote?.number ?? ""}
+    />
+    </>
   );
 }

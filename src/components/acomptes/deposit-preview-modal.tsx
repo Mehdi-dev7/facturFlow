@@ -10,6 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Printer, Download, Send, Pencil, X, Trash2 } from "lucide-react";
+import { DeleteConfirmModal } from "@/components/shared/delete-confirm-modal";
 import { SiStripe, SiPaypal } from "react-icons/si";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -51,6 +52,7 @@ export function DepositPreviewModal({
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [isSendingEmail, setIsSendingEmail] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
   // ── Handlers ───────────────────────────────────────────────────────────
 
@@ -132,18 +134,22 @@ export function DepositPreviewModal({
     }, 100); // Délai de 100ms
   }, [deposit]);
 
-  const handleDelete = useCallback(async () => {
-    if (!deposit || isDeleting) return;
-    
-    const confirmed = window.confirm(`Êtes-vous sûr de vouloir supprimer l'acompte ${deposit.number} ?`);
-    if (!confirmed) return;
+  // Ferme la preview puis ouvre la modale de confirmation (évite la double fenêtre)
+  const handleDelete = useCallback(() => {
+    if (!deposit) return;
+    onOpenChange(false);
+    setDeleteConfirmOpen(true);
+  }, [deposit, onOpenChange]);
 
+  // Exécute la suppression après confirmation
+  // Note: useDeleteDeposit à brancher quand le hook sera créé
+  const handleConfirmDelete = useCallback(async () => {
+    if (!deposit || isDeleting) return;
     setIsDeleting(true);
     try {
-      // Note: Il faudra créer useDeleteDeposit dans les hooks
-      // await deleteMutation.mutateAsync(deposit.id);
       toast.success("Acompte supprimé");
-      onOpenChange(false); // Fermer la modal après suppression
+      setDeleteConfirmOpen(false);
+      onOpenChange(false);
     } catch (error) {
       console.error("Erreur suppression:", error);
       toast.error("Erreur lors de la suppression");
@@ -178,6 +184,7 @@ export function DepositPreviewModal({
   if (!deposit) return null;
 
   return (
+    <>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className="w-[95vw] h-[90vh] sm:w-[90vw] sm:h-auto sm:max-w-2xl md:max-w-3xl lg:max-w-5xl bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25 shadow-lg dark:shadow-violet-950/40 rounded-xl overflow-hidden p-0"
@@ -318,7 +325,8 @@ export function DepositPreviewModal({
 
         {/* ── Corps scrollable : aperçu statique de l'acompte ─────────── */}
         <div id="deposit-print-area" className="overflow-y-auto max-h-[calc(100vh-200px)] sm:max-h-[80vh] md:max-h-[70vh] p-2 sm:p-4 md:p-6">
-          <div className="bg-white dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 p-3 md:p-6 space-y-6 shadow-sm">
+
+          <div className="bg-white dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 p-2 xs:p-3 md:p-5 space-y-6 shadow-sm">
             {/* En-tête du document avec bandeau coloré */}
             <div className="bg-linear-to-r from-violet-600 to-purple-600 dark:from-violet-500 dark:to-purple-500 rounded-lg p-4 text-white mb-6">
               <div className="flex justify-between items-start">
@@ -431,7 +439,7 @@ export function DepositPreviewModal({
 
             {/* Récapitulatif */}
             <div className="flex justify-end">
-              <div className="w-64 space-y-2 bg-violet-50 dark:bg-violet-950/20 border border-violet-100 dark:border-violet-500/20 rounded-lg p-4">
+              <div className="w-64 space-y-2 bg-violet-50 dark:bg-violet-950/20 border border-violet-100 dark:border-violet-500/20 rounded-lg p-3">
                 <div className="flex justify-between text-xs lg:text-sm">
                   <span className="text-slate-500 dark:text-slate-400">Sous-total HT :</span>
                   <span className="text-slate-900 dark:text-slate-50 font-medium">{fmt(deposit.subtotal)} €</span>
@@ -494,6 +502,18 @@ export function DepositPreviewModal({
           </div>
         </div>
       </DialogContent>
+
     </Dialog>
+
+    {/* Modale de confirmation de suppression — hors du Dialog pour éviter les conflits de z-index */}
+    <DeleteConfirmModal
+      open={deleteConfirmOpen}
+      onOpenChange={setDeleteConfirmOpen}
+      onConfirm={handleConfirmDelete}
+      isDeleting={isDeleting}
+      documentLabel="l'acompte"
+      documentNumber={deposit?.number ?? ""}
+    />
+    </>
   );
 }

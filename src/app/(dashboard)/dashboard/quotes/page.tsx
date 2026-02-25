@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useCallback, useEffect, useRef, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus } from "lucide-react";
 import {
   PageHeader,
   KpiCard,
@@ -14,16 +14,7 @@ import {
 } from "@/components/dashboard";
 import type { KpiData, Column } from "@/components/dashboard";
 import type { QuoteStatus } from "@/components/dashboard/status-badge";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { DeleteConfirmModal } from "@/components/shared/delete-confirm-modal";
 import { useQuotes, useDeleteQuote, type SavedQuote } from "@/hooks/use-quotes";
 import { StatusDropdownQuote } from "@/components/dashboard/status-dropdown-quote";
 import { QuotePreviewModal } from "@/components/devis/quote-preview-modal";
@@ -442,27 +433,15 @@ function QuotesPageContent() {
         onOpenChange={handlePreviewClose}
       />
 
-      {/* Dialog de confirmation de suppression */}
-      <AlertDialog open={!!deleteTargetId} onOpenChange={(o) => !o && setDeleteTargetId(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Supprimer ce devis ?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Cette action est irréversible. Le devis sera définitivement supprimé.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Annuler</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeleteConfirm}
-              className="bg-red-600 hover:bg-red-700 text-white"
-            >
-              <Trash2 className="size-4 mr-1.5" />
-              Supprimer
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {/* Modale de confirmation de suppression depuis le tableau */}
+      <DeleteConfirmModal
+        open={!!deleteTargetId}
+        onOpenChange={(o) => !o && setDeleteTargetId(null)}
+        onConfirm={handleDeleteConfirm}
+        isDeleting={deleteMutation.isPending}
+        documentLabel="le devis"
+        documentNumber={deleteTargetId ? (quoteMap.get(deleteTargetId)?.number ?? "") : ""}
+      />
     </div>
   );
 }

@@ -126,7 +126,7 @@ export function ClientModal({ open, onOpenChange, editClient, onSuccess }: Clien
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto bg-gradient-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25 shadow-lg dark:shadow-violet-950/40 rounded-xl">
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25 shadow-lg dark:shadow-violet-950/40 rounded-xl">
         <DialogHeader>
           <DialogTitle className="text-base xs:text-lg font-bold text-slate-900 dark:text-slate-100">
             {isEdit ? "Modifier le client" : "Nouveau client"}

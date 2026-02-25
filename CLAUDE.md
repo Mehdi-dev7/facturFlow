@@ -540,6 +540,8 @@ einvoiceSentAt DateTime? // Date d'envoi électronique
 ❌ Never expose API keys
 ❌ Never trust client-side data
 ❌ Never skip error handling
+❌ Never use `bg-gradient-to-r/b` — toujours `bg-linear-to-r/b` (Tailwind v4)
+❌ Never write Unicode escaped chars (`\u20AC`, etc.) — écrire les vrais caractères
 
 ## Always Do
 
@@ -550,6 +552,8 @@ einvoiceSentAt DateTime? // Date d'envoi électronique
 ✅ Add proper TypeScript types
 ✅ Handle errors with try/catch
 ✅ Use ARIA labels for accessibility
+✅ SelectItem avec contenu long → layout 3 colonnes flex (shrink-0 | flex-1 truncate | shrink-0 ml-auto)
+✅ SelectContent dark mode → `dark:from-[#2a2254] dark:via-[#1e1845] dark:to-[#1a1438]`
 ✅ Test payment flows in sandbox first
 ✅ Use loading.tsx and error.tsx for routes
 ✅ Revalidate paths after mutations

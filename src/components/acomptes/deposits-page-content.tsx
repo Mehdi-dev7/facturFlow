@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useCallback, useEffect, useRef, startTransition } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus } from "lucide-react";
 import {
   PageHeader,
   KpiCard,
@@ -15,16 +15,7 @@ import {
 } from "@/components/dashboard";
 import type { KpiData, Column } from "@/components/dashboard";
 import type { InvoiceStatus } from "@/components/dashboard/status-badge";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { DeleteConfirmModal } from "@/components/shared/delete-confirm-modal";
 import { useDeposits, useDeleteDeposit, type SavedDeposit } from "@/hooks/use-deposits";
 import { DepositPreviewModal } from "@/components/acomptes/deposit-preview-modal";
 
@@ -444,28 +435,15 @@ export function DepositsPageContent() {
         <ArchiveSection data={archiveData} onSelect={handleArchiveSelect} />
       )}
 
-      {/* Dialog de confirmation suppression */}
-      <AlertDialog open={!!deleteTargetId} onOpenChange={() => setDeleteTargetId(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Supprimer l&apos;acompte</AlertDialogTitle>
-            <AlertDialogDescription>
-              Êtes-vous sûr de vouloir supprimer cet acompte ? Cette action est irréversible.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Annuler</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              className="bg-red-600 hover:bg-red-700"
-              disabled={deleteDepositMutation.isPending}
-            >
-              <Trash2 className="size-4 mr-2" />
-              Supprimer
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {/* Modale de confirmation de suppression depuis le tableau */}
+      <DeleteConfirmModal
+        open={!!deleteTargetId}
+        onOpenChange={(o) => !o && setDeleteTargetId(null)}
+        onConfirm={handleDelete}
+        isDeleting={deleteDepositMutation.isPending}
+        documentLabel="l'acompte"
+        documentNumber={deleteTargetId ? (deposits.find((d) => d.id === deleteTargetId)?.number ?? "") : ""}
+      />
 
       {/* Modale de prévisualisation */}
       <DepositPreviewModal

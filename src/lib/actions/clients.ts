@@ -303,21 +303,14 @@ export async function deleteClient(id: string) {
     // Vérifier que le client existe et appartient à l'utilisateur
     const client = await prisma.client.findFirst({
       where: { id, userId: session.user.id },
-      include: { _count: { select: { documents: true } } },
     });
 
     if (!client) {
       return { success: false, error: "Client introuvable" } as const;
     }
 
-    // Empêcher la suppression si des documents sont liés
-    if (client._count.documents > 0) {
-      return {
-        success: false,
-        error: `Ce client est lié à ${client._count.documents} document(s). Supprimez d'abord les documents associés.`,
-      } as const;
-    }
-
+    // La cascade PostgreSQL (onDelete: Cascade) supprime automatiquement
+    // tous les documents et lignes liés au client
     await prisma.client.delete({ where: { id } });
 
     revalidatePath("/dashboard/clients");
