@@ -7,6 +7,20 @@ import { Font } from "@react-pdf/renderer";
 let registered = false;
 
 /**
+ * Résout le chemin absolu d'un fichier de police.
+ * - Navigateur : URL absolue basée sur window.location.origin
+ * - Serveur (Node.js) : URL file:// basée sur le répertoire du projet
+ */
+function fontSrc(filename: string): string {
+  if (typeof window !== "undefined") {
+    // Côté client : le navigateur connaît l'origine
+    return `${window.location.origin}/fonts/${filename}`;
+  }
+  // Côté serveur : chemin absolu sur le système de fichiers
+  return `file://${process.cwd()}/public/fonts/${filename}`;
+}
+
+/**
  * Enregistre les polices custom pour react-pdf.
  * Appelé une seule fois (idempotent grâce au flag `registered`).
  * Les polices sont servies localement depuis /public/fonts/ — aucun CDN.
@@ -15,12 +29,12 @@ export function registerPdfFonts() {
   if (registered) return;
   registered = true;
 
-  Font.register({ family: "Playfair Display",       src: "/fonts/playfair-display-700.woff2" });
-  Font.register({ family: "Dancing Script",          src: "/fonts/dancing-script-700.woff2" });
-  Font.register({ family: "Orbitron",                src: "/fonts/orbitron-700.woff2" });
-  Font.register({ family: "Sour Gummy",              src: "/fonts/sour-gummy-700.woff2" });
-  Font.register({ family: "Shadows Into Light Two",  src: "/fonts/shadows-into-light-two-400.woff2" });
-  Font.register({ family: "Kanit",                   src: "/fonts/kanit-700.woff2" });
+  Font.register({ family: "Playfair Display",       src: fontSrc("playfair-display-700.woff2") });
+  Font.register({ family: "Dancing Script",          src: fontSrc("dancing-script-700.woff2") });
+  Font.register({ family: "Orbitron",                src: fontSrc("orbitron-700.woff2") });
+  Font.register({ family: "Sour Gummy",              src: fontSrc("sour-gummy-700.woff2") });
+  Font.register({ family: "Shadows Into Light Two",  src: fontSrc("shadows-into-light-two-400.woff2") });
+  Font.register({ family: "Kanit",                   src: fontSrc("kanit-700.woff2") });
 }
 
 /** Mappe l'id font (apparence) → famille react-pdf */

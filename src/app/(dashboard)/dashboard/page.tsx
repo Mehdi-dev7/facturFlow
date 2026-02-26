@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Plus, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSession } from "@/lib/auth-client";
@@ -17,6 +18,7 @@ import type { KpiData } from "@/components/dashboard";
 import type { InvoiceStatus } from "@/components/dashboard/status-badge";
 import { StatusDropdown } from "@/components/dashboard/status-dropdown";
 import { useInvoices, type SavedInvoice } from "@/hooks/use-invoices";
+import { InvoicePreviewModal } from "@/components/factures/invoice-preview-modal";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -81,14 +83,24 @@ function toRow(inv: SavedInvoice): InvoiceRow {
 
 /* ─── Dashboard Page ─── */
 export default function DashboardPage() {
+  const router = useRouter();
   const [tableVisible, setTableVisible] = useState(false);
   const [sortKey, setSortKey] = useState<SortKey | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>("asc");
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [previewInvoice, setPreviewInvoice] = useState<SavedInvoice | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
   const { data: session } = useSession();
 
   // Vraies données
   const { data: allInvoices = [], isLoading } = useInvoices();
+
+  // Map id → SavedInvoice pour accès rapide au clic
+  const invoiceMap = useMemo(() => {
+    const m = new Map<string, SavedInvoice>();
+    for (const inv of allInvoices) m.set(inv.id, inv);
+    return m;
+  }, [allInvoices]);
 
   useEffect(() => {
     const timer = setTimeout(() => setTableVisible(true), 400);
@@ -103,6 +115,18 @@ export default function DashboardPage() {
       setSortDir("asc");
     }
   }, [sortKey]);
+
+  // Clic sur une ligne : brouillon → édition, sinon → prévisualisation
+  const handleRowClick = useCallback((inv: InvoiceRow) => {
+    const full = invoiceMap.get(inv.id);
+    if (!full) return;
+    if (inv.dbStatus === "DRAFT" && full.number.startsWith("BROUILLON-")) {
+      router.push(`/dashboard/invoices/${inv.id}/edit`);
+      return;
+    }
+    setPreviewInvoice(full);
+    setPreviewOpen(true);
+  }, [invoiceMap, router]);
 
   // 10 factures les plus récentes
   const recentRows = useMemo(() => {
@@ -275,7 +299,10 @@ export default function DashboardPage() {
               return (
                 <div key={inv.id}>
                   <button
-                    onClick={() => setExpandedId(isExpanded ? null : inv.id)}
+                    onClick={() => {
+                      if (expandedId === inv.id) { setExpandedId(null); return; }
+                      setExpandedId(inv.id);
+                    }}
                     className="w-full flex items-center justify-between px-4 py-3.5 hover:bg-violet-200/30 dark:hover:bg-violet-500/10 transition-colors cursor-pointer"
                   >
                     <div className="flex items-center gap-3 min-w-0">
@@ -302,6 +329,12 @@ export default function DashboardPage() {
                           <span className="text-slate-500 dark:text-slate-400">Montant</span>
                           <span className="font-semibold text-slate-900 dark:text-slate-100">{inv.amount}</span>
                         </div>
+                        <button
+                          onClick={() => handleRowClick(inv)}
+                          className="mt-1 text-xs font-semibold text-violet-600 dark:text-violet-400 text-left hover:underline cursor-pointer"
+                        >
+                          {inv.dbStatus === "DRAFT" ? "Continuer l'édition →" : "Voir la facture →"}
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -343,11 +376,15 @@ export default function DashboardPage() {
               </thead>
               <tbody>
                 {sortedInvoices.map((inv) => (
-                  <tr key={inv.id} className="border-b border-slate-200 dark:border-violet-500/20 hover:bg-violet-200/30 dark:hover:bg-violet-500/10 transition-colors group">
+                  <tr
+                    key={inv.id}
+                    onClick={() => handleRowClick(inv)}
+                    className="border-b border-slate-200 dark:border-violet-500/20 hover:bg-violet-200/30 dark:hover:bg-violet-500/10 transition-colors cursor-pointer group"
+                  >
                     <td className="px-3 lg:px-6 py-3.5 border-r border-slate-200 dark:border-violet-500/15 md:w-[120px] lg:w-auto">
-                      <Link href={`/dashboard/invoices?preview=${inv.id}`} className="text-[11px] lg:text-xs xl:text-sm font-semibold text-violet-600 dark:text-violet-400 group-hover:text-violet-800 transition-colors block truncate md:max-w-[100px] lg:max-w-none">
+                      <span className="text-[11px] lg:text-xs xl:text-sm font-semibold text-violet-600 dark:text-violet-400 group-hover:text-violet-800 transition-colors block truncate md:max-w-[100px] lg:max-w-none">
                         {inv.number}
-                      </Link>
+                      </span>
                     </td>
                     <td className="px-3 lg:px-6 py-3.5 border-r border-slate-200 dark:border-violet-500/15 md:w-[120px] lg:w-auto">
                       <span className="text-[11px] lg:text-xs xl:text-sm text-slate-700 dark:text-slate-300 block truncate md:max-w-[100px] lg:max-w-none">{inv.client}</span>
@@ -371,6 +408,16 @@ export default function DashboardPage() {
           </div>
         )}
       </div>
+
+      {/* Modal prévisualisation facture */}
+      <InvoicePreviewModal
+        invoice={previewInvoice}
+        open={previewOpen}
+        onOpenChange={(open) => {
+          setPreviewOpen(open);
+          if (!open) setPreviewInvoice(null);
+        }}
+      />
     </div>
   );
 }

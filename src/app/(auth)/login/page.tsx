@@ -15,8 +15,8 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 
-const GOOGLE_ICON = require("@/assets/icons/google.json");
-const GITHUB_ICON = require("@/assets/icons/github.json");
+import GOOGLE_ICON from "@/assets/icons/google.json";
+import GITHUB_ICON from "@/assets/icons/github.json";
 
 // Icône Microsoft colorée
 const MicrosoftIcon = () => (
@@ -157,17 +157,25 @@ export default function LoginPage() {
 								className="h-12 border-slate-300 focus:border-primary shadow-sm"
 							/>
 						</div>
-						<div className="space-y-2">
-							<Input
-								type="password"
-								placeholder="Mot de passe"
-								value={password}
-								onChange={(e) => setPassword(e.target.value)}
-								required
-								disabled={isLoading}
-								className="h-12 border-slate-300 focus:border-primary shadow-sm"
-							/>
+					<div className="space-y-2">
+						<Input
+							type="password"
+							placeholder="Mot de passe"
+							value={password}
+							onChange={(e) => setPassword(e.target.value)}
+							required
+							disabled={isLoading}
+							className="h-12 border-slate-300 focus:border-primary shadow-sm"
+						/>
+						<div className="flex justify-end">
+							<Link
+								href="/forgot-password"
+								className="text-xs text-slate-500 hover:text-primary transition-colors"
+							>
+								Mot de passe oublié ?
+							</Link>
 						</div>
+					</div>
 
 						<Button
 							type="submit"

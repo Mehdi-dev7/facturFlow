@@ -4,9 +4,10 @@ import { useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Player } from "@lordicon/react";
+import { Eye, EyeOff, CheckCircle2, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { authClient, signIn, signUp } from "@/lib/auth-client";
-import { passwordSchema, signUpSchema } from "@/lib/validations/auth";
+import { signUpSchema } from "@/lib/validations/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -16,9 +17,55 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import GOOGLE_ICON from "@/assets/icons/google.json";
+import GITHUB_ICON from "@/assets/icons/github.json";
 
-const GOOGLE_ICON = require("@/assets/icons/google.json");
-const GITHUB_ICON = require("@/assets/icons/github.json");
+// ─── Indicateur de force du mot de passe ─────────────────────────────────────
+
+function PasswordStrength({ password }: { password: string }) {
+	if (!password) return null;
+
+	const checks = [
+		{ label: "8 caractères minimum", ok: password.length >= 8 },
+		{ label: "Une majuscule", ok: /[A-Z]/.test(password) },
+		{ label: "Un chiffre", ok: /[0-9]/.test(password) },
+		{ label: "Un caractère spécial", ok: /[^A-Za-z0-9]/.test(password) },
+	];
+
+	const score = checks.filter((c) => c.ok).length;
+	const levels = ["", "Faible", "Moyen", "Bon", "Fort"];
+	const colors = ["", "text-red-500", "text-orange-500", "text-amber-500", "text-emerald-600"];
+	const bars = ["", "bg-red-400", "bg-orange-400", "bg-amber-400", "bg-emerald-500"];
+
+	return (
+		<div className="space-y-2 mt-2">
+			<div className="flex gap-1">
+				{[1, 2, 3, 4].map((i) => (
+					<div
+						key={i}
+						className={`h-1 flex-1 rounded-full transition-all duration-300 ${i <= score ? bars[score] : "bg-slate-200"}`}
+					/>
+				))}
+			</div>
+			{score > 0 && (
+				<p className={`text-xs font-medium ${colors[score]}`}>
+					Mot de passe {levels[score]}
+				</p>
+			)}
+			<ul className="space-y-0.5">
+				{checks.map((c) => (
+					<li key={c.label} className="flex items-center gap-1.5 text-xs">
+						{c.ok
+							? <CheckCircle2 className="h-3 w-3 text-emerald-500 shrink-0" />
+							: <XCircle className="h-3 w-3 text-slate-300 shrink-0" />
+						}
+						<span className={c.ok ? "text-slate-600" : "text-slate-400"}>{c.label}</span>
+					</li>
+				))}
+			</ul>
+		</div>
+	);
+}
 
 // Icône Microsoft colorée
 const MicrosoftIcon = () => (
@@ -36,8 +83,9 @@ export default function SignUpPage() {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [confirmPassword, setConfirmPassword] = useState("");
+	const [showPassword, setShowPassword] = useState(false);
+	const [showConfirm, setShowConfirm] = useState(false);
 	const [error, setError] = useState("");
-	const [passwordHint, setPasswordHint] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
 	const googleRef = useRef<Player>(null);
 	const githubRef = useRef<Player>(null);
@@ -57,16 +105,6 @@ export default function SignUpPage() {
 		},
 		[],
 	);
-
-	const handlePasswordChange = useCallback((val: string) => {
-		setPassword(val);
-		if (!val) {
-			setPasswordHint("");
-			return;
-		}
-		const result = passwordSchema.safeParse(val);
-		setPasswordHint(result.success ? "" : result.error.issues[0].message);
-	}, []);
 
 	const handleEmailSignUp = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -125,7 +163,7 @@ export default function SignUpPage() {
 	};
 
 	return (
-		<div className="flex min-h-screen items-center justify-center p-4 bg-gradient-to-br from-slate-50 via-white to-slate-50 relative overflow-hidden">
+		<div className="flex min-h-screen items-center justify-center p-4 bg-linear-to-br from-slate-50 via-white to-slate-50 relative overflow-hidden">
 			{/* Effet de fond élégant */}
 			<div className="absolute inset-0 overflow-hidden pointer-events-none">
 				<div
@@ -225,34 +263,50 @@ export default function SignUpPage() {
 								className="h-12 border-slate-300 shadow-sm"
 							/>
 						</div>
-						<div className="space-y-1">
+					<div className="space-y-1">
+						<div className="relative">
 							<Input
-								type="password"
-								placeholder="Mot de passe (Aa1! min. 8 car.)"
+								type={showPassword ? "text" : "password"}
+								placeholder="Mot de passe"
 								value={password}
-								onChange={(e) => handlePasswordChange(e.target.value)}
+								onChange={(e) => setPassword(e.target.value)}
 								required
 								disabled={isLoading}
-								className={`h-12 border-slate-300 shadow-sm ${passwordHint ? "border-red-300 focus:border-red-400" : ""}`}
+								className="h-12 pr-11 border-slate-300 shadow-sm"
 							/>
-							{passwordHint && (
-								<p className="text-red-500 text-xs pl-1">{passwordHint}</p>
-							)}
+							<button
+								type="button"
+								onClick={() => setShowPassword((v) => !v)}
+								className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+							>
+								{showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+							</button>
 						</div>
-						<div className="space-y-1">
+						<PasswordStrength password={password} />
+					</div>
+					<div className="space-y-1">
+						<div className="relative">
 							<Input
-								type="password"
+								type={showConfirm ? "text" : "password"}
 								placeholder="Confirmer le mot de passe"
 								value={confirmPassword}
 								onChange={(e) => setConfirmPassword(e.target.value)}
 								required
 								disabled={isLoading}
-								className={`h-12 border-slate-300 shadow-sm ${confirmPassword && confirmPassword !== password ? "border-red-300 focus:border-red-400" : ""}`}
+								className={`h-12 pr-11 border-slate-300 shadow-sm ${confirmPassword && confirmPassword !== password ? "border-red-400 focus:border-red-400" : ""}`}
 							/>
-							{confirmPassword && confirmPassword !== password && (
-								<p className="text-red-500 text-xs pl-1">Les mots de passe ne correspondent pas</p>
-							)}
+							<button
+								type="button"
+								onClick={() => setShowConfirm((v) => !v)}
+								className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+							>
+								{showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+							</button>
 						</div>
+						{confirmPassword && confirmPassword !== password && (
+							<p className="text-red-500 text-xs pl-1">Les mots de passe ne correspondent pas</p>
+						)}
+					</div>
 
 						{error && (
 							<div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">

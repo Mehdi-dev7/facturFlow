@@ -679,7 +679,7 @@ Utilise les agents quand :
   - Point vert si événement positif (PAID, ACCEPTED)
   - Point orange si info (SENT, REMINDED)
   - Applicable aussi aux notifications sidebar
-- [ ] **Paiements** : brancher Stripe (CB/Apple Pay/Google Pay), PayPal, GoCardless (SEPA)
+- [ ] **Paiements** : brancher Stripe (CB/Apple Pay/Google Pay), PayPal, GoCardless (SEPA) → voir section "FEATURE : Intégration Paiements Multi-Providers" ci-dessous
 - [ ] **Factures récurrentes** : page /dashboard/recurring, génération auto via cron
 - [ ] **Relances automatiques** : 3 niveaux (FRIENDLY/FIRM/FORMAL), cron sur dueDate
 - [ ] **Templates métiers** : 9 templates visuels pour les PDFs (web dev, designer, artisan…)
@@ -697,3 +697,64 @@ Utilise les agents quand :
 - [ ] **Démo vidéo** : vidéo de 1min à 1min30 pour le bouton "Voir la démo" sur la landing page
   - Scénario : création facture, envoi client, paiement SEPA automatique, dashboard stats
   - Format : screen recording avec voix-off ou sous-titres, montage propre
+
+---
+
+## FEATURE : Intégration Paiements Multi-Providers (Stripe / PayPal / GoCardless)
+
+### Contexte
+L'argent ne transite JAMAIS par FacturFlow — les paiements vont directement sur les comptes
+des users. Notre rôle : créer les liens de paiement à la volée et écouter les webhooks
+pour mettre à jour les statuts de factures automatiquement.
+
+### Architecture cible
+
+**1. Table Supabase `payment_accounts`**
+Stocker par user et par provider : provider (stripe|paypal|gocardless), credentials chiffrées
+(api_key ou access_token), statut (connected|disconnected), date de connexion.
+Les credentials doivent être chiffrées en base (vault Supabase ou chiffrement AES côté serveur
+avant insertion).
+
+**2. Page `/dashboard/payments`**
+- Cards par provider (Stripe / PayPal / GoCardless) avec statut connecté/déconnecté
+- Formulaire de saisie de clé API (v1 manuelle, pas OAuth)
+- Bouton déconnecter
+- Tuto steps intégré par provider (comment créer son compte et récupérer sa clé)
+
+**3. Route API `POST /api/payments/create-link`**
+Reçoit : `invoice_id`, `provider`
+- Récupère la facture (montant, devise, référence, email client)
+- Récupère les credentials du user pour le provider
+- Appelle l'API du provider pour créer une session/order/payment request
+- Retourne l'URL de paiement
+- **Stripe** : Checkout Session (line_items avec montant exact, currency, description = n° facture, customer_email, success_url, cancel_url)
+- **PayPal** : access_token → créer un Order avec le montant
+- **GoCardless** : créer un Payment Request SEPA
+
+**4. Webhooks**
+- `POST /api/webhooks/stripe` → vérifier signature → `checkout.session.completed` → invoice status = `PAID`
+- `POST /api/webhooks/paypal` → vérifier authenticité → `PAYMENT.CAPTURE.COMPLETED` → invoice status = `PAID`
+- `POST /api/webhooks/gocardless` → `payment.paid` → invoice status = `PAID`
+
+**5. Intégration dans la facture**
+Boutons "Payer par carte" / "Payer via PayPal" / "Prélèvement SEPA" sur la vue facture
+(PDF + page web), visibles uniquement pour les providers connectés par le user.
+Appellent `/api/payments/create-link` puis redirigent le client.
+
+### Règles importantes
+- Ne jamais logger les credentials en clair
+- Valider la signature des webhooks OBLIGATOIREMENT avant tout traitement
+- Montants toujours en centimes pour Stripe, en string décimal pour PayPal
+- Gérer les erreurs API proprement (provider indisponible, clé invalide, etc.)
+- RLS Supabase sur `payment_accounts` (user voit uniquement ses propres comptes)
+
+### Librairies autorisées
+`stripe` (npm), `@paypal/paypal-js` ou fetch natif, `gocardless-nodejs-client`
+
+### Ordre d'implémentation
+1. Migration Supabase (table `payment_accounts` + RLS)
+2. Page Dashboard Paiements (UI connexion/déconnexion)
+3. Route API `create-link` pour Stripe en premier
+4. Webhook Stripe + test avec Stripe CLI
+5. PayPal puis GoCardless (même pattern)
+6. Intégration boutons dans la vue facture
