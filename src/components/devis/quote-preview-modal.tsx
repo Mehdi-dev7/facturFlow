@@ -21,6 +21,7 @@ import {
   INVOICE_TYPE_LABELS,
   type InvoiceType,
 } from "@/lib/validations/invoice";
+import { getFontFamily, getFontWeight } from "@/components/appearance/theme-config";
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -184,6 +185,9 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
   const themeColor = quote.user.themeColor ?? "#7c3aed";
   const logo = quote.user.companyLogo;
   const displayName = quote.user.companyName ?? "";
+  const companyFont = quote.user.companyFont ?? "inter";
+  const fontFamily = getFontFamily(companyFont);
+  const fontWeight = getFontWeight(companyFont);
 
   return (
     <div className="bg-white dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 p-3 md:p-6 space-y-6 shadow-sm">
@@ -208,7 +212,7 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
               </div>
             )}
             {displayName && (
-              <p className="text-white/90 text-xs text-center font-medium">{displayName}</p>
+              <p className="text-white/90 text-xs text-center" style={{ fontFamily, fontWeight }}>{displayName}</p>
             )}
           </div>
           {/* Droite : dates */}

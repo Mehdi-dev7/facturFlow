@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import type { SavedDeposit } from "@/lib/types/deposits";
 import { sendDepositEmail } from "@/lib/actions/send-deposit-email";
+import { getFontFamily, getFontWeight } from "@/components/appearance/theme-config";
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -178,6 +179,13 @@ export function DepositPreviewModal({
     ].filter(Boolean);
     return parts.length > 0 ? parts.join(", ") : null;
   }, [deposit]);
+
+  // ── Police personnalisée ───────────────────────────────────────────────
+  // Ces variables doivent être déclarées AVANT tout return conditionnel
+
+  const companyFont = deposit?.user?.companyFont ?? "inter";
+  const fontFamily = getFontFamily(companyFont);
+  const fontWeight = getFontWeight(companyFont);
 
   // ── Rendu ──────────────────────────────────────────────────────────────
 
@@ -347,7 +355,7 @@ export function DepositPreviewModal({
                     </div>
                   )}
                   {displayName && (
-                    <p className="text-white/90 text-xs text-center font-medium">{displayName}</p>
+                    <p className="text-white/90 text-xs text-center" style={{ fontFamily, fontWeight }}>{displayName}</p>
                   )}
                 </div>
                 {/* Droite : dates */}

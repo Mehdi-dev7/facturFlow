@@ -3,6 +3,7 @@
 
 import {
   Document,
+  Font,
   Page,
   Text,
   View,
@@ -10,6 +11,9 @@ import {
   Image,
 } from "@react-pdf/renderer";
 import type { SavedDeposit } from "@/lib/types/deposits";
+
+import { registerPdfFonts, getPdfFontFamily } from "./pdf-fonts";
+registerPdfFonts();
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -50,12 +54,12 @@ const S = StyleSheet.create({
   page: {
     fontFamily: "Helvetica",
     fontSize: 10,
-    padding: 40,
-    paddingBottom: 50,
+    padding: 28,
+    paddingBottom: 44,
     color: "#1e293b",
   },
   // ── Header ────
-  headerBox: { padding: 20, marginBottom: 24, borderRadius: 8 },
+  headerBox: { padding: 16, marginBottom: 20, borderRadius: 8 },
   headerRow: { flexDirection: "row", alignItems: "flex-start" },
   headerLeft: { flex: 1 },
   headerTitle: {
@@ -65,10 +69,10 @@ const S = StyleSheet.create({
     marginBottom: 4,
   },
   headerNumber: { fontSize: 12, color: "#ffffffcc" },
-  headerCenter: { flex: 1, flexDirection: "column", alignItems: "center", gap: 4 },
+  headerCenter: { flex: 1, flexDirection: "column", alignItems: "center", justifyContent: "center" },
   headerLogoWrapper: { width: 48, height: 48, borderRadius: 24, overflow: "hidden" },
   headerLogo: { width: 48, height: 48 },
-  headerCompanyName: { fontSize: 9, color: "#ffffffcc", textAlign: "center" },
+  headerCompanyName: { fontSize: 13, fontFamily: "Helvetica-Bold", color: "#ffffff", textAlign: "center", marginTop: 6 },
   headerRight: { flex: 1, flexDirection: "column", alignItems: "flex-end" },
   headerDateLabel: { fontSize: 9, color: "#ffffffbb", marginBottom: 2 },
   headerDateValue: {
@@ -97,7 +101,8 @@ const S = StyleSheet.create({
     padding: 16,
     backgroundColor: "#f8fafc",
     borderRadius: 6,
-    border: "1px solid #e2e8f0",
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
   },
   depositTitle: { fontSize: 11, fontFamily: "Helvetica-Bold", marginBottom: 8 },
   depositDescription: {
@@ -117,6 +122,8 @@ const S = StyleSheet.create({
     justifyContent: "space-between",
     marginTop: 6,
     paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: "#e2e8f0",
   },
   totalFinalLabel: { fontSize: 12, fontFamily: "Helvetica-Bold" },
   totalFinalValue: { fontSize: 12, fontFamily: "Helvetica-Bold" },
@@ -132,14 +139,15 @@ const S = StyleSheet.create({
   // ── Footer ────
   footer: {
     position: "absolute",
-    bottom: 30,
-    left: 40,
-    right: 40,
+    bottom: 24,
+    left: 28,
+    right: 28,
     textAlign: "center",
     fontSize: 8,
     color: "#64748b",
-    borderTop: "1px solid #e2e8f0",
-    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: "#e2e8f0",
+    paddingTop: 8,
   },
 });
 
@@ -154,6 +162,7 @@ export default function DepositPdfDocument({ deposit }: DepositPdfDocumentProps)
   const themeColor = deposit.user.themeColor ?? "#7c3aed";
   const logo = deposit.user.companyLogo;
   const displayName = deposit.user.companyName ?? "";
+  const companyFontFamily = getPdfFontFamily(deposit.user.companyFont);
 
   // Couleurs dynamiques (inline car react-pdf ne supporte pas les classes dynamiques)
   const headerBg = { backgroundColor: themeColor };
@@ -161,9 +170,7 @@ export default function DepositPdfDocument({ deposit }: DepositPdfDocumentProps)
   const depositTitleColor = { color: themeColor };
   const totalBoxStyle = {
     backgroundColor: hexToRgba(themeColor, 0.07),
-    border: `1px solid ${hexToRgba(themeColor, 0.2)}`,
   };
-  const totalFinalBorder = { borderTop: `1.5px solid ${hexToRgba(themeColor, 0.35)}` };
   const totalFinalColor = { color: themeColor };
 
   return (
@@ -180,12 +187,16 @@ export default function DepositPdfDocument({ deposit }: DepositPdfDocumentProps)
 
             {/* Centre : Logo circulaire + nom entreprise */}
             <View style={S.headerCenter}>
-              {logo && (
+              {logo ? (
                 <View style={S.headerLogoWrapper}>
                   <Image src={logo} style={S.headerLogo} />
                 </View>
-              )}
-              {displayName ? <Text style={S.headerCompanyName}>{displayName}</Text> : null}
+              ) : null}
+              {displayName ? (
+                <Text style={[S.headerCompanyName, { fontFamily: companyFontFamily }]}>
+                  {displayName}
+                </Text>
+              ) : null}
             </View>
 
             {/* Droite : dates */}
@@ -258,7 +269,7 @@ export default function DepositPdfDocument({ deposit }: DepositPdfDocumentProps)
                 <Text style={S.totalLabel}>TVA ({deposit.vatRate}%) :</Text>
                 <Text style={S.totalValue}>{fmtN(deposit.taxTotal)} €</Text>
               </View>
-              <View style={[S.totalFinalRow, totalFinalBorder]}>
+              <View style={S.totalFinalRow}>
                 <Text style={[S.totalFinalLabel, totalFinalColor]}>Total TTC :</Text>
                 <Text style={[S.totalFinalValue, totalFinalColor]}>{fmtN(deposit.total)} €</Text>
               </View>

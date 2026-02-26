@@ -415,6 +415,7 @@ export function DepositsPageContent() {
           columns={columns}
           data={filteredRows}
           getRowId={(row) => row.id}
+          limit={10}
           mobileFields={["number", "client"]}
           mobileStatusKey="status"
           mobileAmountKey="amount"

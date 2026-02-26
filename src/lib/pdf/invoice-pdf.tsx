@@ -19,8 +19,10 @@ export async function downloadInvoicePDF(invoice: SavedInvoice) {
   if (!invoice.user.companyName) {
     try {
       const saved = localStorage.getItem("facturflow_company");
+      const appearance = localStorage.getItem("facturflow_appearance");
       if (saved) {
         const c = JSON.parse(saved) as { name?: string; siret?: string; address?: string; city?: string; email?: string; zipCode?: string };
+        const a = appearance ? JSON.parse(appearance) as { themeColor?: string; companyFont?: string; companyLogo?: string } : {};
         enriched = {
           ...invoice,
           user: {
@@ -31,6 +33,9 @@ export async function downloadInvoicePDF(invoice: SavedInvoice) {
             companyPostalCode: c.zipCode ?? null,
             companyCity: c.city ?? null,
             companyEmail: c.email ?? null,
+            themeColor: invoice.user.themeColor ?? a.themeColor ?? null,
+            companyFont: invoice.user.companyFont ?? a.companyFont ?? null,
+            companyLogo: invoice.user.companyLogo ?? a.companyLogo ?? null,
           },
         };
       }

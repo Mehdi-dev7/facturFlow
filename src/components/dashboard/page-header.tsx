@@ -41,7 +41,7 @@ export function PageHeader({
             <Button
               variant={ctaVariant}
               size="lg"
-              className="h-11 sm:h-12 px-6 sm:px-8 font-ui text-sm sm:text-base transition-all duration-300 cursor-pointer hover:scale-105 w-auto"
+              className="h-11 sm:h-12 px-6 sm:px-8 font-ui text-sm sm:text-base transition-all duration-300 cursor-pointer hover:scale-103 w-auto"
               onClick={onCtaClick}
             >
               {ctaIcon}
@@ -51,7 +51,7 @@ export function PageHeader({
             <Button
               variant={ctaVariant}
               size="lg"
-              className="h-11 sm:h-12 px-6 sm:px-8 font-ui text-sm sm:text-base transition-all duration-300 cursor-pointer hover:scale-105 w-auto"
+              className="h-11 sm:h-12 px-6 sm:px-8 font-ui text-sm sm:text-base transition-all duration-300 cursor-pointer hover:scale-103 w-auto"
               asChild
             >
               <Link href={ctaHref!}>

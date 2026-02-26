@@ -3,6 +3,7 @@
 
 import {
   Document,
+  Font,
   Page,
   Text,
   View,
@@ -10,6 +11,9 @@ import {
   Image,
 } from "@react-pdf/renderer";
 import type { SavedQuote } from "@/hooks/use-quotes";
+
+import { registerPdfFonts, getPdfFontFamily } from "./pdf-fonts";
+registerPdfFonts();
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -50,12 +54,12 @@ const S = StyleSheet.create({
   page: {
     fontFamily: "Helvetica",
     fontSize: 10,
-    padding: 40,
-    paddingBottom: 50,
+    padding: 28,
+    paddingBottom: 44,
     color: "#1e293b",
   },
   // ── Header ────
-  headerBox: { padding: 20, marginBottom: 24, borderRadius: 8 },
+  headerBox: { padding: 16, marginBottom: 20, borderRadius: 8 },
   headerRow: { flexDirection: "row", alignItems: "flex-start" },
   headerLeft: { flex: 1 },
   headerTitle: {
@@ -65,10 +69,10 @@ const S = StyleSheet.create({
     marginBottom: 4,
   },
   headerNumber: { fontSize: 12, color: "#ffffffcc" },
-  headerCenter: { flex: 1, flexDirection: "column", alignItems: "center", gap: 4 },
+  headerCenter: { flex: 1, flexDirection: "column", alignItems: "center", justifyContent: "center" },
   headerLogoWrapper: { width: 48, height: 48, borderRadius: 24, overflow: "hidden" },
   headerLogo: { width: 48, height: 48 },
-  headerCompanyName: { fontSize: 9, color: "#ffffffcc", textAlign: "center" },
+  headerCompanyName: { fontSize: 13, fontFamily: "Helvetica-Bold", color: "#ffffff", textAlign: "center", marginTop: 6 },
   headerRight: { flex: 1, flexDirection: "column", alignItems: "flex-end" },
   headerDateLabel: { fontSize: 9, color: "#ffffffbb", marginBottom: 2 },
   headerDateValue: {
@@ -93,8 +97,8 @@ const S = StyleSheet.create({
   textMuted: { fontSize: 9, color: "#64748b" },
   // ── Tableau ───
   table: { marginBottom: 16 },
-  tableHeader: { flexDirection: "row", padding: 8, borderBottom: "1px solid #e2e8f0" },
-  tableRow: { flexDirection: "row", padding: 8, borderBottom: "1px solid #f1f5f9" },
+  tableHeader: { flexDirection: "row", padding: 8, borderBottomWidth: 1, borderBottomColor: "#e2e8f0" },
+  tableRow: { flexDirection: "row", padding: 8, borderBottomWidth: 1, borderBottomColor: "#f1f5f9" },
   tableColDescription: { flex: 3 },
   tableColQuantity: { flex: 1, textAlign: "center" },
   tableColPrice: { flex: 1, textAlign: "right" },
@@ -115,7 +119,9 @@ const S = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     marginTop: 6,
-    paddingTop: 8,
+    paddingTop: 6,
+    borderTopWidth: 1,
+    borderTopColor: "#e2e8f0",
   },
   totalFinalLabel: { fontSize: 12, fontFamily: "Helvetica-Bold" },
   totalFinalValue: { fontSize: 12, fontFamily: "Helvetica-Bold" },
@@ -131,14 +137,15 @@ const S = StyleSheet.create({
   // ── Footer ────
   footer: {
     position: "absolute",
-    bottom: 30,
-    left: 40,
-    right: 40,
+    bottom: 24,
+    left: 28,
+    right: 28,
     textAlign: "center",
     fontSize: 8,
     color: "#64748b",
-    borderTop: "1px solid #e2e8f0",
-    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: "#e2e8f0",
+    paddingTop: 8,
   },
 });
 
@@ -153,6 +160,7 @@ export default function QuotePdfDocument({ quote }: QuotePdfDocumentProps) {
   const themeColor = quote.user.themeColor ?? "#7c3aed";
   const logo = quote.user.companyLogo;
   const displayName = quote.user.companyName ?? "";
+  const companyFontFamily = getPdfFontFamily(quote.user.companyFont);
 
   // Couleurs dynamiques (inline car react-pdf ne supporte pas les classes dynamiques)
   const headerBg = { backgroundColor: themeColor };
@@ -161,9 +169,7 @@ export default function QuotePdfDocument({ quote }: QuotePdfDocumentProps) {
   const tableHeaderTextColor = { color: themeColor };
   const totalBoxStyle = {
     backgroundColor: hexToRgba(themeColor, 0.07),
-    border: `1px solid ${hexToRgba(themeColor, 0.2)}`,
   };
-  const totalFinalBorder = { borderTop: `1.5px solid ${hexToRgba(themeColor, 0.35)}` };
   const totalFinalColor = { color: themeColor };
   const totalHtColor = { color: themeColor };
 
@@ -181,12 +187,16 @@ export default function QuotePdfDocument({ quote }: QuotePdfDocumentProps) {
 
             {/* Centre : Logo circulaire + nom entreprise */}
             <View style={S.headerCenter}>
-              {logo && (
+              {logo ? (
                 <View style={S.headerLogoWrapper}>
                   <Image src={logo} style={S.headerLogo} />
                 </View>
-              )}
-              {displayName ? <Text style={S.headerCompanyName}>{displayName}</Text> : null}
+              ) : null}
+              {displayName ? (
+                <Text style={[S.headerCompanyName, { fontFamily: companyFontFamily }]}>
+                  {displayName}
+                </Text>
+              ) : null}
             </View>
 
             {/* Droite : dates */}
@@ -278,7 +288,7 @@ export default function QuotePdfDocument({ quote }: QuotePdfDocumentProps) {
               <Text style={S.totalLabel}>TVA :</Text>
               <Text style={S.totalValue}>{fmtN(quote.taxTotal)} €</Text>
             </View>
-            <View style={[S.totalFinalRow, totalFinalBorder]}>
+            <View style={S.totalFinalRow}>
               <Text style={[S.totalFinalLabel, totalFinalColor]}>Total TTC :</Text>
               <Text style={[S.totalFinalValue, totalFinalColor]}>{fmtN(quote.total)} €</Text>
             </View>

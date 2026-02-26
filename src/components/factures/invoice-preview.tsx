@@ -14,19 +14,32 @@ import {
 } from "@/lib/validations/invoice";
 import { calcInvoiceTotals } from "@/lib/utils/calculs-facture";
 import { SiStripe, SiPaypal } from "react-icons/si";
+import { getFontFamily, getFontWeight, DEFAULT_THEME, DEFAULT_FONT } from "@/components/appearance/theme-config";
+
+// ─── Props ─────────────────────────────────────────────────────────────────────
 
 interface InvoicePreviewProps {
 	form: UseFormReturn<InvoiceFormData>;
 	invoiceNumber: string;
 	companyInfo: CompanyInfo | null;
 	compact?: boolean;
+	themeColor?: string;
+	companyFont?: string;
+	companyLogo?: string | null;
+	companyName?: string;
 }
+
+// ─── Composant principal ───────────────────────────────────────────────────────
 
 export function InvoicePreview({
 	form,
 	invoiceNumber,
 	companyInfo,
 	compact = false,
+	themeColor = DEFAULT_THEME.primary,
+	companyFont = DEFAULT_FONT.id,
+	companyLogo,
+	companyName = "",
 }: InvoicePreviewProps) {
 	const clientId = useWatch({ control: form.control, name: "clientId" });
 	const newClient = useWatch({ control: form.control, name: "newClient" });
@@ -35,22 +48,11 @@ export function InvoicePreview({
 	const date = useWatch({ control: form.control, name: "date" });
 	const dueDate = useWatch({ control: form.control, name: "dueDate" });
 	const notes = useWatch({ control: form.control, name: "notes" });
-	const paymentLinks = useWatch({
-		control: form.control,
-		name: "paymentLinks",
-	});
-	const invoiceType = (useWatch({
-		control: form.control,
-		name: "invoiceType",
-	}) ?? "basic") as InvoiceType;
-	const discountType = useWatch({
-		control: form.control,
-		name: "discountType",
-	});
-	const discountValue =
-		useWatch({ control: form.control, name: "discountValue" }) ?? 0;
-	const depositAmt =
-		useWatch({ control: form.control, name: "depositAmount" }) ?? 0;
+	const paymentLinks = useWatch({ control: form.control, name: "paymentLinks" });
+	const invoiceType = (useWatch({ control: form.control, name: "invoiceType" }) ?? "basic") as InvoiceType;
+	const discountType = useWatch({ control: form.control, name: "discountType" });
+	const discountValue = useWatch({ control: form.control, name: "discountValue" }) ?? 0;
+	const depositAmt = useWatch({ control: form.control, name: "depositAmount" }) ?? 0;
 
 	// ── Lookup client existant ─────────────────────────────────────────────
 	const { data: clients = [] } = useClients();
@@ -59,42 +61,33 @@ export function InvoicePreview({
 		[clients, clientId],
 	);
 
-	// ── Client ─────────────────────────────────────────────────────────────
-	// Pour les clients existants (clientId), les données détaillées ne sont pas
-	// disponibles dans le form — on affiche juste un placeholder.
-	// Pour les nouveaux clients (__new__), toutes les données sont dans newClient.
+	// ── Résolution du client ───────────────────────────────────────────────
 	const client = (() => {
-		if (newClient)
-			return {
-				name: newClient.name,
-				email: newClient.email,
-				city: newClient.city,
-				address: newClient.address,
-				postalCode: null as string | null,
-				siret: newClient.siret,
-			};
+		if (newClient) return {
+			name: newClient.name,
+			email: newClient.email,
+			city: newClient.city,
+			address: newClient.address,
+			postalCode: null as string | null,
+			siret: newClient.siret,
+		};
 		if (clientId && clientId !== "__new__") {
-			if (selectedClient) {
-				return {
-					name: selectedClient.name,
-					email: selectedClient.email ?? "",
-					city: selectedClient.city ?? "",
-					address: selectedClient.address ?? "",
-					postalCode: selectedClient.postalCode ?? null,
-					siret: selectedClient.siret ?? undefined,
-				};
-			}
-			return {
-				name: "Chargement…",
-				email: "",
-				city: "",
-				address: "",
-				postalCode: null as string | null,
-				siret: undefined,
+			if (selectedClient) return {
+				name: selectedClient.name,
+				email: selectedClient.email ?? "",
+				city: selectedClient.city ?? "",
+				address: selectedClient.address ?? "",
+				postalCode: selectedClient.postalCode ?? null,
+				siret: selectedClient.siret ?? undefined,
 			};
+			return { name: "Chargement…", email: "", city: "", address: "", postalCode: null as string | null, siret: undefined };
 		}
 		return null;
 	})();
+
+	// ── Apparence ─────────────────────────────────────────────────────────
+	const fontFamily = getFontFamily(companyFont);
+	const fontWeight = getFontWeight(companyFont);
 
 	// ── Calculs ────────────────────────────────────────────────────────────
 	const safeLines = lines || [];
@@ -106,140 +99,88 @@ export function InvoicePreview({
 		depositAmount: depositAmt,
 	});
 
-	const typeConfig =
-		INVOICE_TYPE_CONFIG[invoiceType] ?? INVOICE_TYPE_CONFIG["basic"];
+	const typeConfig = INVOICE_TYPE_CONFIG[invoiceType] ?? INVOICE_TYPE_CONFIG["basic"];
+	const isArtisan = invoiceType === "artisan";
+	const isForfait = typeConfig.quantityLabel === null;
+
+	const mainOeuvreLines = safeLines.filter((l) => !l.category || l.category === "main_oeuvre");
+	const materiauLines = safeLines.filter((l) => l.category === "materiel");
 
 	// ── Helpers ────────────────────────────────────────────────────────────
 	const fmt = (n: number) =>
-		n.toLocaleString("fr-FR", {
-			minimumFractionDigits: 2,
-			maximumFractionDigits: 2,
-		});
+		n.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 	const formatDate = (dateStr: string) => {
 		if (!dateStr) return "—";
-		return new Date(dateStr).toLocaleDateString("fr-FR", {
-			day: "2-digit",
-			month: "long",
-			year: "numeric",
-		});
+		return new Date(dateStr).toLocaleDateString("fr-FR", { day: "2-digit", month: "long", year: "numeric" });
 	};
 
-	// ── Groupement artisan ─────────────────────────────────────────────────
-	const isArtisan = invoiceType === "artisan";
-	const mainOeuvreLines = safeLines.filter(
-		(l) => !l.category || l.category === "main_oeuvre",
-	);
-	const materiauLines = safeLines.filter((l) => l.category === "materiel");
-	const isForfait = typeConfig.quantityLabel === null;
-
-	// ── Render ─────────────────────────────────────────────────────────────
-
-	// ── Mode compact (recap stepper) ──────────────────────────────────────
+	// ── Mode compact (récapitulatif stepper) ───────────────────────────────
 	if (compact) {
 		return (
 			<div className="space-y-3 text-xs">
-				{/* Infos facture */}
 				<div className="flex items-center justify-between text-[10px] text-slate-400 dark:text-violet-400/70 border-b border-slate-100 dark:border-violet-500/20 pb-2">
-					<span className="font-semibold text-violet-600 dark:text-violet-400">
-						{invoiceNumber}
-					</span>
-					<span>
-						{formatDate(date)} · éch. {formatDate(dueDate)}
-					</span>
+					<span className="font-semibold" style={{ color: themeColor }}>{invoiceNumber}</span>
+					<span>{formatDate(date)} · éch. {formatDate(dueDate)}</span>
 				</div>
 
-				{/* Émetteur */}
 				<div>
-					<p className="text-[10px] uppercase tracking-wider text-slate-400 dark:text-violet-400/60 mb-0.5 font-semibold">
-						Émetteur
-					</p>
+					<p className="text-[10px] uppercase tracking-wider mb-0.5 font-semibold" style={{ color: themeColor }}>Émetteur</p>
 					{companyInfo ? (
 						<div className="text-xs space-y-0.5 text-slate-700 dark:text-slate-300">
 							<p className="font-semibold">{companyInfo.name}</p>
-							{companyInfo.address && (
-								<p className="text-slate-500 dark:text-slate-400 text-[10px]">
-									{companyInfo.address}
-								</p>
-							)}
+							{companyInfo.address && <p className="text-slate-500 dark:text-slate-400 text-[10px]">{companyInfo.address}</p>}
 							{(companyInfo.zipCode || companyInfo.city) && (
 								<p className="text-slate-500 dark:text-slate-400 text-[10px]">
-									{[companyInfo.zipCode, companyInfo.city]
-										.filter(Boolean)
-										.join(" ")}
+									{[companyInfo.zipCode, companyInfo.city].filter(Boolean).join(" ")}
 								</p>
 							)}
-							<p className="text-slate-500 dark:text-slate-400">
-								{companyInfo.email}
-							</p>
+							<p className="text-slate-500 dark:text-slate-400">{companyInfo.email}</p>
 						</div>
 					) : (
 						<p className="text-xs text-slate-400 italic">Non renseigné</p>
 					)}
 				</div>
 
-				{/* Destinataire */}
 				<div>
-					<p className="text-[10px] uppercase tracking-wider text-slate-400 dark:text-violet-400/60 mb-0.5 font-semibold">
-						Destinataire
-					</p>
+					<p className="text-[10px] uppercase tracking-wider mb-0.5 font-semibold" style={{ color: themeColor }}>Destinataire</p>
 					{client ? (
 						<div className="text-xs space-y-0.5 text-slate-700 dark:text-slate-300">
 							<p className="font-semibold">{client.name}</p>
-							{client.address && (
-								<p className="text-slate-500 dark:text-slate-400 text-[10px]">
-									{client.address}
-								</p>
-							)}
+							{client.address && <p className="text-slate-500 dark:text-slate-400 text-[10px]">{client.address}</p>}
 							{(client.postalCode || client.city) && (
 								<p className="text-slate-500 dark:text-slate-400 text-[10px]">
 									{[client.postalCode, client.city].filter(Boolean).join(" ")}
-									{client.email && (
-										<p className="text-slate-500 dark:text-slate-400">
-											{client.email}
-										</p>
-									)}
 								</p>
 							)}
+							{client.email && <p className="text-slate-500 dark:text-slate-400">{client.email}</p>}
 						</div>
 					) : (
-						<p className="text-xs text-slate-400 italic">
-							Aucun client sélectionné
-						</p>
+						<p className="text-xs text-slate-400 italic">Aucun client sélectionné</p>
 					)}
 				</div>
 
 				<div className="h-px bg-slate-100 dark:bg-violet-500/20" />
 
-				{/* Lignes */}
 				<div className="space-y-1">
 					{safeLines.length === 0 ? (
 						<p className="text-xs text-slate-400 italic">Aucune ligne</p>
-					) : (
-						safeLines.map((line, i) => {
-							const qty = isForfait ? 1 : line.quantity || 0;
-							const ht = qty * (line.unitPrice || 0);
-							return (
-								<div key={i} className="flex justify-between gap-2">
-									<span className="text-slate-700 dark:text-slate-300 truncate flex-1">
-										{line.description || (
-											<span className="italic text-slate-300">
-												Ligne {i + 1}
-											</span>
-										)}
-									</span>
-									<span className="text-slate-500 dark:text-slate-400 shrink-0">
-										{fmt(ht)} €
-									</span>
-								</div>
-							);
-						})
-					)}
+					) : safeLines.map((line, i) => {
+						const qty = isForfait ? 1 : line.quantity || 0;
+						const ht = qty * (line.unitPrice || 0);
+						return (
+							<div key={i} className="flex justify-between gap-2">
+								<span className="text-slate-700 dark:text-slate-300 truncate flex-1">
+									{line.description || <span className="italic text-slate-300">Ligne {i + 1}</span>}
+								</span>
+								<span className="text-slate-500 dark:text-slate-400 shrink-0">{fmt(ht)} €</span>
+							</div>
+						);
+					})}
 				</div>
 
 				<div className="h-px bg-slate-100 dark:bg-violet-500/20" />
 
-				{/* Totaux */}
 				<div className="space-y-1">
 					<div className="flex justify-between text-slate-500 dark:text-slate-400">
 						<span>Sous-total HT</span>
@@ -257,9 +198,7 @@ export function InvoicePreview({
 					</div>
 					<div className="flex justify-between font-bold text-slate-800 dark:text-slate-100 pt-1 border-t border-slate-200 dark:border-violet-500/20">
 						<span>Total TTC</span>
-						<span className="text-violet-600 dark:text-violet-400">
-							{fmt(totals.totalTTC)} €
-						</span>
+						<span style={{ color: themeColor }}>{fmt(totals.totalTTC)} €</span>
 					</div>
 					{totals.depositAmount > 0 && (
 						<div className="flex justify-between text-rose-500">
@@ -268,16 +207,13 @@ export function InvoicePreview({
 						</div>
 					)}
 					{(totals.depositAmount > 0 || totals.discountAmount > 0) && (
-						<div className="flex justify-between font-extrabold text-slate-900 dark:text-slate-50 pt-1 border-t-2 border-violet-300 dark:border-violet-400/40">
+						<div className="flex justify-between font-extrabold text-slate-900 dark:text-slate-50 pt-1 border-t-2 border-slate-200 dark:border-violet-400/40">
 							<span>NET À PAYER</span>
-							<span className="text-violet-600 dark:text-violet-300">
-								{fmt(totals.netAPayer)} €
-							</span>
+							<span style={{ color: themeColor }}>{fmt(totals.netAPayer)} €</span>
 						</div>
 					)}
 				</div>
 
-				{/* Notes */}
 				{notes && (
 					<p className="text-[10px] text-slate-500 dark:text-slate-400 italic border-t border-slate-100 dark:border-violet-500/20 pt-2">
 						{notes}
@@ -290,23 +226,36 @@ export function InvoicePreview({
 	// ── Mode normal (desktop preview A4) ──────────────────────────────────
 	return (
 		<div className="w-full min-h-[800px] bg-white rounded-2xl border border-slate-300/80 shadow-lg shadow-slate-200/50 overflow-hidden flex flex-col">
-			{/* Header */}
-			<div className="bg-linear-to-r from-violet-600 to-indigo-600 px-6 py-5 text-white">
-				<div className="flex items-start justify-between">
-					<div>
-						<h2 className="text-lg font-bold tracking-tight font-heading">
-							FACTURE
-						</h2>
-						<p className="text-violet-200 text-xs 2xl:text-sm mt-0.5">{invoiceNumber}</p>
+			{/* Header 3 colonnes : type+N° | logo+nom | dates */}
+			<div className="px-6 py-5 text-white" style={{ backgroundColor: themeColor }}>
+				<div className="flex items-start gap-4">
+					{/* Gauche : FACTURE + N° */}
+					<div className="flex-1">
+						<h2 className="text-lg font-bold tracking-tight">FACTURE</h2>
+						<p className="text-white/90 text-xs mt-0.5">{invoiceNumber}</p>
 						{invoiceType !== "basic" && (
 							<span className="inline-block mt-1.5 text-[10px] bg-white/20 px-2 py-0.5 rounded-full font-medium tracking-wide">
 								{INVOICE_TYPE_LABELS[invoiceType]}
 							</span>
 						)}
 					</div>
-					<div className="text-right text-xs 2xl:text-sm">
-						<p>Date : {formatDate(date)}</p>
-						<p>Échéance : {formatDate(dueDate)}</p>
+					{/* Centre : logo circulaire + nom entreprise */}
+					<div className="flex-1 flex flex-col items-center gap-1.5">
+						{companyLogo && (
+							<div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white/30 shrink-0">
+								<img src={companyLogo} alt="Logo" className="w-full h-full object-cover" />
+							</div>
+						)}
+						{companyName && (
+							<p className="text-white/90 text-xs text-center" style={{ fontFamily, fontWeight }}>
+								{companyName}
+							</p>
+						)}
+					</div>
+					{/* Droite : dates */}
+					<div className="flex-1 text-right text-xs">
+						<p className="text-white/90">Date : {formatDate(date)}</p>
+						<p className="text-white/90">Échéance : {formatDate(dueDate)}</p>
 					</div>
 				</div>
 			</div>
@@ -315,29 +264,19 @@ export function InvoicePreview({
 				{/* Émetteur & Destinataire */}
 				<div className="grid grid-cols-2 gap-6">
 					<div>
-						<p className="text-[10px] uppercase tracking-wider text-slate-400 mb-1 font-semibold">
+						<p className="text-[10px] uppercase tracking-wider mb-1 font-semibold" style={{ color: themeColor }}>
 							Émetteur
 						</p>
 						{companyInfo ? (
 							<div className="text-xs space-y-0.5">
-								<p className="font-semibold text-slate-800">
-									{companyInfo.name}
-								</p>
-								{companyInfo.address && (
-									<p className="text-slate-500 text-[11px]">
-										{companyInfo.address}
-									</p>
-								)}
+								<p className="font-semibold text-slate-800">{companyInfo.name}</p>
+								{companyInfo.address && <p className="text-slate-500 text-[11px]">{companyInfo.address}</p>}
 								{(companyInfo.zipCode || companyInfo.city) && (
 									<p className="text-slate-500 text-[11px]">
-										{[companyInfo.zipCode, companyInfo.city]
-											.filter(Boolean)
-											.join(" ")}
+										{[companyInfo.zipCode, companyInfo.city].filter(Boolean).join(" ")}
 									</p>
 								)}
-								<p className="text-slate-500 text-[11px]">
-									SIRET : {companyInfo.siret}
-								</p>
+								<p className="text-slate-500 text-[11px]">SIRET : {companyInfo.siret}</p>
 								<p className="text-slate-500">{companyInfo.email}</p>
 								{companyInfo.phone && <p className="text-slate-500">{companyInfo.phone}</p>}
 							</div>
@@ -346,138 +285,90 @@ export function InvoicePreview({
 						)}
 					</div>
 					<div>
-						<p className="text-[10px] uppercase tracking-wider text-slate-400 mb-1 font-semibold">
+						<p className="text-[10px] uppercase tracking-wider mb-1 font-semibold" style={{ color: themeColor }}>
 							Destinataire
 						</p>
 						{client ? (
 							<div className="text-xs space-y-0.5">
 								<p className="font-semibold text-slate-800">{client.name}</p>
-								{client.address && (
-									<p className="text-slate-500 text-[11px]">{client.address}</p>
-								)}
+								{client.address && <p className="text-slate-500 text-[11px]">{client.address}</p>}
 								{(client.postalCode || client.city) && (
 									<p className="text-slate-500 text-[11px]">
 										{[client.postalCode, client.city].filter(Boolean).join(" ")}
 									</p>
 								)}
-								{client.siret && (
-									<p className="text-slate-500 text-[11px]">
-										SIRET : {client.siret}
-									</p>
-								)}
-								{client.email && (
-									<p className="text-slate-500">{client.email}</p>
-								)}
+								{client.siret && <p className="text-slate-500 text-[11px]">SIRET : {client.siret}</p>}
+								{client.email && <p className="text-slate-500">{client.email}</p>}
 							</div>
 						) : (
-							<p className="text-xs text-slate-400 italic">
-								Aucun client sélectionné
-							</p>
+							<p className="text-xs text-slate-400 italic">Aucun client sélectionné</p>
 						)}
 					</div>
 				</div>
 
 				<div className="h-px bg-slate-200 mt-2 mb-1" />
 
-				{/* Lignes — artisan : 2 sections, autres : tableau simple */}
+				{/* Lignes */}
 				{isArtisan ? (
 					<div className="space-y-4">
-						<LinesTable
-							title="Main d'œuvre"
-							lines={mainOeuvreLines}
-							isForfait={false}
-							typeConfig={typeConfig}
-							fmt={fmt}
-						/>
+						<LinesTable title="Main d'œuvre" lines={mainOeuvreLines} isForfait={false} typeConfig={typeConfig} fmt={fmt} themeColor={themeColor} />
 						{materiauLines.length > 0 && (
-							<LinesTable
-								title="Matériaux"
-								lines={materiauLines}
-								isForfait={false}
-								typeConfig={typeConfig}
-								fmt={fmt}
-							/>
+							<LinesTable title="Matériaux" lines={materiauLines} isForfait={false} typeConfig={typeConfig} fmt={fmt} themeColor={themeColor} />
 						)}
 					</div>
 				) : (
-					<LinesTable
-						lines={safeLines}
-						isForfait={isForfait}
-						typeConfig={typeConfig}
-						fmt={fmt}
-					/>
+					<LinesTable lines={safeLines} isForfait={isForfait} typeConfig={typeConfig} fmt={fmt} themeColor={themeColor} />
 				)}
 
-				{/* Spacer : pousse les totaux vers le bas de la page A4 */}
 				<div className="flex-1" />
 
 				{/* Totaux */}
 				<div className="flex justify-end">
-					<div className="w-64 space-y-1.5">
-						{/* Sous-total HT */}
+					<div
+						className="w-64 space-y-1.5 rounded-lg p-3 border"
+						style={{ backgroundColor: themeColor + "0d", borderColor: themeColor + "33" }}
+					>
 						<div className="flex justify-between text-sm">
-							<span className="text-slate-500">Sous-total HT</span>
-							<span className="text-slate-800 font-medium">
-								{fmt(totals.subtotal)} €
-							</span>
+							<span style={{ color: themeColor }}>Sous-total HT</span>
+							<span className="text-slate-800 font-medium">{fmt(totals.subtotal)} €</span>
 						</div>
 
-						{/* Réduction */}
 						{totals.discountAmount > 0 && (
 							<>
 								<div className="flex justify-between text-sm">
-									<span className="text-slate-500">
-										Réduction
-										{discountType === "pourcentage"
-											? ` (${discountValue}%)`
-											: ""}
+									<span style={{ color: themeColor }}>
+										Réduction{discountType === "pourcentage" ? ` (${discountValue}%)` : ""}
 									</span>
-									<span className="text-rose-600 font-medium">
-										−{fmt(totals.discountAmount)} €
-									</span>
+									<span className="text-rose-600 font-medium">−{fmt(totals.discountAmount)} €</span>
 								</div>
-								<div className="flex justify-between text-sm border-t border-slate-100 pt-1">
+								<div className="flex justify-between text-sm" style={{ borderTop: `1px solid ${themeColor}33`, paddingTop: "4px" }}>
 									<span className="text-slate-600 font-medium">Net HT</span>
-									<span className="text-slate-800 font-medium">
-										{fmt(totals.netHT)} €
-									</span>
+									<span className="text-slate-800 font-medium">{fmt(totals.netHT)} €</span>
 								</div>
 							</>
 						)}
 
-						{/* TVA */}
 						<div className="flex justify-between text-sm">
-							<span className="text-slate-500">TVA ({vatRate ?? 0}%)</span>
-							<span className="text-slate-800 font-medium">
-								{fmt(totals.taxTotal)} €
-							</span>
+							<span style={{ color: themeColor }}>TVA ({vatRate ?? 0}%)</span>
+							<span className="text-slate-800 font-medium">{fmt(totals.taxTotal)} €</span>
 						</div>
 
-						<div className="h-px bg-slate-200 my-1" />
-
-						{/* Total TTC */}
-						<div className="flex justify-between text-base font-bold">
+						<div className="flex justify-between text-base font-bold pt-2" style={{ borderTop: `1px solid ${themeColor}33` }}>
 							<span className="text-slate-900">Total TTC</span>
-							<span className="text-violet-600">{fmt(totals.totalTTC)} €</span>
+							<span style={{ color: themeColor }}>{fmt(totals.totalTTC)} €</span>
 						</div>
 
-						{/* Acompte */}
 						{totals.depositAmount > 0 && (
-							<div className="flex justify-between text-sm">
-								<span className="text-slate-500">Acompte versé</span>
-								<span className="text-rose-600 font-medium">
-									−{fmt(totals.depositAmount)} €
-								</span>
+							<div className="flex justify-between text-sm" style={{ borderTop: `1px solid ${themeColor}33`, paddingTop: "4px" }}>
+								<span style={{ color: themeColor }}>Acompte versé</span>
+								<span className="text-rose-600 font-medium">−{fmt(totals.depositAmount)} €</span>
 							</div>
 						)}
 
-						{/* NET À PAYER */}
 						{(totals.depositAmount > 0 || totals.discountAmount > 0) && (
-							<div className="flex justify-between items-center pt-2 border-t-2 border-violet-300 mt-1">
-								<span className="text-sm font-extrabold text-slate-900 tracking-tight">
-									NET À PAYER
-								</span>
-								<span className="text-base font-extrabold text-violet-700">
+							<div className="flex justify-between items-center pt-2 mt-1" style={{ borderTop: `2px solid ${themeColor}66` }}>
+								<span className="text-sm font-extrabold text-slate-900 tracking-tight">NET À PAYER</span>
+								<span className="text-base font-extrabold" style={{ color: themeColor }}>
 									{fmt(totals.netAPayer)} €
 								</span>
 							</div>
@@ -488,44 +379,37 @@ export function InvoicePreview({
 				{/* Notes */}
 				{notes && (
 					<div className="rounded-lg bg-slate-50 border border-slate-100 p-3 text-xs text-slate-600">
-						<p className="font-medium text-slate-700 mb-1">Notes</p>
-						<p className="whitespace-pre-line">{notes}</p>
+						<p className="font-medium mb-1" style={{ color: themeColor }}>Notes</p>
+						<p className="whitespace-pre-line text-slate-700">{notes}</p>
 					</div>
 				)}
 
 				{/* Liens de paiement */}
-				{paymentLinks &&
-					(paymentLinks.stripe ||
-						paymentLinks.paypal ||
-						paymentLinks.gocardless) && (
-						<div className="space-y-1.5">
-							<p className="text-[10px] font-medium text-slate-400 dark:text-violet-400 uppercase tracking-wider">
-								Payer par
-							</p>
-							<div className="flex flex-wrap gap-2">
-								{paymentLinks.stripe && (
-									<span className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-gradient-to-r from-[#635BFF] to-[#7C3AED] px-3 py-1.5 rounded-lg">
-										<SiStripe className="size-3.5" />
-										Carte bancaire
-									</span>
-								)}
-								{paymentLinks.paypal && (
-									<span className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-gradient-to-r from-[#003087] to-[#009CDE] px-3 py-1.5 rounded-lg">
-										<SiPaypal className="size-3.5" />
-										PayPal
-									</span>
-								)}
-								{paymentLinks.gocardless && (
-									<span className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-gradient-to-r from-[#0F766E] to-[#059669] px-3 py-1.5 rounded-lg">
-										<span className="flex size-3.5 items-center justify-center rounded bg-white/25 text-[7px] font-bold">
-											GC
-										</span>
-										SEPA
-									</span>
-								)}
-							</div>
+				{paymentLinks && (paymentLinks.stripe || paymentLinks.paypal || paymentLinks.gocardless) && (
+					<div className="space-y-1.5">
+						<p className="text-[10px] font-medium uppercase tracking-wider" style={{ color: themeColor }}>
+							Payer par
+						</p>
+						<div className="flex flex-wrap gap-2">
+							{paymentLinks.stripe && (
+								<span className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-linear-to-r from-[#635BFF] to-[#7C3AED] px-3 py-1.5 rounded-lg">
+									<SiStripe className="size-3.5" /> Carte bancaire
+								</span>
+							)}
+							{paymentLinks.paypal && (
+								<span className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-linear-to-r from-[#003087] to-[#009CDE] px-3 py-1.5 rounded-lg">
+									<SiPaypal className="size-3.5" /> PayPal
+								</span>
+							)}
+							{paymentLinks.gocardless && (
+								<span className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-linear-to-r from-[#0F766E] to-[#059669] px-3 py-1.5 rounded-lg">
+									<span className="flex size-3.5 items-center justify-center rounded bg-white/25 text-[7px] font-bold">GC</span>
+									SEPA
+								</span>
+							)}
 						</div>
-					)}
+					</div>
+				)}
 
 				{/* Footer */}
 				<div className="text-center text-[10px] text-slate-400 pt-4 border-t border-slate-100">
@@ -536,94 +420,82 @@ export function InvoicePreview({
 	);
 }
 
-// ─── Sous-composant tableau de lignes ─────────────────────────────────────────
+// ─── Sous-composant tableau de lignes (avec themeColor) ────────────────────────
 
 interface LinesTableProps {
 	title?: string;
 	lines: { description?: string; quantity?: number; unitPrice?: number }[];
 	isForfait: boolean;
-	typeConfig: {
-		descriptionLabel: string;
-		quantityLabel: string | null;
-		priceLabel: string;
-	};
+	typeConfig: { descriptionLabel: string; quantityLabel: string | null; priceLabel: string };
 	fmt: (n: number) => string;
+	themeColor: string;
 }
 
-function LinesTable({
-	title,
-	lines,
-	isForfait,
-	typeConfig,
-	fmt,
-}: LinesTableProps) {
+function LinesTable({ title, lines, isForfait, typeConfig, fmt, themeColor }: LinesTableProps) {
 	return (
 		<div>
 			{title && (
-				<p className="text-[10px] uppercase tracking-wider text-violet-500 font-semibold mb-1.5">
+				<p className="text-[10px] uppercase tracking-wider font-semibold mb-1.5" style={{ color: themeColor }}>
 					{title}
 				</p>
 			)}
-			<table className="w-full text-sm">
-				<thead>
-					<tr className="border-b-2 border-slate-200">
-						<th className="text-left py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-							{typeConfig.descriptionLabel}
-						</th>
-						{!isForfait && (
-							<th className="text-right py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider w-14">
-								{typeConfig.quantityLabel}
-							</th>
-						)}
-						<th className="text-right py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider w-24">
-							{isForfait ? "Montant" : "Prix unit."}
-						</th>
-						{!isForfait && (
-							<th className="text-right py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider w-24">
-								Total HT
-							</th>
-						)}
-					</tr>
-				</thead>
-				<tbody>
-					{lines.map((line, i) => {
-						const qty = isForfait ? 1 : line.quantity || 0;
-						const ht = qty * (line.unitPrice || 0);
-						return (
-							<tr key={i} className="border-b border-slate-100">
-								<td className="py-2.5 text-slate-700">
-									{line.description || (
-										<span className="text-slate-300 italic">Ligne {i + 1}</span>
-									)}
-								</td>
-								{!isForfait && (
-									<td className="py-2.5 text-right text-slate-600">
-										{line.quantity || 0}
-									</td>
-								)}
-								<td className="py-2.5 text-right text-slate-600">
-									{fmt(line.unitPrice || 0)} €
-								</td>
-								{!isForfait && (
-									<td className="py-2.5 text-right font-medium text-slate-800">
-										{fmt(ht)} €
-									</td>
-								)}
-							</tr>
-						);
-					})}
-					{lines.length === 0 && (
+			<div className="border border-slate-200 rounded-lg overflow-hidden">
+				<table className="w-full text-sm">
+					<thead style={{ backgroundColor: themeColor + "1a" }}>
 						<tr>
-							<td
-								colSpan={isForfait ? 2 : 4}
-								className="py-6 text-center text-sm text-slate-400 italic"
-							>
-								Aucune ligne
-							</td>
+							<th className="text-left p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: themeColor }}>
+								{typeConfig.descriptionLabel}
+							</th>
+							{!isForfait && (
+								<th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: themeColor }}>
+									{typeConfig.quantityLabel}
+								</th>
+							)}
+							<th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: themeColor }}>
+								{isForfait ? "Montant" : "Prix unit."}
+							</th>
+							{!isForfait && (
+								<th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: themeColor }}>
+									Total HT
+								</th>
+							)}
 						</tr>
-					)}
-				</tbody>
-			</table>
+					</thead>
+					<tbody>
+						{lines.map((line, i) => {
+							const qty = isForfait ? 1 : line.quantity || 0;
+							const ht = qty * (line.unitPrice || 0);
+							return (
+								<tr key={i} className="border-t border-slate-100 bg-slate-50/50">
+									<td className="p-2 lg:p-3 text-xs lg:text-sm text-slate-700">
+										{line.description || <span className="text-slate-300 italic">Ligne {i + 1}</span>}
+									</td>
+									{!isForfait && (
+										<td className="p-2 lg:p-3 text-xs lg:text-sm text-right text-slate-600">
+											{line.quantity || 0}
+										</td>
+									)}
+									<td className="p-2 lg:p-3 text-xs lg:text-sm text-right text-slate-600">
+										{fmt(line.unitPrice || 0)} €
+									</td>
+									{!isForfait && (
+										<td className="p-2 lg:p-3 text-xs lg:text-sm text-right font-medium" style={{ color: themeColor }}>
+											{fmt(ht)} €
+										</td>
+									)}
+								</tr>
+							);
+						})}
+						{lines.length === 0 && (
+							<tr>
+								<td colSpan={isForfait ? 2 : 4} className="py-6 text-center text-sm text-slate-400 italic">
+									Aucune ligne
+								</td>
+							</tr>
+						)}
+					</tbody>
+				</table>
+			</div>
 		</div>
 	);
 }

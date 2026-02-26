@@ -32,6 +32,7 @@ export interface FontOption {
   name: string;
   label: string;        // Texte d'aperçu
   family: string;       // CSS font-family
+  weight?: number;      // Weight disponible (par défaut 700 pour bold)
   googleFont?: string;  // Paramètre Google Fonts (null = système)
 }
 
@@ -41,34 +42,55 @@ export const FONT_OPTIONS: FontOption[] = [
     name: "Inter",
     label: "Moderne & Épuré",
     family: "Inter, system-ui, sans-serif",
+    weight: 700,
   },
   {
     id: "playfair",
     name: "Playfair Display",
     label: "Élégant & Luxe",
     family: "'Playfair Display', serif",
-    googleFont: "Playfair+Display:wght@400;700",
+    weight: 700,
+    // Police locale chargée via globals.css @font-face
   },
   {
     id: "script",
     name: "Dancing Script",
     label: "Manuscrit & Créatif",
     family: "'Dancing Script', cursive",
-    googleFont: "Dancing+Script:wght@400;700",
+    weight: 700,
+    // Police locale chargée via globals.css @font-face
   },
   {
     id: "orbitron",
     name: "Orbitron",
     label: "Tech & Futuriste",
     family: "Orbitron, sans-serif",
-    googleFont: "Orbitron:wght@400;700",
+    weight: 700,
+    // Police locale chargée via globals.css @font-face
   },
   {
-    id: "bebas",
-    name: "Bebas Neue",
-    label: "Impact & Bold",
-    family: "'Bebas Neue', sans-serif",
-    googleFont: "Bebas+Neue",
+    id: "sour-gummy",
+    name: "Sour Gummy",
+    label: "Ludique & Fun",
+    family: "'Sour Gummy', sans-serif",
+    weight: 700,
+    // Police locale chargée via globals.css @font-face
+  },
+  {
+    id: "shadows",
+    name: "Shadows Into Light Two",
+    label: "Manuscrit & Léger",
+    family: "'Shadows Into Light Two', cursive",
+    weight: 400,  // Cette police n'a que weight 400
+    // Police locale chargée via globals.css @font-face
+  },
+  {
+    id: "kanit",
+    name: "Kanit",
+    label: "Moderne & Expansé",
+    family: "Kanit, sans-serif",
+    weight: 700,
+    // Police locale chargée via globals.css @font-face
   },
 ];
 
@@ -79,6 +101,11 @@ export const DEFAULT_FONT = FONT_OPTIONS[0]; // Inter
 /** Retourne la famille CSS d'une font par son id */
 export function getFontFamily(fontId: string): string {
   return FONT_OPTIONS.find((f) => f.id === fontId)?.family ?? FONT_OPTIONS[0].family;
+}
+
+/** Retourne le weight CSS d'une font par son id (pour le nom entreprise en bold) */
+export function getFontWeight(fontId: string): number {
+  return FONT_OPTIONS.find((f) => f.id === fontId)?.weight ?? 700;
 }
 
 /** Calcule le gradient CSS à partir d'une couleur hex (pour le mode custom) */

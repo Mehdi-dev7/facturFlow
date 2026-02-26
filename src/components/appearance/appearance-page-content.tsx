@@ -3,14 +3,14 @@
 // Page Apparence — split layout desktop / sticky preview mobile
 // Gère l'état local et sauvegarde via server action
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { Save, Palette } from "lucide-react";
 import { InvoicePreview } from "./invoice-preview";
 import { ThemePicker } from "./theme-picker";
 import { FontPicker } from "./font-picker";
 import { LogoUpload } from "./logo-upload";
-import { FONT_OPTIONS, DEFAULT_THEME, DEFAULT_FONT } from "./theme-config";
+import { DEFAULT_THEME, DEFAULT_FONT } from "./theme-config";
 import { saveAppearance } from "@/lib/actions/appearance";
 
 // ─── Props (données initiales depuis le serveur) ──────────────────────────────
@@ -33,24 +33,6 @@ export function AppearancePageContent({ initial }: AppearancePageContentProps) {
   const [companyName,  setCompanyName]  = useState(initial.companyName  ?? "");
   const [logo,         setLogo]         = useState<string | null>(initial.companyLogo);
   const [isSaving,     setIsSaving]     = useState(false);
-
-  // ── Chargement des Google Fonts nécessaires ────────────────────────────────
-
-  useEffect(() => {
-    const googleFonts = FONT_OPTIONS
-      .filter((f) => f.googleFont)
-      .map((f) => `family=${f.googleFont}`)
-      .join("&");
-
-    const url = `https://fonts.googleapis.com/css2?${googleFonts}&display=swap`;
-
-    if (!document.querySelector(`link[href="${url}"]`)) {
-      const link = document.createElement("link");
-      link.rel = "stylesheet";
-      link.href = url;
-      document.head.appendChild(link);
-    }
-  }, []);
 
   // ── Sauvegarde ────────────────────────────────────────────────────────────
 
@@ -104,12 +86,12 @@ export function AppearancePageContent({ initial }: AppearancePageContentProps) {
         <div className="w-full lg:flex-1 space-y-7">
 
           {/* Couleur du thème */}
-          <section className="bg-white dark:bg-[#1a1438] rounded-2xl border border-slate-200 dark:border-violet-500/20 p-5 shadow-sm">
+          <section className="bg-white dark:bg-[#1a1438] rounded-2xl border border-slate-200 dark:border-violet-500/20 p-3 sm:p-5 shadow-sm">
             <ThemePicker value={themeColor} onChange={setThemeColor} />
           </section>
 
           {/* Nom de l'entreprise */}
-          <section className="bg-white dark:bg-[#1a1438] rounded-2xl border border-slate-200 dark:border-violet-500/20 p-5 shadow-sm space-y-3">
+          <section className="bg-white dark:bg-[#1a1438] rounded-2xl border border-slate-200 dark:border-violet-500/20 p-3 sm:p-5 shadow-sm space-y-3">
             <label className="text-sm font-semibold text-slate-800 dark:text-slate-200 block">
               Nom affiché sur les documents
             </label>
@@ -119,7 +101,7 @@ export function AppearancePageContent({ initial }: AppearancePageContentProps) {
               onChange={(e) => setCompanyName(e.target.value)}
               placeholder="Votre Entreprise"
               maxLength={60}
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-violet-500/30 bg-slate-50 dark:bg-[#2a2254]/50 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500/40 transition"
+              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-violet-500/30 bg-slate-50 dark:bg-[#2a2254]/50 text-slate-900 dark:text-slate-100 text-xs sm:text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500/40 transition"
             />
             <p className="text-[10px] text-slate-400">
               S&apos;affiche dans le header de toutes vos factures, devis et acomptes.
@@ -127,29 +109,31 @@ export function AppearancePageContent({ initial }: AppearancePageContentProps) {
           </section>
 
           {/* Logo */}
-          <section className="bg-white dark:bg-[#1a1438] rounded-2xl border border-slate-200 dark:border-violet-500/20 p-5 shadow-sm">
+          <section className="bg-white dark:bg-[#1a1438] rounded-2xl border border-slate-200 dark:border-violet-500/20 p-3 sm:p-5 shadow-sm">
             <LogoUpload value={logo} onChange={setLogo} />
           </section>
 
           {/* Police */}
-          <section className="bg-white dark:bg-[#1a1438] rounded-2xl border border-slate-200 dark:border-violet-500/20 p-5 shadow-sm">
+          <section className="bg-white dark:bg-[#1a1438] rounded-2xl border border-slate-200 dark:border-violet-500/20 p-3 sm:p-5 shadow-sm">
             <FontPicker value={companyFont} companyName={companyName} onChange={setCompanyFont} />
           </section>
 
-          {/* Bouton Enregistrer */}
-          <button
-            type="button"
-            onClick={handleSave}
-            disabled={isSaving}
-            className="w-full flex items-center justify-center gap-2 py-3 px-6 rounded-xl bg-linear-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white font-semibold text-sm shadow-md shadow-violet-500/25 transition-all disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
-          >
-            <Save size={16} />
-            {isSaving ? "Sauvegarde en cours…" : "Enregistrer l'apparence"}
-          </button>
+          {/* Bouton Enregistrer — pleine largeur mobile, 1/3 à partir de md */}
+          <div className="md:ml-auto md:w-1/2">
+            <button
+              type="button"
+              onClick={handleSave}
+              disabled={isSaving}
+              className="w-full h-11 flex items-center justify-center gap-2 px-6 rounded-xl bg-linear-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white font-semibold text-sm shadow-md shadow-violet-500/25 transition-all duration-300 hover:scale-103 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+            >
+              <Save size={16} />
+              {isSaving ? "Sauvegarde en cours…" : "Enregistrer"}
+            </button>
+          </div>
         </div>
 
         {/* ── Aperçu live (droite, sticky — desktop uniquement) ── */}
-        <div className="hidden lg:block w-[440px] xl:w-[500px] shrink-0">
+        <div className="hidden lg:block w-[500px] xl:w-[580px] 2xl:w-[720px] shrink-0">
           <div className="sticky top-6 space-y-3">
             <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide text-center">
               Aperçu en temps réel

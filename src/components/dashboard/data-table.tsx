@@ -27,6 +27,8 @@ interface DataTableProps<T> {
   onRowClick?: (item: T) => void;
   emptyTitle?: string;
   emptyDescription?: string;
+  /** Limite le nombre de lignes affichées. Un bouton "Voir tout" apparaît si dépassé. */
+  limit?: number;
 }
 
 type SortDir = "asc" | "desc";
@@ -51,9 +53,11 @@ export function DataTable<T>({
   onRowClick,
   emptyTitle = "Aucune donnée",
   emptyDescription = "Il n'y a rien à afficher pour le moment.",
+  limit,
 }: DataTableProps<T>) {
   const [sortKey, setSortKey] = useState<string | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>("asc");
+  const [showAll, setShowAll] = useState(false);
 
   const handleSort = useCallback((key: string) => {
     if (sortKey === key) {
@@ -80,6 +84,9 @@ export function DataTable<T>({
       return sortDir === "asc" ? cmp : -cmp;
     });
   }, [data, columns, sortKey, sortDir]);
+
+  const hasMore = limit !== undefined && sortedData.length > limit && !showAll;
+  const visibleData = hasMore ? sortedData.slice(0, limit) : sortedData;
 
   // Colonnes affichées à gauche sur mobile
   const mobileCols = mobileFields
@@ -115,7 +122,7 @@ export function DataTable<T>({
     <>
       {/* ── Mobile : carte à 2 lignes ── */}
       <div className="md:hidden divide-y divide-slate-200 dark:divide-violet-500/20">
-        {sortedData.map((item) => {
+        {visibleData.map((item) => {
           const id = getRowId(item);
           return (
             <div
@@ -173,6 +180,19 @@ export function DataTable<T>({
         })}
       </div>
 
+      {/* ── Bouton Voir tout (mobile) ── */}
+      {hasMore && (
+        <div className="md:hidden px-4 py-3 border-t border-slate-200 dark:border-violet-500/20 flex items-center justify-between">
+          <span className="text-xs text-slate-400 dark:text-slate-500">{sortedData.length - limit!} de plus</span>
+          <button
+            onClick={() => setShowAll(true)}
+            className="text-xs font-semibold text-violet-600 dark:text-violet-300 hover:text-violet-800 transition-colors cursor-pointer"
+          >
+            Voir tout ({sortedData.length})
+          </button>
+        </div>
+      )}
+
       {/* ── Desktop/tablette : vue table ── */}
       <div className="hidden md:block overflow-x-auto">
         <table className="w-full">
@@ -204,7 +224,7 @@ export function DataTable<T>({
             </tr>
           </thead>
           <tbody>
-            {sortedData.map((item) => (
+            {visibleData.map((item) => (
               <tr key={getRowId(item)} className="border-b border-slate-200 dark:border-violet-500/20 hover:bg-violet-200/30 dark:hover:bg-violet-500/10 transition-colors cursor-pointer group">
                 {columns.map((col, i) => (
                   <td
@@ -231,6 +251,19 @@ export function DataTable<T>({
           </tbody>
         </table>
       </div>
+
+      {/* ── Bouton Voir tout (desktop) ── */}
+      {hasMore && (
+        <div className="hidden md:flex items-center justify-between px-6 py-3 border-t border-slate-200 dark:border-violet-500/20 bg-slate-50/50 dark:bg-violet-950/20">
+          <span className="text-xs text-slate-400 dark:text-slate-500">{sortedData.length - limit!} éléments masqués</span>
+          <button
+            onClick={() => setShowAll(true)}
+            className="text-xs font-semibold text-violet-600 dark:text-violet-300 hover:text-violet-800 transition-colors px-3 py-1.5 rounded-lg hover:bg-violet-500/10 cursor-pointer"
+          >
+            Voir tout ({sortedData.length})
+          </button>
+        </div>
+      )}
     </>
   );
 }

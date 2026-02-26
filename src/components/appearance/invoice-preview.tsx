@@ -4,7 +4,7 @@
 // Les couleurs violet sont remplacées par le themeColor dynamique
 
 import Image from "next/image";
-import { colorToGradient, getFontFamily } from "./theme-config";
+import { colorToGradient, getFontFamily, getFontWeight } from "./theme-config";
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -37,6 +37,7 @@ function hexAlpha(hex: string, alpha: string) {
 function InvoicePreviewMini({ themeColor, companyFont, companyName, logo }: Omit<InvoicePreviewProps, "mini">) {
   const gradient    = colorToGradient(themeColor);
   const fontFamily  = getFontFamily(companyFont);
+  const fontWeight  = getFontWeight(companyFont);
   const displayName = companyName.trim() || "Votre Entreprise";
   const bgTint      = hexAlpha(themeColor, "12"); // ~7%
   const borderTint  = hexAlpha(themeColor, "33"); // ~20%
@@ -60,7 +61,7 @@ function InvoicePreviewMini({ themeColor, companyFont, companyName, logo }: Omit
                 <Image src={logo} alt="Logo" fill className="object-contain p-0.5" unoptimized />
               </div>
             )}
-            <p style={{ fontFamily }} className="text-[11px] font-bold text-white text-center leading-tight break-words max-w-[100px]">
+            <p style={{ fontFamily, fontWeight }} className="text-[11px] text-white text-center leading-tight wrap-break-word max-w-25">
               {displayName}
             </p>
           </div>
@@ -115,16 +116,17 @@ function InvoicePreviewMini({ themeColor, companyFont, companyName, logo }: Omit
 function InvoicePreviewFull({ themeColor, companyFont, companyName, logo }: Omit<InvoicePreviewProps, "mini">) {
   const gradient    = colorToGradient(themeColor);
   const fontFamily  = getFontFamily(companyFont);
+  const fontWeight  = getFontWeight(companyFont);
   const displayName = companyName.trim() || "Votre Entreprise";
   const bgTint      = hexAlpha(themeColor, "12"); // ~7%
   const bgTint2     = hexAlpha(themeColor, "1a"); // ~10%
   const borderTint  = hexAlpha(themeColor, "33"); // ~20%
 
   return (
-    <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-4 space-y-5">
+    <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-6 2xl:p-10 space-y-7 2xl:space-y-10">
 
       {/* ── Header gradient ── */}
-      <div style={{ background: gradient }} className="rounded-lg p-4 text-white">
+      <div style={{ background: gradient }} className="rounded-lg p-5 2xl:p-7 text-white">
         <div className="flex items-start gap-4">
           {/* Gauche : type + numéro */}
           <div className="flex-1">
@@ -133,13 +135,13 @@ function InvoicePreviewFull({ themeColor, companyFont, companyName, logo }: Omit
           </div>
 
           {/* Centre : logo + nom entreprise */}
-          <div className="flex-1 flex flex-col items-center gap-2">
+          <div className="flex-[2] flex flex-col items-center gap-2">
             {logo && (
               <div className="relative w-14 h-14 rounded-full overflow-hidden bg-white/20">
                 <Image src={logo} alt="Logo" fill className="object-contain p-1" unoptimized />
               </div>
             )}
-            <p style={{ fontFamily }} className="text-sm font-bold text-white text-center leading-tight break-words max-w-[140px]">
+            <p style={{ fontFamily, fontWeight }} className="text-sm text-white text-center leading-tight wrap-break-word w-full">
               {displayName}
             </p>
           </div>
@@ -153,7 +155,7 @@ function InvoicePreviewFull({ themeColor, companyFont, companyName, logo }: Omit
       </div>
 
       {/* ── Émetteur / Destinataire ── */}
-      <div className="grid grid-cols-2 gap-5">
+      <div className="grid grid-cols-2 gap-6">
         <div>
           <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: themeColor }}>
             Émetteur
@@ -208,7 +210,7 @@ function InvoicePreviewFull({ themeColor, companyFont, companyName, logo }: Omit
 
       {/* ── Totaux ── */}
       <div className="flex justify-end">
-        <div className="w-56 space-y-2 rounded-lg p-3 border" style={{ backgroundColor: bgTint, borderColor: borderTint }}>
+        <div className="w-64 space-y-2.5 rounded-lg p-4 border" style={{ backgroundColor: bgTint, borderColor: borderTint }}>
           <div className="flex justify-between text-xs">
             <span style={{ color: themeColor }}>Sous-total HT :</span>
             <span className="text-slate-900 font-medium">4 090,00 €</span>

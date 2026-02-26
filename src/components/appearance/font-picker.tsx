@@ -2,7 +2,7 @@
 
 // Sélecteur de police pour le nom de l'entreprise (5 options très différentes)
 
-import { FONT_OPTIONS } from "./theme-config";
+import { FONT_OPTIONS, getFontWeight } from "./theme-config";
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -31,7 +31,7 @@ export function FontPicker({ value, companyName, onChange }: FontPickerProps) {
               key={font.id}
               type="button"
               onClick={() => onChange(font.id)}
-              className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border-2 transition-all cursor-pointer text-left ${
+              className={`w-full flex items-center justify-between px-2.5 py-1.5 md:px-3 md:py-2.5 lg:px-4 rounded-xl border-2 transition-all cursor-pointer text-left ${
                 isActive
                   ? "border-violet-500 dark:border-violet-400 bg-violet-50 dark:bg-violet-500/10"
                   : "border-slate-200 dark:border-violet-500/20 hover:border-violet-300 dark:hover:border-violet-500/40 bg-white dark:bg-[#1a1438]"
@@ -39,8 +39,8 @@ export function FontPicker({ value, companyName, onChange }: FontPickerProps) {
             >
               {/* Aperçu du nom avec la police */}
               <span
-                style={{ fontFamily: font.family }}
-                className={`text-base truncate max-w-[60%] ${
+                style={{ fontFamily: font.family, fontWeight: getFontWeight(font.id) }}
+                className={`text-xs sm:text-base truncate max-w-[60%] ${
                   isActive
                     ? "text-violet-700 dark:text-violet-300"
                     : "text-slate-700 dark:text-slate-300"

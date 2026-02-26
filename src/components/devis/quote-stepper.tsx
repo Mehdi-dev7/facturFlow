@@ -29,6 +29,10 @@ interface QuoteStepperProps {
 	companyInfo: CompanyInfo | null;
 	onCompanyChange: (data: CompanyInfo) => void;
 	submitLabel?: string;
+	themeColor?: string;
+	companyFont?: string;
+	companyLogo?: string | null;
+	companyName?: string;
 }
 
 export function QuoteStepper({
@@ -38,6 +42,10 @@ export function QuoteStepper({
 	companyInfo,
 	onCompanyChange,
 	submitLabel = "Créer",
+	themeColor,
+	companyFont,
+	companyLogo,
+	companyName,
 }: QuoteStepperProps) {
 	const [step, setStep] = useState(1);
 
@@ -139,6 +147,10 @@ export function QuoteStepper({
 							form={form}
 							quoteNumber={quoteNumber}
 							companyInfo={companyInfo}
+							themeColor={themeColor}
+							companyFont={companyFont}
+							companyLogo={companyLogo}
+							companyName={companyName}
 							compact
 						/>
 					</div>
@@ -203,7 +215,7 @@ export function QuoteStepper({
 								<SheetTitle className="text-slate-900 dark:text-slate-100">Aperçu du devis</SheetTitle>
 							</SheetHeader>
 							<div className="px-4 pb-4">
-								<QuotePreview form={form} quoteNumber={quoteNumber} companyInfo={companyInfo} compact />
+								<QuotePreview form={form} quoteNumber={quoteNumber} companyInfo={companyInfo} themeColor={themeColor} companyFont={companyFont} companyLogo={companyLogo} compact />
 							</div>
 						</SheetContent>
 					</Sheet>

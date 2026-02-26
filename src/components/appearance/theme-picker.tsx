@@ -24,8 +24,8 @@ export function ThemePicker({ value, onChange }: ThemePickerProps) {
         Couleur du thème
       </label>
 
-      {/* Grille de 5+5 swatches */}
-      <div className="grid grid-cols-5 gap-2">
+      {/* Grille de swatches — 10 colonnes pour des carrés plus compacts */}
+      <div className="grid grid-cols-10 gap-1.5">
         {COLOR_THEMES.map((theme) => {
           const isActive = theme.primary === value;
           return (
@@ -34,7 +34,7 @@ export function ThemePicker({ value, onChange }: ThemePickerProps) {
               type="button"
               onClick={() => onChange(theme.primary)}
               title={theme.name}
-              className="relative w-full aspect-square rounded-xl transition-transform hover:scale-110 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-slate-400 cursor-pointer"
+              className="relative w-full aspect-square rounded-lg transition-transform hover:scale-110 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-slate-400 cursor-pointer"
               style={{
                 background: `linear-gradient(135deg, ${theme.from}, ${theme.to})`,
                 boxShadow: isActive ? `0 0 0 3px white, 0 0 0 5px ${theme.primary}` : undefined,
@@ -55,7 +55,7 @@ export function ThemePicker({ value, onChange }: ThemePickerProps) {
           {/* Bouton swatch "Personnalisé" */}
           <button
             type="button"
-            className="w-10 h-10 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-600 flex items-center justify-center overflow-hidden cursor-pointer hover:border-slate-400 transition-colors"
+            className="w-7 h-7 rounded-lg border-2 border-dashed border-slate-300 dark:border-slate-600 flex items-center justify-center overflow-hidden cursor-pointer hover:border-slate-400 transition-colors"
             style={{
               background: isCustom ? value : "transparent",
               boxShadow: isCustom ? `0 0 0 3px white, 0 0 0 5px ${value}` : undefined,

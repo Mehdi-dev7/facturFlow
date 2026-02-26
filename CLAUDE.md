@@ -542,6 +542,7 @@ einvoiceSentAt DateTime? // Date d'envoi électronique
 ❌ Never skip error handling
 ❌ Never use `bg-gradient-to-r/b` — toujours `bg-linear-to-r/b` (Tailwind v4)
 ❌ Never write Unicode escaped chars (`\u20AC`, etc.) — écrire les vrais caractères
+❌ Never use `googleFont` in FONT_OPTIONS — polices locales uniquement (public/fonts/)
 
 ## Always Do
 
@@ -662,6 +663,8 @@ Utilise les agents quand :
 - [x] Acomptes — CRUD complet, email Resend, automation depuis devis accepté, statuts, branché DB (page new + liste)
 - [x] Clients — CRUD complet, modale création/édition, SIRET lookup
 - [x] E-invoicing SuperPDP — API intégrée (sendEInvoice + cron sync + badge UI)
+- [x] Reçus — génération PDF instantané + liste reçus manuels
+- [x] Apparence — page settings (themeColor, companyFont, companyLogo) appliquée en temps réel sur les previews facture/devis/acompte
 
 ### Bugs connus
 - [ ] **Bug envoi facture électronique** : l'envoi via SuperPDP échoue dans certains cas — investiguer les logs, vérifier seller.electronic_address et le flux convert → send

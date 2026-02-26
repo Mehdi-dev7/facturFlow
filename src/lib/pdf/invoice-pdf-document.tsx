@@ -3,6 +3,7 @@
 
 import {
   Document,
+  Font,
   Page,
   Text,
   View,
@@ -10,6 +11,9 @@ import {
   Link,
   Image,
 } from "@react-pdf/renderer";
+
+import { registerPdfFonts, getPdfFontFamily } from "./pdf-fonts";
+registerPdfFonts();
 import type { SavedInvoice } from "@/lib/actions/invoices";
 import { INVOICE_TYPE_CONFIG } from "@/lib/validations/invoice";
 
@@ -52,19 +56,18 @@ const S = StyleSheet.create({
   page: {
     fontFamily: "Helvetica",
     fontSize: 10,
-    padding: 36,
-    paddingBottom: 48,
+    padding: 28,
+    paddingBottom: 44,
     color: "#1e293b",
     backgroundColor: "#ffffff",
   },
   // Header
   headerRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "flex-start",
   },
   headerLeft: {
-    flexDirection: "column",
+    flex: 1,
   },
   headerTitle: {
     fontSize: 20,
@@ -82,10 +85,16 @@ const S = StyleSheet.create({
     color: "rgba(255,255,255,0.75)",
     marginBottom: 1,
   },
+  headerCenter: {
+    flex: 1,
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+  },
   headerRight: {
+    flex: 1,
     flexDirection: "column",
     alignItems: "flex-end",
-    gap: 6,
   },
   headerLogoWrapper: {
     width: 48,
@@ -101,8 +110,8 @@ const S = StyleSheet.create({
     fontSize: 13,
     fontFamily: "Helvetica-Bold",
     color: "#ffffff",
-    textAlign: "right",
-    maxWidth: 160,
+    textAlign: "center",
+    marginTop: 6,
   },
   // Section title (Émetteur, Destinataire, Détails…)
   sectionTitle: {
@@ -156,7 +165,6 @@ const S = StyleSheet.create({
     width: 220,
     borderRadius: 6,
     padding: 10,
-    borderWidth: 1,
   },
   totalsRow: {
     flexDirection: "row",
@@ -174,9 +182,10 @@ const S = StyleSheet.create({
   grandTotalRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    borderTopWidth: 1.5,
     paddingTop: 6,
     marginTop: 4,
+    borderTopWidth: 1,
+    borderTopColor: "#e2e8f0",
   },
   grandTotalLabel: {
     fontFamily: "Helvetica-Bold",
@@ -237,8 +246,8 @@ const S = StyleSheet.create({
   footer: {
     position: "absolute",
     bottom: 18,
-    left: 36,
-    right: 36,
+    left: 28,
+    right: 28,
     textAlign: "center",
     fontSize: 8,
     color: "#94a3b8",
@@ -350,11 +359,11 @@ export default function InvoicePdfDocument({ invoice }: { invoice: SavedInvoice 
   const mainOeuvreLines = isArtisan ? sortedLines.filter((l) => !l.category || l.category === "main_oeuvre") : sortedLines;
   const materiauLines   = isArtisan ? sortedLines.filter((l) => l.category === "materiel") : [];
 
+  const companyFontFamily = getPdfFontFamily(invoice.user.companyFont);
+
   // Couleurs dérivées
-  const headerBg      = themeColor;           // plein
+  const headerBg      = themeColor;
   const totalsBg      = hexToRgba(themeColor, 0.07);
-  const totalsBorder  = hexToRgba(themeColor, 0.2);
-  const grandBorder   = hexToRgba(themeColor, 0.35);
   const paymentBg     = hexToRgba(themeColor, 0.06);
 
   return (
@@ -362,26 +371,32 @@ export default function InvoicePdfDocument({ invoice }: { invoice: SavedInvoice 
       <Page size="A4" style={S.page}>
 
         {/* ── Header ── */}
-        <View style={{ backgroundColor: headerBg, borderRadius: 6, padding: 18, marginBottom: 20 }}>
+        <View style={{ backgroundColor: headerBg, borderRadius: 6, padding: 16, marginBottom: 20 }}>
           <View style={S.headerRow}>
-            {/* Gauche : titre + numéro + dates */}
+            {/* Gauche : titre + numéro */}
             <View style={S.headerLeft}>
               <Text style={S.headerTitle}>FACTURE</Text>
               <Text style={S.headerNumber}>{invoice.number}</Text>
-              <Text style={[S.headerDate, { marginTop: 6 }]}>Date : {fmtDate(invoice.date)}</Text>
-              <Text style={S.headerDate}>Échéance : {fmtDate(invoice.dueDate)}</Text>
             </View>
 
-            {/* Droite : logo + nom entreprise */}
-            <View style={S.headerRight}>
+            {/* Centre : logo + nom entreprise */}
+            <View style={S.headerCenter}>
               {logo ? (
                 <View style={S.headerLogoWrapper}>
                   <Image src={logo} style={S.headerLogo} />
                 </View>
               ) : null}
-              <Text style={S.headerCompanyName}>
-                {invoice.user.companyName ?? ""}
-              </Text>
+              {invoice.user.companyName ? (
+                <Text style={[S.headerCompanyName, { fontFamily: companyFontFamily }]}>
+                  {invoice.user.companyName}
+                </Text>
+              ) : null}
+            </View>
+
+            {/* Droite : dates */}
+            <View style={S.headerRight}>
+              <Text style={S.headerDate}>Date : {fmtDate(invoice.date)}</Text>
+              <Text style={S.headerDate}>Échéance : {fmtDate(invoice.dueDate)}</Text>
             </View>
           </View>
         </View>
@@ -446,7 +461,7 @@ export default function InvoicePdfDocument({ invoice }: { invoice: SavedInvoice 
 
         {/* ── Totaux ── */}
         <View style={{ alignItems: "flex-end", marginTop: 4 }}>
-          <View style={[S.totalsBox, { backgroundColor: totalsBg, borderColor: totalsBorder }]}>
+          <View style={[S.totalsBox, { backgroundColor: totalsBg }]}>
 
             {/* Sous-total HT */}
             <View style={S.totalsRow}>
@@ -469,7 +484,7 @@ export default function InvoicePdfDocument({ invoice }: { invoice: SavedInvoice 
             </View>
 
             {/* Total TTC */}
-            <View style={[S.grandTotalRow, { borderTopColor: grandBorder }]}>
+            <View style={S.grandTotalRow}>
               <Text style={S.grandTotalLabel}>Total TTC :</Text>
               <Text style={[S.grandTotalValue, { color: themeColor }]}>{fmtN(invoice.total)} €</Text>
             </View>
@@ -481,7 +496,7 @@ export default function InvoicePdfDocument({ invoice }: { invoice: SavedInvoice 
                   <Text style={[S.totalLabel, { color: themeColor }]}>Acompte versé :</Text>
                   <Text style={[S.totalValue, { color: "#e11d48" }]}>−{fmtN(deposit)} €</Text>
                 </View>
-                <View style={[S.grandTotalRow, { borderTopColor: grandBorder }]}>
+                <View style={S.grandTotalRow}>
                   <Text style={S.grandTotalLabel}>NET À PAYER :</Text>
                   <Text style={[S.grandTotalValue, { color: themeColor }]}>{fmtN(netAPayer)} €</Text>
                 </View>

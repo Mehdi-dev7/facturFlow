@@ -49,6 +49,10 @@ interface DepositStepperProps {
 	onCompanyChange: (data: CompanyInfo) => void;
 	isSubmitting?: boolean;
 	submitLabel?: string;
+	themeColor?: string;
+	companyFont?: string;
+	companyLogo?: string | null;
+	companyName?: string;
 }
 
 // ─── Composant ────────────────────────────────────────────────────────────────
@@ -61,6 +65,10 @@ export function DepositStepper({
 	onCompanyChange,
 	isSubmitting,
 	submitLabel = "Créer",
+	themeColor,
+	companyFont,
+	companyLogo,
+	companyName,
 }: DepositStepperProps) {
 	const [step, setStep] = useState(1);
 
@@ -162,6 +170,10 @@ export function DepositStepper({
 							form={form}
 							depositNumber={depositNumber}
 							companyInfo={companyInfo}
+							themeColor={themeColor}
+							companyFont={companyFont}
+							companyLogo={companyLogo}
+							companyName={companyName}
 							compact
 						/>
 					</div>
@@ -236,6 +248,10 @@ export function DepositStepper({
 									form={form}
 									depositNumber={depositNumber}
 									companyInfo={companyInfo}
+									themeColor={themeColor}
+									companyFont={companyFont}
+									companyLogo={companyLogo}
+									companyName={companyName}
 									compact
 								/>
 							</div>

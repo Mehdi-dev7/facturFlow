@@ -902,7 +902,7 @@ export function InvoiceForm({
 							type="submit"
 							variant="gradient"
 							disabled={isSubmitting}
-							className="w-full h-11 cursor-pointer transition-all duration-300 hover:scale-101 disabled:opacity-70 disabled:cursor-not-allowed"
+							className="w-full h-11 cursor-pointer transition-all duration-300 hover:scale-103 disabled:opacity-70 disabled:cursor-not-allowed"
 						>
 							{isSubmitting ? "En cours…" : submitLabel}
 						</Button>

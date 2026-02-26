@@ -19,8 +19,10 @@ export async function downloadQuotePDF(quote: SavedQuote) {
   if (!quote.user.companyName) {
     try {
       const saved = localStorage.getItem("facturflow_company");
+      const appearance = localStorage.getItem("facturflow_appearance");
       if (saved) {
         const c = JSON.parse(saved) as { name?: string; siret?: string; address?: string; city?: string; email?: string; zipCode?: string };
+        const a = appearance ? JSON.parse(appearance) as { themeColor?: string; companyFont?: string; companyLogo?: string } : {};
         enriched = {
           ...quote,
           user: {
@@ -31,6 +33,9 @@ export async function downloadQuotePDF(quote: SavedQuote) {
             companyCity: c.city ?? null,
             companyPostalCode: c.zipCode ?? null,
             companyEmail: c.email ?? null,
+            themeColor: quote.user.themeColor ?? a.themeColor ?? null,
+            companyFont: quote.user.companyFont ?? a.companyFont ?? null,
+            companyLogo: quote.user.companyLogo ?? a.companyLogo ?? null,
           },
         };
       }

@@ -18,6 +18,7 @@ import {
 } from "@/lib/validations/quote";
 import { getQuote } from "@/lib/actions/quotes";
 import { useUpdateQuote, type SavedQuote } from "@/hooks/use-quotes";
+import { useAppearance } from "@/hooks/use-appearance";
 
 // ─── Mapping DB → valeurs du formulaire ───────────────────────────────────────
 
@@ -78,6 +79,7 @@ export default function EditQuotePage() {
 	const router = useRouter();
 
 	const [mounted, setMounted] = useState(false);
+	const { themeColor, companyFont, companyLogo, companyName } = useAppearance();
 	const [quote, setQuote] = useState<SavedQuote | null>(null);
 	const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
 	const [loadError, setLoadError] = useState<string | null>(null);
@@ -220,7 +222,12 @@ export default function EditQuotePage() {
 						form={form}
 						quoteNumber={quote?.number ?? ""}
 						companyInfo={companyInfo}
-					/>
+					
+					themeColor={themeColor}
+					companyFont={companyFont}
+					companyLogo={companyLogo}
+				companyName={companyName}
+				/>
 				</div>
 			</div>
 
@@ -232,6 +239,11 @@ export default function EditQuotePage() {
 					quoteNumber={quote?.number ?? ""}
 					companyInfo={companyInfo}
 					onCompanyChange={handleCompanyChange}
+				
+					themeColor={themeColor}
+					companyFont={companyFont}
+					companyLogo={companyLogo}
+				companyName={companyName}
 				/>
 			</div>
 		</div>

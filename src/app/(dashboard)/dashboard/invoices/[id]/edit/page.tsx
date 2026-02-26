@@ -19,6 +19,7 @@ import {
 } from "@/lib/validations/invoice";
 import { getInvoice } from "@/lib/actions/invoices";
 import { useUpdateInvoice, useCreateInvoice, type SavedInvoice } from "@/hooks/use-invoices";
+import { useAppearance } from "@/hooks/use-appearance";
 
 // ─── Mapping DB → valeurs du formulaire ───────────────────────────────────────
 
@@ -81,6 +82,7 @@ export default function EditInvoicePage() {
 	const router = useRouter();
 
 	const [mounted, setMounted] = useState(false);
+	const { themeColor, companyFont, companyLogo, companyName } = useAppearance();
 	const [invoice, setInvoice] = useState<SavedInvoice | null>(null);
 	const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
 	const [loadError, setLoadError] = useState<string | null>(null);
@@ -235,7 +237,12 @@ export default function EditInvoicePage() {
 						form={form}
 						invoiceNumber={invoice?.number ?? ""}
 						companyInfo={companyInfo}
-					/>
+					
+					themeColor={themeColor}
+					companyFont={companyFont}
+					companyLogo={companyLogo}
+				companyName={companyName}
+				/>
 				</div>
 			</div>
 
@@ -248,6 +255,11 @@ export default function EditInvoicePage() {
 					companyInfo={companyInfo}
 					onCompanyChange={handleCompanyChange}
 					submitLabel={isDraft ? "Créer la facture" : "Sauvegarder"}
+				
+					themeColor={themeColor}
+					companyFont={companyFont}
+					companyLogo={companyLogo}
+				companyName={companyName}
 				/>
 			</div>
 		</div>

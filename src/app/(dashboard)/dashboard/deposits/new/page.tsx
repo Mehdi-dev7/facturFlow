@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { useCreateDeposit, useSaveDraftDeposit } from "@/hooks/use-deposits";
 import { getNextDepositNumber } from "@/lib/actions/deposits";
 import type { CompanyInfo } from "@/lib/validations/invoice";
+import { useAppearance } from "@/hooks/use-appearance";
 
 const AUTOSAVE_INTERVAL = 30_000;
 
@@ -58,7 +59,9 @@ export default function NewDepositPage() {
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
-  const createDeposit = useCreateDeposit();
+  	const { themeColor, companyFont, companyLogo, companyName } = useAppearance();
+
+	const createDeposit = useCreateDeposit();
   const saveDraft = useSaveDraftDeposit();
 
   // Ref pour stocker l'ID du brouillon en cours de sauvegarde
@@ -240,6 +243,10 @@ export default function NewDepositPage() {
             form={form}
             depositNumber={depositNumber}
             companyInfo={companyInfo}
+            themeColor={themeColor}
+            companyFont={companyFont}
+            companyLogo={companyLogo}
+          companyName={companyName}
           />
         </div>
       </div>
@@ -253,7 +260,12 @@ export default function NewDepositPage() {
           companyInfo={companyInfo}
           onCompanyChange={handleCompanyChange}
           isSubmitting={createDeposit.isPending}
-        />
+        
+				themeColor={themeColor}
+				companyFont={companyFont}
+				companyLogo={companyLogo}
+			companyName={companyName}
+			/>
       </div>
     </div>
   );

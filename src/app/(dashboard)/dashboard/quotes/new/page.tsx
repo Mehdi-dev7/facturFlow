@@ -16,6 +16,7 @@ import {
 } from "@/lib/validations/quote";
 import { getNextQuoteNumber, saveDraftQuote } from "@/lib/actions/quotes";
 import { useCreateQuote } from "@/hooks/use-quotes";
+import { useAppearance } from "@/hooks/use-appearance";
 
 const AUTOSAVE_INTERVAL = 30_000;
 
@@ -37,6 +38,8 @@ export default function NewQuotePage() {
 	const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
 	// Mutation de création (gère toast + redirect auto vers /dashboard/quotes?preview=<id>)
+		const { themeColor, companyFont, companyLogo, companyName } = useAppearance();
+
 	const createMutation = useCreateQuote();
 
 	// Ref pour stocker l'ID du brouillon en cours de sauvegarde
@@ -184,7 +187,7 @@ export default function NewQuotePage() {
 					</div>
 				</div>
 				<div className="sticky top-6 self-start">
-					<QuotePreview form={form} quoteNumber={quoteNumber} companyInfo={companyInfo} />
+					<QuotePreview form={form} quoteNumber={quoteNumber} companyInfo={companyInfo} themeColor={themeColor} companyFont={companyFont} companyLogo={companyLogo} companyName={companyName} />
 				</div>
 			</div>
 
@@ -196,7 +199,12 @@ export default function NewQuotePage() {
 					quoteNumber={quoteNumber}
 					companyInfo={companyInfo}
 					onCompanyChange={handleCompanyChange}
-				/>
+				
+				themeColor={themeColor}
+				companyFont={companyFont}
+				companyLogo={companyLogo}
+			companyName={companyName}
+			/>
 			</div>
 		</div>
 	);

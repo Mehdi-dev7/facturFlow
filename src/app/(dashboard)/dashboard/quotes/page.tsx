@@ -402,6 +402,7 @@ function QuotesPageContent() {
           data={filteredRows}
           columns={columns}
           getRowId={(row) => row.id}
+          limit={10}
           mobileFields={["number", "client"]}
           mobileStatusKey="status"
           mobileAmountKey="amount"
