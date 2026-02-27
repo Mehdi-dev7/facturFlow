@@ -26,6 +26,8 @@ export interface StripeCredential {
 export interface PaypalCredential {
   clientId: string;
   clientSecret: string;
+  isSandbox?: boolean;
+  webhookId?: string;
 }
 export interface GocardlessCredential {
   accessToken: string;
@@ -124,9 +126,32 @@ export async function connectStripe(
   }
 }
 
+// ─── Récupérer les credentials PayPal (usage interne) ────────────────────────
+
+export async function getPaypalCredential(
+  userId: string
+): Promise<PaypalCredential | null> {
+  const account = await prisma.paymentAccount.findUnique({
+    where: { userId_provider: { userId, provider: "PAYPAL" } },
+    select: { credential: true, isActive: true },
+  });
+  if (!account || !account.isActive) return null;
+
+  try {
+    return JSON.parse(decrypt(account.credential)) as PaypalCredential;
+  } catch {
+    return null;
+  }
+}
+
 // ─── Connecter PayPal ─────────────────────────────────────────────────────────
 
-export async function connectPayPal(clientId: string, clientSecret: string) {
+export async function connectPayPal(
+  clientId: string,
+  clientSecret: string,
+  isSandbox = true,
+  webhookId?: string,
+) {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) return { success: false, error: "Non authentifié" } as const;
 
@@ -134,8 +159,23 @@ export async function connectPayPal(clientId: string, clientSecret: string) {
     return { success: false, error: "Client ID et Client Secret requis" } as const;
   }
 
+  // Valider les credentials en obtenant un access token
   try {
-    const credential = encrypt(JSON.stringify({ clientId: clientId.trim(), clientSecret: clientSecret.trim() }));
+    const { getPaypalAccessToken } = await import("@/lib/paypal");
+    await getPaypalAccessToken(clientId.trim(), clientSecret.trim(), isSandbox);
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : "Credentials rejetés";
+    return { success: false, error: `PayPal invalide : ${msg}` } as const;
+  }
+
+  try {
+    const credData: PaypalCredential = {
+      clientId: clientId.trim(),
+      clientSecret: clientSecret.trim(),
+      isSandbox,
+      ...(webhookId?.trim() ? { webhookId: webhookId.trim() } : {}),
+    };
+    const credential = encrypt(JSON.stringify(credData));
 
     await prisma.paymentAccount.upsert({
       where: {

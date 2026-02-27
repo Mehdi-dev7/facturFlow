@@ -217,6 +217,8 @@ export function PaymentsPageContent({ initialAccounts }: { initialAccounts: Paym
   // PayPal
   const [paypalClientId, setPaypalClientId] = useState("");
   const [paypalSecret, setPaypalSecret] = useState("");
+  const [paypalWebhookId, setPaypalWebhookId] = useState("");
+  const [paypalSandbox, setPaypalSandbox] = useState(true);
   const [paypalLoading, setPaypalLoading] = useState(false);
 
   // GoCardless
@@ -251,16 +253,22 @@ export function PaymentsPageContent({ initialAccounts }: { initialAccounts: Paym
   const handleConnectPayPal = useCallback(async () => {
     if (!paypalClientId.trim() || !paypalSecret.trim()) return;
     setPaypalLoading(true);
-    const result = await connectPayPal(paypalClientId.trim(), paypalSecret.trim());
+    const result = await connectPayPal(
+      paypalClientId.trim(),
+      paypalSecret.trim(),
+      paypalSandbox,
+      paypalWebhookId.trim() || undefined,
+    );
     if (result.success) {
       toast.success("PayPal connecté !");
-      setOpenProvider(null); setPaypalClientId(""); setPaypalSecret("");
+      setOpenProvider(null);
+      setPaypalClientId(""); setPaypalSecret(""); setPaypalWebhookId("");
       addAccount("PAYPAL");
     } else {
       toast.error(result.error ?? "Erreur PayPal");
     }
     setPaypalLoading(false);
-  }, [paypalClientId, paypalSecret, addAccount]);
+  }, [paypalClientId, paypalSecret, paypalSandbox, paypalWebhookId, addAccount]);
 
   const handleConnectGC = useCallback(async () => {
     if (!gcToken.trim()) return;
@@ -355,19 +363,38 @@ export function PaymentsPageContent({ initialAccounts }: { initialAccounts: Paym
           fees="~2,5–3,5% / transaction"
           connected={paypalConnected}
           connectedAt={getConnectedAt(accounts, "PAYPAL")}
-          comingSoon
           formOpen={openProvider === "PAYPAL"}
           onToggleForm={() => toggleForm("PAYPAL")}
           onDisconnect={() => handleDisconnect("PAYPAL")}
           isDisconnecting={disconnecting === "PAYPAL"}
         >
           <TutoSteps steps={[
-            { text: <>Allez sur <a href="https://developer.paypal.com/dashboard/applications/live" target="_blank" rel="noopener noreferrer" className="text-[#003087] dark:text-[#009CDE] hover:underline inline-flex items-center gap-0.5">developer.paypal.com <ExternalLink className="h-2.5 w-2.5" /></a></> },
-            { text: <>Créez une app → copiez <strong>Client ID</strong> et <strong>Secret</strong></> },
+            { text: <>Allez sur <a href="https://developer.paypal.com/dashboard/applications" target="_blank" rel="noopener noreferrer" className="text-[#003087] dark:text-[#009CDE] hover:underline inline-flex items-center gap-0.5">developer.paypal.com <ExternalLink className="h-2.5 w-2.5" /></a></> },
+            { text: <>Créez une app Sandbox → copiez <strong>Client ID</strong> et <strong>Secret</strong></> },
+            { text: <>Webhooks → New → URL : <code className="text-[10px] bg-slate-100 dark:bg-slate-800 px-1 rounded">facturnow.fr/api/webhooks/paypal</code> → event : <strong>PAYMENT.CAPTURE.COMPLETED</strong> → copiez le Webhook ID (optionnel)</> },
           ]} />
 
+          {/* Toggle sandbox / live */}
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-slate-500">Mode :</span>
+            <button
+              type="button"
+              onClick={() => setPaypalSandbox(true)}
+              className={`text-xs px-2.5 py-1 rounded-full font-medium transition-colors cursor-pointer ${paypalSandbox ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400" : "bg-slate-100 text-slate-400 dark:bg-slate-800"}`}
+            >
+              Sandbox (test)
+            </button>
+            <button
+              type="button"
+              onClick={() => setPaypalSandbox(false)}
+              className={`text-xs px-2.5 py-1 rounded-full font-medium transition-colors cursor-pointer ${!paypalSandbox ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "bg-slate-100 text-slate-400 dark:bg-slate-800"}`}
+            >
+              Production
+            </button>
+          </div>
+
           <div className="space-y-1.5">
-            <Label className="text-xs text-slate-600 dark:text-slate-400">Client ID *</Label>
+            <Label className="text-xs text-slate-600 dark:text-slate-200">Client ID *</Label>
             <Input type="text" placeholder="AeA1..." value={paypalClientId} onChange={(e) => setPaypalClientId(e.target.value)} className="text-xs dark:bg-slate-800 dark:border-slate-600 dark:text-slate-100 dark:placeholder:text-slate-500" />
           </div>
           <SecretInput
@@ -376,12 +403,16 @@ export function PaymentsPageContent({ initialAccounts }: { initialAccounts: Paym
             value={paypalSecret}
             onChange={setPaypalSecret}
           />
+          <div className="space-y-1.5">
+            <Label className="text-xs text-slate-600 dark:text-slate-200">Webhook ID <span className="text-slate-400 font-normal">(optionnel — recommandé en prod)</span></Label>
+            <Input type="text" placeholder="WH-xxxx..." value={paypalWebhookId} onChange={(e) => setPaypalWebhookId(e.target.value)} className="text-xs dark:bg-slate-800 dark:border-slate-600 dark:text-slate-100 dark:placeholder:text-slate-500" />
+          </div>
           <button
             onClick={handleConnectPayPal}
             disabled={paypalLoading || !paypalClientId.trim() || !paypalSecret.trim()}
             className="w-full text-sm font-semibold py-2.5 px-4 rounded-xl text-white bg-[#003087] hover:opacity-90 transition-opacity disabled:opacity-40 cursor-pointer"
           >
-            {paypalLoading ? "Sauvegarde..." : "Connecter"}
+            {paypalLoading ? "Vérification..." : "Connecter"}
           </button>
         </ProviderCard>
 

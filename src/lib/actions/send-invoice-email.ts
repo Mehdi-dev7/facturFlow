@@ -120,17 +120,28 @@ export async function sendInvoiceEmail(
       },
     };
 
-    // 4. Vérifier si Stripe est connecté → URL de redirection propre via notre domaine
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+    // 4. Vérifier Stripe + PayPal → URLs de redirection propres via notre domaine
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://facturnow.fr";
     let stripePaymentUrl: string | null = null;
+    let paypalPaymentUrl: string | null = null;
+
     try {
       const stripeCred = await getStripeCredential(session.user.id);
       if (stripeCred) {
-        // URL propre sur notre domaine — le redirect génère le Checkout Session à la volée
         stripePaymentUrl = `${appUrl}/api/pay/${invoiceId}`;
       }
     } catch (err) {
       console.warn("[sendInvoiceEmail] Stripe check failed:", err);
+    }
+
+    try {
+      const { getPaypalCredential } = await import("@/lib/actions/payments");
+      const paypalCred = await getPaypalCredential(session.user.id);
+      if (paypalCred) {
+        paypalPaymentUrl = `${appUrl}/api/pay-paypal/${invoiceId}`;
+      }
+    } catch (err) {
+      console.warn("[sendInvoiceEmail] PayPal check failed:", err);
     }
 
     // 5. Générer le PDF en buffer (renderToBuffer = API serveur de @react-pdf/renderer)
@@ -183,15 +194,26 @@ export async function sendInvoiceEmail(
             </table>
           </div>
 
-          ${stripePaymentUrl ? `
+          ${stripePaymentUrl || paypalPaymentUrl ? `
           <div style="text-align: center; margin: 32px 0;">
+            ${stripePaymentUrl ? `
             <a href="${stripePaymentUrl}"
-               style="display: inline-block; background-color: #635BFF; color: #ffffff; text-decoration: none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 15px; font-weight: 600; padding: 12px 28px; border-radius: 6px; cursor: pointer;">
-              Payer ${amount} €
+               style="display: inline-block; background-color: #635BFF; color: #ffffff; text-decoration: none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 15px; font-weight: 600; padding: 12px 28px; border-radius: 6px; cursor: pointer; margin: 6px;">
+              Payer ${amount} € par carte
             </a>
-            <p style="color: #6b7280; font-size: 12px; margin-top: 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;">
+            <p style="color: #6b7280; font-size: 12px; margin-top: 6px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;">
               Paiement sécurisé par <strong style="color: #635BFF;">Stripe</strong> &nbsp;·&nbsp; CB, Apple Pay, Google Pay
             </p>
+            ` : ""}
+            ${paypalPaymentUrl ? `
+            <a href="${paypalPaymentUrl}"
+               style="display: inline-block; background-color: #003087; color: #ffffff; text-decoration: none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 15px; font-weight: 600; padding: 12px 28px; border-radius: 6px; cursor: pointer; margin: 6px;">
+              Payer ${amount} € via PayPal
+            </a>
+            <p style="color: #6b7280; font-size: 12px; margin-top: 6px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;">
+              Paiement sécurisé par <strong style="color: #003087;">PayPal</strong>
+            </p>
+            ` : ""}
           </div>
           ` : ""}
 
