@@ -40,6 +40,8 @@ export default function ComingSoonPage() {
           -webkit-text-fill-color: transparent;
           animation: shimmer 4s linear infinite;
         }
+        .email-link { color: #7c3aed; transition: color 0.2s; }
+        .email-link:hover { color: #a855f7; }
         /* Noise texture subtile via SVG inline */
         .noise::after {
           content: "";
@@ -161,10 +163,7 @@ export default function ComingSoonPage() {
             <Mail className="h-3.5 w-3.5" style={{ color: "#6d28d9" }} />
             <a
               href="mailto:contact@facturnow.fr"
-              className="text-sm transition-colors duration-200"
-              style={{ color: "#7c3aed" }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = "#a855f7")}
-              onMouseLeave={(e) => (e.currentTarget.style.color = "#7c3aed")}
+              className="email-link text-sm"
             >
               contact@facturnow.fr
             </a>
