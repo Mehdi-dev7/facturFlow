@@ -4,8 +4,8 @@ import {
 } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Politique de confidentialité | FacturFlow",
-  description: "Comment FacturFlow collecte, utilise et protège vos données personnelles — RGPD",
+  title: "Politique de confidentialité | FacturNow",
+  description: "Comment FacturNow collecte, utilise et protège vos données personnelles — RGPD",
 };
 
 // ─── Composants partagés ─────────────────────────────────────────────────────
@@ -76,19 +76,19 @@ export default function PrivacyPage() {
 
       <div className="px-8">
         <Section num="01" title="Responsable du traitement" icon={User}>
-          <DataRow label="Société" value="FacturFlow" />
+          <DataRow label="Société" value="FacturNow" />
           <DataRow label="SIRET" value="[À COMPLÉTER]" />
           <DataRow label="Adresse" value="[À COMPLÉTER]" />
           <div className="flex items-start gap-3 py-2">
             <span className="font-medium text-slate-700 dark:text-slate-300 w-48 shrink-0 text-sm">Email DPO</span>
-            <a href="mailto:privacy@facturflow.fr" className="text-primary hover:underline text-sm">
-              privacy@facturflow.fr
+            <a href="mailto:privacy@facturnow.fr" className="text-primary hover:underline text-sm">
+              privacy@facturnow.fr
             </a>
           </div>
         </Section>
 
         <Section num="02" title="Données collectées" icon={Target}>
-          <p className="mb-3">Dans le cadre de l&apos;utilisation de FacturFlow, nous collectons :</p>
+          <p className="mb-3">Dans le cadre de l&apos;utilisation de FacturNow, nous collectons :</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {[
               { cat: "Compte", detail: "Nom, email, mot de passe haché, téléphone (optionnel)" },
@@ -110,7 +110,7 @@ export default function PrivacyPage() {
               "Fourniture et gestion du service de facturation",
               "Authentification et sécurisation de votre compte",
               "Envoi de factures, devis et emails transactionnels",
-              "Gestion de votre abonnement FacturFlow",
+              "Gestion de votre abonnement FacturNow",
               "Support client et réponse à vos demandes",
               "Amélioration du service (analyses anonymisées)",
               "Respect des obligations légales et comptables",
@@ -177,8 +177,8 @@ export default function PrivacyPage() {
           </div>
           <p className="mt-3">
             Pour exercer ces droits, écrivez à{" "}
-            <a href="mailto:privacy@facturflow.fr" className="text-primary hover:underline font-medium">
-              privacy@facturflow.fr
+            <a href="mailto:privacy@facturnow.fr" className="text-primary hover:underline font-medium">
+              privacy@facturnow.fr
             </a>{" "}
             — réponse sous 30 jours. Vous pouvez aussi saisir la{" "}
             <a href="https://www.cnil.fr" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
@@ -189,7 +189,7 @@ export default function PrivacyPage() {
 
         <Section num="08" title="Sécurité" icon={Lock}>
           <p>
-            FacturFlow met en œuvre des mesures techniques appropriées : chiffrement AES-256
+            FacturNow met en œuvre des mesures techniques appropriées : chiffrement AES-256
             des données sensibles, HTTPS obligatoire, authentification forte (OAuth + OTP),
             accès restreint aux seuls besoins opérationnels.
           </p>
@@ -202,8 +202,8 @@ export default function PrivacyPage() {
         <Section num="09" title="Contact" icon={Mail}>
           <p>
             Pour toute question relative à cette politique ou à vos données personnelles :{" "}
-            <a href="mailto:privacy@facturflow.fr" className="text-primary hover:underline font-medium">
-              privacy@facturflow.fr
+            <a href="mailto:privacy@facturnow.fr" className="text-primary hover:underline font-medium">
+              privacy@facturnow.fr
             </a>
           </p>
         </Section>
@@ -212,8 +212,8 @@ export default function PrivacyPage() {
       <div className="px-8 py-5 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 rounded-b-2xl">
         <p className="text-xs text-slate-400 dark:text-slate-500 text-center">
           Questions sur vos données ?{" "}
-          <a href="mailto:privacy@facturflow.fr" className="text-primary hover:underline">
-            privacy@facturflow.fr
+          <a href="mailto:privacy@facturnow.fr" className="text-primary hover:underline">
+            privacy@facturnow.fr
           </a>
         </p>
       </div>

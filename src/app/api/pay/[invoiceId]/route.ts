@@ -1,6 +1,6 @@
 // src/app/api/pay/[invoiceId]/route.ts
 // Redirect propre vers le lien de paiement Stripe.
-// L'email contient une URL courte (facturflow.com/api/pay/xxx) au lieu de l'URL Stripe immense.
+// L'email contient une URL courte (facturnow.com/api/pay/xxx) au lieu de l'URL Stripe immense.
 // Un nouveau Checkout Session est créé à chaque clic → pas de problème d'expiration.
 
 import { NextRequest, NextResponse } from "next/server";

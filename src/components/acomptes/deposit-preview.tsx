@@ -393,7 +393,7 @@ export function DepositPreview({
 
 					{/* Footer */}
 					<div className="text-center text-[10px] lg:text-xs text-slate-400 dark:text-violet-300/80 pt-4 border-t border-slate-100 dark:border-slate-700">
-						<p>Document généré par FacturFlow</p>
+						<p>Document généré par FacturNow</p>
 					</div>
 				</div>
 			</div>

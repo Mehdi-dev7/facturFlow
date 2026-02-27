@@ -2,7 +2,7 @@ import { CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 
 export const metadata = {
-	title: "Devis accepté — FacturFlow",
+	title: "Devis accepté — FacturNow",
 	robots: { index: false },
 };
 
@@ -38,10 +38,10 @@ export default function DevisAcceptePage() {
 
 				{/* Lien discret */}
 				<Link
-					href="https://facturflow.com"
+					href="https://facturnow.com"
 					className="inline-block text-xs text-slate-300 hover:text-slate-400 transition-colors"
 				>
-					Propulsé par FacturFlow
+					Propulsé par FacturNow
 				</Link>
 			</div>
 		</main>

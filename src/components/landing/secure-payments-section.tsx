@@ -220,7 +220,7 @@ export function SecurePaymentsSection() {
                 Vous gardez 100% de vos revenus
               </h3>
               <p className="text-slate-600 text-sm xs:text-base">
-                FacturFlow ne prend <span className="font-semibold text-slate-900">aucune commission</span> sur vos transactions. 
+                FacturNow ne prend <span className="font-semibold text-slate-900">aucune commission</span> sur vos transactions. 
                 Vous payez uniquement les frais standards de vos prestataires de paiement.
               </p>
             </div>

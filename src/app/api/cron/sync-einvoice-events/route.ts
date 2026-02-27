@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
 
       // ─ 3. Mettre à jour le statut de chaque facture concernée ─
       for (const event of events) {
-        // Chercher la facture FacturFlow par son einvoiceRef (= ID SuperPDP)
+        // Chercher la facture FacturNow par son einvoiceRef (= ID SuperPDP)
         const doc = await prisma.document.findFirst({
           where: { einvoiceRef: String(event.invoice_id) },
           select: { id: true },

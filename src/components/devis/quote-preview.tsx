@@ -437,7 +437,7 @@ export function QuotePreview({
 
 				{/* Footer */}
 				<div className="text-center text-[10px] text-slate-400 pt-4 border-t border-slate-100">
-					<p>Document généré par FacturFlow</p>
+					<p>Document généré par FacturNow</p>
 				</div>
 			</div>
 		</div>

@@ -19,7 +19,7 @@ export default function LegalLayout({ children }: { children: React.ReactNode })
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-primary">
                 <span className="text-white font-bold text-sm">F</span>
               </div>
-              <span className="font-bold text-slate-900 dark:text-white text-lg">FacturFlow</span>
+              <span className="font-bold text-slate-900 dark:text-white text-lg">FacturNow</span>
             </Link>
 
             <Link
@@ -55,9 +55,9 @@ export default function LegalLayout({ children }: { children: React.ReactNode })
 
         {/* Footer */}
         <p className="text-center text-xs text-slate-400 dark:text-slate-600 mt-8">
-          © {new Date().getFullYear()} FacturFlow — Tous droits réservés ·{" "}
-          <a href="mailto:contact@facturflow.fr" className="hover:text-primary transition-colors">
-            contact@facturflow.fr
+          © {new Date().getFullYear()} FacturNow — Tous droits réservés ·{" "}
+          <a href="mailto:contact@facturnow.fr" className="hover:text-primary transition-colors">
+            contact@facturnow.fr
           </a>
         </p>
       </div>

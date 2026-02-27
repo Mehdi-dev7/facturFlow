@@ -146,7 +146,7 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
   const emitter = useMemo(() => {
     if (invoice.user.companyName) return invoice.user;
     try {
-      const saved = localStorage.getItem("facturflow_company");
+      const saved = localStorage.getItem("facturnow_company");
       if (saved) {
         const c = JSON.parse(saved) as { name?: string; siret?: string; address?: string; city?: string; email?: string; zipCode?: string };
         return {
@@ -582,7 +582,7 @@ export function InvoicePreviewModal({
     // Récupérer les infos émetteur depuis localStorage en fallback
     let emitterFallback: Record<string, string> | undefined;
     try {
-      const saved = localStorage.getItem("facturflow_company");
+      const saved = localStorage.getItem("facturnow_company");
       if (saved) {
         const c = JSON.parse(saved) as { name?: string; siret?: string; address?: string; city?: string; email?: string; zipCode?: string };
         emitterFallback = {

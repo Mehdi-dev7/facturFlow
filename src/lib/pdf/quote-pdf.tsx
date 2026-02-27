@@ -18,8 +18,8 @@ export async function downloadQuotePDF(quote: SavedQuote) {
   let enriched = quote;
   if (!quote.user.companyName) {
     try {
-      const saved = localStorage.getItem("facturflow_company");
-      const appearance = localStorage.getItem("facturflow_appearance");
+      const saved = localStorage.getItem("facturnow_company");
+      const appearance = localStorage.getItem("facturnow_appearance");
       if (saved) {
         const c = JSON.parse(saved) as { name?: string; siret?: string; address?: string; city?: string; email?: string; zipCode?: string };
         const a = appearance ? JSON.parse(appearance) as { themeColor?: string; companyFont?: string; companyLogo?: string } : {};

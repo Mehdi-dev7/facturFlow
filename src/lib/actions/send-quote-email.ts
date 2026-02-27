@@ -84,7 +84,7 @@ export async function sendQuoteEmail(
 			: "—";
 
 		const emitterName =
-			doc.user.companyName || emitterFallback?.companyName || "FacturFlow";
+			doc.user.companyName || emitterFallback?.companyName || "FacturNow";
 
 		// 5. Construire les lignes du devis pour l'email
 		const linesHtml = doc.lineItems
@@ -177,7 +177,7 @@ export async function sendQuoteEmail(
 					<hr style="border: none; border-top: 1px solid #e2e8f0; margin: 24px 0;" />
 
 					<p style="color: #94a3b8; font-size: 12px; text-align: center;">
-						Email envoyé via FacturFlow
+						Email envoyé via FacturNow
 					</p>
 				</div>
 			`,

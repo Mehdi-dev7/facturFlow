@@ -109,7 +109,7 @@ export async function sendDepositEmail(depositId: string) {
         <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 24px 0;" />
 
         <p style="color: #94a3b8; font-size: 12px; text-align: center;">
-          Email envoyé via FacturFlow
+          Email envoyé via FacturNow
         </p>
       </div>
     `;

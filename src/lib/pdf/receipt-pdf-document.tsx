@@ -270,7 +270,7 @@ export function ReceiptPdfDocument({ receipt }: { receipt: SavedReceipt }) {
           <Text style={S.footerText}>
             {receipt.number} — Émis le {fmtDate(receipt.date)}
           </Text>
-          <Text style={S.footerText}>Document généré par FacturFlow</Text>
+          <Text style={S.footerText}>Document généré par FacturNow</Text>
         </View>
       </Page>
     </Document>

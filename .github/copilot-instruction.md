@@ -1,4 +1,4 @@
-# FacturFlow - SaaS de Facturation Intelligente
+# FacturNow - SaaS de Facturation Intelligente
 
 ## Stack Technique COMPLÈTE
 - Next.js 16 + TypeScript (strict mode) + App Router
@@ -292,7 +292,7 @@ enum PaymentProvider {
 
 ## Flow GoCardless & SEPA Direct Debit
 
-### 1. Connexion User FacturFlow → GoCardless (One-time setup)
+### 1. Connexion User FacturNow → GoCardless (One-time setup)
 
 **Workflow OAuth GoCardless :**
 ```
@@ -301,8 +301,8 @@ enum PaymentProvider {
    - URL : https://connect.gocardless.com/oauth/authorize
    - Params : client_id, redirect_uri, scope=read_write
 3. User crée compte GoCardless ou login si existe
-4. User autorise FacturFlow à accéder à son compte
-5. GoCardless redirect vers FacturFlow callback avec code
+4. User autorise FacturNow à accéder à son compte
+5. GoCardless redirect vers FacturNow callback avec code
 6. Exchange code contre access_token (server-side)
 7. Stocker access_token dans DB (User.gocardlessAccessToken)
 8. Afficher badge "✅ SEPA activé" dans dashboard
@@ -334,7 +334,7 @@ Lors de création facture, proposer modes de paiement :
 **Workflow signature mandat (géré par GoCardless) :**
 ```
 1. Client clique sur lien dans email
-2. Redirect vers page GoCardless (branded FacturFlow)
+2. Redirect vers page GoCardless (branded FacturNow)
 3. Client entre infos :
    - Nom complet
    - Email
@@ -343,7 +343,7 @@ Lors de création facture, proposer modes de paiement :
 4. Client accepte mandat SEPA (légal)
 5. GoCardless envoie email confirmation au client
 6. Mandat status: PENDING_SUBMISSION (3-5 jours activation)
-7. Webhook envoyé à FacturFlow : mandate.submitted
+7. Webhook envoyé à FacturNow : mandate.submitted
 8. Après délai bancaire : mandate.active
 9. Prélèvement possible
 ```
@@ -415,7 +415,7 @@ export async function POST(request: Request) {
 
 **Events à traiter :**
 
-| Event | Action FacturFlow |
+| Event | Action FacturNow |
 |-------|------------------|
 | `mandates.created` | Log création mandat |
 | `mandates.submitted` | Update client: mandateStatus = PENDING |
@@ -510,9 +510,9 @@ export async function POST(request: Request) {
 - Volume : dégressif selon volume mensuel
 - Setup gratuit, pas d'abonnement
 
-**Stratégie FacturFlow :**
+**Stratégie FacturNow :**
 - Option A : Frais transparents (user paie 1% + 0.20€)
-- Option B : Commission FacturFlow (ajouter 0.3-0.5%)
+- Option B : Commission FacturNow (ajouter 0.3-0.5%)
 - Option C : Forfait mensuel incluant SEPA illimité (19€/mois)
 
 **Affichage UI :**

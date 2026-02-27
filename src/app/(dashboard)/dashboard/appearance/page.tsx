@@ -6,7 +6,7 @@ import { getAppearanceSettings } from "@/lib/actions/appearance";
 import { redirect } from "next/navigation";
 
 export const metadata = {
-  title: "Apparence | FacturFlow",
+  title: "Apparence | FacturNow",
   description: "Personnalisez le style de vos documents",
 };
 

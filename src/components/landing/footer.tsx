@@ -91,10 +91,10 @@ export function Footer() {
               Blog & Actualités
             </Link>
             <Link
-              href="mailto:support@facturflow.fr"
+              href="mailto:support@facturnow.fr"
               className="text-slate-300 text-base transition-all duration-300 hover:text-secondary hover:ml-2"
             >
-              support@facturflow.fr
+              support@facturnow.fr
             </Link>
           </ul>
         </div>
@@ -142,10 +142,10 @@ export function Footer() {
       {/* Footer Bottom */}
       <div className="flex flex-col justify-center items-center py-8 border-t border-slate-700">
         <p className="text-slate-300 text-base text-center">
-          © 2026 FacturFlow - Tous droits réservés. Développé avec ❤️ en France
+          © 2026 FacturNow - Tous droits réservés. Développé avec ❤️ en France
         </p>
         <p className="text-slate-400 text-sm mt-3 text-center max-w-3xl leading-relaxed">
-          FacturFlow est une solution SaaS de facturation conforme aux réglementations françaises et européennes. 
+          FacturNow est une solution SaaS de facturation conforme aux réglementations françaises et européennes. 
           Stripe, PayPal et GoCardless sont des marques déposées de leurs propriétaires respectifs.
         </p>
         <div className="flex items-center space-x-6 mt-4 text-sm text-slate-400">

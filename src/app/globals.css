@@ -131,7 +131,7 @@
 :root {
 	--radius: 0.625rem;
 
-	/* Palette de couleurs FacturFlow */
+	/* Palette de couleurs FacturNow */
 	--background: 255 255 255; /* #ffffff */
 	--background-secondary: 248 250 252; /* #f8fafc */
 	--foreground: 15 23 42; /* #0f172a - Slate 900 */
@@ -311,7 +311,7 @@ body {
 }
 
 
-/* Styles personnalisés pour FacturFlow */
+/* Styles personnalisés pour FacturNow */
 @layer utilities {
 	.bg-gradient-primary {
 		background: linear-gradient(

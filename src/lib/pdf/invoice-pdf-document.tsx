@@ -562,7 +562,7 @@ export default function InvoicePdfDocument({ invoice }: { invoice: SavedInvoice 
         )}
 
         {/* ── Footer ── */}
-        <Text style={S.footer}>Document généré par FacturFlow</Text>
+        <Text style={S.footer}>Document généré par FacturNow</Text>
       </Page>
     </Document>
   );

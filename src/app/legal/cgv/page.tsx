@@ -5,8 +5,8 @@ import {
 } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "CGU / CGV | FacturFlow",
-  description: "Conditions générales d'utilisation et de vente de FacturFlow",
+  title: "CGU / CGV | FacturNow",
+  description: "Conditions générales d'utilisation et de vente de FacturNow",
 };
 
 // ─── Composants partagés ─────────────────────────────────────────────────────
@@ -47,7 +47,7 @@ export default function CgvPage() {
         </div>
         <h1 className="text-2xl font-bold text-gradient mb-1">CGU / CGV</h1>
         <p className="text-sm text-slate-500 dark:text-slate-400">
-          Dernière mise à jour : mars 2025 — Applicables à tout utilisateur de FacturFlow
+          Dernière mise à jour : mars 2025 — Applicables à tout utilisateur de FacturNow
         </p>
       </div>
 
@@ -55,16 +55,16 @@ export default function CgvPage() {
         <Section num="01" title="Objet" icon={ScrollText}>
           <p>
             Les présentes Conditions Générales d&apos;Utilisation et de Vente (CGU/CGV) régissent
-            l&apos;accès et l&apos;utilisation de FacturFlow, plateforme SaaS de facturation en
+            l&apos;accès et l&apos;utilisation de FacturNow, plateforme SaaS de facturation en
             ligne accessible à{" "}
-            <a href="https://facturflow.fr" className="text-primary hover:underline">facturflow.fr</a>.
+            <a href="https://facturnow.fr" className="text-primary hover:underline">facturnow.fr</a>.
             En créant un compte ou en utilisant le service, vous acceptez l&apos;intégralité
             de ces conditions.
           </p>
         </Section>
 
         <Section num="02" title="Description du service" icon={Layers}>
-          <p>FacturFlow est un logiciel de facturation destiné aux freelances, auto-entrepreneurs et PME françaises. Il permet notamment de :</p>
+          <p>FacturNow est un logiciel de facturation destiné aux freelances, auto-entrepreneurs et PME françaises. Il permet notamment de :</p>
           <ul className="space-y-1.5 mt-2">
             {[
               "Créer, envoyer et gérer des factures, devis et acomptes",
@@ -89,7 +89,7 @@ export default function CgvPage() {
           </p>
           <p>
             Vous vous engagez à fournir des informations exactes et à les maintenir à jour.
-            FacturFlow se réserve le droit de suspendre ou supprimer tout compte en cas
+            FacturNow se réserve le droit de suspendre ou supprimer tout compte en cas
             d&apos;utilisation frauduleuse.
           </p>
         </Section>
@@ -166,7 +166,7 @@ export default function CgvPage() {
         </Section>
 
         <Section num="07" title="Utilisation acceptable" icon={ShieldCheck}>
-          <p className="mb-2">Vous vous engagez à utiliser FacturFlow uniquement pour des activités légales. Il est notamment interdit de :</p>
+          <p className="mb-2">Vous vous engagez à utiliser FacturNow uniquement pour des activités légales. Il est notamment interdit de :</p>
           <ul className="space-y-1.5">
             {[
               "Émettre des factures frauduleuses ou pour des prestations fictives",
@@ -185,7 +185,7 @@ export default function CgvPage() {
 
         <Section num="08" title="Disponibilité" icon={Wifi}>
           <p>
-            FacturFlow s&apos;engage à maintenir une disponibilité du service de <strong>99,5%</strong> par
+            FacturNow s&apos;engage à maintenir une disponibilité du service de <strong>99,5%</strong> par
             mois (hors maintenance planifiée). Des interruptions peuvent survenir pour
             des opérations de maintenance, annoncées avec 48h de préavis si possible.
           </p>
@@ -194,7 +194,7 @@ export default function CgvPage() {
         <Section num="09" title="Propriété des données" icon={Database}>
           <p>
             Vous restez propriétaire de l&apos;intégralité des données que vous saisissez
-            (factures, clients, produits). FacturFlow agit en qualité de sous-traitant
+            (factures, clients, produits). FacturNow agit en qualité de sous-traitant
             au sens du RGPD. Vous pouvez exporter vos données à tout moment et demander
             leur suppression à la résiliation.
           </p>
@@ -202,7 +202,7 @@ export default function CgvPage() {
 
         <Section num="10" title="Limitation de responsabilité" icon={PenLine}>
           <p>
-            FacturFlow est un outil de gestion, pas un conseil juridique, fiscal ou comptable.
+            FacturNow est un outil de gestion, pas un conseil juridique, fiscal ou comptable.
             Vous restez seul responsable du respect de vos obligations légales et fiscales.
           </p>
           <p>
@@ -214,7 +214,7 @@ export default function CgvPage() {
 
         <Section num="11" title="Modification des conditions" icon={Scale}>
           <p>
-            FacturFlow peut modifier ces conditions à tout moment. En cas de modification
+            FacturNow peut modifier ces conditions à tout moment. En cas de modification
             substantielle, vous serez informé par email avec un préavis de 30 jours.
             La poursuite de l&apos;utilisation vaut acceptation des nouvelles conditions.
           </p>
@@ -243,7 +243,7 @@ export default function CgvPage() {
       <div className="px-8 py-5 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 rounded-b-2xl">
         <p className="text-xs text-slate-400 dark:text-slate-500 text-center">
           Des questions sur ces conditions ?{" "}
-          <a href="mailto:contact@facturflow.fr" className="text-primary hover:underline">
+          <a href="mailto:contact@facturnow.fr" className="text-primary hover:underline">
             Contactez-nous
           </a>
         </p>

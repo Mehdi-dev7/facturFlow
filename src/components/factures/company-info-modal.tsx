@@ -43,7 +43,7 @@ export function CompanyInfoModal({
 
 	const onSubmit = useCallback(
 		(data: CompanyInfo) => {
-			localStorage.setItem("facturflow_company", JSON.stringify(data));
+			localStorage.setItem("facturnow_company", JSON.stringify(data));
 			onSave(data);
 			onOpenChange(false);
 		},

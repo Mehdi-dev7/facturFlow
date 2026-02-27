@@ -1,4 +1,4 @@
-# Fonts FacturFlow
+# Fonts FacturNow
 
 Ce dossier contient les fonts personnalisées utilisées dans l'application.
 

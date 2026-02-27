@@ -23,8 +23,8 @@ export const auth = betterAuth({
       verify: ({ hash, password }) => bcrypt.compare(password, hash),
     },
     sendResetPassword: async ({ user, url }) => {
-      // En prod : vérifier facturflow.fr dans le dashboard Resend et mettre RESEND_FROM_EMAIL=noreply@facturflow.fr
-      const from = process.env.RESEND_FROM_EMAIL ?? "FacturFlow <onboarding@resend.dev>";
+      // En prod : vérifier facturnow.fr dans le dashboard Resend et mettre RESEND_FROM_EMAIL=noreply@facturnow.fr
+      const from = process.env.RESEND_FROM_EMAIL ?? "FacturNow <onboarding@resend.dev>";
       // En dev avec onboarding@resend.dev, Resend n'autorise que l'envoi vers l'adresse du compte Resend
       const devOverrideTo = process.env.RESEND_DEV_TO;
       const to = devOverrideTo ?? user.email;
@@ -35,7 +35,7 @@ export const auth = betterAuth({
         const { error } = await resend.emails.send({
           from,
           to,
-          subject: "Réinitialisez votre mot de passe FacturFlow",
+          subject: "Réinitialisez votre mot de passe FacturNow",
           html: `
             <!DOCTYPE html>
             <html lang="fr">
@@ -55,7 +55,7 @@ export const auth = betterAuth({
                     <tr><td style="padding:32px;">
                       <p style="margin:0 0 8px;font-size:16px;color:#1e293b;font-weight:600;">Bonjour ${user.name ?? user.email},</p>
                       <p style="margin:0 0 24px;font-size:14px;color:#64748b;line-height:1.6;">
-                        Vous avez demandé la réinitialisation de votre mot de passe FacturFlow.<br>
+                        Vous avez demandé la réinitialisation de votre mot de passe FacturNow.<br>
                         Cliquez sur le bouton ci-dessous pour choisir un nouveau mot de passe.
                       </p>
                       <div style="text-align:center;margin:28px 0;">
@@ -69,7 +69,7 @@ export const auth = betterAuth({
                     </td></tr>
                     <!-- Footer -->
                     <tr><td style="padding:16px 32px;background:#f8fafc;border-top:1px solid #e2e8f0;text-align:center;">
-                      <p style="margin:0;font-size:11px;color:#94a3b8;">© ${new Date().getFullYear()} FacturFlow — Tous droits réservés</p>
+                      <p style="margin:0;font-size:11px;color:#94a3b8;">© ${new Date().getFullYear()} FacturNow — Tous droits réservés</p>
                     </td></tr>
                   </table>
                 </td></tr>

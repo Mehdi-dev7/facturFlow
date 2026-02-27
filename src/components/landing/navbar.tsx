@@ -32,7 +32,7 @@ export function Navbar() {
                 <span className="text-lg font-bold text-white font-heading">F</span>
               </div>
               <span className="text-xl lg:text-2xl font-semibold golos-text font-heading text-gradient">
-                FacturFlow
+                FacturNow
               </span>
             </Link>
 

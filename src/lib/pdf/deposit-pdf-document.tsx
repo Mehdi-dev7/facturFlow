@@ -287,7 +287,7 @@ export default function DepositPdfDocument({ deposit }: DepositPdfDocumentProps)
 
         {/* ── Footer ────────────────────────────────────────────────── */}
         <Text style={S.footer}>
-          Acompte généré par FacturFlow • {new Date().toLocaleDateString("fr-FR")}
+          Acompte généré par FacturNow • {new Date().toLocaleDateString("fr-FR")}
         </Text>
       </Page>
     </Document>

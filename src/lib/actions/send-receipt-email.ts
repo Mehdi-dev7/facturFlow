@@ -119,7 +119,7 @@ function buildReceiptEmailHtml(opts: {
       <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 24px 0;" />
 
       <p style="color: #94a3b8; font-size: 12px; text-align: center;">
-        Email envoyé via FacturFlow
+        Email envoyé via FacturNow
       </p>
     </div>
   `;
@@ -194,7 +194,7 @@ export async function sendReceiptFromInvoice(
 
     // 5. Préparer les valeurs d'affichage pour l'email
     const clientName = resolveClientName(doc.client);
-    const emitterName = doc.user.companyName ?? "FacturFlow";
+    const emitterName = doc.user.companyName ?? "FacturNow";
     const amountFormatted =
       doc.total.toNumber().toLocaleString("fr-FR", {
         minimumFractionDigits: 2,
@@ -315,7 +315,7 @@ export async function sendSavedReceiptEmail(
 
     // 6. Préparer les valeurs d'affichage
     const clientName = resolveClientName(doc.client);
-    const emitterName = doc.user.companyName ?? "FacturFlow";
+    const emitterName = doc.user.companyName ?? "FacturNow";
     const amountFormatted =
       doc.total.toNumber().toLocaleString("fr-FR", {
         minimumFractionDigits: 2,

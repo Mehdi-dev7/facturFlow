@@ -77,7 +77,7 @@ export default function NewInvoicePage() {
 
 		// 2. Charger les infos société depuis localStorage
 		try {
-			const savedCompany = localStorage.getItem("facturflow_company");
+			const savedCompany = localStorage.getItem("facturnow_company");
 			if (savedCompany) setCompanyInfo(JSON.parse(savedCompany) as CompanyInfo);
 		} catch {
 			// ignore
@@ -92,7 +92,7 @@ export default function NewInvoicePage() {
 
 	const handleCompanyChange = useCallback((data: CompanyInfo) => {
 		setCompanyInfo(data);
-		localStorage.setItem("facturflow_company", JSON.stringify(data));
+		localStorage.setItem("facturnow_company", JSON.stringify(data));
 	}, []);
 
 	// ─── Auto-save en DB toutes les 30s ───────────────────────────────────────

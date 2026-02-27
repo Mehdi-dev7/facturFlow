@@ -46,7 +46,7 @@ export function HeroSection() {
 						{/* Sous-titre */}
 						<p className="text-lg xs:text-xl text-slate-600 leading-relaxed max-w-xl">
 							Créez, envoyez et suivez vos factures professionnelles en quelques
-							clics. FacturFlow automatise votre facturation pour que vous
+							clics. FacturNow automatise votre facturation pour que vous
 							puissiez vous concentrer sur votre activité.
 						</p>
 

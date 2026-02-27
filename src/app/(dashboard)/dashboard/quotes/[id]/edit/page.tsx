@@ -121,7 +121,7 @@ export default function EditQuotePage() {
 					setCompanyInfo(dbCompany);
 				} else {
 					try {
-						const saved = localStorage.getItem("facturflow_company");
+						const saved = localStorage.getItem("facturnow_company");
 						if (saved) setCompanyInfo(JSON.parse(saved) as CompanyInfo);
 					} catch {
 						// ignore
@@ -137,7 +137,7 @@ export default function EditQuotePage() {
 
 	const handleCompanyChange = useCallback((data: CompanyInfo) => {
 		setCompanyInfo(data);
-		localStorage.setItem("facturflow_company", JSON.stringify(data));
+		localStorage.setItem("facturnow_company", JSON.stringify(data));
 	}, []);
 
 	// ─── Submit : mettre a jour le devis ───────────────────────────────────

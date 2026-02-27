@@ -98,7 +98,7 @@ export default function LoginPage() {
 						Connexion
 					</CardTitle>
 					<CardDescription className="text-center text-base text-slate-600">
-						Accédez à votre espace FacturFlow
+						Accédez à votre espace FacturNow
 					</CardDescription>
 				</CardHeader>
 				<CardContent className="space-y-6">

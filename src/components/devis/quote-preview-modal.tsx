@@ -140,7 +140,7 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
   const emitter = useMemo(() => {
     if (quote.user.companyName) return quote.user;
     try {
-      const saved = localStorage.getItem("facturflow_company");
+      const saved = localStorage.getItem("facturnow_company");
       if (saved) {
         const c = JSON.parse(saved) as { name?: string; siret?: string; address?: string; city?: string; email?: string; zipCode?: string };
         return {
@@ -394,7 +394,7 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
 
         {/* Footer */}
         <div className="text-center text-[10px] lg:text-xs text-slate-400 dark:text-slate-500 pt-4 border-t border-slate-100 dark:border-slate-700">
-          <p>Document généré par FacturFlow</p>
+          <p>Document généré par FacturNow</p>
         </div>
     </div>
   );
@@ -503,7 +503,7 @@ export function QuotePreviewModal({
     // Recuperer les infos emetteur depuis localStorage en fallback
     let emitterFallback: Record<string, string> | undefined;
     try {
-      const saved = localStorage.getItem("facturflow_company");
+      const saved = localStorage.getItem("facturnow_company");
       if (saved) {
         const c = JSON.parse(saved) as { name?: string; siret?: string; address?: string; city?: string; email?: string; zipCode?: string };
         emitterFallback = {

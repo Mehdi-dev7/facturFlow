@@ -305,7 +305,7 @@ export default function QuotePdfDocument({ quote }: QuotePdfDocumentProps) {
 
         {/* ── Footer ────────────────────────────────────────────────── */}
         <Text style={S.footer}>
-          Devis généré par FacturFlow • {new Date().toLocaleDateString("fr-FR")}
+          Devis généré par FacturNow • {new Date().toLocaleDateString("fr-FR")}
         </Text>
       </Page>
     </Document>

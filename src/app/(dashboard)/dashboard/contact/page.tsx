@@ -4,7 +4,7 @@ import { auth } from "@/lib/auth";
 import ContactForm from "./contact-form";
 
 export const metadata: Metadata = {
-  title: "Contact Support | FacturFlow",
+  title: "Contact Support | FacturNow",
   description: "Contactez notre équipe support pour toute question ou assistance",
 };
 

@@ -149,7 +149,7 @@ export async function sendInvoiceEmail(
       ? new Date(doc.dueDate).toLocaleDateString("fr-FR", { day: "2-digit", month: "long", year: "numeric" })
       : "—";
 
-    const emitterName = invoice.user.companyName ?? "FacturFlow";
+    const emitterName = invoice.user.companyName ?? "FacturNow";
 
     // 7. Envoyer l'email via Resend
     const { error } = await resend.emails.send({
@@ -211,7 +211,7 @@ export async function sendInvoiceEmail(
           <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 24px 0;" />
 
           <p style="color: #94a3b8; font-size: 12px; text-align: center;">
-            Email envoyé via FacturFlow
+            Email envoyé via FacturNow
           </p>
         </div>
       `,

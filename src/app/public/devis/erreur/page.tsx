@@ -3,7 +3,7 @@ import Link from "next/link";
 import { type SearchParams } from "next/dist/server/request/search-params";
 
 export const metadata = {
-	title: "Lien invalide — FacturFlow",
+	title: "Lien invalide — FacturNow",
 	robots: { index: false },
 };
 
@@ -51,10 +51,10 @@ export default async function DevisErreurPage({
 				</p>
 
 				<Link
-					href="https://facturflow.com"
+					href="https://facturnow.com"
 					className="inline-block text-xs text-slate-300 hover:text-slate-400 transition-colors"
 				>
-					Propulsé par FacturFlow
+					Propulsé par FacturNow
 				</Link>
 			</div>
 		</main>

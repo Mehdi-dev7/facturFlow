@@ -143,7 +143,7 @@ function buildEN16931(invoice: InvoiceWithFullData): EN16931Invoice {
 		// ─ Vendeur (notre utilisateur) ─
 		seller: (() => {
 			const seller: any = {
-				name: user.companyName ?? "FacturFlow User",
+				name: user.companyName ?? "FacturNow User",
 				identifiers: [
 					{
 						value: user.companySiren,

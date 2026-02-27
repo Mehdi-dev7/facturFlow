@@ -1,4 +1,4 @@
-# FacturFlow - Context for Claude Code
+# FacturNow - Context for Claude Code
 
 ## Project Overview
 SaaS de facturation intelligent avec prélèvement SEPA automatique pour freelances, auto-entrepreneurs et PME françaises. Killer feature : GoCardless pour factures récurrentes sans impayés.
@@ -150,7 +150,7 @@ const draftInvoice = useInvoiceStore((state) => state.draftInvoice)
 
 ## Project Structure
 ```
-facturflow/
+facturnow/
 ├── app/
 │   ├── (auth)/                 # Public routes
 │   │   ├── login/
@@ -273,7 +273,7 @@ facturflow/
 ```
 1. User → Settings → Connect GoCardless (OAuth)
 2. Create/connect GoCardless account
-3. Authorize FacturFlow
+3. Authorize FacturNow
 4. Store access_token in DB
 5. Badge "SEPA activé" in dashboard
 ```
@@ -423,7 +423,7 @@ einvoiceSentAt DateTime? // Date d'envoi électronique
 + table `EInvoiceSyncState` (id, lastEventId) pour le polling
 
 #### Plans tarifaires
-- **Business (29€/mois)** : inclus sans limite (coût absorbé par FacturFlow)
+- **Business (29€/mois)** : inclus sans limite (coût absorbé par FacturNow)
 - **Pro (14€/mois)** : 100 factures électroniques gratuites/mois, ensuite à décider
 
 ## Pricing (Validated)

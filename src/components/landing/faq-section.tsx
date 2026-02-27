@@ -12,19 +12,19 @@ export function FaqSection() {
     
       {
         question: "Comment configurer le prélèvement SEPA automatique (GoCardless) ?",
-        answer: "1️⃣ Allez dans Paramètres → Paiements\n2️⃣ Cliquez sur 'Connecter GoCardless'\n3️⃣ Créez votre compte GoCardless (gratuit, 2 min) ou connectez-vous\n4️⃣ Autorisez FacturFlow → Badge 'SEPA activé' apparaît\n\nEnsuite, lors de la création d'une facture, sélectionnez 'Prélèvement SEPA' comme mode de paiement. Votre client recevra un email pour signer le mandat (IBAN + autorisation). Après 3 à 5 jours d'activation, les prélèvements sont automatiques chaque mois."
+        answer: "1️⃣ Allez dans Paramètres → Paiements\n2️⃣ Cliquez sur 'Connecter GoCardless'\n3️⃣ Créez votre compte GoCardless (gratuit, 2 min) ou connectez-vous\n4️⃣ Autorisez FacturNow → Badge 'SEPA activé' apparaît\n\nEnsuite, lors de la création d'une facture, sélectionnez 'Prélèvement SEPA' comme mode de paiement. Votre client recevra un email pour signer le mandat (IBAN + autorisation). Après 3 à 5 jours d'activation, les prélèvements sont automatiques chaque mois."
       },
       {
         question: "Comment activer les paiements par carte bancaire (Stripe) ?",
-        answer: "1️⃣ Dans Paramètres → Paiements → Cliquez 'Connecter Stripe'\n2️⃣ Créez votre compte Stripe (gratuit) ou connectez-vous\n3️⃣ Renseignez vos infos entreprise (SIRET, IBAN pour recevoir les fonds)\n4️⃣ Validez votre identité (pièce d'identité, justificatif)\n5️⃣ Autorisez FacturFlow → Activation instantanée\n\nVos factures incluront automatiquement un bouton 'Payer par carte'. Vos clients paient en 1 clic (CB, Apple Pay, Google Pay). Les fonds arrivent sur votre compte sous 2-7 jours. Frais : 1,5% + 0,25€ par transaction (prélevés par Stripe)."
+        answer: "1️⃣ Dans Paramètres → Paiements → Cliquez 'Connecter Stripe'\n2️⃣ Créez votre compte Stripe (gratuit) ou connectez-vous\n3️⃣ Renseignez vos infos entreprise (SIRET, IBAN pour recevoir les fonds)\n4️⃣ Validez votre identité (pièce d'identité, justificatif)\n5️⃣ Autorisez FacturNow → Activation instantanée\n\nVos factures incluront automatiquement un bouton 'Payer par carte'. Vos clients paient en 1 clic (CB, Apple Pay, Google Pay). Les fonds arrivent sur votre compte sous 2-7 jours. Frais : 1,5% + 0,25€ par transaction (prélevés par Stripe)."
       },
       {
         question: "Comment configurer PayPal pour recevoir des paiements ?",
-        answer: "⚠️ Vous devez avoir un compte PayPal Business (gratuit).\n\n1️⃣ Paramètres → Paiements → 'Connecter PayPal'\n2️⃣ Connectez-vous à votre compte PayPal Business\n3️⃣ Autorisez FacturFlow à générer des liens de paiement\n4️⃣ Activation instantanée\n\nVos factures afficheront un bouton 'Payer avec PayPal'. Le client clique, paie via PayPal, et vous recevez l'argent instantanément sur votre compte PayPal. Frais PayPal : ~2,5-3,5% par transaction."
+        answer: "⚠️ Vous devez avoir un compte PayPal Business (gratuit).\n\n1️⃣ Paramètres → Paiements → 'Connecter PayPal'\n2️⃣ Connectez-vous à votre compte PayPal Business\n3️⃣ Autorisez FacturNow à générer des liens de paiement\n4️⃣ Activation instantanée\n\nVos factures afficheront un bouton 'Payer avec PayPal'. Le client clique, paie via PayPal, et vous recevez l'argent instantanément sur votre compte PayPal. Frais PayPal : ~2,5-3,5% par transaction."
       },
       {
         question: "Facturation électronique : suis-je concerné et quand ?",
-        answer: "📋 La facturation électronique devient obligatoire en France :\n\n🏢 ENTREPRISES B2B (>15 salariés) : Obligatoire dès septembre 2026\n→ Plan Business requis (inclut la conformité Chorus Pro / Factur-X)\n\n👤 FREELANCES, AUTO-ENTREPRENEURS, TPE, PME B2C : Obligatoire septembre 2027\n→ Plan Pro sera mis à jour gratuitement en juin 2027\n\n✅ FacturFlow est déjà en cours d'agrégation Plateforme Agréée (PA). Vous n'avez rien à faire, la mise à jour sera automatique sur votre plan."
+        answer: "📋 La facturation électronique devient obligatoire en France :\n\n🏢 ENTREPRISES B2B (>15 salariés) : Obligatoire dès septembre 2026\n→ Plan Business requis (inclut la conformité Chorus Pro / Factur-X)\n\n👤 FREELANCES, AUTO-ENTREPRENEURS, TPE, PME B2C : Obligatoire septembre 2027\n→ Plan Pro sera mis à jour gratuitement en juin 2027\n\n✅ FacturNow est déjà en cours d'agrégation Plateforme Agréée (PA). Vous n'avez rien à faire, la mise à jour sera automatique sur votre plan."
       },
       {
         question: "Mes données bancaires et celles de mes clients sont-elles sécurisées ?",
@@ -44,7 +44,7 @@ export function FaqSection() {
       },
       {
         question: "Comment importer mes factures depuis un autre logiciel ?",
-        answer: "📥 Import facile en 3 étapes :\n\n1️⃣ Exportez vos données depuis votre ancien logiciel (Excel, CSV)\n2️⃣ Dashboard FacturFlow → Paramètres → Import de données\n3️⃣ Uploadez votre fichier → Notre système détecte automatiquement les colonnes\n\n✅ Import pris en charge :\n→ Clients (nom, email, SIRET, adresse)\n→ Produits/Services (nom, prix, TVA)\n→ Factures (numéro, date, montant, statut)\n\n⚠️ Besoin d'aide ? Notre support vous accompagne gratuitement (email support@facturflow.fr)."
+        answer: "📥 Import facile en 3 étapes :\n\n1️⃣ Exportez vos données depuis votre ancien logiciel (Excel, CSV)\n2️⃣ Dashboard FacturNow → Paramètres → Import de données\n3️⃣ Uploadez votre fichier → Notre système détecte automatiquement les colonnes\n\n✅ Import pris en charge :\n→ Clients (nom, email, SIRET, adresse)\n→ Produits/Services (nom, prix, TVA)\n→ Factures (numéro, date, montant, statut)\n\n⚠️ Besoin d'aide ? Notre support vous accompagne gratuitement (email support@facturnow.fr)."
       },
       {
         question: "Puis-je annuler mon abonnement à tout moment ?",
@@ -52,11 +52,11 @@ export function FaqSection() {
       },
       {
         question: "Y a-t-il des frais cachés sur les paiements ?",
-        answer: "❌ Aucun frais caché de notre part !\n\nLes SEULS frais sont ceux des processeurs de paiement (prélevés par eux, pas par nous) :\n\n💳 Stripe (CB, Apple Pay, Google Pay) : 1,5% + 0,25€ par transaction\n🟦 PayPal : ~2,5-3,5% par transaction\n🏦 GoCardless (SEPA) : 1% + 0,20€ par transaction\n\n💡 Exemple : Facture de 100€ payée par SEPA → Vous recevez 98,80€ (100 - 1€ - 0,20€)\n\nCes frais sont les mêmes que si vous utilisiez directement Stripe/PayPal/GoCardless. FacturFlow ne prend AUCUNE commission sur vos paiements."
+        answer: "❌ Aucun frais caché de notre part !\n\nLes SEULS frais sont ceux des processeurs de paiement (prélevés par eux, pas par nous) :\n\n💳 Stripe (CB, Apple Pay, Google Pay) : 1,5% + 0,25€ par transaction\n🟦 PayPal : ~2,5-3,5% par transaction\n🏦 GoCardless (SEPA) : 1% + 0,20€ par transaction\n\n💡 Exemple : Facture de 100€ payée par SEPA → Vous recevez 98,80€ (100 - 1€ - 0,20€)\n\nCes frais sont les mêmes que si vous utilisiez directement Stripe/PayPal/GoCardless. FacturNow ne prend AUCUNE commission sur vos paiements."
       },
       {
         question: "Le support client est-il inclus ? Dans quelle langue ?",
-        answer: "✅ Support inclus dans TOUS les plans :\n\n📧 Plan Free & Pro : Support email en français\n→ Réponse sous 24h (jours ouvrés)\n→ Base de connaissances complète\n\n⚡ Plan Business : Support prioritaire\n→ Réponse sous 4h (jours ouvrés)\n→ Chat direct avec l'équipe\n→ Accompagnement migration inclus\n\n🇫🇷 Équipe 100% française basée à Paris\n📩 Contact : support@facturflow.fr\n\n💡 Tutoriels vidéo + documentation complète disponibles 24/7 dans le dashboard."
+        answer: "✅ Support inclus dans TOUS les plans :\n\n📧 Plan Free & Pro : Support email en français\n→ Réponse sous 24h (jours ouvrés)\n→ Base de connaissances complète\n\n⚡ Plan Business : Support prioritaire\n→ Réponse sous 4h (jours ouvrés)\n→ Chat direct avec l'équipe\n→ Accompagnement migration inclus\n\n🇫🇷 Équipe 100% française basée à Paris\n📩 Contact : support@facturnow.fr\n\n💡 Tutoriels vidéo + documentation complète disponibles 24/7 dans le dashboard."
       }
     
   ]
@@ -80,7 +80,7 @@ export function FaqSection() {
             Questions <span className="text-gradient">fréquentes</span>
           </h2>
           <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-            Toutes les réponses aux questions que vous vous posez sur FacturFlow. 
+            Toutes les réponses aux questions que vous vous posez sur FacturNow. 
             Une question ? Contactez notre support !
           </p>
         </div>

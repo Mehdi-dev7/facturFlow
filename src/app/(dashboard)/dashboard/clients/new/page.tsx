@@ -6,7 +6,7 @@ import Link from "next/link";
 import { ClientForm } from "@/components/clients/client-form";
 
 export const metadata = {
-	title: "Nouveau client — FacturFlow",
+	title: "Nouveau client — FacturNow",
 };
 
 export default function NewClientPage() {

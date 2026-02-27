@@ -3,8 +3,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { BookOpen, Video, FileText, ExternalLink } from "lucide-react";
 
 export const metadata: Metadata = {
-	title: "Tutoriels | FacturFlow",
-	description: "Guides et tutoriels pour maîtriser FacturFlow",
+	title: "Tutoriels | FacturNow",
+	description: "Guides et tutoriels pour maîtriser FacturNow",
 };
 
 const tutorialCategories = [
@@ -49,7 +49,7 @@ export default function TutorialsPage() {
 			<div>
 				<h1 className="text-3xl font-bold text-gradient mb-2">Tutoriels</h1>
 				<p className="text-slate-600 dark:text-slate-400">
-					Guides et tutoriels pour tirer le meilleur parti de FacturFlow
+					Guides et tutoriels pour tirer le meilleur parti de FacturNow
 				</p>
 			</div>
 

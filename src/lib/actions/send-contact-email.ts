@@ -1,7 +1,7 @@
 "use server";
 
 // Server Action : envoie le message de contact via Resend
-// → 1 email à support@facturflow.fr avec le message du user
+// → 1 email à support@facturnow.fr avec le message du user
 // → 1 email de confirmation au user
 
 import { z } from "zod";
@@ -48,16 +48,16 @@ export async function sendContactEmail(data: ContactFormData) {
   const userId = session?.user?.id ?? "non connecté";
 
   try {
-    // ── Email interne → support FacturFlow ──────────────────────────────────
+    // ── Email interne → support FacturNow ──────────────────────────────────
     await resend.emails.send({
-      from: "FacturFlow Support <noreply@facturflow.fr>",
-      to: ["support@facturflow.fr"],
+      from: "FacturNow Support <noreply@facturnow.fr>",
+      to: ["support@facturnow.fr"],
       replyTo: email,
       subject: `[Support] ${subjectLabel} — ${name}`,
       html: `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; background: #f9fafb; border-radius: 12px;">
           <h2 style="color: #7c3aed; margin-bottom: 4px;">Nouveau message de support</h2>
-          <p style="color: #6b7280; font-size: 14px; margin-top: 0;">FacturFlow — Formulaire de contact</p>
+          <p style="color: #6b7280; font-size: 14px; margin-top: 0;">FacturNow — Formulaire de contact</p>
           <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 16px 0;" />
 
           <table style="width: 100%; font-size: 14px; color: #374151; margin-bottom: 16px;">
@@ -89,9 +89,9 @@ export async function sendContactEmail(data: ContactFormData) {
 
     // ── Email de confirmation → utilisateur ──────────────────────────────────
     await resend.emails.send({
-      from: "FacturFlow Support <noreply@facturflow.fr>",
+      from: "FacturNow Support <noreply@facturnow.fr>",
       to: [email],
-      subject: "Votre message a bien été reçu — FacturFlow",
+      subject: "Votre message a bien été reçu — FacturNow",
       html: `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; background: #f9fafb; border-radius: 12px;">
           <h2 style="color: #7c3aed; margin-bottom: 4px;">Message reçu !</h2>
@@ -110,7 +110,7 @@ export async function sendContactEmail(data: ContactFormData) {
 
           <p style="font-size: 13px; color: #9ca3af;">
             Si votre question est urgente, vous pouvez aussi nous écrire directement à
-            <a href="mailto:support@facturflow.fr" style="color: #7c3aed;">support@facturflow.fr</a>.
+            <a href="mailto:support@facturnow.fr" style="color: #7c3aed;">support@facturnow.fr</a>.
           </p>
         </div>
       `,

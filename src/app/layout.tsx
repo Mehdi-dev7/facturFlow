@@ -37,10 +37,10 @@ const merriweather = Merriweather({
 
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://facturflow.com"),
+  metadataBase: new URL("https://facturnow.com"),
   title: {
-    default: "FacturFlow — Gestion de factures intelligente",
-    template: "%s | FacturFlow",
+    default: "FacturNow — Gestion de factures intelligente",
+    template: "%s | FacturNow",
   },
   description: "Créez, gérez et suivez vos factures en toute simplicité. Facturation intelligente avec prélèvement SEPA pour freelances et PME.",
 };

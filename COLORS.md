@@ -1,4 +1,4 @@
-# Guide des Couleurs FacturFlow
+# Guide des Couleurs FacturNow
 
 ## 🎨 Palette de couleurs
 

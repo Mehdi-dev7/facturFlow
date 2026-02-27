@@ -2,8 +2,8 @@ import { Metadata } from "next";
 import { Building2, Server, Copyright, Lock, Cookie, AlertTriangle, Globe } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Mentions légales | FacturFlow",
-  description: "Mentions légales de FacturFlow — éditeur, hébergeur, propriété intellectuelle",
+  title: "Mentions légales | FacturNow",
+  description: "Mentions légales de FacturNow — éditeur, hébergeur, propriété intellectuelle",
 };
 
 // ─── Composant section réutilisable ──────────────────────────────────────────
@@ -70,7 +70,7 @@ export default function MentionsLegalesPage() {
       {/* Sections */}
       <div className="px-8">
         <Section num="01" title="Éditeur du site" icon={Building2}>
-          <InfoRow label="Nom" value="FacturFlow" />
+          <InfoRow label="Nom" value="FacturNow" />
           <InfoRow label="Forme juridique" value="[À COMPLÉTER]" />
           <InfoRow label="SIRET" value="[À COMPLÉTER]" />
           <InfoRow label="SIREN" value="[À COMPLÉTER]" />
@@ -78,8 +78,8 @@ export default function MentionsLegalesPage() {
           <InfoRow
             label="Email"
             value={
-              <a href="mailto:contact@facturflow.fr" className="text-primary hover:underline">
-                contact@facturflow.fr
+              <a href="mailto:contact@facturnow.fr" className="text-primary hover:underline">
+                contact@facturnow.fr
               </a>
             }
           />
@@ -103,12 +103,12 @@ export default function MentionsLegalesPage() {
         <Section num="03" title="Propriété intellectuelle" icon={Copyright}>
           <p>
             L&apos;ensemble du contenu de ce site (textes, images, logos, code source, interface)
-            est la propriété exclusive de FacturFlow, protégé par le droit français et
+            est la propriété exclusive de FacturNow, protégé par le droit français et
             international de la propriété intellectuelle.
           </p>
           <p>
             Toute reproduction, même partielle, est strictement interdite sans autorisation
-            préalable écrite de FacturFlow.
+            préalable écrite de FacturNow.
           </p>
         </Section>
 
@@ -122,15 +122,15 @@ export default function MentionsLegalesPage() {
           </p>
           <p>
             Pour exercer vos droits :{" "}
-            <a href="mailto:privacy@facturflow.fr" className="text-primary hover:underline">
-              privacy@facturflow.fr
+            <a href="mailto:privacy@facturnow.fr" className="text-primary hover:underline">
+              privacy@facturnow.fr
             </a>
           </p>
         </Section>
 
         <Section num="05" title="Cookies" icon={Cookie}>
           <p>
-            FacturFlow utilise uniquement des cookies strictement nécessaires au fonctionnement
+            FacturNow utilise uniquement des cookies strictement nécessaires au fonctionnement
             du service (session d&apos;authentification). Aucun cookie publicitaire ou de
             tracking tiers n&apos;est déposé sans votre consentement.
           </p>
@@ -138,7 +138,7 @@ export default function MentionsLegalesPage() {
 
         <Section num="06" title="Limitation de responsabilité" icon={AlertTriangle}>
           <p>
-            FacturFlow s&apos;efforce d&apos;assurer l&apos;exactitude des informations diffusées
+            FacturNow s&apos;efforce d&apos;assurer l&apos;exactitude des informations diffusées
             mais ne peut en garantir l&apos;exhaustivité. L&apos;utilisateur reconnaît utiliser
             le service sous sa responsabilité exclusive.
           </p>
@@ -156,7 +156,7 @@ export default function MentionsLegalesPage() {
       <div className="px-8 py-5 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 rounded-b-2xl">
         <p className="text-xs text-slate-400 dark:text-slate-500 text-center">
           Des questions sur ces mentions ?{" "}
-          <a href="mailto:contact@facturflow.fr" className="text-primary hover:underline">
+          <a href="mailto:contact@facturnow.fr" className="text-primary hover:underline">
             Contactez-nous
           </a>
         </p>

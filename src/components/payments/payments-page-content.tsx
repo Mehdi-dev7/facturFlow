@@ -299,7 +299,7 @@ export function PaymentsPageContent({ initialAccounts }: { initialAccounts: Paym
       {/* Bandeau info */}
       <div className="flex items-start gap-3 bg-slate-50 dark:bg-slate-900/50 border border-violet-500 dark:border-violet-700 rounded-xl px-4 py-3">
         <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-          L&apos;argent va <strong className="text-slate-700 dark:text-slate-300">directement sur votre compte</strong> — FacturFlow génère les liens de paiement et met à jour le statut automatiquement.
+          L&apos;argent va <strong className="text-slate-700 dark:text-slate-300">directement sur votre compte</strong> — FacturNow génère les liens de paiement et met à jour le statut automatiquement.
         </p>
       </div>
 

@@ -1,8 +1,8 @@
-# 🕐 Cron Jobs - FacturFlow
+# 🕐 Cron Jobs - FacturNow
 
 ## Vue d'ensemble
 
-FacturFlow utilise 3 cron jobs automatisés pour maintenir les données à jour :
+FacturNow utilise 3 cron jobs automatisés pour maintenir les données à jour :
 
 | Cron | Fréquence | Description |
 |------|-----------|-------------|

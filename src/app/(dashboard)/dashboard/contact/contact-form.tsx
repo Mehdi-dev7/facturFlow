@@ -226,8 +226,8 @@ export default function ContactForm({ defaultName, defaultEmail }: ContactFormPr
             </Button>
             <p className="text-xs text-slate-400 dark:text-slate-500 sm:order-1">
               Besoin urgent ?{" "}
-              <a href="mailto:support@facturflow.fr" className="text-primary hover:underline font-medium">
-                support@facturflow.fr
+              <a href="mailto:support@facturnow.fr" className="text-primary hover:underline font-medium">
+                support@facturnow.fr
               </a>
             </p>
           </div>

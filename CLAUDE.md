@@ -1,4 +1,4 @@
-# FacturFlow - Context for Claude Code
+# FacturNow - Context for Claude Code
 
 ## Project Overview
 SaaS de facturation intelligent avec prélèvement SEPA automatique pour freelances, auto-entrepreneurs et PME françaises. Killer feature : GoCardless pour factures récurrentes sans impayés.
@@ -150,7 +150,7 @@ const draftInvoice = useInvoiceStore((state) => state.draftInvoice)
 
 ## Project Structure
 ```
-facturflow/
+facturnow/
 ├── app/
 │   ├── (auth)/                 # Public routes
 │   │   ├── login/
@@ -273,7 +273,7 @@ facturflow/
 ```
 1. User → Settings → Connect GoCardless (OAuth)
 2. Create/connect GoCardless account
-3. Authorize FacturFlow
+3. Authorize FacturNow
 4. Store access_token in DB
 5. Badge "SEPA activé" in dashboard
 ```
@@ -423,7 +423,7 @@ einvoiceSentAt DateTime? // Date d'envoi électronique
 + table `EInvoiceSyncState` (id, lastEventId) pour le polling
 
 #### Plans tarifaires
-- **Business (29€/mois)** : inclus sans limite (coût absorbé par FacturFlow)
+- **Business (29€/mois)** : inclus sans limite (coût absorbé par FacturNow)
 - **Pro (14€/mois)** : 100 factures électroniques gratuites/mois, ensuite à décider
 
 ## Pricing (Validated)
@@ -694,7 +694,7 @@ Utilise les agents quand :
   - Liens dans le footer de la landing page et dans l'app
 - [ ] **Formulaire contact/support** : page `/support` ou widget intégré dans le dashboard
   - Champs : sujet, message, email de réponse
-  - Envoi via Resend → boîte mail support FacturFlow
+  - Envoi via Resend → boîte mail support FacturNow
   - Confirmation email automatique à l'utilisateur
 
 ### Reste à faire — Onboarding & Marketing
@@ -703,10 +703,10 @@ Utilise les agents quand :
   - Comment créer son premier client
   - Comment créer et envoyer une facture
   - Comment créer un devis et le convertir en facture
-  - Comment connecter Stripe / PayPal / GoCardless (créer un compte, récupérer les clés, coller dans FacturFlow)
+  - Comment connecter Stripe / PayPal / GoCardless (créer un compte, récupérer les clés, coller dans FacturNow)
   - Comment activer le prélèvement SEPA automatique
   - Format : steps illustrés avec captures/GIFs, style "product tour"
-- [ ] **Landing page — animation hero** : petite animation ou image animée (Lottie / CSS / vidéo courte) montrant en 5-10s ce que fait FacturFlow (créer facture → envoyer → client paie → PAID automatique)
+- [ ] **Landing page — animation hero** : petite animation ou image animée (Lottie / CSS / vidéo courte) montrant en 5-10s ce que fait FacturNow (créer facture → envoyer → client paie → PAID automatique)
 - [ ] **Démo vidéo** : vidéo de 1min à 1min30 pour le bouton "Voir la démo" sur la landing page
   - Scénario : création facture, envoi client, paiement SEPA automatique, dashboard stats
   - Format : screen recording avec voix-off ou sous-titres, montage propre
@@ -716,7 +716,7 @@ Utilise les agents quand :
 ## FEATURE : Intégration Paiements Multi-Providers (Stripe / PayPal / GoCardless)
 
 ### Contexte
-L'argent ne transite JAMAIS par FacturFlow — les paiements vont directement sur les comptes
+L'argent ne transite JAMAIS par FacturNow — les paiements vont directement sur les comptes
 des users. Notre rôle : créer les liens de paiement à la volée et écouter les webhooks
 pour mettre à jour les statuts de factures automatiquement.
 

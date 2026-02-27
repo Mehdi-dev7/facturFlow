@@ -319,7 +319,7 @@ export default function DashboardLayout({
 							href="/dashboard"
 							className="text-xl lg:text-2xl font-semibold text-gradient golos-text cursor-pointer"
 						>
-							FacturFlow
+							FacturNow
 						</Link>
 						
 					)}
@@ -395,7 +395,7 @@ export default function DashboardLayout({
 									</SheetTitle>
 									<div className="flex h-16 items-center px-6">
 										<span className="text-xl font-semibold text-gradient golos-text font-heading">
-											FacturFlow
+											FacturNow
 										</span>
 									</div>
 									<div className="mx-6 h-px bg-linear-to-r from-transparent via-primary/30 dark:via-violet-400/30 to-transparent" />
