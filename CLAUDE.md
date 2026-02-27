@@ -679,7 +679,7 @@ Utilise les agents quand :
   - Point vert si événement positif (PAID, ACCEPTED)
   - Point orange si info (SENT, REMINDED)
   - Applicable aussi aux notifications sidebar
-- [ ] **Paiements PayPal** : brancher génération lien + webhook PAYMENT.CAPTURE.COMPLETED → PAID
+- [x] **Paiements PayPal** : intégré (create order, capture, webhook, email) — ⚡ À TESTER en sandbox (developer.paypal.com → créer app → connecter dans Dashboard → Paiements)
 - [ ] **Paiements GoCardless** : mandats SEPA + webhook payment.paid → PAID
 - [ ] **Factures récurrentes** : page /dashboard/recurring, génération auto via cron
 - [ ] **Relances automatiques** : 3 niveaux (FRIENDLY/FIRM/FORMAL), cron sur dueDate
