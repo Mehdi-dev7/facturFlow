@@ -1,3 +1,8 @@
+// TEMPORAIRE — redirige vers la page Coming Soon
+// Pour restaurer la landing page, supprimer les 2 lignes ci-dessous
+import { redirect } from "next/navigation";
+export default function Page() { redirect("/coming-soon"); }
+
 import type { Metadata } from "next"
 import {
   Navbar,
