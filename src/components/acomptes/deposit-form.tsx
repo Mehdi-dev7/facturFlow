@@ -50,6 +50,10 @@ interface DepositFormProps {
 	companyInfo: CompanyInfo | null;
 	onCompanyChange: (data: CompanyInfo) => void;
 	isSubmitting: boolean;
+	// Numéro de l'acompte (affiché dans les pages edit)
+	depositNumber?: string;
+	// Label personnalisé pour le bouton submit (ex: "Sauvegarder" en mode édition)
+	submitLabel?: string;
 	// Stepper : n'affiche que les sections de l'étape active
 	visibleStep?: 1 | 2 | 3;
 	// Stepper : masque le bouton submit (navigation gérée par le stepper)
@@ -77,6 +81,8 @@ export function DepositForm({
 	companyInfo,
 	onCompanyChange,
 	isSubmitting,
+	depositNumber,
+	submitLabel,
 	visibleStep,
 	hideSubmit,
 }: DepositFormProps) {
@@ -493,7 +499,7 @@ export function DepositForm({
 							) : (
 								<>
 									<Save className="size-4" />
-									Créer l&apos;acompte
+									{submitLabel ?? "Créer l'acompte"}
 								</>
 							)}
 						</Button>

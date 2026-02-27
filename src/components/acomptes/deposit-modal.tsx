@@ -82,10 +82,10 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
     setValue("clientId", "", { shouldValidate: true });
   }, [setValue]);
 
-  // Soumission
+  // Soumission — le mutationFn de useCreateDeposit attend { data, draftId? }
   const onSubmit = useCallback(
     (data: DepositFormData) => {
-      createMutation.mutate(data, {
+      createMutation.mutate({ data }, {
         onSuccess: (result) => {
           if (result.success) {
             reset();

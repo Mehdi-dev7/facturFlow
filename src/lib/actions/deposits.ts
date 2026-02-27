@@ -497,7 +497,7 @@ export async function updateDeposit(id: string, data: DepositFormData) {
       where: { id },
       data: {
         clientId: data.clientId,
-        date: new Date(data.date),
+        date: new Date(data.date ?? new Date().toISOString().split("T")[0]),
         dueDate: new Date(data.dueDate),
         subtotal: new Decimal(subtotal),
         taxTotal: new Decimal(taxTotal),
