@@ -185,6 +185,9 @@ export async function sendReceiptFromInvoice(
         companyCity: doc.user.companyCity,
         companyEmail: doc.user.companyEmail,
         companyPhone: doc.user.companyPhone,
+        themeColor: doc.user.themeColor ?? null,
+        companyFont: doc.user.companyFont ?? null,
+        companyLogo: doc.user.companyLogo ?? null,
       },
       createdAt: new Date().toISOString(),
     };
@@ -306,6 +309,9 @@ export async function sendSavedReceiptEmail(
         companyCity: doc.user.companyCity,
         companyEmail: doc.user.companyEmail,
         companyPhone: doc.user.companyPhone,
+        themeColor: doc.user.themeColor ?? null,
+        companyFont: doc.user.companyFont ?? null,
+        companyLogo: doc.user.companyLogo ?? null,
       },
       createdAt: doc.createdAt.toISOString(),
     };

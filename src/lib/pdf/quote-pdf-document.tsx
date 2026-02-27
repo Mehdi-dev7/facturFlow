@@ -236,7 +236,9 @@ export default function QuotePdfDocument({ quote }: QuotePdfDocumentProps) {
               <Text style={S.text}>{quote.client.postalCode} {quote.client.city}</Text>
             )}
             <Text style={S.text}>{quote.client.email}</Text>
-            {quote.client.phone && <Text style={S.text}>{quote.client.phone}</Text>}
+            {(quote.client as unknown as { phone?: string }).phone && (
+              <Text style={S.text}>{(quote.client as unknown as { phone?: string }).phone}</Text>
+            )}
           </View>
         </View>
 
