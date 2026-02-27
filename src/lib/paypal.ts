@@ -80,14 +80,11 @@ export async function createPaypalOrder(
           custom_id:   invoiceId,
         },
       ],
-      payment_source: {
-        paypal: {
-          experience_context: {
-            payment_method_preference: "IMMEDIATE_PAYMENT_REQUIRED",
-            return_url: returnUrl,
-            cancel_url: cancelUrl,
-          },
-        },
+      application_context: {
+        brand_name:  "FacturNow",
+        user_action: "PAY_NOW",
+        return_url:  returnUrl,
+        cancel_url:  cancelUrl,
       },
     }),
     cache: "no-store",
