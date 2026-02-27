@@ -657,7 +657,7 @@ Utilise les agents quand :
 
 ### Fonctionnalités implémentées
 - [x] Auth (login, signup, OAuth Google/GitHub/Microsoft)
-- [x] Dashboard layout + sidebar
+- [x] Dashboard layout + sidebar (Templates retiré de Personnalisation)
 - [x] Factures — CRUD complet, PDF, email Resend, statuts, cron OVERDUE
 - [x] Devis — CRUD complet, email Resend (boutons Accepter/Refuser), statuts, cron CANCELLED
 - [x] Acomptes — CRUD complet, email Resend, automation depuis devis accepté, statuts, branché DB (page new + liste)
@@ -672,7 +672,6 @@ Utilise les agents quand :
 
 ### Reste à faire — App
 
-- [ ] **Sidebar** : supprimer "Templates" de Personnalisation
 - [ ] **Mon Compte** : ajouter page profil (email, téléphone, avatar), garder "Mon entreprise"
 - [ ] **Documents complémentaires** : avoirs (CREDIT_NOTE), bons de commande (PURCHASE_ORDER), bons de livraison (DELIVERY_NOTE), proforma (PROFORMA)
 - [ ] **Dots / badges d'action** : indicateurs visuels sur les listes factures, devis et acomptes
@@ -684,16 +683,29 @@ Utilise les agents quand :
 - [ ] **Paiements GoCardless** : mandats SEPA + webhook payment.paid → PAID
 - [ ] **Factures récurrentes** : page /dashboard/recurring, génération auto via cron
 - [ ] **Relances automatiques** : 3 niveaux (FRIENDLY/FIRM/FORMAL), cron sur dueDate
-- [ ] **Templates métiers** : 9 templates visuels pour les PDFs (web dev, designer, artisan…)
 - [ ] **Statistiques** : page /dashboard/stats — CA, TVA collectée, exports URSSAF/FEC
+- [ ] **Système d'abonnements** : plans Free/Pro/Business payables via Stripe + PayPal
+  - Mensuel et annuel avec réduction (ex: -20%)
+  - Gestion du plan actif par user (feature gating)
+  - Webhooks pour activation/annulation/renouvellement
+  - Page `/dashboard/subscription` avec résumé plan + historique factures
+- [ ] **Pages légales** : Mentions légales, Politique de confidentialité (RGPD), CGU/CGV
+  - Routes publiques `/legal/mentions`, `/legal/privacy`, `/legal/cgv`
+  - Liens dans le footer de la landing page et dans l'app
+- [ ] **Formulaire contact/support** : page `/support` ou widget intégré dans le dashboard
+  - Champs : sujet, message, email de réponse
+  - Envoi via Resend → boîte mail support FacturFlow
+  - Confirmation email automatique à l'utilisateur
 
 ### Reste à faire — Onboarding & Marketing
 
-- [ ] **Tutoriel paiements animé** : guide visuel interactif (images animées / GIF / mini-vidéo) pour connecter Stripe, PayPal et GoCardless
-  - Étape 1 : Créer un compte sur la plateforme (Stripe dashboard, PayPal Business, GoCardless)
-  - Étape 2 : Récupérer les clés API / OAuth
-  - Étape 3 : Les coller dans FacturFlow (Settings → Paiements)
-  - Format : images avec flèches et boutons surlignés, style "product tour"
+- [ ] **Tutoriels intégrés** : guides pas-à-pas dans le dashboard (section Aide ou `/dashboard/help`)
+  - Comment créer son premier client
+  - Comment créer et envoyer une facture
+  - Comment créer un devis et le convertir en facture
+  - Comment connecter Stripe / PayPal / GoCardless (créer un compte, récupérer les clés, coller dans FacturFlow)
+  - Comment activer le prélèvement SEPA automatique
+  - Format : steps illustrés avec captures/GIFs, style "product tour"
 - [ ] **Landing page — animation hero** : petite animation ou image animée (Lottie / CSS / vidéo courte) montrant en 5-10s ce que fait FacturFlow (créer facture → envoyer → client paie → PAID automatique)
 - [ ] **Démo vidéo** : vidéo de 1min à 1min30 pour le bouton "Voir la démo" sur la landing page
   - Scénario : création facture, envoi client, paiement SEPA automatique, dashboard stats
