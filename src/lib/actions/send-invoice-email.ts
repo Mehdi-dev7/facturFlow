@@ -120,34 +120,17 @@ export async function sendInvoiceEmail(
       },
     };
 
-    // 4. Générer le lien de paiement Stripe si le user a son compte connecté
+    // 4. Vérifier si Stripe est connecté → URL de redirection propre via notre domaine
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
     let stripePaymentUrl: string | null = null;
     try {
       const stripeCred = await getStripeCredential(session.user.id);
       if (stripeCred) {
-        const stripe = getStripeClient(stripeCred.secretKey);
-        const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-        const checkoutSession = await stripe.checkout.sessions.create({
-          mode: "payment",
-          line_items: [{
-            price_data: {
-              currency: "eur",
-              unit_amount: Math.round(invoice.total * 100),
-              product_data: { name: `Facture ${doc.number}` },
-            },
-            quantity: 1,
-          }],
-          customer_email: doc.client.email,
-          success_url: `${appUrl}/dashboard/invoices?payment=success&invoice=${invoiceId}`,
-          cancel_url: `${appUrl}/dashboard/invoices`,
-          metadata: { invoiceId, userId: session.user.id },
-          expires_at: Math.floor(Date.now() / 1000) + 86400, // 24h
-        });
-        stripePaymentUrl = checkoutSession.url;
+        // URL propre sur notre domaine — le redirect génère le Checkout Session à la volée
+        stripePaymentUrl = `${appUrl}/api/pay/${invoiceId}`;
       }
     } catch (err) {
-      // Stripe non critique : on envoie l'email même si la création du lien échoue
-      console.warn("[sendInvoiceEmail] Stripe checkout creation failed:", err);
+      console.warn("[sendInvoiceEmail] Stripe check failed:", err);
     }
 
     // 5. Générer le PDF en buffer (renderToBuffer = API serveur de @react-pdf/renderer)
@@ -201,12 +184,14 @@ export async function sendInvoiceEmail(
           </div>
 
           ${stripePaymentUrl ? `
-          <div style="text-align: center; margin: 28px 0;">
+          <div style="text-align: center; margin: 32px 0;">
             <a href="${stripePaymentUrl}"
-               style="display: inline-block; background: linear-gradient(135deg, #635BFF, #7c3aed); color: white; text-decoration: none; font-size: 16px; font-weight: 600; padding: 14px 32px; border-radius: 10px; letter-spacing: 0.3px;">
-              Payer en ligne — ${amount} €
+               style="display: inline-block; background-color: #635BFF; color: #ffffff; text-decoration: none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 15px; font-weight: 600; padding: 12px 28px; border-radius: 6px; cursor: pointer;">
+              Payer ${amount} €
             </a>
-            <p style="color: #94a3b8; font-size: 12px; margin-top: 8px;">Paiement sécurisé par Stripe · CB, Apple Pay, Google Pay</p>
+            <p style="color: #6b7280; font-size: 12px; margin-top: 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;">
+              Paiement sécurisé par <strong style="color: #635BFF;">Stripe</strong> &nbsp;·&nbsp; CB, Apple Pay, Google Pay
+            </p>
           </div>
           ` : ""}
 

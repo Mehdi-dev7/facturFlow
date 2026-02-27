@@ -1,11 +1,9 @@
 "use client";
 // src/components/payments/payments-page-content.tsx
-// Interface de connexion/déconnexion des providers de paiement
 
 import { useState, useCallback } from "react";
 import { SiStripe, SiPaypal } from "react-icons/si";
-import { Banknote, CheckCircle2, XCircle, ChevronDown, ChevronUp, Eye, EyeOff, ExternalLink } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { CheckCircle2, Eye, EyeOff, ExternalLink, Unlink } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
@@ -16,137 +14,281 @@ import {
   disconnectProvider,
   type PaymentAccountInfo,
 } from "@/lib/actions/payments";
-import type { PaymentProvider } from "@prisma/client";
-
-// ─── Props ────────────────────────────────────────────────────────────────────
-
-interface PaymentsPageContentProps {
-  initialAccounts: PaymentAccountInfo[];
-}
+type PaymentProvider = "STRIPE" | "PAYPAL" | "GOCARDLESS";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function isConnected(accounts: PaymentAccountInfo[], provider: PaymentProvider): boolean {
+function isConnected(accounts: PaymentAccountInfo[], provider: PaymentProvider) {
   return accounts.some((a) => a.provider === provider && a.isActive);
 }
 
-function getConnectedAt(accounts: PaymentAccountInfo[], provider: PaymentProvider): string | null {
+function getConnectedAt(accounts: PaymentAccountInfo[], provider: PaymentProvider) {
   const a = accounts.find((acc) => acc.provider === provider);
   if (!a) return null;
-  return new Date(a.connectedAt).toLocaleDateString("fr-FR", { day: "2-digit", month: "long", year: "numeric" });
+  return new Date(a.connectedAt).toLocaleDateString("fr-FR", {
+    day: "2-digit", month: "long", year: "numeric",
+  });
 }
 
-// ─── Composant ────────────────────────────────────────────────────────────────
+// ─── Logo GoCardless (SVG inline) ────────────────────────────────────────────
 
-export function PaymentsPageContent({ initialAccounts }: PaymentsPageContentProps) {
-  const [accounts, setAccounts] = useState<PaymentAccountInfo[]>(initialAccounts);
+function GoCardlessLogo({ size = 20 }: { size?: number }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 64 64">
+      <rect width="64" height="64" rx="8.8" fill="#0854b3" />
+      <path d="M34 32.4c0-6 4.5-10.9 10.9-10.9 4 0 6.3 1.3 8.3 3.2l-2.9 3.4c-1.6-1.5-3.3-2.4-5.4-2.4-3.5 0-6.1 2.9-6.1 6.5v.1c0 3.6 2.5 6.6 6.1 6.6 2.4 0 3.9-1 5.5-2.5l2.9 3c-2.2 2.3-4.6 3.7-8.6 3.7-6.2.1-10.7-4.7-10.7-10.7z" fill="#fff" />
+      <path d="M22 43.2c-6.7 0-11.3-4.7-11.3-11.1 0-6.1 4.8-11.2 11.3-11.2 3.9 0 6.2 1 8.4 3l-3 3.6c-1.7-1.4-3.1-2.2-5.6-2.2-3.4 0-6.2 3.1-6.2 6.7 0 3.9 2.8 6.8 6.5 6.8 1.7 0 3.3-.4 4.5-1.3v-3.1h-4.8v-4.1h9.3v9.4c-2.1 1.9-5.2 3.5-9.1 3.5" fill="#fff" fillRule="evenodd" clipRule="evenodd" />
+    </svg>
+  );
+}
 
-  // Stripe form state
-  const [stripeOpen, setStripeOpen] = useState(false);
-  const [stripeKey, setStripeKey] = useState("");
-  const [stripeWebhook, setStripeWebhook] = useState("");
-  const [showStripeKey, setShowStripeKey] = useState(false);
-  const [stripeLoading, setStripeLoading] = useState(false);
+// ─── Provider Card ────────────────────────────────────────────────────────────
 
-  // PayPal form state
-  const [paypalOpen, setPaypalOpen] = useState(false);
-  const [paypalClientId, setPaypalClientId] = useState("");
-  const [paypalSecret, setPaypalSecret] = useState("");
-  const [showPaypalSecret, setShowPaypalSecret] = useState(false);
-  const [paypalLoading, setPaypalLoading] = useState(false);
+interface ProviderCardProps {
+  accent: string;         // couleur de l'accent (border top + badge)
+  logo: React.ReactNode;
+  name: string;
+  tagline: string;
+  fees: string;
+  connected: boolean;
+  connectedAt: string | null;
+  comingSoon?: boolean;   // badge "bientôt" si génération de liens pas encore dispo
+  formOpen: boolean;
+  onToggleForm: () => void;
+  onDisconnect: () => void;
+  isDisconnecting: boolean;
+  children: React.ReactNode; // formulaire de connexion
+}
 
-  // GoCardless form state
-  const [gcOpen, setGcOpen] = useState(false);
-  const [gcToken, setGcToken] = useState("");
-  const [showGcToken, setShowGcToken] = useState(false);
-  const [gcLoading, setGcLoading] = useState(false);
+function ProviderCard({
+  accent, logo, name, tagline, fees,
+  connected, connectedAt, comingSoon,
+  formOpen, onToggleForm, onDisconnect, isDisconnecting,
+  children,
+}: ProviderCardProps) {
+  return (
+    <div className="relative bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+      {/* Bande de couleur en haut */}
+      <div className="h-1 w-full" style={{ backgroundColor: accent }} />
 
-  // Déconnexion en cours
+      <div className="px-2 xs:px-4 py-8 xl:py-10 space-y-5 xl:space-y-6">
+        {/* Header : logo + nom + statut */}
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-center gap-3 xl:gap-4">
+            <div className="flex items-center justify-center w-8 h-8 xl:w-10 xl:h-10 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
+              {logo}
+            </div>
+            <div>
+              <h3 className="font-semibold text-slate-900 dark:text-slate-100 text-sm xl:text-base">{name}</h3>
+              <p className="text-[10px] xs:text-xs  text-slate-400">{tagline}</p>
+            </div>
+          </div>
+
+          {/* Badge statut */}
+          {connected ? (
+            <span
+              className="flex items-center gap-1.5 text-[9px] xs:text-[11px] font-semibold px-2.5 py-1 rounded-full"
+              style={{ backgroundColor: accent + "15", color: accent }}
+            >
+              <CheckCircle2 className="h-3 w-3" />
+              Connecté
+            </span>
+          ) : (
+            <span className="flex items-center gap-1.5 text-[9px] xs:text-[11px] font-medium px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400">
+              Non connecté
+            </span>
+          )}
+        </div>
+
+        {/* Date + frais */}
+        <div className="flex items-center justify-between text-xs text-slate-400">
+          <span>{connected ? `Depuis le ${connectedAt}` : fees}</span>
+          {connected && <span>{fees}</span>}
+        </div>
+
+        {/* Badge "bientôt" si génération non encore dispo */}
+        {comingSoon && connected && (
+          <div className="text-[11px] text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-700/30 rounded-lg px-3 py-1.5">
+            Connexion active — génération de liens en cours de développement
+          </div>
+        )}
+
+        {/* Boutons d'action */}
+        <div className="flex gap-2">
+          {connected ? (
+            <button
+              onClick={onDisconnect}
+              disabled={isDisconnecting}
+              className="flex items-center gap-1.5 text-xs font-medium text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-colors disabled:opacity-50 cursor-pointer"
+            >
+              <Unlink className="h-3.5 w-3.5" />
+              {isDisconnecting ? "Déconnexion..." : "Déconnecter"}
+            </button>
+          ) : (
+            <button
+              onClick={onToggleForm}
+              className="w-full text-sm font-semibold py-2 md:py-2.5 px-4 rounded-xl text-white transition-opacity hover:opacity-90 cursor-pointer"
+              style={{ backgroundColor: accent }}
+            >
+              {formOpen ? "Annuler" : `Connecter ${name}`}
+            </button>
+          )}
+        </div>
+
+        {/* Formulaire de connexion (dépliable) */}
+        {formOpen && !connected && (
+          <div className="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-4">
+            {children}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Champ password avec toggle visibilité ────────────────────────────────────
+
+function SecretInput({
+  label, placeholder, value, onChange, hint,
+}: {
+  label: string; placeholder: string; value: string;
+  onChange: (v: string) => void; hint?: React.ReactNode;
+}) {
+  const [show, setShow] = useState(false);
+  return (
+    <div className="space-y-1.5">
+      <Label className="text-xs text-slate-600 dark:text-slate-200">{label}</Label>
+      <div className="relative">
+        <Input
+          type={show ? "text" : "password"}
+          placeholder={placeholder}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="text-xs pr-9 dark:bg-slate-800 dark:border-slate-600 dark:text-slate-100 dark:placeholder:text-slate-500"
+        />
+        <button
+          type="button"
+          onClick={() => setShow((v) => !v)}
+          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+        >
+          {show ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+        </button>
+      </div>
+      {hint && <p className="text-[11px] text-slate-400 leading-relaxed">{hint}</p>}
+    </div>
+  );
+}
+
+// ─── Tutoriel steps ───────────────────────────────────────────────────────────
+
+function TutoSteps({ steps }: { steps: { text: React.ReactNode }[] }) {
+  return (
+    <ol className="space-y-1">
+      {steps.map((s, i) => (
+        <li key={i} className="flex gap-2 text-[11px] text-slate-500">
+          <span className="shrink-0 w-4 h-4 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-[10px] font-bold text-slate-400">
+            {i + 1}
+          </span>
+          <span className="leading-4 pt-0.5">{s.text}</span>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+// ─── Composant principal ──────────────────────────────────────────────────────
+
+export function PaymentsPageContent({ initialAccounts }: { initialAccounts: PaymentAccountInfo[] }) {
+  const [accounts, setAccounts] = useState(initialAccounts);
   const [disconnecting, setDisconnecting] = useState<PaymentProvider | null>(null);
 
-  // ── Handlers ───────────────────────────────────────────────────────────────
+  // Une seule carte ouverte à la fois
+  const [openProvider, setOpenProvider] = useState<PaymentProvider | null>(null);
+
+  const toggleForm = useCallback((provider: PaymentProvider) => {
+    setOpenProvider((v) => (v === provider ? null : provider));
+  }, []);
+
+  // Stripe
+  const [stripeKey, setStripeKey] = useState("");
+  const [stripeWebhook, setStripeWebhook] = useState("");
+  const [stripeLoading, setStripeLoading] = useState(false);
+
+  // PayPal
+  const [paypalClientId, setPaypalClientId] = useState("");
+  const [paypalSecret, setPaypalSecret] = useState("");
+  const [paypalLoading, setPaypalLoading] = useState(false);
+
+  // GoCardless
+  const [gcToken, setGcToken] = useState("");
+  const [gcLoading, setGcLoading] = useState(false);
+
+  // ── Ajout d'un compte dans la liste locale ────────────────────────────────
+
+  const addAccount = useCallback((provider: PaymentProvider) => {
+    setAccounts((prev) => [
+      ...prev.filter((a) => a.provider !== provider),
+      { provider, isActive: true, connectedAt: new Date().toISOString() },
+    ]);
+  }, []);
+
+  // ── Handlers connexion ────────────────────────────────────────────────────
 
   const handleConnectStripe = useCallback(async () => {
-    if (!stripeKey.trim()) return;
+    if (!stripeKey.trim() || !stripeWebhook.trim()) return;
     setStripeLoading(true);
-
-    const result = await connectStripe(stripeKey.trim(), stripeWebhook.trim() || undefined);
-
+    const result = await connectStripe(stripeKey.trim(), stripeWebhook.trim());
     if (result.success) {
-      toast.success("Stripe connecté avec succès !");
-      setStripeOpen(false);
-      setStripeKey("");
-      setStripeWebhook("");
-      // Rafraîchir la liste locale
-      setAccounts((prev) => {
-        const filtered = prev.filter((a) => a.provider !== "STRIPE");
-        return [...filtered, { provider: "STRIPE", isActive: true, connectedAt: new Date().toISOString() }];
-      });
+      toast.success("Stripe connecté !");
+      setOpenProvider(null); setStripeKey(""); setStripeWebhook("");
+      addAccount("STRIPE");
     } else {
-      toast.error(result.error ?? "Erreur lors de la connexion Stripe");
+      toast.error(result.error ?? "Erreur Stripe");
     }
-
     setStripeLoading(false);
-  }, [stripeKey, stripeWebhook]);
+  }, [stripeKey, stripeWebhook, addAccount]);
 
   const handleConnectPayPal = useCallback(async () => {
     if (!paypalClientId.trim() || !paypalSecret.trim()) return;
     setPaypalLoading(true);
-
     const result = await connectPayPal(paypalClientId.trim(), paypalSecret.trim());
-
     if (result.success) {
       toast.success("PayPal connecté !");
-      setPaypalOpen(false);
-      setPaypalClientId("");
-      setPaypalSecret("");
-      setAccounts((prev) => {
-        const filtered = prev.filter((a) => a.provider !== "PAYPAL");
-        return [...filtered, { provider: "PAYPAL", isActive: true, connectedAt: new Date().toISOString() }];
-      });
+      setOpenProvider(null); setPaypalClientId(""); setPaypalSecret("");
+      addAccount("PAYPAL");
     } else {
-      toast.error(result.error ?? "Erreur lors de la connexion PayPal");
+      toast.error(result.error ?? "Erreur PayPal");
     }
-
     setPaypalLoading(false);
-  }, [paypalClientId, paypalSecret]);
+  }, [paypalClientId, paypalSecret, addAccount]);
 
   const handleConnectGC = useCallback(async () => {
     if (!gcToken.trim()) return;
     setGcLoading(true);
-
     const result = await connectGoCardless(gcToken.trim());
-
     if (result.success) {
       toast.success("GoCardless connecté !");
-      setGcOpen(false);
-      setGcToken("");
-      setAccounts((prev) => {
-        const filtered = prev.filter((a) => a.provider !== "GOCARDLESS");
-        return [...filtered, { provider: "GOCARDLESS", isActive: true, connectedAt: new Date().toISOString() }];
-      });
+      setOpenProvider(null); setGcToken("");
+      addAccount("GOCARDLESS");
     } else {
-      toast.error(result.error ?? "Erreur lors de la connexion GoCardless");
+      toast.error(result.error ?? "Erreur GoCardless");
     }
-
     setGcLoading(false);
-  }, [gcToken]);
+  }, [gcToken, addAccount]);
 
   const handleDisconnect = useCallback(async (provider: PaymentProvider) => {
     setDisconnecting(provider);
     const result = await disconnectProvider(provider);
-
     if (result.success) {
       toast.success(`${provider} déconnecté`);
       setAccounts((prev) => prev.filter((a) => a.provider !== provider));
     } else {
-      toast.error(result.error ?? "Erreur lors de la déconnexion");
+      toast.error(result.error ?? "Erreur");
     }
-
     setDisconnecting(null);
   }, []);
 
-  // ── Render ─────────────────────────────────────────────────────────────────
+  // ── Render ────────────────────────────────────────────────────────────────
 
   const stripeConnected = isConnected(accounts, "STRIPE");
   const paypalConnected = isConnected(accounts, "PAYPAL");
@@ -154,365 +296,139 @@ export function PaymentsPageContent({ initialAccounts }: PaymentsPageContentProp
 
   return (
     <div className="space-y-6">
-      {/* Info frais */}
-      <div className="bg-violet-50 dark:bg-violet-950/30 border border-violet-200 dark:border-violet-700/30 rounded-xl p-4">
-        <p className="text-sm text-violet-700 dark:text-violet-300">
-          <strong>L&apos;argent va directement sur votre compte</strong> — FacturFlow ne touche jamais à vos fonds.
-          Nous générons les liens de paiement et mettons à jour le statut automatiquement via webhooks.
+      {/* Bandeau info */}
+      <div className="flex items-start gap-3 bg-slate-50 dark:bg-slate-900/50 border border-violet-500 dark:border-violet-700 rounded-xl px-4 py-3">
+        <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+          L&apos;argent va <strong className="text-slate-700 dark:text-slate-300">directement sur votre compte</strong> — FacturFlow génère les liens de paiement et met à jour le statut automatiquement.
         </p>
       </div>
 
-      {/* Cards providers */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* 3 cards — empilées jusqu'à lg, puis 3 colonnes */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 lg:gap-7 xl:gap-8 items-start">
 
-        {/* ── STRIPE ──────────────────────────────────────────────────────── */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-4">
-          {/* Header card */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-[#635BFF]/10">
-                <SiStripe className="h-5 w-5 text-[#635BFF]" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-slate-900 dark:text-slate-100">Stripe</h3>
-                <p className="text-xs text-slate-500">CB · Apple Pay · Google Pay</p>
-              </div>
-            </div>
-            {/* Badge statut */}
-            {stripeConnected ? (
-              <span className="flex items-center gap-1 text-xs font-medium text-emerald-600 dark:text-emerald-400">
-                <CheckCircle2 className="h-3.5 w-3.5" /> Connecté
-              </span>
-            ) : (
-              <span className="flex items-center gap-1 text-xs font-medium text-slate-400">
-                <XCircle className="h-3.5 w-3.5" /> Non connecté
-              </span>
-            )}
+        {/* ── STRIPE ───────────────────────────────────────────────────── */}
+        <ProviderCard
+          accent="#635BFF"
+          logo={<SiStripe className="h-4 w-4 xl:h-5 xl:w-5 text-[#635BFF]" />}
+          name="Stripe"
+          tagline="CB · Apple Pay · Google Pay"
+          fees="~1,5% + 0,25€ / transaction"
+          connected={stripeConnected}
+          connectedAt={getConnectedAt(accounts, "STRIPE")}
+          formOpen={openProvider === "STRIPE"}
+          onToggleForm={() => toggleForm("STRIPE")}
+          onDisconnect={() => handleDisconnect("STRIPE")}
+          isDisconnecting={disconnecting === "STRIPE"}
+        >
+          <TutoSteps steps={[
+            { text: <>Connectez-vous sur <a href="https://dashboard.stripe.com/apikeys" target="_blank" rel="noopener noreferrer" className="text-[#635BFF] hover:underline inline-flex items-center gap-0.5">dashboard.stripe.com <ExternalLink className="h-2.5 w-2.5" /></a></> },
+            { text: <>Développeurs → Clés API → copiez la <strong>Clé secrète</strong></> },
+          ]} />
+
+          <SecretInput
+            label="Clé secrète *"
+            placeholder="sk_test_... ou sk_live_..."
+            value={stripeKey}
+            onChange={setStripeKey}
+          />
+          <SecretInput
+            label="Webhook Secret *"
+            placeholder="whsec_..."
+            value={stripeWebhook}
+            onChange={setStripeWebhook}
+          />
+          <button
+            onClick={handleConnectStripe}
+            disabled={stripeLoading || !stripeKey.trim() || !stripeWebhook.trim()}
+            className="w-full text-sm font-semibold py-2.5 px-4 rounded-xl text-white bg-[#635BFF] hover:opacity-90 transition-opacity disabled:opacity-40 cursor-pointer"
+          >
+            {stripeLoading ? "Vérification..." : "Connecter"}
+          </button>
+        </ProviderCard>
+
+        {/* ── PAYPAL ───────────────────────────────────────────────────── */}
+        <ProviderCard
+          accent="#003087"
+          logo={<SiPaypal className="h-4 w-4 xl:h-5 xl:w-5 text-[#003087] dark:text-[#009CDE]" />}
+          name="PayPal"
+          tagline="Paiements PayPal"
+          fees="~2,5–3,5% / transaction"
+          connected={paypalConnected}
+          connectedAt={getConnectedAt(accounts, "PAYPAL")}
+          comingSoon
+          formOpen={openProvider === "PAYPAL"}
+          onToggleForm={() => toggleForm("PAYPAL")}
+          onDisconnect={() => handleDisconnect("PAYPAL")}
+          isDisconnecting={disconnecting === "PAYPAL"}
+        >
+          <TutoSteps steps={[
+            { text: <>Allez sur <a href="https://developer.paypal.com/dashboard/applications/live" target="_blank" rel="noopener noreferrer" className="text-[#003087] dark:text-[#009CDE] hover:underline inline-flex items-center gap-0.5">developer.paypal.com <ExternalLink className="h-2.5 w-2.5" /></a></> },
+            { text: <>Créez une app → copiez <strong>Client ID</strong> et <strong>Secret</strong></> },
+          ]} />
+
+          <div className="space-y-1.5">
+            <Label className="text-xs text-slate-600 dark:text-slate-400">Client ID *</Label>
+            <Input type="text" placeholder="AeA1..." value={paypalClientId} onChange={(e) => setPaypalClientId(e.target.value)} className="text-xs dark:bg-slate-800 dark:border-slate-600 dark:text-slate-100 dark:placeholder:text-slate-500" />
           </div>
+          <SecretInput
+            label="Client Secret *"
+            placeholder="ELt0..."
+            value={paypalSecret}
+            onChange={setPaypalSecret}
+          />
+          <button
+            onClick={handleConnectPayPal}
+            disabled={paypalLoading || !paypalClientId.trim() || !paypalSecret.trim()}
+            className="w-full text-sm font-semibold py-2.5 px-4 rounded-xl text-white bg-[#003087] hover:opacity-90 transition-opacity disabled:opacity-40 cursor-pointer"
+          >
+            {paypalLoading ? "Sauvegarde..." : "Connecter"}
+          </button>
+        </ProviderCard>
 
-          {/* Date de connexion */}
-          {stripeConnected && (
-            <p className="text-xs text-slate-500">
-              Depuis le {getConnectedAt(accounts, "STRIPE")}
-            </p>
-          )}
+        {/* ── GOCARDLESS ───────────────────────────────────────────────── */}
+        <ProviderCard
+          accent="#00A27B"
+          logo={<GoCardlessLogo size={16} />}
+          name="GoCardless"
+          tagline="Prélèvement SEPA automatique"
+          fees="1% + 0,20€ / prélèvement"
+          connected={gcConnected}
+          connectedAt={getConnectedAt(accounts, "GOCARDLESS")}
+          comingSoon
+          formOpen={openProvider === "GOCARDLESS"}
+          onToggleForm={() => toggleForm("GOCARDLESS")}
+          onDisconnect={() => handleDisconnect("GOCARDLESS")}
+          isDisconnecting={disconnecting === "GOCARDLESS"}
+        >
+          <TutoSteps steps={[
+            { text: <>Allez sur <a href="https://manage.gocardless.com/developers/access-tokens" target="_blank" rel="noopener noreferrer" className="text-[#00A27B] hover:underline inline-flex items-center gap-0.5">manage.gocardless.com <ExternalLink className="h-2.5 w-2.5" /></a></> },
+            { text: <>Créez un <strong>Access Token</strong> en lecture/écriture</> },
+          ]} />
 
-          {/* Frais */}
-          <p className="text-xs text-slate-400">~1,5% + 0,25€ par transaction</p>
+          <SecretInput
+            label="Access Token *"
+            placeholder="live_..."
+            value={gcToken}
+            onChange={setGcToken}
+          />
+          <button
+            onClick={handleConnectGC}
+            disabled={gcLoading || !gcToken.trim()}
+            className="w-full text-sm font-semibold py-2.5 px-4 rounded-xl text-white bg-[#00A27B] hover:opacity-90 transition-opacity disabled:opacity-40 cursor-pointer"
+          >
+            {gcLoading ? "Sauvegarde..." : "Connecter"}
+          </button>
+        </ProviderCard>
 
-          {/* Actions */}
-          {stripeConnected ? (
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950"
-              onClick={() => handleDisconnect("STRIPE")}
-              disabled={disconnecting === "STRIPE"}
-            >
-              {disconnecting === "STRIPE" ? "Déconnexion..." : "Déconnecter"}
-            </Button>
-          ) : (
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full"
-              onClick={() => setStripeOpen((v) => !v)}
-            >
-              {stripeOpen ? <ChevronUp className="h-4 w-4 mr-2" /> : <ChevronDown className="h-4 w-4 mr-2" />}
-              Connecter Stripe
-            </Button>
-          )}
-
-          {/* Formulaire dépliable */}
-          {stripeOpen && !stripeConnected && (
-            <div className="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-3">
-              {/* Tutoriel */}
-              <div className="text-xs text-slate-500 space-y-1">
-                <p className="font-medium text-slate-700 dark:text-slate-300">Comment récupérer votre clé Stripe :</p>
-                <ol className="list-decimal ml-4 space-y-0.5">
-                  <li>Connectez-vous à <a href="https://dashboard.stripe.com/apikeys" target="_blank" rel="noopener noreferrer" className="text-violet-600 hover:underline inline-flex items-center gap-0.5">dashboard.stripe.com <ExternalLink className="h-2.5 w-2.5" /></a></li>
-                  <li>Allez dans <strong>Développeurs → Clés API</strong></li>
-                  <li>Copiez la <strong>Clé secrète</strong> (sk_live_… ou sk_test_…)</li>
-                </ol>
-              </div>
-
-              {/* Champ clé secrète */}
-              <div className="space-y-1.5">
-                <Label className="text-xs">Clé secrète Stripe *</Label>
-                <div className="relative">
-                  <Input
-                    type={showStripeKey ? "text" : "password"}
-                    placeholder="sk_test_..."
-                    value={stripeKey}
-                    onChange={(e) => setStripeKey(e.target.value)}
-                    className="text-xs pr-9"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowStripeKey((v) => !v)}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                  >
-                    {showStripeKey ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-                  </button>
-                </div>
-              </div>
-
-              {/* Champ webhook secret (optionnel) */}
-              <div className="space-y-1.5">
-                <Label className="text-xs">
-                  Webhook Secret <span className="text-slate-400">(optionnel — pour mise à jour auto du statut)</span>
-                </Label>
-                <Input
-                  type="text"
-                  placeholder="whsec_..."
-                  value={stripeWebhook}
-                  onChange={(e) => setStripeWebhook(e.target.value)}
-                  className="text-xs"
-                />
-                <p className="text-[11px] text-slate-400">
-                  Configurez dans Stripe : Développeurs → Webhooks → Ajouter un endpoint → <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">https://votredomaine.com/api/webhooks/stripe</code>
-                </p>
-              </div>
-
-              <Button
-                size="sm"
-                className="w-full bg-[#635BFF] hover:bg-[#4F46E5] text-white"
-                onClick={handleConnectStripe}
-                disabled={stripeLoading || !stripeKey.trim()}
-              >
-                {stripeLoading ? "Vérification..." : "Connecter"}
-              </Button>
-            </div>
-          )}
-        </div>
-
-        {/* ── PAYPAL ──────────────────────────────────────────────────────── */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-[#003087]/10">
-                <SiPaypal className="h-5 w-5 text-[#003087] dark:text-[#009CDE]" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-slate-900 dark:text-slate-100">PayPal</h3>
-                <p className="text-xs text-slate-500">Paiements PayPal</p>
-              </div>
-            </div>
-            {paypalConnected ? (
-              <span className="flex items-center gap-1 text-xs font-medium text-emerald-600 dark:text-emerald-400">
-                <CheckCircle2 className="h-3.5 w-3.5" /> Connecté
-              </span>
-            ) : (
-              <span className="flex items-center gap-1 text-xs font-medium text-slate-400">
-                <XCircle className="h-3.5 w-3.5" /> Non connecté
-              </span>
-            )}
-          </div>
-
-          {paypalConnected && (
-            <p className="text-xs text-slate-500">
-              Depuis le {getConnectedAt(accounts, "PAYPAL")}
-            </p>
-          )}
-
-          <p className="text-xs text-slate-400">~2,5–3,5% par transaction</p>
-
-          {/* Badge bientôt fonctionnel */}
-          <div className="px-2 py-1 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-700/30 rounded-lg">
-            <p className="text-[11px] text-amber-700 dark:text-amber-400">
-              Connexion disponible — génération de liens en cours de développement
-            </p>
-          </div>
-
-          {paypalConnected ? (
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950"
-              onClick={() => handleDisconnect("PAYPAL")}
-              disabled={disconnecting === "PAYPAL"}
-            >
-              {disconnecting === "PAYPAL" ? "Déconnexion..." : "Déconnecter"}
-            </Button>
-          ) : (
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full"
-              onClick={() => setPaypalOpen((v) => !v)}
-            >
-              {paypalOpen ? <ChevronUp className="h-4 w-4 mr-2" /> : <ChevronDown className="h-4 w-4 mr-2" />}
-              Connecter PayPal
-            </Button>
-          )}
-
-          {paypalOpen && !paypalConnected && (
-            <div className="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-3">
-              <div className="text-xs text-slate-500 space-y-1">
-                <p className="font-medium text-slate-700 dark:text-slate-300">Comment récupérer vos clés PayPal :</p>
-                <ol className="list-decimal ml-4 space-y-0.5">
-                  <li>Allez sur <a href="https://developer.paypal.com/dashboard/applications/live" target="_blank" rel="noopener noreferrer" className="text-violet-600 hover:underline inline-flex items-center gap-0.5">developer.paypal.com <ExternalLink className="h-2.5 w-2.5" /></a></li>
-                  <li>Créez une application → copiez <strong>Client ID</strong> et <strong>Secret</strong></li>
-                </ol>
-              </div>
-
-              <div className="space-y-1.5">
-                <Label className="text-xs">Client ID *</Label>
-                <Input
-                  type="text"
-                  placeholder="AeA1..."
-                  value={paypalClientId}
-                  onChange={(e) => setPaypalClientId(e.target.value)}
-                  className="text-xs"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <Label className="text-xs">Client Secret *</Label>
-                <div className="relative">
-                  <Input
-                    type={showPaypalSecret ? "text" : "password"}
-                    placeholder="ELt0..."
-                    value={paypalSecret}
-                    onChange={(e) => setPaypalSecret(e.target.value)}
-                    className="text-xs pr-9"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPaypalSecret((v) => !v)}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                  >
-                    {showPaypalSecret ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-                  </button>
-                </div>
-              </div>
-
-              <Button
-                size="sm"
-                className="w-full bg-[#003087] hover:bg-[#002970] text-white"
-                onClick={handleConnectPayPal}
-                disabled={paypalLoading || !paypalClientId.trim() || !paypalSecret.trim()}
-              >
-                {paypalLoading ? "Sauvegarde..." : "Enregistrer"}
-              </Button>
-            </div>
-          )}
-        </div>
-
-        {/* ── GOCARDLESS ──────────────────────────────────────────────────── */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-emerald-100 dark:bg-emerald-900/30">
-                <Banknote className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-slate-900 dark:text-slate-100">GoCardless</h3>
-                <p className="text-xs text-slate-500">Prélèvement SEPA</p>
-              </div>
-            </div>
-            {gcConnected ? (
-              <span className="flex items-center gap-1 text-xs font-medium text-emerald-600 dark:text-emerald-400">
-                <CheckCircle2 className="h-3.5 w-3.5" /> Connecté
-              </span>
-            ) : (
-              <span className="flex items-center gap-1 text-xs font-medium text-slate-400">
-                <XCircle className="h-3.5 w-3.5" /> Non connecté
-              </span>
-            )}
-          </div>
-
-          {gcConnected && (
-            <p className="text-xs text-slate-500">
-              Depuis le {getConnectedAt(accounts, "GOCARDLESS")}
-            </p>
-          )}
-
-          <p className="text-xs text-slate-400">1% + 0,20€ par prélèvement</p>
-
-          <div className="px-2 py-1 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-700/30 rounded-lg">
-            <p className="text-[11px] text-amber-700 dark:text-amber-400">
-              Connexion disponible — génération de mandats SEPA en cours de développement
-            </p>
-          </div>
-
-          {gcConnected ? (
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950"
-              onClick={() => handleDisconnect("GOCARDLESS")}
-              disabled={disconnecting === "GOCARDLESS"}
-            >
-              {disconnecting === "GOCARDLESS" ? "Déconnexion..." : "Déconnecter"}
-            </Button>
-          ) : (
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full"
-              onClick={() => setGcOpen((v) => !v)}
-            >
-              {gcOpen ? <ChevronUp className="h-4 w-4 mr-2" /> : <ChevronDown className="h-4 w-4 mr-2" />}
-              Connecter GoCardless
-            </Button>
-          )}
-
-          {gcOpen && !gcConnected && (
-            <div className="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-3">
-              <div className="text-xs text-slate-500 space-y-1">
-                <p className="font-medium text-slate-700 dark:text-slate-300">Comment récupérer votre token GoCardless :</p>
-                <ol className="list-decimal ml-4 space-y-0.5">
-                  <li>Allez sur <a href="https://manage.gocardless.com/developers/access-tokens" target="_blank" rel="noopener noreferrer" className="text-violet-600 hover:underline inline-flex items-center gap-0.5">manage.gocardless.com <ExternalLink className="h-2.5 w-2.5" /></a></li>
-                  <li>Créez un <strong>Access Token</strong> avec les permissions Read/Write</li>
-                </ol>
-              </div>
-
-              <div className="space-y-1.5">
-                <Label className="text-xs">Access Token *</Label>
-                <div className="relative">
-                  <Input
-                    type={showGcToken ? "text" : "password"}
-                    placeholder="live_..."
-                    value={gcToken}
-                    onChange={(e) => setGcToken(e.target.value)}
-                    className="text-xs pr-9"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowGcToken((v) => !v)}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                  >
-                    {showGcToken ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-                  </button>
-                </div>
-              </div>
-
-              <Button
-                size="sm"
-                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
-                onClick={handleConnectGC}
-                disabled={gcLoading || !gcToken.trim()}
-              >
-                {gcLoading ? "Sauvegarde..." : "Enregistrer"}
-              </Button>
-            </div>
-          )}
-        </div>
       </div>
 
-      {/* Section test en dev */}
-      <div className="bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl p-4 space-y-2">
-        <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-          Tester en local (Stripe)
-        </h3>
-        <ol className="text-xs text-slate-500 space-y-1 list-decimal ml-4">
-          <li>Installez Stripe CLI : <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">brew install stripe/stripe-cli/stripe</code></li>
-          <li>Connectez-vous : <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">stripe login</code></li>
-          <li>Forwarding local : <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">stripe listen --forward-to localhost:3000/api/webhooks/stripe</code></li>
-          <li>Le CLI affiche un <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">whsec_...</code> à utiliser comme Webhook Secret ci-dessus</li>
-          <li>Carte de test Stripe : <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">4242 4242 4242 4242</code></li>
-        </ol>
+      {/* Note dev Stripe CLI */}
+      <div className="bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl p-4 space-y-1.5">
+        <p className="text-xs font-medium text-slate-600 dark:text-slate-400">Test local Stripe (webhook)</p>
+        <code className="block text-[11px] text-slate-500 bg-slate-100 dark:bg-slate-800 rounded-lg px-3 py-2 font-mono">
+          stripe listen --api-key sk_test_... --forward-to localhost:3000/api/webhooks/stripe
+        </code>
+        <p className="text-[11px] text-slate-400">Copie le <code>whsec_...</code> généré dans le champ Webhook Secret ci-dessus.</p>
       </div>
     </div>
   );

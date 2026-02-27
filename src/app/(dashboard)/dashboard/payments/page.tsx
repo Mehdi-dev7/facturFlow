@@ -13,7 +13,7 @@ export default async function PaymentsPage() {
   if (accounts === null) redirect("/login");
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-7xl mx-auto space-y-6">
       {/* En-tête */}
       <div className="flex items-center gap-3">
         <div className="p-2 rounded-xl bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400">
