@@ -10,6 +10,10 @@ export const auth = betterAuth({
     provider: "postgresql",
   }),
 
+  advanced: {
+    useSecureCookies: false, // Important en dev HTTP (pas HTTPS)
+  },
+
   // Email avec vérification par code
   emailAndPassword: {
     enabled: true,

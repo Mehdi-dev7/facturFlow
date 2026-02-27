@@ -748,6 +748,7 @@ export function InvoicePreviewModal({
                   <FileCheck2 size={14} />
                   {isSendingEInvoice ? "Envoi élec..." : invoice?.einvoiceRef ? "Envoyée élec." : "Envoyer élec."}
                 </button>
+
               </div>
             </div>
 
@@ -805,6 +806,7 @@ export function InvoicePreviewModal({
                   <FileCheck2 size={14} />
                   {isSendingEInvoice ? "Envoi élec..." : invoice?.einvoiceRef ? "Envoyée élec." : "Envoyer élec."}
                 </button>
+
               </div>
 
               {/* Supprimer isolé à droite */}

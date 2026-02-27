@@ -76,6 +76,12 @@ enum ReminderLevel {
   FORMAL
 }
 
+enum PaymentProvider {
+  STRIPE
+  PAYPAL
+  GOCARDLESS
+}
+
 // ============================================
 // MODELS
 // ============================================
@@ -137,11 +143,12 @@ model User {
   lateFeesPercentage   Decimal  @default(0) @db.Decimal(5, 2)
 
   // Relations
-  clients   Client[]
-  products  Product[]
-  documents Document[]
-  templates Template[]
-  recurring RecurringInvoice[]
+  clients         Client[]
+  products        Product[]
+  documents       Document[]
+  templates       Template[]
+  recurring       RecurringInvoice[]
+  paymentAccounts PaymentAccount[]
 
   // Timestamps
   createdAt DateTime @default(now())
@@ -462,6 +469,23 @@ model Template {
   @@index([userId])
   @@index([type])
   @@index([businessType])
+}
+
+// Comptes de paiement (Stripe, PayPal, GoCardless) — clés chiffrées AES-256-GCM
+model PaymentAccount {
+  id          String          @id @default(cuid())
+  userId      String
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider    PaymentProvider
+  // JSON chiffré : { secretKey } pour Stripe, { clientId, clientSecret } pour PayPal,
+  //                { accessToken } pour GoCardless, + webhookSecret optionnel
+  credential  String
+  isActive    Boolean         @default(true)
+  connectedAt DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@unique([userId, provider])
+  @@index([userId])
 }
 
 // État de synchronisation des events SuperPDP (singleton, polling)

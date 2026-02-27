@@ -17,7 +17,7 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
+
 import {
 	Tooltip,
 	TooltipContent,
@@ -47,6 +47,8 @@ import {
 	Sparkles,
 	Sun,
 	Moon,
+	Mail,
+	BookOpen,
 } from "lucide-react";
 
 interface NavItem {
@@ -110,6 +112,16 @@ const navSections: NavSection[] = [
 		],
 	},
 ];
+
+const helpSection: NavSection = {
+	title: "Aide",
+	color: "text-blue-500 dark:text-blue-400",
+	activeColor: "border-blue-500 bg-blue-500/10 text-blue-700 dark:text-blue-300",
+	items: [
+		{ label: "Contact", href: "/dashboard/contact", icon: Mail },
+		{ label: "Tutoriels", href: "/dashboard/tutorials", icon: BookOpen },
+	],
+};
 
 function isItemActive(href: string, pathname: string) {
 	return href === "/dashboard"
@@ -259,17 +271,28 @@ export default function DashboardLayout({
 }) {
 	const [sidebarOpen, setSidebarOpen] = useState(false);
 	const [collapsed, setCollapsed] = useState(false);
-	const [dark, setDark] = useState(false);
-	const [mounted, setMounted] = useState(false);
 	const pathname = usePathname();
 	const { data: session } = useSession();
 
-	useEffect(() => {
+	// Initialiser dark mode avec une fonction pour éviter l'accès SSR à window
+	const [dark, setDark] = useState(() => {
+		if (typeof window === "undefined") return false;
 		const saved = localStorage.getItem("theme");
-		const isDark = saved === "dark" || (!saved && window.matchMedia("(prefers-color-scheme: dark)").matches);
-		setDark(isDark);
-		document.documentElement.classList.toggle("dark", isDark);
-		setMounted(true);
+		return saved === "dark" || (!saved && window.matchMedia("(prefers-color-scheme: dark)").matches);
+	});
+
+	// État d'hydratation (évite les mismatches Radix UI)
+	const [isHydrated, setIsHydrated] = useState(false);
+
+	useEffect(() => {
+		// Appliquer le thème au DOM au montage et aux changements
+		document.documentElement.classList.toggle("dark", dark);
+	}, [dark]);
+
+	useEffect(() => {
+		// Attendre l'hydratation complète avant de rendre les composants interactifs
+		const timeout = setTimeout(() => setIsHydrated(true), 0);
+		return () => clearTimeout(timeout);
 	}, []);
 
 	const toggleDark = useCallback(() => {
@@ -320,6 +343,30 @@ export default function DashboardLayout({
 				<div className="flex-1 overflow-y-auto py-4">
 					<SidebarNav pathname={pathname} collapsed={collapsed} />
 				</div>
+
+				{/* Aide section (sticky en bas avec espacement) */}
+				<div className="mt-auto mb-15 border-t border-slate-200 dark:border-slate-800 py-4">
+					<TooltipProvider delayDuration={100}>
+						<div className="flex flex-col gap-1 px-3">
+							{collapsed ? (
+								<div className="mx-auto mb-2 h-px w-6 bg-slate-200 dark:bg-slate-700" />
+							) : (
+								<p className={`mb-1 px-3 text-[11px] font-semibold uppercase tracking-wider ${helpSection.color}`}>
+									{helpSection.title}
+								</p>
+							)}
+							{helpSection.items.map((item) => (
+								<NavLink
+									key={item.href}
+									item={item}
+									collapsed={collapsed}
+									isActive={isItemActive(item.href, pathname)}
+									activeClassName={helpSection.activeColor}
+								/>
+							))}
+						</div>
+					</TooltipProvider>
+				</div>
 			</aside>
 
 			{/* Main Area */}
@@ -329,7 +376,7 @@ export default function DashboardLayout({
 					{/* Left: Mobile menu + Page title */}
 					<div className="flex items-center gap-3">
 						{/* Mobile menu — rendu client uniquement pour éviter le mismatch d'IDs Radix */}
-						{mounted ? (
+						{isHydrated ? (
 							<Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
 								<SheetTrigger asChild>
 									<button
@@ -358,6 +405,27 @@ export default function DashboardLayout({
 											onNavigate={() => setSidebarOpen(false)}
 										/>
 									</div>
+
+									{/* Aide section (mobile - sticky en bas) */}
+									<div className="border-t border-slate-200 dark:border-slate-800 py-4">
+										<TooltipProvider delayDuration={100}>
+											<div className="flex flex-col gap-1 px-3">
+												<p className={`mb-1 px-3 text-[11px] font-semibold uppercase tracking-wider ${helpSection.color}`}>
+													{helpSection.title}
+												</p>
+												{helpSection.items.map((item) => (
+													<NavLink
+														key={item.href}
+														item={item}
+														collapsed={false}
+														onNavigate={() => setSidebarOpen(false)}
+														isActive={isItemActive(item.href, pathname)}
+														activeClassName={helpSection.activeColor}
+													/>
+												))}
+											</div>
+										</TooltipProvider>
+									</div>
 								</SheetContent>
 							</Sheet>
 						) : (
@@ -374,7 +442,7 @@ export default function DashboardLayout({
 						<h1 className="text-lg lg:text-2xl font-semibold text-slate-900 dark:text-slate-100">
 							{pathname === "/dashboard"
 								? "Tableau de bord"
-								: navSections.flatMap((s) => s.items).find((item) => pathname.startsWith(item.href))?.label ?? "Tableau de bord"}
+								: [...navSections.flatMap((s) => s.items), ...helpSection.items].find((item) => pathname.startsWith(item.href))?.label ?? "Tableau de bord"}
 						</h1>
 					</div>
 
@@ -388,7 +456,7 @@ export default function DashboardLayout({
 						<Sun className={`h-5 w-5 transition-all duration-300 ${dark ? "rotate-90 scale-0 opacity-0" : "rotate-0 scale-100 opacity-100"}`} />
 						<Moon className={`absolute inset-0 m-auto h-5 w-5 text-slate-200 transition-all duration-300 ${dark ? "rotate-0 scale-100 opacity-100" : "-rotate-90 scale-0 opacity-0"}`} />
 					</button>
-					{mounted ? (
+					{isHydrated ? (
 						<DropdownMenu>
 							<DropdownMenuTrigger asChild>
 								<button

@@ -10,6 +10,8 @@ import { prisma } from "@/lib/prisma";
 import { renderToBuffer } from "@react-pdf/renderer";
 import InvoicePdfDocument from "@/lib/pdf/invoice-pdf-document";
 import type { SavedInvoice } from "@/lib/actions/invoices";
+import { getStripeCredential } from "@/lib/actions/payments";
+import { getStripeClient } from "@/lib/stripe";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -118,10 +120,40 @@ export async function sendInvoiceEmail(
       },
     };
 
-    // 4. Générer le PDF en buffer (renderToBuffer = API serveur de @react-pdf/renderer)
+    // 4. Générer le lien de paiement Stripe si le user a son compte connecté
+    let stripePaymentUrl: string | null = null;
+    try {
+      const stripeCred = await getStripeCredential(session.user.id);
+      if (stripeCred) {
+        const stripe = getStripeClient(stripeCred.secretKey);
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+        const checkoutSession = await stripe.checkout.sessions.create({
+          mode: "payment",
+          line_items: [{
+            price_data: {
+              currency: "eur",
+              unit_amount: Math.round(invoice.total * 100),
+              product_data: { name: `Facture ${doc.number}` },
+            },
+            quantity: 1,
+          }],
+          customer_email: doc.client.email,
+          success_url: `${appUrl}/dashboard/invoices?payment=success&invoice=${invoiceId}`,
+          cancel_url: `${appUrl}/dashboard/invoices`,
+          metadata: { invoiceId, userId: session.user.id },
+          expires_at: Math.floor(Date.now() / 1000) + 86400, // 24h
+        });
+        stripePaymentUrl = checkoutSession.url;
+      }
+    } catch (err) {
+      // Stripe non critique : on envoie l'email même si la création du lien échoue
+      console.warn("[sendInvoiceEmail] Stripe checkout creation failed:", err);
+    }
+
+    // 5. Générer le PDF en buffer (renderToBuffer = API serveur de @react-pdf/renderer)
     const pdfBuffer = await renderToBuffer(InvoicePdfDocument({ invoice }));
 
-    // 5. Construire le nom du client pour le mail
+    // 6. Construire le nom du client pour le mail
     const clientName = doc.client.companyName
       ?? ([doc.client.firstName, doc.client.lastName].filter(Boolean).join(" ") || doc.client.email);
 
@@ -136,7 +168,7 @@ export async function sendInvoiceEmail(
 
     const emitterName = invoice.user.companyName ?? "FacturFlow";
 
-    // 6. Envoyer l'email via Resend
+    // 7. Envoyer l'email via Resend
     const { error } = await resend.emails.send({
       from: `${emitterName} <noreply@resend.dev>`,
       to: [doc.client.email],
@@ -167,6 +199,16 @@ export async function sendInvoiceEmail(
               </tr>
             </table>
           </div>
+
+          ${stripePaymentUrl ? `
+          <div style="text-align: center; margin: 28px 0;">
+            <a href="${stripePaymentUrl}"
+               style="display: inline-block; background: linear-gradient(135deg, #635BFF, #7c3aed); color: white; text-decoration: none; font-size: 16px; font-weight: 600; padding: 14px 32px; border-radius: 10px; letter-spacing: 0.3px;">
+              Payer en ligne — ${amount} €
+            </a>
+            <p style="color: #94a3b8; font-size: 12px; margin-top: 8px;">Paiement sécurisé par Stripe · CB, Apple Pay, Google Pay</p>
+          </div>
+          ` : ""}
 
           <p style="color: #334155; font-size: 15px; line-height: 1.6;">
             N'hésitez pas à revenir vers nous si vous avez la moindre question concernant cette facture.
@@ -201,7 +243,7 @@ export async function sendInvoiceEmail(
       return { success: false, error: "Erreur d'envoi : " + error.message };
     }
 
-    // 7. Passer le statut à SENT après envoi réussi (si pas déjà PAID)
+    // 8. Passer le statut à SENT après envoi réussi (si pas déjà PAID)
     if (doc.status !== "PAID") {
       await prisma.document.update({
         where: { id: invoiceId },

@@ -665,6 +665,7 @@ Utilise les agents quand :
 - [x] E-invoicing SuperPDP — API intégrée (sendEInvoice + cron sync + badge UI)
 - [x] Reçus — génération PDF instantané + liste reçus manuels
 - [x] Apparence — page settings (themeColor, companyFont, companyLogo) appliquée en temps réel sur les previews facture/devis/acompte
+- [x] Paiements Stripe — connexion clé API, génération lien Checkout, bouton dans email, webhook → facture PAID
 
 ### Bugs connus
 - [ ] **Bug envoi facture électronique** : l'envoi via SuperPDP échoue dans certains cas — investiguer les logs, vérifier seller.electronic_address et le flux convert → send
@@ -679,12 +680,12 @@ Utilise les agents quand :
   - Point vert si événement positif (PAID, ACCEPTED)
   - Point orange si info (SENT, REMINDED)
   - Applicable aussi aux notifications sidebar
-- [ ] **Paiements** : brancher Stripe (CB/Apple Pay/Google Pay), PayPal, GoCardless (SEPA) → voir section "FEATURE : Intégration Paiements Multi-Providers" ci-dessous
+- [ ] **Paiements PayPal** : brancher génération lien + webhook PAYMENT.CAPTURE.COMPLETED → PAID
+- [ ] **Paiements GoCardless** : mandats SEPA + webhook payment.paid → PAID
 - [ ] **Factures récurrentes** : page /dashboard/recurring, génération auto via cron
 - [ ] **Relances automatiques** : 3 niveaux (FRIENDLY/FIRM/FORMAL), cron sur dueDate
 - [ ] **Templates métiers** : 9 templates visuels pour les PDFs (web dev, designer, artisan…)
 - [ ] **Statistiques** : page /dashboard/stats — CA, TVA collectée, exports URSSAF/FEC
-- [ ] **Tests** : tester envoi email Resend en vrai, tester flux paiement sandbox
 
 ### Reste à faire — Onboarding & Marketing
 

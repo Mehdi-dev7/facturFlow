@@ -106,12 +106,15 @@ export function InvoiceForm({
 		};
 	});
 	const togglePayment = useCallback((key: "stripe" | "paypal" | "gocardless") => {
-		setActivePayments((prev) => {
-			const next = !prev[key];
-			setValue(`paymentLinks.${key}`, next ? "enabled" : "", { shouldDirty: true });
-			return { ...prev, [key]: next };
-		});
-	}, [setValue]);
+		// Lire la valeur actuelle en dehors du callback setState pour éviter
+		// d'appeler setValue (qui déclenche un re-render) pendant la mise à jour d'état
+		setActivePayments((prev) => ({ ...prev, [key]: !prev[key] }));
+		setValue(
+			`paymentLinks.${key}`,
+			!activePayments[key] ? "enabled" : "",
+			{ shouldDirty: true }
+		);
+	}, [setValue, activePayments]);
 
 	// ── Watch ──────────────────────────────────────────────────────────────
 	const lines = useWatch({ control, name: "lines" });

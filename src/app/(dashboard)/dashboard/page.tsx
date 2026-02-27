@@ -298,7 +298,7 @@ export default function DashboardPage() {
               const isExpanded = expandedId === inv.id;
               return (
                 <div key={inv.id}>
-                  <button
+                  <div
                     onClick={() => {
                       if (expandedId === inv.id) { setExpandedId(null); return; }
                       setExpandedId(inv.id);
@@ -313,7 +313,7 @@ export default function DashboardPage() {
                       <StatusDropdown invoiceId={inv.id} dbStatus={inv.dbStatus} />
                       <ChevronDown className={`h-4 w-4 text-slate-400 transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`} />
                     </div>
-                  </button>
+                  </div>
                   <div className={`grid transition-all duration-200 ease-in-out ${isExpanded ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
                     <div className="overflow-hidden">
                       <div className="px-4 pb-3.5 pt-0 flex flex-col gap-2 bg-violet-50/50 dark:bg-violet-950/30">
