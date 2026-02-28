@@ -29,12 +29,14 @@ export function registerPdfFonts() {
   if (registered) return;
   registered = true;
 
-  Font.register({ family: "Playfair Display",       src: fontSrc("playfair-display-700.woff2") });
-  Font.register({ family: "Dancing Script",          src: fontSrc("dancing-script-700.woff2") });
-  Font.register({ family: "Orbitron",                src: fontSrc("orbitron-700.woff2") });
-  Font.register({ family: "Sour Gummy",              src: fontSrc("sour-gummy-700.woff2") });
-  Font.register({ family: "Shadows Into Light Two",  src: fontSrc("shadows-into-light-two-400.woff2") });
-  Font.register({ family: "Kanit",                   src: fontSrc("kanit-700.woff2") });
+  // TTF utilisé à la place de woff2 — react-pdf/fontkit a des problèmes
+  // avec la décompression Brotli du format woff2.
+  Font.register({ family: "Playfair Display",       src: fontSrc("playfair-display-700.ttf") });
+  Font.register({ family: "Dancing Script",          src: fontSrc("dancing-script-700.ttf") });
+  Font.register({ family: "Orbitron",                src: fontSrc("orbitron-700.ttf") });
+  Font.register({ family: "Sour Gummy",              src: fontSrc("sour-gummy-700.ttf") });
+  Font.register({ family: "Shadows Into Light Two",  src: fontSrc("shadows-into-light-two-400.ttf") });
+  Font.register({ family: "Kanit",                   src: fontSrc("kanit-700.ttf") });
 }
 
 /** Mappe l'id font (apparence) → famille react-pdf */

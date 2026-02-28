@@ -51,7 +51,7 @@ export async function sendContactEmail(data: ContactFormData) {
     // ── Email interne → support FacturNow ──────────────────────────────────
     await resend.emails.send({
       from: "FacturNow Support <noreply@facturnow.fr>",
-      to: ["support@facturnow.fr"],
+      to: [process.env.RESEND_SUPPORT_EMAIL ?? "contact@facturnow.fr"],
       replyTo: email,
       subject: `[Support] ${subjectLabel} — ${name}`,
       html: `
