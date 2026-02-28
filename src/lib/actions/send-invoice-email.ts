@@ -163,8 +163,9 @@ export async function sendInvoiceEmail(
     const emitterName = invoice.user.companyName ?? "FacturNow";
 
     // 7. Envoyer l'email via Resend
+    const fromEmail = process.env.RESEND_FROM_EMAIL ?? "FacturNow <noreply@facturnow.fr>"
     const { error } = await resend.emails.send({
-      from: `${emitterName} <noreply@resend.dev>`,
+      from: fromEmail,
       to: [doc.client.email],
       subject: `Facture ${doc.number} – PDF ci-joint`,
       html: `

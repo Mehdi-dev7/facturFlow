@@ -669,6 +669,8 @@ Utilise les agents quand :
 
 ### Bugs connus
 - [ ] **Bug envoi facture électronique** : l'envoi via SuperPDP échoue dans certains cas — investiguer les logs, vérifier seller.electronic_address et le flux convert → send
+- [ ] **Retester e-invoicing SuperPDP sandbox** (mars 2026) — l'envoi était en échec en sandbox, retester de zéro avec un vrai SIREN de test et vérifier chaque étape (convert → send → polling statut)
+- [ ] **Vérifier webhooks SuperPDP** (mars 2026) — consulter la doc/changelog SuperPDP pour voir s'ils ont ajouté le support des webhooks ; si oui, remplacer le polling cron par des webhooks pour une sync temps réel
 
 ### Reste à faire — App
 
