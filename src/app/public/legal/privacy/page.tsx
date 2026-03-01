@@ -70,15 +70,15 @@ export default function PrivacyPage() {
         </div>
         <h1 className="text-2xl font-bold text-gradient mb-1">Politique de confidentialité</h1>
         <p className="text-sm text-slate-500 dark:text-slate-400">
-          Dernière mise à jour : mars 2025
+          Dernière mise à jour : mars 2026
         </p>
       </div>
 
       <div className="px-8">
         <Section num="01" title="Responsable du traitement" icon={User}>
           <DataRow label="Société" value="FacturNow" />
-          <DataRow label="SIRET" value="[À COMPLÉTER]" />
-          <DataRow label="Adresse" value="[À COMPLÉTER]" />
+          <DataRow label="SIRET" value="10107710500019" />
+          <DataRow label="Adresse" value="7 Allée André Malraux 93430 Villetaneuse" />
           <div className="flex items-start gap-3 py-2">
             <span className="font-medium text-slate-700 dark:text-slate-300 w-48 shrink-0 text-sm">Email DPO</span>
             <a href="mailto:privacy@facturnow.fr" className="text-primary hover:underline text-sm">

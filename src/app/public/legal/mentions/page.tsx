@@ -63,7 +63,7 @@ export default function MentionsLegalesPage() {
         </div>
         <h1 className="text-2xl font-bold text-gradient mb-1">Mentions légales</h1>
         <p className="text-sm text-slate-500 dark:text-slate-400">
-          Dernière mise à jour : mars 2025
+          Dernière mise à jour : mars 2026
         </p>
       </div>
 
@@ -71,10 +71,10 @@ export default function MentionsLegalesPage() {
       <div className="px-8">
         <Section num="01" title="Éditeur du site" icon={Building2}>
           <InfoRow label="Nom" value="FacturNow" />
-          <InfoRow label="Forme juridique" value="[À COMPLÉTER]" />
-          <InfoRow label="SIRET" value="[À COMPLÉTER]" />
-          <InfoRow label="SIREN" value="[À COMPLÉTER]" />
-          <InfoRow label="Adresse" value="[À COMPLÉTER]" />
+          <InfoRow label="Forme juridique" value="Entreprise individuelle" />
+          <InfoRow label="SIRET" value="10107710500019" />
+          <InfoRow label="SIREN" value="101077105" />
+          <InfoRow label="Adresse" value="7, Allée André Malraux 93430 villetaneuse" />
           <InfoRow
             label="Email"
             value={
@@ -83,7 +83,7 @@ export default function MentionsLegalesPage() {
               </a>
             }
           />
-          <InfoRow label="Directeur de publication" value="[À COMPLÉTER]" />
+          <InfoRow label="Directeur de publication" value="Didou Wilfrid" />
         </Section>
 
         <Section num="02" title="Hébergement" icon={Server}>

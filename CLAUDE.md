@@ -684,20 +684,15 @@ Utilise les agents quand :
 - [x] **Paiements PayPal** : intégré (create order, capture, webhook, email) — ⚡ À TESTER en sandbox (developer.paypal.com → créer app → connecter dans Dashboard → Paiements)
 - [ ] **Paiements GoCardless** : mandats SEPA + webhook payment.paid → PAID
 - [ ] **Factures récurrentes** : page /dashboard/recurring, génération auto via cron
-- [ ] **Relances automatiques** : 3 niveaux (FRIENDLY/FIRM/FORMAL), cron sur dueDate
+- [x] **Relances automatiques** : 3 niveaux (FRIENDLY/FIRM/FORMAL), cron sur dueDate — templates email + cron nightly + Reminder model DB (J+2/J+7/J+15)
 - [ ] **Statistiques** : page /dashboard/stats — CA, TVA collectée, exports URSSAF/FEC
 - [ ] **Système d'abonnements** : plans Free/Pro/Business payables via Stripe + PayPal
   - Mensuel et annuel avec réduction (ex: -20%)
   - Gestion du plan actif par user (feature gating)
   - Webhooks pour activation/annulation/renouvellement
   - Page `/dashboard/subscription` avec résumé plan + historique factures
-- [ ] **Pages légales** : Mentions légales, Politique de confidentialité (RGPD), CGU/CGV
-  - Routes publiques `/legal/mentions`, `/legal/privacy`, `/legal/cgv`
-  - Liens dans le footer de la landing page et dans l'app
-- [ ] **Formulaire contact/support** : page `/support` ou widget intégré dans le dashboard
-  - Champs : sujet, message, email de réponse
-  - Envoi via Resend → boîte mail support FacturNow
-  - Confirmation email automatique à l'utilisateur
+- [x] **Pages légales** : Mentions légales, Politique de confidentialité (RGPD), CGU/CGV — routes `/public/legal/mentions|privacy|cgv`, infos complétées
+- [x] **Formulaire contact/support** : page `/dashboard/contact` + action `send-contact-email.ts` (Resend)
 
 ### Reste à faire — Onboarding & Marketing
 

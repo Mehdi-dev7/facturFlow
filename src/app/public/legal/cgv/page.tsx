@@ -47,7 +47,7 @@ export default function CgvPage() {
         </div>
         <h1 className="text-2xl font-bold text-gradient mb-1">CGU / CGV</h1>
         <p className="text-sm text-slate-500 dark:text-slate-400">
-          Dernière mise à jour : mars 2025 — Applicables à tout utilisateur de FacturNow
+          Dernière mise à jour : mars 2026 — Applicables à tout utilisateur de FacturNow
         </p>
       </div>
 
@@ -57,7 +57,7 @@ export default function CgvPage() {
             Les présentes Conditions Générales d&apos;Utilisation et de Vente (CGU/CGV) régissent
             l&apos;accès et l&apos;utilisation de FacturNow, plateforme SaaS de facturation en
             ligne accessible à{" "}
-            <a href="https://facturnow.fr" className="text-primary hover:underline">facturnow.fr</a>.
+            <a href="https://www.facturnow.fr" className="text-primary hover:underline">facturnow.fr</a>.
             En créant un compte ou en utilisant le service, vous acceptez l&apos;intégralité
             de ces conditions.
           </p>
@@ -224,7 +224,7 @@ export default function CgvPage() {
           <p>
             Ces CGU/CGV sont soumises au droit français. En cas de litige, une solution
             amiable sera recherchée en priorité. À défaut, les tribunaux de{" "}
-            <span className="text-slate-400">[À COMPLÉTER]</span> seront compétents.
+            <span className="text-slate-400">Tribunal de Commerce de Bobigny</span> seront compétents.
           </p>
           <p>
             Pour les consommateurs, recours possible via la plateforme de médiation UE :{" "}
