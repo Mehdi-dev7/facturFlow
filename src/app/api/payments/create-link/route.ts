@@ -8,7 +8,8 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { decrypt } from "@/lib/encrypt";
 import { getStripeClient } from "@/lib/stripe";
-import type { StripeCredential } from "@/lib/actions/payments";
+import { getPaypalAccessToken, createPaypalOrder } from "@/lib/paypal";
+import type { StripeCredential, PaypalCredential } from "@/lib/actions/payments";
 
 export const runtime = "nodejs";
 
@@ -118,7 +119,56 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // ── PayPal / GoCardless (phase 2) ─────────────────────────────────────────
+  // ── PayPal ────────────────────────────────────────────────────────────────
+
+  if (provider === "PAYPAL") {
+    const account = await prisma.paymentAccount.findUnique({
+      where: { userId_provider: { userId: session.user.id, provider: "PAYPAL" } },
+      select: { credential: true, isActive: true },
+    });
+
+    if (!account || !account.isActive) {
+      return NextResponse.json(
+        { error: "PayPal non connecté. Allez dans Paramètres → Paiements." },
+        { status: 400 }
+      );
+    }
+
+    let credential: PaypalCredential;
+    try {
+      credential = JSON.parse(decrypt(account.credential)) as PaypalCredential;
+    } catch {
+      return NextResponse.json({ error: "Erreur de déchiffrement des credentials PayPal" }, { status: 500 });
+    }
+
+    try {
+      const isSandbox = credential.isSandbox !== false;
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+
+      const accessToken = await getPaypalAccessToken(
+        credential.clientId,
+        credential.clientSecret,
+        isSandbox,
+      );
+
+      const { approvalUrl } = await createPaypalOrder(accessToken, {
+        amount: Number(invoice.total),
+        invoiceNumber: invoice.number ?? invoice.id,
+        invoiceId: invoice.id,
+        // PayPal ajoute automatiquement ?token=ORDER_ID&PayerID=xxx à cette URL
+        returnUrl: `${appUrl}/api/payments/paypal/capture?invoiceId=${invoice.id}`,
+        cancelUrl:  `${appUrl}/dashboard/invoices?payment=cancelled&invoice=${invoice.id}`,
+        isSandbox,
+      });
+
+      return NextResponse.json({ url: approvalUrl });
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : "Erreur inconnue";
+      return NextResponse.json({ error: `PayPal : ${msg}` }, { status: 500 });
+    }
+  }
+
+  // ── GoCardless (phase 3) ──────────────────────────────────────────────────
 
   return NextResponse.json(
     { error: `Provider "${provider}" non encore supporté` },

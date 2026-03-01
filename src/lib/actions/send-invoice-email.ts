@@ -122,26 +122,31 @@ export async function sendInvoiceEmail(
 
     // 4. Vérifier Stripe + PayPal → URLs de redirection propres via notre domaine
     const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://facturnow.fr";
+    // En dev (localhost), on n'inclut pas les boutons de paiement dans l'email :
+    // les URLs localhost sont un signal spam massif pour Gmail.
+    const isLocalhost = appUrl.includes("localhost") || appUrl.includes("127.0.0.1");
     let stripePaymentUrl: string | null = null;
     let paypalPaymentUrl: string | null = null;
 
-    try {
-      const stripeCred = await getStripeCredential(session.user.id);
-      if (stripeCred) {
-        stripePaymentUrl = `${appUrl}/api/pay/${invoiceId}`;
+    if (!isLocalhost) {
+      try {
+        const stripeCred = await getStripeCredential(session.user.id);
+        if (stripeCred) {
+          stripePaymentUrl = `${appUrl}/api/pay/${invoiceId}`;
+        }
+      } catch (err) {
+        console.warn("[sendInvoiceEmail] Stripe check failed:", err);
       }
-    } catch (err) {
-      console.warn("[sendInvoiceEmail] Stripe check failed:", err);
-    }
 
-    try {
-      const { getPaypalCredential } = await import("@/lib/actions/payments");
-      const paypalCred = await getPaypalCredential(session.user.id);
-      if (paypalCred) {
-        paypalPaymentUrl = `${appUrl}/api/pay-paypal/${invoiceId}`;
+      try {
+        const { getPaypalCredential } = await import("@/lib/actions/payments");
+        const paypalCred = await getPaypalCredential(session.user.id);
+        if (paypalCred) {
+          paypalPaymentUrl = `${appUrl}/api/pay-paypal/${invoiceId}`;
+        }
+      } catch (err) {
+        console.warn("[sendInvoiceEmail] PayPal check failed:", err);
       }
-    } catch (err) {
-      console.warn("[sendInvoiceEmail] PayPal check failed:", err);
     }
 
     // 5. Générer le PDF en buffer (renderToBuffer = API serveur de @react-pdf/renderer)

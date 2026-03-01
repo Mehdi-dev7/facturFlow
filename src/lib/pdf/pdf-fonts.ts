@@ -7,17 +7,22 @@ import { Font } from "@react-pdf/renderer";
 let registered = false;
 
 /**
- * Résout le chemin absolu d'un fichier de police.
- * - Navigateur : URL absolue basée sur window.location.origin
- * - Serveur (Node.js) : URL file:// basée sur le répertoire du projet
+ * Résout la source d'une police.
+ * - Navigateur : URL absolue (fetch HTTP normal)
+ * - Serveur    : data URL base64 — évite tout fetch réseau/file
+ *   react-pdf v4 utilise fetch() pour toutes les sources, y compris les chemins
+ *   absolus. Node.js fetch (undici) ne supporte pas file://, donc on encode
+ *   directement en base64 pour court-circuiter le fetch.
  */
 function fontSrc(filename: string): string {
-  if (typeof window !== "undefined") {
-    // Côté client : le navigateur connaît l'origine
-    return `${window.location.origin}/fonts/${filename}`;
-  }
-  // Côté serveur : chemin absolu sur le système de fichiers
-  return `file://${process.cwd()}/public/fonts/${filename}`;
+  // URL HTTP vers les fichiers statiques servis par Next.js (public/fonts/)
+  // Fonctionne côté client (browser) et côté serveur (loopback)
+  // react-pdf fait un fetch HTTP normal et sub-sette uniquement la font utilisée
+  const base =
+    typeof window !== "undefined"
+      ? window.location.origin
+      : (process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000");
+  return `${base}/fonts/${filename}`;
 }
 
 /**

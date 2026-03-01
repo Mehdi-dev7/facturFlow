@@ -2,6 +2,7 @@
 // src/components/payments/payments-page-content.tsx
 
 import { useState, useCallback } from "react";
+import Link from "next/link";
 import { SiStripe, SiPaypal } from "react-icons/si";
 import { CheckCircle2, Eye, EyeOff, ExternalLink, Unlink } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -355,6 +356,7 @@ export function PaymentsPageContent({ initialAccounts }: { initialAccounts: Paym
         </ProviderCard>
 
         {/* ── PAYPAL ───────────────────────────────────────────────────── */}
+        <div className="space-y-2">
         <ProviderCard
           accent="#003087"
           logo={<SiPaypal className="h-4 w-4 xl:h-5 xl:w-5 text-[#003087] dark:text-[#009CDE]" />}
@@ -415,6 +417,17 @@ export function PaymentsPageContent({ initialAccounts }: { initialAccounts: Paym
             {paypalLoading ? "Vérification..." : "Connecter"}
           </button>
         </ProviderCard>
+
+        {/* Lien tuto — visible uniquement si PayPal non connecté */}
+        {!paypalConnected && (
+          <Link
+            href="/dashboard/tutorials/paypal"
+            className="block text-center text-xs text-[#003087] dark:text-[#009CDE] hover:underline"
+          >
+            Pas encore de compte ? Créez-en un en 5 min →
+          </Link>
+        )}
+        </div>
 
         {/* ── GOCARDLESS ───────────────────────────────────────────────── */}
         <ProviderCard
