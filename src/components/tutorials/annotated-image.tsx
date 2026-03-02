@@ -3,6 +3,7 @@
 
 export type Annotation =
   | { type: "circle"; cx: number; cy: number; r: number; color?: string }
+  | { type: "rect"; x: number; y: number; w: number; h: number; color?: string }
   | { type: "mask"; x: number; y: number; w: number; h: number; bg?: string }
   | { type: "badge"; x: number; y: number; text: string; color?: string };
 
@@ -21,6 +22,26 @@ export function AnnotatedImage({ src, alt, annotations = [] }: AnnotatedImagePro
       {annotations.length > 0 && (
         <div className="absolute inset-0 pointer-events-none">
           {annotations.map((ann, i) => {
+
+            // Encadré visible (bordure colorée, fond semi-transparent)
+            if (ann.type === "rect") {
+              return (
+                <div
+                  key={i}
+                  style={{
+                    position: "absolute",
+                    left: `${ann.x}%`,
+                    top: `${ann.y}%`,
+                    width: `${ann.w}%`,
+                    height: `${ann.h}%`,
+                    border: `3px solid ${ann.color ?? "#7c3aed"}`,
+                    backgroundColor: `${ann.color ?? "#7c3aed"}18`,
+                    borderRadius: 6,
+                    boxShadow: `0 0 0 2px white, 0 0 0 4px ${ann.color ?? "#7c3aed"}44`,
+                  }}
+                />
+              );
+            }
 
             // Rectangle opaque pour masquer une info personnelle
             if (ann.type === "mask") {
