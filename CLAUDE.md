@@ -682,7 +682,7 @@ Utilise les agents quand :
   - Point orange si info (SENT, REMINDED)
   - Applicable aussi aux notifications sidebar
 - [x] **Paiements PayPal** : intégré (create order, capture, webhook, email) — ⚡ À TESTER en sandbox (developer.paypal.com → créer app → connecter dans Dashboard → Paiements)
-- [ ] **Paiements GoCardless** : mandats SEPA + webhook payment.paid → PAID
+- [x] **Paiements GoCardless** : mandats SEPA (Billing Request + Flow), webhook mandates.active → gcMandateId sur Client + payments.confirmed → PAID, bouton SEPA dans email, page /public/paiement-confirme — ⚡ À TESTER en sandbox (manage.gocardless.com, token sandbox_xxx)
 - [ ] **Factures récurrentes** : page /dashboard/recurring, génération auto via cron
 - [x] **Relances automatiques** : 3 niveaux (FRIENDLY/FIRM/FORMAL), cron sur dueDate — templates email + cron nightly + Reminder model DB (J+2/J+7/J+15)
 - [ ] **Statistiques** : page /dashboard/stats — CA, TVA collectée, exports URSSAF/FEC
