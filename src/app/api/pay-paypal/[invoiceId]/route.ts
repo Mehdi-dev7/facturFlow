@@ -90,7 +90,7 @@ export async function GET(
 
     // Redirection vers le dashboard dans tous les cas
     return NextResponse.redirect(
-      `${appUrl}/dashboard/invoices?payment=success&invoice=${invoiceId}`,
+      `${appUrl}/public/paiement-confirme?invoice=${invoiceId}&provider=paypal`,
     );
   }
 
@@ -103,7 +103,7 @@ export async function GET(
     );
 
     const returnUrl = `${appUrl}/api/pay-paypal/${invoiceId}`;
-    const cancelUrl = `${appUrl}/dashboard/invoices?payment=cancelled&invoice=${invoiceId}`;
+    const cancelUrl = `${appUrl}/public/paiement-confirme?invoice=${invoiceId}&provider=paypal&status=cancelled`;
 
     const { approvalUrl } = await createPaypalOrder(accessToken, {
       amount:        Number(invoice.total),

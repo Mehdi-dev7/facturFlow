@@ -210,6 +210,16 @@ export async function connectGoCardless(accessToken: string) {
     return { success: false, error: "Access token requis" } as const;
   }
 
+  // Valider le token auprès de l'API GoCardless
+  const isSandbox = accessToken.trim().startsWith("sandbox_");
+  try {
+    const { verifyGoCardlessToken } = await import("@/lib/gocardless");
+    await verifyGoCardlessToken(accessToken.trim(), isSandbox);
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Token rejeté";
+    return { success: false, error: `GoCardless invalide : ${msg}` } as const;
+  }
+
   try {
     const credential = encrypt(JSON.stringify({ accessToken: accessToken.trim() }));
 

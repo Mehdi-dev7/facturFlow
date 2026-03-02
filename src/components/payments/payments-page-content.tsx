@@ -435,7 +435,6 @@ export function PaymentsPageContent({ initialAccounts }: { initialAccounts: Paym
           fees="1% + 0,20€ / prélèvement"
           connected={gcConnected}
           connectedAt={getConnectedAt(accounts, "GOCARDLESS")}
-          comingSoon
           formOpen={openProvider === "GOCARDLESS"}
           onToggleForm={() => toggleForm("GOCARDLESS")}
           onDisconnect={() => handleDisconnect("GOCARDLESS")}

@@ -2,7 +2,7 @@
 
 import React from "react";
 
-export type InvoiceStatus = "payée" | "impayée" | "en attente" | "à envoyer" | "envoyée" | "relancée";
+export type InvoiceStatus = "payée" | "impayée" | "en attente" | "à envoyer" | "envoyée" | "relancée" | "sepa en cours";
 export type QuoteStatus = "accepté" | "refusé" | "à envoyer" | "envoyé" | "expiré" | "en attente" | "brouillon";
 export type AllStatus = InvoiceStatus | QuoteStatus;
 
@@ -104,6 +104,14 @@ const statusConfig: Record<AllStatus, StatusStyle> = {
     border: "border border-red-300 dark:border-red-500/40",
     label: "Relancée",
     icon: "bell",
+  },
+  "sepa en cours": {
+    bg: "bg-blue-100 dark:bg-[#0854b3]/20",
+    text: "text-blue-900 dark:text-blue-300",
+    dot: "bg-[#0854b3] dark:bg-blue-400 animate-pulse",
+    border: "border border-blue-300 dark:border-blue-500/40",
+    label: "SEPA en cours",
+    icon: "dot",
   },
 };
 

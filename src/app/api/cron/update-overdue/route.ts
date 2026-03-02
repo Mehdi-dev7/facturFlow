@@ -14,7 +14,8 @@ export async function runUpdateOverdue() {
   const today = new Date()
   today.setUTCHours(0, 0, 0, 0)
 
-  // Trouver les factures SENT dont la dueDate est dépassée
+  // Trouver les factures SENT dont la dueDate est dépassée.
+  // SEPA_PENDING est exclu : le prélèvement est en cours (2-5 jours), pas besoin de relancer.
   const candidates = await prisma.document.findMany({
     where: { type: "INVOICE", status: "SENT", dueDate: { lt: today } },
     select: {

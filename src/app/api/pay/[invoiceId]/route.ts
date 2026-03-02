@@ -71,8 +71,8 @@ export async function GET(
         quantity: 1,
       }],
       customer_email: invoice.client.email,
-      success_url: `${appUrl}/dashboard/invoices?payment=success&invoice=${invoiceId}`,
-      cancel_url: `${appUrl}/dashboard/invoices`,
+      success_url: `${appUrl}/public/paiement-confirme?invoice=${invoiceId}&provider=stripe`,
+      cancel_url: `${appUrl}/public/paiement-confirme?invoice=${invoiceId}&provider=stripe&status=cancelled`,
       metadata: { invoiceId, userId: invoice.user.id },
     });
 

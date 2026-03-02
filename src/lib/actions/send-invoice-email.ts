@@ -120,13 +120,14 @@ export async function sendInvoiceEmail(
       },
     };
 
-    // 4. Vérifier Stripe + PayPal → URLs de redirection propres via notre domaine
+    // 4. Vérifier Stripe + PayPal + GoCardless → URLs de paiement dans l'email
     const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://facturnow.fr";
-    // En dev (localhost), on n'inclut pas les boutons de paiement dans l'email :
+    // En dev (localhost), on n'inclut pas les boutons de paiement :
     // les URLs localhost sont un signal spam massif pour Gmail.
     const isLocalhost = appUrl.includes("localhost") || appUrl.includes("127.0.0.1");
     let stripePaymentUrl: string | null = null;
     let paypalPaymentUrl: string | null = null;
+    let sepaPaymentUrl:   string | null = null;
 
     if (!isLocalhost) {
       try {
@@ -146,6 +147,20 @@ export async function sendInvoiceEmail(
         }
       } catch (err) {
         console.warn("[sendInvoiceEmail] PayPal check failed:", err);
+      }
+
+      try {
+        const gcAccount = await import("@/lib/prisma").then(({ prisma }) =>
+          prisma.paymentAccount.findUnique({
+            where: { userId_provider: { userId: session.user.id, provider: "GOCARDLESS" } },
+            select: { isActive: true },
+          })
+        );
+        if (gcAccount?.isActive) {
+          sepaPaymentUrl = `${appUrl}/api/pay-sepa/${invoiceId}`;
+        }
+      } catch (err) {
+        console.warn("[sendInvoiceEmail] GoCardless check failed:", err);
       }
     }
 
@@ -200,7 +215,7 @@ export async function sendInvoiceEmail(
             </table>
           </div>
 
-          ${stripePaymentUrl || paypalPaymentUrl ? `
+          ${stripePaymentUrl || paypalPaymentUrl || sepaPaymentUrl ? `
           <div style="text-align: center; margin: 32px 0;">
             ${stripePaymentUrl ? `
             <a href="${stripePaymentUrl}"
@@ -218,6 +233,15 @@ export async function sendInvoiceEmail(
             </a>
             <p style="color: #6b7280; font-size: 12px; margin-top: 6px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;">
               Paiement sécurisé par <strong style="color: #003087;">PayPal</strong>
+            </p>
+            ` : ""}
+            ${sepaPaymentUrl ? `
+            <a href="${sepaPaymentUrl}"
+               style="display: inline-block; background-color: #0854b3; color: #ffffff; text-decoration: none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 15px; font-weight: 600; padding: 12px 28px; border-radius: 6px; cursor: pointer; margin: 6px;">
+              Autoriser le prélèvement SEPA
+            </a>
+            <p style="color: #6b7280; font-size: 12px; margin-top: 6px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;">
+              Prélèvement sécurisé via <strong style="color: #0854b3;">GoCardless</strong> &nbsp;·&nbsp; Délai 2–5 jours ouvrés
             </p>
             ` : ""}
           </div>

@@ -58,6 +58,7 @@ enum DocumentStatus {
   OVERDUE
   REMINDED
   CANCELLED
+  SEPA_PENDING
 }
 
 enum RecurringFrequency {
@@ -233,6 +234,10 @@ model Client {
 
   // Notes
   notes String? @db.Text
+
+  // GoCardless (SEPA Direct Debit)
+  gcMandateId     String? // ID du mandat GoCardless (MD_xxx)
+  gcMandateStatus String? // pending_submission | submitted | active | cancelled | expired | failed
 
   // Statistics
   totalInvoiced Decimal @default(0) @db.Decimal(12, 2)

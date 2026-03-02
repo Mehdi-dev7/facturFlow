@@ -77,10 +77,11 @@ function toRow(deposit: SavedDeposit): DepositRow {
 const statusOrder: Record<InvoiceStatus, number> = {
   relancée: 0,
   impayée: 1,
-  envoyée: 2,
-  "en attente": 3,
-  "à envoyer": 4,
-  payée: 5,
+  "sepa en cours": 2,
+  envoyée: 3,
+  "en attente": 4,
+  "à envoyer": 5,
+  payée: 6,
 };
 
 // Colonnes du tableau

@@ -8,11 +8,12 @@ import { useUpdateInvoiceStatus } from "@/hooks/use-invoices";
 // ─── Mapping DB → UI ──────────────────────────────────────────────────────────
 
 const DB_TO_UI: Record<string, InvoiceStatus> = {
-  DRAFT:    "à envoyer",
-  SENT:     "envoyée",
-  PAID:     "payée",
-  OVERDUE:  "impayée",
-  REMINDED: "relancée",
+  DRAFT:        "à envoyer",
+  SENT:         "envoyée",
+  PAID:         "payée",
+  OVERDUE:      "impayée",
+  REMINDED:     "relancée",
+  SEPA_PENDING: "sepa en cours",
 };
 
 // ─── Transitions disponibles par statut DB ────────────────────────────────────
@@ -38,6 +39,11 @@ const TRANSITIONS: Record<string, Transition[]> = {
   ],
   REMINDED: [
     { status: "PAID", label: "Marquer comme payée", color: "text-emerald-500" },
+  ],
+  // SEPA en attente de confirmation bancaire — paiement déclenché, on attend 2-5 jours
+  SEPA_PENDING: [
+    { status: "PAID",  label: "Marquer comme payée (manuellement)", color: "text-emerald-500" },
+    { status: "SENT",  label: "Annuler → Envoyée",                  color: "text-blue-500" },
   ],
   // Retour arrière possible en cas d'erreur
   PAID: [

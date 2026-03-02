@@ -64,7 +64,7 @@ type SortKey = "date" | "echeance" | "amount" | "status";
 type SortDir = "asc" | "desc";
 
 const statusOrder: Record<InvoiceStatus, number> = {
-  relancée: 0, impayée: 1, envoyée: 2, "en attente": 3, "à envoyer": 4, payée: 5,
+  relancée: 0, impayée: 1, "sepa en cours": 2, envoyée: 3, "en attente": 4, "à envoyer": 5, payée: 6,
 };
 
 function toRow(inv: SavedInvoice): InvoiceRow {
