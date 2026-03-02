@@ -87,10 +87,7 @@ function ProviderCard({
 
           {/* Badge statut */}
           {connected ? (
-            <span
-              className="flex items-center gap-1.5 text-[9px] xs:text-[11px] font-semibold px-2.5 py-1 rounded-full"
-              style={{ backgroundColor: accent + "15", color: accent }}
-            >
+            <span className="flex items-center gap-1.5 text-[9px] xs:text-[11px] font-semibold px-2.5 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400">
               <CheckCircle2 className="h-3 w-3" />
               Connecté
             </span>

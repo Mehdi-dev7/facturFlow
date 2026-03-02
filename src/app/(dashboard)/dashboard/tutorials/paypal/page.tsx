@@ -8,6 +8,7 @@ import {
 	Lightbulb,
 	CheckCircle2,
 	ArrowRight,
+	AlertTriangle,
 } from "lucide-react";
 import { SiPaypal } from "react-icons/si";
 import { AnnotatedImage } from "@/components/tutorials/annotated-image";
@@ -182,6 +183,29 @@ export default function PaypalTutorialPage() {
 							</span>
 						</div>
 					</div>
+				</div>
+			</div>
+
+			{/* Prérequis compte non limité */}
+			<div className="flex items-start gap-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-700/40 rounded-xl px-4 py-4">
+				<AlertTriangle className="h-4 w-4 text-amber-500 mt-0.5 shrink-0" />
+				<div className="space-y-1">
+					<p className="text-xs font-semibold text-amber-700 dark:text-amber-300">
+						Prérequis — Débloquer votre compte PayPal
+					</p>
+					<p className="text-xs text-amber-700 dark:text-amber-400 leading-relaxed">
+						Les nouveaux comptes PayPal Business sont limités par défaut et ne
+						peuvent pas recevoir de paiements. Pour lever cette restriction,
+						connectez-vous à{" "}
+						<span className="font-semibold">paypal.com → Paramètres</span> et
+						ajoutez une carte bancaire ou un RIB. PayPal vous enverra alors un
+						email{" "}
+						<span className="italic">
+							&quot;Votre compte n&apos;est plus limité&quot;
+						</span>{" "}
+						— vous pourrez ensuite suivre ce tutoriel et recevoir des paiements
+						sans blocage.
+					</p>
 				</div>
 			</div>
 

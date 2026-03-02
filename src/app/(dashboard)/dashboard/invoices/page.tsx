@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useCallback, useEffect, useRef, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Plus } from "lucide-react";
 import {
   PageHeader,
@@ -110,6 +111,20 @@ function InvoicesPageContent() {
     for (const inv of allInvoices) m.set(inv.id, inv);
     return m;
   }, [allInvoices]);
+
+  // Toast après retour paiement Stripe/PayPal
+  useEffect(() => {
+    const payment = searchParams.get("payment");
+    const reason  = searchParams.get("reason");
+    if (!payment) return;
+    if (payment === "success") toast.success("Paiement reçu — facture marquée payée !");
+    else if (payment === "cancelled") toast.info("Paiement annulé par le client.");
+    else if (payment === "error" && reason === "amount_too_low")
+      toast.error("Montant trop faible — Stripe exige un minimum de 0,50 €.");
+    else if (payment === "error") toast.error("Erreur lors de la création du paiement.");
+    router.replace("/dashboard/invoices", { scroll: false });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Ouvrir la modal si ?preview=<id> dans l'URL (après chargement des données)
   const previewOpenedRef = useRef(false);

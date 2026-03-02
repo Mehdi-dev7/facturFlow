@@ -205,7 +205,7 @@ export async function sendInvoiceEmail(
             ${stripePaymentUrl ? `
             <a href="${stripePaymentUrl}"
                style="display: inline-block; background-color: #635BFF; color: #ffffff; text-decoration: none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 15px; font-weight: 600; padding: 12px 28px; border-radius: 6px; cursor: pointer; margin: 6px;">
-              Payer ${amount} € par carte
+              Payer ${amount} € par CB
             </a>
             <p style="color: #6b7280; font-size: 12px; margin-top: 6px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;">
               Paiement sécurisé par <strong style="color: #635BFF;">Stripe</strong> &nbsp;·&nbsp; CB, Apple Pay, Google Pay

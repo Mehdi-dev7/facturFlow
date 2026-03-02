@@ -16,7 +16,7 @@ const tutorialCategories = [
 		color: "text-violet-500",
 		bgColor: "bg-violet-500/10",
 		tutorials: [
-			{ title: "Comment créer un compte Stripe en 2 minutes", duration: "2 min", href: null },
+			{ title: "Comment créer un compte Stripe en 2 minutes", duration: "5 min", href: "/dashboard/tutorials/stripe" },
 			{ title: "Configurer PayPal pour recevoir des paiements", duration: "5 min", href: "/dashboard/tutorials/paypal" },
 			{ title: "Activer le prélèvement SEPA avec GoCardless", duration: "5 min", href: null },
 		],

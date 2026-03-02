@@ -48,6 +48,14 @@ export async function GET(
     return NextResponse.redirect(`${appUrl}/dashboard/invoices`);
   }
 
+  // Vérifier le montant minimum Stripe (50 centimes)
+  const amountInCents = Math.round(Number(invoice.total) * 100);
+  if (amountInCents < 50) {
+    return NextResponse.redirect(
+      `${appUrl}/dashboard/invoices?payment=error&reason=amount_too_low`
+    );
+  }
+
   // Créer un nouveau Checkout Session Stripe (frais, sans expiration immédiate)
   try {
     const stripe = getStripeClient(credential.secretKey);
@@ -57,7 +65,7 @@ export async function GET(
       line_items: [{
         price_data: {
           currency: "eur",
-          unit_amount: Math.round(Number(invoice.total) * 100),
+          unit_amount: amountInCents,
           product_data: { name: `Facture ${invoice.number}` },
         },
         quantity: 1,
