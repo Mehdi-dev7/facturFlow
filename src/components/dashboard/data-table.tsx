@@ -25,6 +25,8 @@ interface DataTableProps<T> {
   mobileAmountKey?: string;
   actions?: (item: T) => React.ReactNode;
   onRowClick?: (item: T) => void;
+  /** Classe CSS supplémentaire par ligne (ex: highlight animé) */
+  getRowClassName?: (item: T) => string;
   emptyTitle?: string;
   emptyDescription?: string;
   /** Limite le nombre de lignes affichées. Un bouton "Voir tout" apparaît si dépassé. */
@@ -51,6 +53,7 @@ export function DataTable<T>({
   mobileAmountKey,
   actions,
   onRowClick,
+  getRowClassName,
   emptyTitle = "Aucune donnée",
   emptyDescription = "Il n'y a rien à afficher pour le moment.",
   limit,
@@ -225,7 +228,7 @@ export function DataTable<T>({
           </thead>
           <tbody>
             {visibleData.map((item) => (
-              <tr key={getRowId(item)} className="border-b border-slate-200 dark:border-violet-500/20 hover:bg-violet-200/30 dark:hover:bg-violet-500/10 transition-colors cursor-pointer group">
+              <tr key={getRowId(item)} className={`border-b border-slate-200 dark:border-violet-500/20 hover:bg-violet-200/30 dark:hover:bg-violet-500/10 transition-colors cursor-pointer group ${getRowClassName?.(item) ?? ""}`}>
                 {columns.map((col, i) => (
                   <td
                     key={col.key}

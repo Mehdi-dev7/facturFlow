@@ -2,9 +2,9 @@
 // Contrôle d'accès aux fonctionnalités selon le plan de l'utilisateur.
 //
 // Plans :
-//  FREE     — 5 docs/mois, 3 clients max, pas de paiements en ligne
-//  PRO      — tout illimité + paiements + apparence + stats + exports CSV + 100 factures élec.
-//  BUSINESS — tout PRO + multi-users + exports FEC + rapports comptables + API/webhooks
+//  FREE     — 10 docs/mois, 5 clients max, 5 factures élec./mois, pas de paiements en ligne
+//  PRO      — tout illimité + paiements + apparence + stats + exports CSV + 100 factures élec./mois
+//  BUSINESS — tout PRO + multi-users + exports FEC + rapports comptables + API/webhooks + élec. illimité
 //
 // Un user en trial voit son plan effectif comme PRO tant que trialEndsAt > now.
 
@@ -37,8 +37,9 @@ export type Feature =
 // ─── Limites du plan FREE ─────────────────────────────────────────────────────
 
 export const FREE_LIMITS = {
-  documentsPerMonth: 5,
-  clients: 3,
+  documentsPerMonth: 10,
+  clients: 5,
+  eInvoicesPerMonth: 5,
 } as const;
 
 // ─── Features par plan ────────────────────────────────────────────────────────
@@ -173,5 +174,53 @@ export async function canAddClient(
   const count = await prisma.client.count({ where: { userId } });
 
   const max = FREE_LIMITS.clients;
+  return { allowed: count < max, count, max };
+}
+
+/**
+ * Vérifie si l'utilisateur peut envoyer une facture électronique ce mois-ci.
+ *
+ * Quotas :
+ *  - FREE     → 5 envois/mois
+ *  - PRO      → 100 envois/mois
+ *  - BUSINESS → illimité
+ *
+ * Le comptage se fait sur le champ einvoiceSentAt des Documents du mois courant.
+ */
+export async function canSendEInvoice(
+  userId: string,
+  effectivePlan: string
+): Promise<{ allowed: boolean; count: number; max: number }> {
+  // BUSINESS = illimité, pas besoin de compter
+  if (effectivePlan === "BUSINESS") {
+    return { allowed: true, count: 0, max: Infinity };
+  }
+
+  // Fenêtre du mois courant (minuit 1er → 23:59:59 dernier jour)
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const endOfMonth = new Date(
+    now.getFullYear(),
+    now.getMonth() + 1,
+    0,
+    23,
+    59,
+    59,
+    999
+  );
+
+  // Compter les factures effectivement envoyées électroniquement ce mois-ci
+  const count = await prisma.document.count({
+    where: {
+      userId,
+      einvoiceSentAt: { gte: startOfMonth, lte: endOfMonth },
+    },
+  });
+
+  // PRO → 100/mois | FREE → 5/mois
+  const max = effectivePlan === "PRO"
+    ? 100
+    : FREE_LIMITS.eInvoicesPerMonth;
+
   return { allowed: count < max, count, max };
 }

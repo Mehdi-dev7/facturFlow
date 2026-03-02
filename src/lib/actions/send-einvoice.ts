@@ -7,6 +7,7 @@ import {
 	sendInvoiceXml,
 	type EN16931Invoice,
 } from "@/lib/superpdp";
+import { getEffectivePlan, canSendEInvoice } from "@/lib/feature-gate";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 
@@ -284,6 +285,20 @@ export async function sendEInvoice(invoiceId: string) {
 	const session = await auth.api.getSession({ headers: await headers() });
 	if (!session?.user?.id) {
 		return { success: false, error: "Non authentifié" } as const;
+	}
+
+	// ─ Guard plan : vérifier la limite de factures électroniques du mois ─
+	const user = await prisma.user.findUnique({
+		where: { id: session.user.id },
+		select: { plan: true, trialEndsAt: true },
+	});
+	const effectivePlan = getEffectivePlan(user!);
+	const eInvoiceCheck = await canSendEInvoice(session.user.id, effectivePlan);
+	if (!eInvoiceCheck.allowed) {
+		return {
+			success: false,
+			error: `Limite de ${eInvoiceCheck.max} facture${eInvoiceCheck.max > 1 ? "s" : ""} électronique${eInvoiceCheck.max > 1 ? "s" : ""}/mois atteinte. Passez au plan Pro pour augmenter cette limite.`,
+		} as const;
 	}
 
 	try {

@@ -102,6 +102,24 @@ function QuotesPageContent() {
 
   // Fetch real data
   const { data: allQuotes = [], isLoading } = useQuotes();
+
+  // IDs des devis récemment modifiés (ACCEPTED/REJECTED depuis <7j) → highlight 3.5s
+  const [highlightedIds, setHighlightedIds] = useState<Set<string>>(new Set());
+  useEffect(() => {
+    if (!allQuotes.length) return;
+    const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    const ids = allQuotes
+      .filter((q) =>
+        ["ACCEPTED", "REJECTED"].includes(q.status) &&
+        q.updatedAt &&
+        new Date(q.updatedAt).getTime() > sevenDaysAgo
+      )
+      .map((q) => q.id);
+    if (!ids.length) return;
+    setHighlightedIds(new Set(ids));
+    const t = setTimeout(() => setHighlightedIds(new Set()), 3600);
+    return () => clearTimeout(t);
+  }, [allQuotes]);
   const deleteMutation = useDeleteQuote();
 
   // Map DB id → SavedQuote pour acces rapide
@@ -407,6 +425,7 @@ function QuotesPageContent() {
           mobileStatusKey="status"
           mobileAmountKey="amount"
           onRowClick={handleRowClick}
+          getRowClassName={(row) => highlightedIds.has(row.id) ? "row-highlight" : ""}
           actions={(row) => (
             <ActionButtons
               onEdit={() => handleEdit(row)}

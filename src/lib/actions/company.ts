@@ -18,6 +18,9 @@ const companySchema = z.object({
   companyCity: z.string().min(2, "Ville requise"),
   companyEmail: z.string().email("Email invalide").min(1, "Email entreprise requis"),
   companyPhone: z.string().optional(),
+  // Coordonnées bancaires affichées sur les factures
+  iban: z.string().optional(),
+  bic: z.string().optional(),
 });
 
 type CompanyFormData = z.infer<typeof companySchema>;
@@ -46,6 +49,8 @@ export async function getCompanyInfo() {
         companyCity: true,
         companyEmail: true,
         companyPhone: true,
+        iban: true,
+        bic: true,
       },
     });
 
@@ -86,6 +91,9 @@ export async function updateCompanyInfo(data: CompanyFormData) {
         companyCity: validatedData.companyCity,
         companyEmail: validatedData.companyEmail,
         companyPhone: validatedData.companyPhone || null,
+        // Coordonnées bancaires (affichées sur les factures)
+        iban: validatedData.iban || null,
+        bic: validatedData.bic || null,
       },
     });
 

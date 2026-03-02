@@ -27,6 +27,7 @@ import {
 import { PlanBadge } from "@/components/subscription/plan-badge";
 import { UpgradeBanner } from "@/components/subscription/upgrade-banner";
 import type { LucideIcon } from "lucide-react";
+import type { NotificationCounts } from "@/lib/actions/notifications";
 import {
 	Menu,
 	LayoutDashboard,
@@ -57,6 +58,7 @@ interface NavItem {
 	label: string;
 	href: string;
 	icon: LucideIcon;
+	dot?: boolean  // affiche le point rouge pulsant
 }
 
 interface NavSection {
@@ -131,6 +133,24 @@ function isItemActive(href: string, pathname: string) {
 		: pathname.startsWith(href);
 }
 
+// Petit point rouge pulsant — version sidebar collapsed (sur l'icône) ou étendue (à droite)
+function NotifDot({ collapsed }: { collapsed: boolean }) {
+	if (collapsed) {
+		return (
+			<span className="absolute top-1 right-1 flex h-2 w-2">
+				<span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
+				<span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
+			</span>
+		);
+	}
+	return (
+		<span className="ml-auto flex h-2.5 w-2.5 shrink-0">
+			<span className="animate-ping absolute inline-flex h-2.5 w-2.5 rounded-full bg-red-400 opacity-75" />
+			<span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500" />
+		</span>
+	);
+}
+
 function NavLink({
 	item,
 	collapsed,
@@ -148,7 +168,7 @@ function NavLink({
 		<Link
 			href={item.href}
 			onClick={onNavigate}
-			className={`flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-colors cursor-pointer ${
+			className={`relative flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-colors cursor-pointer ${
 				collapsed ? "justify-center" : ""
 			} ${
 				isActive
@@ -158,6 +178,7 @@ function NavLink({
 		>
 			<item.icon className="h-5 w-5 shrink-0" />
 			{!collapsed && <span className="truncate">{item.label}</span>}
+			{item.dot && <NotifDot collapsed={collapsed} />}
 		</Link>
 	);
 
@@ -182,10 +203,13 @@ function SidebarNav({
 	pathname,
 	onNavigate,
 	collapsed = false,
+	notifications,
 }: {
 	pathname: string;
 	onNavigate?: () => void;
 	collapsed?: boolean;
+	notifications?: NotificationCounts;
+	dismissedNotifs?: Set<string>;
 }) {
 	const isDashboardActive = pathname === "/dashboard";
 
@@ -214,16 +238,23 @@ function SidebarNav({
 						)}
 
 						{/* Section items */}
-						{section.items.map((item) => (
-							<NavLink
-								key={item.href}
-								item={item}
-								collapsed={collapsed}
-								onNavigate={onNavigate}
-								isActive={isItemActive(item.href, pathname)}
-								activeClassName={section.activeColor}
-							/>
-						))}
+						{section.items.map((item) => {
+							const dot =
+								(item.href === "/dashboard/invoices" && notifications?.invoices) ||
+								(item.href === "/dashboard/quotes" && notifications?.quotes) ||
+								(item.href === "/dashboard/deposits" && notifications?.deposits) ||
+								false;
+							return (
+								<NavLink
+									key={item.href}
+									item={{ ...item, dot }}
+									collapsed={collapsed}
+									onNavigate={onNavigate}
+									isActive={isItemActive(item.href, pathname)}
+									activeClassName={section.activeColor}
+								/>
+							);
+						})}
 					</div>
 				))}
 			</nav>
@@ -277,13 +308,33 @@ interface SubscriptionData {
 export default function DashboardShell({
 	children,
 	subscription,
+	notifications,
 }: {
 	children: React.ReactNode;
 	subscription?: SubscriptionData;
+	notifications?: NotificationCounts;
 }) {
 	const [sidebarOpen, setSidebarOpen] = useState(false);
 	const [collapsed, setCollapsed] = useState(false);
 	const pathname = usePathname();
+
+	// Dot dismissal : quand on visite une section, son dot disparaît
+	const [dismissedNotifs, setDismissedNotifs] = useState<Set<string>>(new Set());
+	useEffect(() => {
+		const map: Record<string, string> = {
+			"/dashboard/invoices": "invoices",
+			"/dashboard/quotes": "quotes",
+			"/dashboard/deposits": "deposits",
+		};
+		for (const [prefix, key] of Object.entries(map)) {
+			if (pathname.startsWith(prefix)) {
+				setDismissedNotifs((prev) => {
+					if (prev.has(key)) return prev;
+					return new Set([...prev, key]);
+				});
+			}
+		}
+	}, [pathname]);
 	const { data: session } = useSession();
 
 	// Initialiser dark mode avec une fonction pour éviter l'accès SSR à window
@@ -353,7 +404,7 @@ export default function DashboardShell({
 
 				{/* Navigation */}
 				<div className="flex-1 overflow-y-auto py-4">
-					<SidebarNav pathname={pathname} collapsed={collapsed} />
+					<SidebarNav pathname={pathname} collapsed={collapsed} notifications={notifications} dismissedNotifs={dismissedNotifs} />
 				</div>
 
 				{/* Aide section (sticky en bas avec espacement) */}
@@ -415,6 +466,8 @@ export default function DashboardShell({
 										<SidebarNav
 											pathname={pathname}
 											onNavigate={() => setSidebarOpen(false)}
+											notifications={notifications}
+											dismissedNotifs={dismissedNotifs}
 										/>
 									</div>
 

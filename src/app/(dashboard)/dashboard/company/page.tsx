@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Building2, Save, AlertCircle } from "lucide-react";
+import { Building2, Save, AlertCircle, Landmark } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,6 +25,9 @@ const companySchema = z.object({
   companyCity: z.string().min(2, "Ville requise"),
   companyEmail: z.string().email("Email invalide").min(1, "Email entreprise requis"),
   companyPhone: z.string().optional(),
+  // Informations bancaires — affichées sur les factures pour le virement
+  iban: z.string().optional(),
+  bic: z.string().optional(),
 });
 
 type CompanyFormData = z.infer<typeof companySchema>;
@@ -47,6 +50,8 @@ export default function CompanyPage() {
       companyCity: "",
       companyEmail: "",
       companyPhone: "",
+      iban: "",
+      bic: "",
     },
   });
 
@@ -65,9 +70,22 @@ export default function CompanyPage() {
         companyCity: companyInfo.companyCity || "",
         companyEmail: companyInfo.companyEmail || "",
         companyPhone: companyInfo.companyPhone || "",
+        // Champs bancaires (ajoutés par le backend — undefined si pas encore en DB)
+        iban: (companyInfo as Record<string, unknown>).iban as string || "",
+        bic: (companyInfo as Record<string, unknown>).bic as string || "",
       });
     }
   }, [companyInfo, reset]);
+
+  // ── Formatage IBAN automatique en groupes de 4 caractères ─────────────────
+  // Ex: FR7630006000... → FR76 3000 6000...
+  const handleIbanChange = useCallback((e: { target: { value: string } }) => {
+    // Supprimer les espaces existants, mettre en majuscules
+    const raw = e.target.value.replace(/\s/g, "").toUpperCase();
+    // Insérer un espace tous les 4 caractères
+    const formatted = raw.match(/.{1,4}/g)?.join(" ") ?? raw;
+    setValue("iban", formatted, { shouldValidate: false });
+  }, [setValue]);
 
   // Auto-remplissage via SIRET
   const handleSiretFound = useCallback((data: SiretData) => {
@@ -323,6 +341,59 @@ export default function CompanyPage() {
               )}
             </div>
           </div>
+        </section>
+
+        <div className={dividerClass} />
+
+        {/* ── Informations bancaires ──────────────────────────────── */}
+        <section className="space-y-4">
+          <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+            <Landmark className="size-4 text-violet-600 dark:text-violet-400" />
+            Informations bancaires
+          </h3>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-2 sm:col-span-2">
+              <Label htmlFor="iban" className="text-xs font-medium text-slate-700 dark:text-slate-300">
+                IBAN
+              </Label>
+              <Input
+                id="iban"
+                {...register("iban")}
+                onChange={handleIbanChange}
+                placeholder="FR76 3000 6000 0112 3456 7890 189"
+                className={`${inputClass} font-mono tracking-wider`}
+                autoComplete="off"
+                spellCheck={false}
+              />
+              {errors.iban && (
+                <p className="text-xs text-red-500 dark:text-red-400">{errors.iban.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="bic" className="text-xs font-medium text-slate-700 dark:text-slate-300">
+                BIC / SWIFT
+              </Label>
+              <Input
+                id="bic"
+                {...register("bic")}
+                placeholder="BNPAFRPPXXX"
+                className={`${inputClass} font-mono tracking-wider uppercase`}
+                autoComplete="off"
+                spellCheck={false}
+                onChange={(e) => setValue("bic", e.target.value.toUpperCase(), { shouldValidate: false })}
+              />
+              {errors.bic && (
+                <p className="text-xs text-red-500 dark:text-red-400">{errors.bic.message}</p>
+              )}
+            </div>
+          </div>
+
+          {/* Note explicative */}
+          <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+            Ces informations sont affichées sur vos factures pour le paiement par virement bancaire.
+          </p>
         </section>
 
         <div className={dividerClass} />

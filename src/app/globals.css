@@ -336,4 +336,15 @@ body {
 		-webkit-text-fill-color: transparent;
 		color: transparent;
 	}
+
+	/* Animation highlight ligne récemment modifiée (PAID, OVERDUE, ACCEPTED, REJECTED) */
+	@keyframes row-highlight {
+		0%   { background-color: rgba(124, 58, 237, 0.18); }
+		60%  { background-color: rgba(124, 58, 237, 0.08); }
+		100% { background-color: transparent; }
+	}
+
+	.row-highlight {
+		animation: row-highlight 3.5s ease-out forwards;
+	}
 }

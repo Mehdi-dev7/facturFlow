@@ -105,6 +105,24 @@ function InvoicesPageContent() {
 
   // Fetch real data
   const { data: allInvoices = [], isLoading } = useInvoices();
+
+  // IDs des factures récemment modifiées (PAID/OVERDUE depuis <7j) → highlight 3.5s
+  const [highlightedIds, setHighlightedIds] = useState<Set<string>>(new Set());
+  useEffect(() => {
+    if (!allInvoices.length) return;
+    const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    const ids = allInvoices
+      .filter((inv) =>
+        ["PAID", "OVERDUE"].includes(inv.status) &&
+        inv.updatedAt &&
+        new Date(inv.updatedAt).getTime() > sevenDaysAgo
+      )
+      .map((inv) => inv.id);
+    if (!ids.length) return;
+    setHighlightedIds(new Set(ids));
+    const t = setTimeout(() => setHighlightedIds(new Set()), 3600);
+    return () => clearTimeout(t);
+  }, [allInvoices]);
   const deleteMutation = useDeleteInvoice();
 
   // Map DB id → SavedInvoice pour accès rapide
@@ -440,6 +458,7 @@ function InvoicesPageContent() {
           mobileStatusKey="status"
           mobileAmountKey="amount"
           onRowClick={handleRowClick}
+          getRowClassName={(row) => highlightedIds.has(row.id) ? "row-highlight" : ""}
           actions={(row) => (
             <ActionButtons
               onEdit={() => handleEdit(row)}

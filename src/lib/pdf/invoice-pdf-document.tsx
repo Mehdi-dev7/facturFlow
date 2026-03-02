@@ -252,6 +252,30 @@ const S = StyleSheet.create({
     fontSize: 8,
     color: "#94a3b8",
   },
+  // Bloc virement bancaire
+  wireTransferBox: {
+    marginTop: 14,
+    padding: 10,
+    borderRadius: 4,
+    borderLeftWidth: 3,
+  },
+  wireTransferTitle: {
+    fontFamily: "Helvetica-Bold",
+    fontSize: 8.5,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+    marginBottom: 6,
+  },
+  wireTransferRow: {
+    fontSize: 9,
+    color: "#374151",
+    marginBottom: 3,
+  },
+  wireTransferRef: {
+    fontSize: 8,
+    color: "#6b7280",
+    marginTop: 2,
+  },
 });
 
 // ─── Sous-composant : tableau de lignes ──────────────────────────────────────
@@ -558,6 +582,32 @@ export default function InvoicePdfDocument({ invoice }: { invoice: SavedInvoice 
                 )
               )}
             </View>
+          </View>
+        )}
+
+        {/* ── Virement bancaire (affiché si l'utilisateur a renseigné un IBAN) ── */}
+        {invoice.user.iban && (
+          <View style={[
+            S.wireTransferBox,
+            {
+              backgroundColor: hexToRgba(themeColor, 0.05),
+              borderLeftColor: themeColor,
+            },
+          ]}>
+            <Text style={[S.wireTransferTitle, { color: themeColor }]}>
+              Paiement par virement bancaire
+            </Text>
+            <Text style={S.wireTransferRow}>
+              IBAN : {invoice.user.iban}
+            </Text>
+            {invoice.user.bic ? (
+              <Text style={S.wireTransferRow}>
+                BIC : {invoice.user.bic}
+              </Text>
+            ) : null}
+            <Text style={S.wireTransferRef}>
+              Référence : {invoice.number}
+            </Text>
           </View>
         )}
 

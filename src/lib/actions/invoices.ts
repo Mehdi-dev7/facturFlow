@@ -15,6 +15,7 @@ export interface SavedInvoice {
   id: string;
   number: string;
   status: string;
+  updatedAt: string;
   date: string;
   dueDate: string | null;
   invoiceType: string | null;
@@ -64,6 +65,9 @@ export interface SavedInvoice {
     themeColor: string | null;
     companyFont: string | null;
     companyLogo: string | null;
+    // Informations bancaires pour le bloc virement
+    iban: string | null;
+    bic: string | null;
   };
 }
 
@@ -213,6 +217,7 @@ type PrismaDocumentWithRelations = {
   depositAmount: { toNumber: () => number } | null;
   notes: string | null;
   businessMetadata: unknown;
+  updatedAt: Date;
   einvoiceRef: string | null;
   einvoiceStatus: string | null;
   einvoiceSentAt: Date | null;
@@ -250,6 +255,8 @@ type PrismaDocumentWithRelations = {
     themeColor: string | null;
     companyFont: string | null;
     companyLogo: string | null;
+    iban: string | null;
+    bic: string | null;
   };
 };
 
@@ -272,6 +279,7 @@ function mapToSavedInvoice(doc: PrismaDocumentWithRelations): SavedInvoice {
       doc.businessMetadata != null
         ? (doc.businessMetadata as Record<string, unknown>)
         : null,
+    updatedAt: doc.updatedAt.toISOString(),
     einvoiceRef: doc.einvoiceRef,
     einvoiceStatus: doc.einvoiceStatus,
     einvoiceSentAt: doc.einvoiceSentAt ? doc.einvoiceSentAt.toISOString() : null,
@@ -323,6 +331,9 @@ const documentInclude = {
       themeColor: true,
       companyFont: true,
       companyLogo: true,
+      // Informations bancaires pour affichage sur les factures
+      iban: true,
+      bic: true,
     },
   },
 } as const;

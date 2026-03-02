@@ -16,6 +16,7 @@ export interface SavedQuote {
 	id: string;
 	number: string;
 	status: string;
+	updatedAt: string;
 	date: string;
 	validUntil: string | null;
 	invoiceType: string | null;
@@ -98,6 +99,7 @@ const quoteInclude = {
 } as const;
 
 type PrismaQuoteWithRelations = {
+	updatedAt: Date;
 	id: string;
 	number: string;
 	status: string;
@@ -135,6 +137,7 @@ function mapToSavedQuote(doc: PrismaQuoteWithRelations): SavedQuote {
 		id: doc.id,
 		number: doc.number,
 		status: doc.status,
+		updatedAt: doc.updatedAt.toISOString(),
 		date: doc.date.toISOString(),
 		validUntil: doc.validUntil?.toISOString() ?? null,
 		invoiceType: doc.invoiceType,

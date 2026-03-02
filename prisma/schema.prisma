@@ -116,8 +116,8 @@ model User {
   businessType BusinessType?
 
   // Banking
-  iban String?
-  bic  String?
+  iban String? // IBAN (affiché sur factures + facture électronique)
+  bic  String? // BIC/SWIFT
 
   // Appearance
   themeColor   String?  // hex ex: "#7c3aed"

@@ -55,6 +55,9 @@ export async function sendInvoiceEmail(
             themeColor: true,
             companyFont: true,
             companyLogo: true,
+            // Pour afficher le bloc virement dans l'email
+            iban: true,
+            bic: true,
           },
         },
       },
@@ -69,6 +72,7 @@ export async function sendInvoiceEmail(
       id: doc.id,
       number: doc.number,
       status: doc.status,
+      updatedAt: doc.updatedAt.toISOString(),
       date: doc.date.toISOString(),
       dueDate: doc.dueDate?.toISOString() ?? null,
       invoiceType: doc.invoiceType,
@@ -117,6 +121,8 @@ export async function sendInvoiceEmail(
         themeColor: doc.user.themeColor ?? null,
         companyFont: doc.user.companyFont ?? null,
         companyLogo: doc.user.companyLogo ?? null,
+        iban: doc.user.iban ?? null,
+        bic: doc.user.bic ?? null,
       },
     };
 
@@ -244,6 +250,15 @@ export async function sendInvoiceEmail(
               Prélèvement sécurisé via <strong style="color: #0854b3;">GoCardless</strong> &nbsp;·&nbsp; Délai 2–5 jours ouvrés
             </p>
             ` : ""}
+          </div>
+          ` : ""}
+
+          ${invoice.user.iban ? `
+          <div style="margin:20px 0;padding:16px;background:#f8f7ff;border-left:4px solid #7c3aed;border-radius:4px;">
+            <p style="margin:0 0 8px;font-weight:600;color:#7c3aed;">Paiement par virement bancaire</p>
+            <p style="margin:0;font-size:14px;color:#374151;">IBAN : ${invoice.user.iban}</p>
+            ${invoice.user.bic ? `<p style="margin:4px 0 0;font-size:14px;color:#374151;">BIC : ${invoice.user.bic}</p>` : ""}
+            <p style="margin:4px 0 0;font-size:12px;color:#6b7280;">Référence : ${invoice.number ?? ""}</p>
           </div>
           ` : ""}
 

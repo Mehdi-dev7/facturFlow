@@ -4,6 +4,8 @@
 
 import { getCurrentSubscription } from "@/lib/actions/subscription";
 import { canCreateDocument } from "@/lib/feature-gate";
+import { getNotificationCounts } from "@/lib/actions/notifications";
+import type { NotificationCounts } from "@/lib/actions/notifications";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import DashboardShell from "@/components/layouts/dashboard-shell";
@@ -24,10 +26,13 @@ export default async function DashboardLayout({
     documentsThisMonth: number;
   } | undefined = undefined;
 
+  let notifications: NotificationCounts = { invoices: false, quotes: false, deposits: false };
+
   if (session?.user?.id) {
-    const [subResult, docCheck] = await Promise.all([
+    const [subResult, docCheck, notifCounts] = await Promise.all([
       getCurrentSubscription(),
       canCreateDocument(session.user.id),
+      getNotificationCounts(session.user.id),
     ]);
 
     if (subResult.success) {
@@ -35,14 +40,15 @@ export default async function DashboardLayout({
         plan: subResult.data.plan,
         effectivePlan: subResult.data.effectivePlan,
         trialDaysLeft: subResult.data.trialDaysLeft,
-        // count = nb de documents créés ce mois (0 pour plans illimités)
         documentsThisMonth: docCheck.count,
       };
     }
+
+    notifications = notifCounts;
   }
 
   return (
-    <DashboardShell subscription={subscription}>
+    <DashboardShell subscription={subscription} notifications={notifications}>
       {children}
     </DashboardShell>
   );

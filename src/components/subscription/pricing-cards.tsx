@@ -24,32 +24,33 @@ interface PricingCardsProps {
 
 const PLAN_FEATURES = {
   FREE: [
-    { label: "5 documents par mois", included: true },
-    { label: "3 clients maximum", included: true },
-    { label: "PDF basique", included: true },
-    { label: "Essai Pro 14 jours inclus", included: true },
-    { label: "Paiements en ligne", included: false },
+    { label: "10 documents par mois", included: true },
+    { label: "5 clients maximum", included: true },
+    { label: "Virement bancaire uniquement", included: true },
+    { label: "5 factures électroniques/mois", included: true },
+    { label: "Essai Pro 7 jours inclus", included: true },
+    { label: "Paiements en ligne (Stripe/PayPal)", included: false },
     { label: "Relances automatiques", included: false },
   ],
   PRO: [
     { label: "Documents & clients illimités", included: true },
-    { label: "Apparence personnalisée", included: true },
     { label: "Stripe · PayPal · GoCardless SEPA", included: true },
+    { label: "Apparence & templates personnalisés", included: true },
     { label: "Relances automatiques (3 niveaux)", included: true },
     { label: "Factures récurrentes", included: true },
     { label: "Statistiques & export CSV", included: true },
-    { label: "Facturation électronique (100/mois)", included: true },
+    { label: "Factures électroniques illimitées", included: true },
   ],
   BUSINESS: [
     { label: "Tout ce qui est inclus dans Pro", included: true },
     { label: "3 utilisateurs par compte", included: true },
     { label: "Export FEC comptable", included: true },
-    { label: "Rapport mensuel comptable", included: true },
+    { label: "Rapport mensuel comptable (PDF)", included: true },
     { label: "Bilan annuel & URSSAF", included: true },
     { label: "Archivage légal 10 ans", included: true },
     { label: "API & Webhooks", included: true },
     { label: "Support prioritaire", included: true },
-    { label: "Facturation électronique illimitée", included: true },
+    { label: "Factures électroniques illimitées", included: true },
   ],
 };
 
@@ -79,10 +80,12 @@ export function PricingCards({ currentPlan, effectivePlan, stripeSubId }: Pricin
   const [cancelling, setCancelling] = useState(false);
 
   // Prix selon l'intervalle
-  const proPrice = interval === "yearly" ? "11,20€" : "14€";
-  const businessPrice = interval === "yearly" ? "23,20€" : "29€";
-  const proAnnualNote = interval === "yearly" ? "facturé 134,40€/an" : null;
-  const businessAnnualNote = interval === "yearly" ? "facturé 278,40€/an" : null;
+  // PRO : 9,99€/mois ou 7,99€/mois annuel (économie ~20%)
+  // BUSINESS : 25€/mois ou 19,99€/mois annuel (économie ~20%)
+  const proPrice = interval === "yearly" ? "7,99€" : "9,99€";
+  const businessPrice = interval === "yearly" ? "19,99€" : "25€";
+  const proAnnualNote = interval === "yearly" ? "facturé 95,88€/an" : null;
+  const businessAnnualNote = interval === "yearly" ? "facturé 239,88€/an" : null;
 
   const handleCheckout = useCallback(async (plan: "PRO" | "BUSINESS") => {
     setLoadingPlan(plan);
@@ -191,7 +194,7 @@ export function PricingCards({ currentPlan, effectivePlan, stripeSubId }: Pricin
                 <span className="text-3xl font-bold text-slate-900 dark:text-slate-100">0€</span>
                 <span className="text-slate-500 text-sm ml-1">/ mois</span>
               </div>
-              <p className="text-xs text-slate-500">14 jours d&apos;essai Pro inclus</p>
+              <p className="text-xs text-slate-500">7 jours d&apos;essai Pro inclus</p>
             </div>
 
             {/* Features */}
