@@ -4,13 +4,20 @@
 import { redirect } from "next/navigation";
 import { CreditCard } from "lucide-react";
 import { getPaymentAccounts } from "@/lib/actions/payments";
+import { getCurrentSubscription } from "@/lib/actions/subscription";
 import { PaymentsPageContent } from "@/components/payments/payments-page-content";
 
 export default async function PaymentsPage() {
-  const accounts = await getPaymentAccounts();
+  const [accounts, subResult] = await Promise.all([
+    getPaymentAccounts(),
+    getCurrentSubscription(),
+  ]);
 
   // Pas de session → redirection login
   if (accounts === null) redirect("/login");
+
+  const plan = subResult.success ? subResult.data.plan : "FREE";
+  const effectivePlan = subResult.success ? subResult.data.effectivePlan : "FREE";
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
@@ -30,7 +37,11 @@ export default async function PaymentsPage() {
       </div>
 
       {/* Contenu interactif (client) */}
-      <PaymentsPageContent initialAccounts={accounts} />
+      <PaymentsPageContent
+        initialAccounts={accounts}
+        plan={plan}
+        effectivePlan={effectivePlan}
+      />
     </div>
   );
 }

@@ -138,6 +138,20 @@ model User {
   nextDepositNumber Int    @default(1)
   nextReceiptNumber Int    @default(1)
 
+  // Subscription & Plan
+  plan             String    @default("FREE") // FREE | PRO | BUSINESS
+  planExpiresAt    DateTime? // Date d'expiration du plan payant (si annulé)
+  trialEndsAt      DateTime? // Date de fin du trial 7 jours (null = pas de trial actif)
+  trialUsed        Boolean   @default(false)  // Anti-cheat : trial déjà utilisé
+  signupIp         String?   // IP d'inscription pour anti-cheat trial
+
+  // Stripe platform (abonnement FacturNow)
+  stripeCustomerId String?   // ID client Stripe de la plateforme (cus_xxx)
+  stripeSubId      String?   // ID d'abonnement Stripe actif (sub_xxx)
+
+  // PayPal platform (abonnement FacturNow)
+  paypalSubId      String?   // ID d'abonnement PayPal actif
+
   // Payment Terms
   defaultPaymentTerms  Int      @default(30)
   defaultPaymentMethod String?

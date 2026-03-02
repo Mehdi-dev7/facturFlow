@@ -681,12 +681,12 @@ Utilise les agents quand :
   - Point vert si événement positif (PAID, ACCEPTED)
   - Point orange si info (SENT, REMINDED)
   - Applicable aussi aux notifications sidebar
-- [x] **Paiements PayPal** : intégré (create order, capture, webhook, email) — ⚡ À TESTER en sandbox (developer.paypal.com → créer app → connecter dans Dashboard → Paiements)
+- [x] **Paiements PayPal** : intégré (create order, capture, webhook, email) — ✅ testé en live, OK
 - [x] **Paiements GoCardless** : mandats SEPA (Billing Request + Flow), webhook mandates.active → gcMandateId sur Client + payments.confirmed → PAID, bouton SEPA dans email, page /public/paiement-confirme — ⚡ À TESTER en sandbox (manage.gocardless.com, token sandbox_xxx)
 - [ ] **Factures récurrentes** : page /dashboard/recurring, génération auto via cron
 - [x] **Relances automatiques** : 3 niveaux (FRIENDLY/FIRM/FORMAL), cron sur dueDate — templates email + cron nightly + Reminder model DB (J+2/J+7/J+15)
 - [ ] **Statistiques** : page /dashboard/stats — CA, TVA collectée, exports URSSAF/FEC
-- [ ] **Système d'abonnements** : plans Free/Pro/Business payables via Stripe + PayPal
+- [x] **Système d'abonnements** : Free/Pro/Business, Stripe Checkout, trial 7j anti-cheat IP, feature-gate, guards, UpgradeBanner/FeatureGate — reste à créer les prices Stripe dashboard + db push prod
   - Mensuel et annuel avec réduction (ex: -20%)
   - Gestion du plan actif par user (feature gating)
   - Webhooks pour activation/annulation/renouvellement

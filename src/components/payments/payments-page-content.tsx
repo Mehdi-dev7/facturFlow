@@ -15,6 +15,7 @@ import {
   disconnectProvider,
   type PaymentAccountInfo,
 } from "@/lib/actions/payments";
+import { FeatureGate } from "@/components/subscription/feature-gate";
 type PaymentProvider = "STRIPE" | "PAYPAL" | "GOCARDLESS";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -196,7 +197,15 @@ function TutoSteps({ steps }: { steps: { text: React.ReactNode }[] }) {
 
 // ─── Composant principal ──────────────────────────────────────────────────────
 
-export function PaymentsPageContent({ initialAccounts }: { initialAccounts: PaymentAccountInfo[] }) {
+export function PaymentsPageContent({
+  initialAccounts,
+  plan = "FREE",
+  effectivePlan = "FREE",
+}: {
+  initialAccounts: PaymentAccountInfo[];
+  plan?: string;
+  effectivePlan?: string;
+}) {
   const [accounts, setAccounts] = useState(initialAccounts);
   const [disconnecting, setDisconnecting] = useState<PaymentProvider | null>(null);
 
@@ -313,6 +322,7 @@ export function PaymentsPageContent({ initialAccounts }: { initialAccounts: Paym
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 lg:gap-7 xl:gap-8 items-start">
 
         {/* ── STRIPE ───────────────────────────────────────────────────── */}
+        <FeatureGate feature="payment_stripe" plan={plan} effectivePlan={effectivePlan}>
         <ProviderCard
           accent="#635BFF"
           logo={<SiStripe className="h-4 w-4 xl:h-5 xl:w-5 text-[#635BFF]" />}
@@ -351,8 +361,10 @@ export function PaymentsPageContent({ initialAccounts }: { initialAccounts: Paym
             {stripeLoading ? "Vérification..." : "Connecter"}
           </button>
         </ProviderCard>
+        </FeatureGate>
 
         {/* ── PAYPAL ───────────────────────────────────────────────────── */}
+        <FeatureGate feature="payment_paypal" plan={plan} effectivePlan={effectivePlan}>
         <div className="space-y-2">
         <ProviderCard
           accent="#003087"
@@ -425,8 +437,10 @@ export function PaymentsPageContent({ initialAccounts }: { initialAccounts: Paym
           </Link>
         )}
         </div>
+        </FeatureGate>
 
         {/* ── GOCARDLESS ───────────────────────────────────────────────── */}
+        <FeatureGate feature="payment_gocardless" plan={plan} effectivePlan={effectivePlan}>
         <ProviderCard
           accent="#00A27B"
           logo={<GoCardlessLogo size={16} />}
@@ -459,6 +473,7 @@ export function PaymentsPageContent({ initialAccounts }: { initialAccounts: Paym
             {gcLoading ? "Sauvegarde..." : "Connecter"}
           </button>
         </ProviderCard>
+        </FeatureGate>
 
       </div>
 

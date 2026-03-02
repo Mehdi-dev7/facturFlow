@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { clientFormSchema, type ClientFormData } from "@/lib/validations/client";
+import { canAddClient } from "@/lib/feature-gate";
 
 // ─── Type exporté (utilisé par les hooks et les pages) ──────────────────────
 
@@ -159,6 +160,15 @@ export async function createClient(data: ClientFormData) {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session?.user?.id) {
     return { success: false, error: "Non authentifié" } as const;
+  }
+
+  // Vérifier la limite de clients selon le plan (FREE = 3 max)
+  const { allowed, max: clientMax } = await canAddClient(session.user.id);
+  if (!allowed) {
+    return {
+      success: false,
+      error: `Limite de ${clientMax} clients atteinte. Passez au plan Pro pour continuer.`,
+    } as const;
   }
 
   // Validation Zod côté serveur

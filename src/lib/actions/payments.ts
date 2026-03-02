@@ -8,6 +8,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { encrypt, decrypt } from "@/lib/encrypt";
 import { getStripeClient } from "@/lib/stripe";
+import { canUseFeature } from "@/lib/feature-gate";
 import type { PaymentProvider } from "@prisma/client";
 
 // ─── Types publics (sans credentials) ────────────────────────────────────────
@@ -78,6 +79,15 @@ export async function connectStripe(
 ) {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) return { success: false, error: "Non authentifié" } as const;
+
+  // Vérifier que l'utilisateur a accès à Stripe (plan PRO ou supérieur)
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { plan: true, trialEndsAt: true },
+  });
+  if (!user || !canUseFeature(user, "payment_stripe")) {
+    return { success: false, error: "Fonctionnalité réservée au plan Pro." } as const;
+  }
 
   // Valider le format de la clé
   if (!secretKey.startsWith("sk_live_") && !secretKey.startsWith("sk_test_")) {
@@ -155,6 +165,15 @@ export async function connectPayPal(
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) return { success: false, error: "Non authentifié" } as const;
 
+  // Vérifier que l'utilisateur a accès à PayPal (plan PRO ou supérieur)
+  const userPaypal = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { plan: true, trialEndsAt: true },
+  });
+  if (!userPaypal || !canUseFeature(userPaypal, "payment_paypal")) {
+    return { success: false, error: "Fonctionnalité réservée au plan Pro." } as const;
+  }
+
   if (!clientId.trim() || !clientSecret.trim()) {
     return { success: false, error: "Client ID et Client Secret requis" } as const;
   }
@@ -205,6 +224,15 @@ export async function connectPayPal(
 export async function connectGoCardless(accessToken: string) {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) return { success: false, error: "Non authentifié" } as const;
+
+  // Vérifier que l'utilisateur a accès à GoCardless (plan PRO ou supérieur)
+  const userGC = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { plan: true, trialEndsAt: true },
+  });
+  if (!userGC || !canUseFeature(userGC, "payment_gocardless")) {
+    return { success: false, error: "Fonctionnalité réservée au plan Pro." } as const;
+  }
 
   if (!accessToken.trim()) {
     return { success: false, error: "Access token requis" } as const;

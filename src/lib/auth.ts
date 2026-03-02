@@ -4,6 +4,7 @@ import { emailOTP } from "better-auth/plugins"
 import { prisma } from "@/lib/prisma"
 import { resend } from "@/lib/email/resend"
 import bcrypt from "bcryptjs"
+import { addDays, subDays } from "date-fns"
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -122,4 +123,64 @@ export const auth = betterAuth({
   secret: process.env.BETTER_AUTH_SECRET!,
   baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
   trustedOrigins: ["http://localhost:3000"],
+
+  // Hook exécuté après la création d'un utilisateur (email + OAuth)
+  // Logique trial 7 jours avec anti-cheat par IP
+  databaseHooks: {
+    user: {
+      create: {
+        after: async (user) => {
+          try {
+            // Récupérer l'IP depuis la session récemment créée (la plus récente)
+            const session = await prisma.session.findFirst({
+              where: { userId: user.id },
+              orderBy: { createdAt: "desc" },
+              select: { ipAddress: true },
+            })
+            const ip = session?.ipAddress ?? null
+
+            // Anti-cheat : vérifier si une autre adresse a déjà utilisé le trial
+            // depuis la même IP dans les 30 derniers jours
+            let trialAlreadyUsedFromIp = false
+            if (ip) {
+              const existingTrial = await prisma.user.findFirst({
+                where: {
+                  signupIp: ip,
+                  trialUsed: true,
+                  // Exclure l'utilisateur qui vient d'être créé
+                  NOT: { id: user.id },
+                  createdAt: { gte: subDays(new Date(), 30) },
+                },
+                select: { id: true },
+              })
+              trialAlreadyUsedFromIp = !!existingTrial
+            }
+
+            // Activer le trial uniquement si l'IP n'a pas déjà bénéficié d'un trial
+            if (!trialAlreadyUsedFromIp) {
+              await prisma.user.update({
+                where: { id: user.id },
+                data: {
+                  trialEndsAt: addDays(new Date(), 7), // 7 jours d'essai PRO
+                  trialUsed: true,
+                  signupIp: ip,
+                },
+              })
+              console.log(`[auth] Trial 7 jours activé pour ${user.email} (IP: ${ip ?? "inconnue"})`)
+            } else {
+              // Enregistrer l'IP même sans trial (pour les futures vérifications)
+              await prisma.user.update({
+                where: { id: user.id },
+                data: { signupIp: ip },
+              })
+              console.log(`[auth] Trial non accordé pour ${user.email} — IP ${ip} déjà utilisée`)
+            }
+          } catch (err) {
+            // Ne pas bloquer la création du compte si le hook échoue
+            console.error("[auth] Erreur hook after user create :", err)
+          }
+        },
+      },
+    },
+  },
 })

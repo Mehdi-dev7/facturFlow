@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { calcInvoiceTotals } from "@/lib/utils/calculs-facture";
+import { canCreateDocument } from "@/lib/feature-gate";
 import type { InvoiceFormData, VatRate } from "@/lib/validations/invoice";
 
 // ─── Type exporté (utilisé par les hooks et les modals) ──────────────────────
@@ -459,6 +460,15 @@ export async function createInvoice(data: InvoiceFormData, draftId?: string) {
   }
 
   const userId = session.user.id;
+
+  // Vérifier la limite de documents selon le plan (FREE = 5/mois)
+  const { allowed, count: docCount, max: docMax } = await canCreateDocument(userId);
+  if (!allowed) {
+    return {
+      success: false,
+      error: `Limite de ${docMax} documents/mois atteinte (${docCount}/${docMax}). Passez au plan Pro pour continuer.`,
+    } as const;
+  }
 
   try {
     saveSchema.parse(data);
