@@ -40,7 +40,7 @@ interface DepositFormData {
 	paymentLinks: {
 		stripe: boolean;
 		paypal: boolean;
-		sepa: boolean;
+		gocardless: boolean;
 	};
 }
 
@@ -94,18 +94,18 @@ export function DepositForm({
 	const [activePayments, setActivePayments] = useState({
 		stripe: form.getValues("paymentLinks.stripe"),
 		paypal: form.getValues("paymentLinks.paypal"),
-		sepa: form.getValues("paymentLinks.sepa"),
+		gocardless: form.getValues("paymentLinks.gocardless"),
 	});
 
 	const togglePayment = useCallback(
-		(key: "stripe" | "paypal" | "sepa") => {
+		(key: "stripe" | "paypal" | "gocardless") => {
 			setActivePayments((prev) => {
 				const next = !prev[key];
 				setValue(
 					`paymentLinks.${key}` as
 						| "paymentLinks.stripe"
 						| "paymentLinks.paypal"
-						| "paymentLinks.sepa",
+						| "paymentLinks.gocardless",
 					next,
 					{ shouldDirty: true },
 				);
@@ -445,16 +445,16 @@ export function DepositForm({
 								{/* GoCardless SEPA */}
 								<button
 									type="button"
-									onClick={() => togglePayment("sepa")}
+									onClick={() => togglePayment("gocardless")}
 									className={`flex items-center gap-2 px-3 xs:px-4 py-2 xs:py-2.5 rounded-xl border-2 transition-all duration-300 cursor-pointer text-xs xs:text-sm font-semibold ${
-										activePayments.sepa
+										activePayments.gocardless
 											? "border-[#0F766E]/30 bg-linear-to-r from-[#0F766E]/10 to-[#059669]/10 text-[#0F766E] dark:text-emerald-300 shadow-sm"
 											: "border-dashed border-slate-300 dark:border-violet-400/20 text-slate-400 dark:text-violet-400/50 hover:border-[#0F766E]/30 hover:text-[#0F766E] dark:hover:border-emerald-400/40"
 									}`}
 								>
 									<span className="size-3.5 xs:size-4 flex items-center justify-center font-black text-[10px]">GC</span>
 									SEPA
-									{activePayments.sepa && (
+									{activePayments.gocardless && (
 										<span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-linear-to-r from-[#0F766E] to-[#059669] text-white">
 											Actif
 										</span>

@@ -106,19 +106,25 @@ function InvoicesPageContent() {
   // Fetch real data
   const { data: allInvoices = [], isLoading } = useInvoices();
 
-  // IDs des factures récemment modifiées (PAID/OVERDUE depuis <7j) → highlight 3.5s
+  // IDs des factures récemment modifiées (PAID/OVERDUE depuis <7j) → highlight 3.5s une seule fois
   const [highlightedIds, setHighlightedIds] = useState<Set<string>>(new Set());
   useEffect(() => {
     if (!allInvoices.length) return;
     const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    // Récupérer les IDs déjà mis en surbrillance (sessionStorage)
+    const seen = new Set<string>(JSON.parse(sessionStorage.getItem("highlight_invoices") ?? "[]"));
     const ids = allInvoices
       .filter((inv) =>
         ["PAID", "OVERDUE"].includes(inv.status) &&
         inv.updatedAt &&
-        new Date(inv.updatedAt).getTime() > sevenDaysAgo
+        new Date(inv.updatedAt).getTime() > sevenDaysAgo &&
+        !seen.has(inv.id)  // ignorer si déjà vu
       )
       .map((inv) => inv.id);
     if (!ids.length) return;
+    // Marquer comme vus immédiatement
+    const newSeen = [...seen, ...ids];
+    sessionStorage.setItem("highlight_invoices", JSON.stringify(newSeen));
     setHighlightedIds(new Set(ids));
     const t = setTimeout(() => setHighlightedIds(new Set()), 3600);
     return () => clearTimeout(t);

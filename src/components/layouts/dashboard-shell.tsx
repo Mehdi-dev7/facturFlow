@@ -206,6 +206,7 @@ function SidebarNav({
 	onNavigate,
 	collapsed = false,
 	notifications,
+	dismissedNotifs,
 }: {
 	pathname: string;
 	onNavigate?: () => void;
@@ -242,9 +243,9 @@ function SidebarNav({
 						{/* Section items */}
 						{section.items.map((item) => {
 							const dot =
-								(item.href === "/dashboard/invoices" && notifications?.invoices) ||
-								(item.href === "/dashboard/quotes" && notifications?.quotes) ||
-								(item.href === "/dashboard/deposits" && notifications?.deposits) ||
+								(item.href === "/dashboard/invoices" && notifications?.invoices && !dismissedNotifs?.has("invoices")) ||
+								(item.href === "/dashboard/quotes" && notifications?.quotes && !dismissedNotifs?.has("quotes")) ||
+								(item.href === "/dashboard/deposits" && notifications?.deposits && !dismissedNotifs?.has("deposits")) ||
 								false;
 							return (
 								<NavLink

@@ -503,7 +503,7 @@ export function DepositPreviewModal({
                 <p>• Paiement attendu avant le {formatDateShort(deposit.dueDate)}</p>
                 <p>• Liens de paiement sécurisés inclus dans l&apos;email</p>
                 
-                {(deposit.paymentLinks?.stripe || deposit.paymentLinks?.paypal || deposit.paymentLinks?.sepa) && (
+                {(deposit.paymentLinks?.stripe || deposit.paymentLinks?.paypal || deposit.paymentLinks?.gocardless) && (
                   <div className="mt-3 flex flex-wrap gap-2">
                     {deposit.paymentLinks?.stripe && (
                       <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-linear-to-r from-[#635BFF] to-[#7C3AED] px-3 py-1.5 rounded-lg">
@@ -515,7 +515,7 @@ export function DepositPreviewModal({
                         <SiPaypal className="size-3.5" /> PayPal
                       </span>
                     )}
-                    {deposit.paymentLinks?.sepa && (
+                    {deposit.paymentLinks?.gocardless && (
                       <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-linear-to-r from-[#0F766E] to-[#059669] px-3 py-1.5 rounded-lg">
                         <span className="font-black text-[10px]">GC</span> SEPA
                       </span>

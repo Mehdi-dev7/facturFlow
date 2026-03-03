@@ -105,9 +105,9 @@ export const invoiceFormSchema = z
 		notes: z.string().optional(),
 		paymentLinks: z
 			.object({
-				stripe: z.union([z.literal(""), z.literal("enabled"), z.url()]).optional(),
-				paypal: z.union([z.literal(""), z.literal("enabled"), z.url()]).optional(),
-				gocardless: z.union([z.literal(""), z.literal("enabled"), z.url()]).optional(),
+				stripe: z.boolean().optional(),
+				paypal: z.boolean().optional(),
+				gocardless: z.boolean().optional(),
 			})
 			.optional(),
 	})
@@ -138,6 +138,6 @@ export interface DraftInvoice {
 	depositAmount: number;
 	netAPayer: number;
 	notes?: string;
-	paymentLinks?: { stripe?: string; paypal?: string; gocardless?: string };
+	paymentLinks?: { stripe?: boolean; paypal?: boolean; gocardless?: boolean };
 	status: "brouillon";
 }

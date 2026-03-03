@@ -1,11 +1,13 @@
 // src/components/tutorials/annotated-image.tsx
-// Composant image avec annotations CSS (cercles, masques, badges) superposés
+// Composant image avec annotations CSS (cercles, masques, badges, flèches) superposés
 
 export type Annotation =
   | { type: "circle"; cx: number; cy: number; r: number; color?: string }
   | { type: "rect"; x: number; y: number; w: number; h: number; color?: string }
   | { type: "mask"; x: number; y: number; w: number; h: number; bg?: string }
-  | { type: "badge"; x: number; y: number; text: string; color?: string };
+  | { type: "badge"; x: number; y: number; text: string; color?: string }
+  // Flèche SVG : coordonnées en % de l'image (0–100)
+  | { type: "arrow"; x1: number; y1: number; x2: number; y2: number; color?: string };
 
 interface AnnotatedImageProps {
   src: string;
@@ -18,6 +20,50 @@ export function AnnotatedImage({ src, alt, annotations = [] }: AnnotatedImagePro
     <div className="relative overflow-hidden rounded-xl border border-slate-200 dark:border-slate-700 shadow-lg select-none">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={src} alt={alt} className="w-full h-auto block" draggable={false} />
+
+      {/* SVG overlay pour les flèches */}
+      {annotations.some((a) => a.type === "arrow") && (
+        <svg
+          className="absolute inset-0 w-full h-full pointer-events-none"
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
+        >
+          <defs>
+            {["#16a34a", "#635BFF", "#7c3aed", "#ef4444", "#f59e0b"].map((c) => (
+              <marker
+                key={c}
+                id={`arrow-${c.replace("#", "")}`}
+                markerWidth="6"
+                markerHeight="6"
+                refX="5"
+                refY="3"
+                orient="auto"
+              >
+                <path d="M0,0 L0,6 L6,3 z" fill={c} />
+              </marker>
+            ))}
+          </defs>
+          {annotations
+            .filter((a): a is Extract<Annotation, { type: "arrow" }> => a.type === "arrow")
+            .map((ann, i) => {
+              const c = ann.color ?? "#7c3aed";
+              return (
+                <line
+                  key={i}
+                  x1={ann.x1}
+                  y1={ann.y1}
+                  x2={ann.x2}
+                  y2={ann.y2}
+                  stroke={c}
+                  strokeWidth="0.8"
+                  strokeLinecap="round"
+                  markerEnd={`url(#arrow-${c.replace("#", "")})`}
+                  filter="drop-shadow(0 1px 2px rgba(0,0,0,0.4))"
+                />
+              );
+            })}
+        </svg>
+      )}
 
       {annotations.length > 0 && (
         <div className="absolute inset-0 pointer-events-none">

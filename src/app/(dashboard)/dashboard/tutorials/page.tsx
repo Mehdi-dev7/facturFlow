@@ -49,8 +49,8 @@ export default function TutorialsPage() {
 		<div className="space-y-6">
 			{/* Header */}
 			<div>
-				<h1 className="text-3xl font-bold text-gradient mb-2">Tutoriels</h1>
-				<p className="text-slate-600 dark:text-slate-400">
+				<h1 className="text-2xl sm:text-3xl font-bold text-gradient mb-2">Tutoriels</h1>
+				<p className="text-slate-600 dark:text-slate-400 text-xs xs:text-sm">
 					Guides et tutoriels pour tirer le meilleur parti de FacturNow
 				</p>
 			</div>
@@ -74,7 +74,7 @@ export default function TutorialsPage() {
 									<>
 										<Video className={`h-4 w-4 shrink-0 mt-0.5 ${isActive ? "text-primary" : "text-slate-400"}`} />
 										<div className="flex-1 min-w-0">
-											<p className={`text-sm font-medium line-clamp-2 ${isActive ? "text-slate-900 dark:text-slate-100" : "text-slate-500 dark:text-slate-500"}`}>
+											<p className={`text-xs xs:text-sm font-medium line-clamp-2 ${isActive ? "text-slate-900 dark:text-slate-100" : "text-slate-500 dark:text-slate-500"}`}>
 												{tutorial.title}
 											</p>
 											<div className="flex items-center gap-2 mt-1">

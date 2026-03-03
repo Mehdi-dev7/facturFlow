@@ -24,6 +24,14 @@ const depositSchema = z.object({
   description: z.string().optional(),
   relatedQuoteId: z.string().optional(),
   notes: z.string().optional(),
+  // Choix des boutons de paiement dans l'email
+  paymentLinks: z
+    .object({
+      stripe: z.boolean().optional(),
+      paypal: z.boolean().optional(),
+      gocardless: z.boolean().optional(),
+    })
+    .optional(),
 });
 
 type DepositFormData = z.infer<typeof depositSchema>;
@@ -105,10 +113,11 @@ function mapToSavedDeposit(doc: PrismaDepositWithRelations): SavedDeposit {
     vatRate: metadata?.vatRate as number || 20,
     description: metadata?.description as string || "Acompte",
     clientId: doc.clientId,
+    // paymentLinks lus depuis businessMetadata (choix fait à la création)
     paymentLinks: {
-      stripe: true,
-      paypal: true,
-      sepa: true,
+      stripe: !!(metadata?.paymentLinks as Record<string, unknown>)?.stripe,
+      paypal: !!(metadata?.paymentLinks as Record<string, unknown>)?.paypal,
+      gocardless: !!(metadata?.paymentLinks as Record<string, unknown>)?.gocardless,
     },
     createdAt: doc.createdAt.toISOString(),
     updatedAt: doc.updatedAt.toISOString(),
@@ -158,6 +167,7 @@ export async function saveDraftDeposit(data: DepositFormData, draftId?: string) 
               vatRate,
               amount: data.amount,
               description: data.description ?? "Acompte",
+              paymentLinks: data.paymentLinks ?? {},
             },
             updatedAt: new Date(),
           },
@@ -186,6 +196,7 @@ export async function saveDraftDeposit(data: DepositFormData, draftId?: string) 
           vatRate,
           amount: data.amount,
           description: data.description ?? "Acompte",
+          paymentLinks: data.paymentLinks ?? {},
         },
       },
     });
@@ -266,6 +277,7 @@ export async function createDeposit(data: DepositFormData, draftId?: string) {
               vatRate: data.vatRate,
               amount: data.amount,
               description: data.description ?? "Acompte",
+              paymentLinks: data.paymentLinks ?? {},
             },
             updatedAt: new Date(),
           },
@@ -309,6 +321,7 @@ export async function createDeposit(data: DepositFormData, draftId?: string) {
             vatRate: data.vatRate,
             amount: data.amount,
             description: data.description ?? "Acompte",
+            paymentLinks: data.paymentLinks ?? {},
           },
         },
         include: depositInclude,
@@ -517,6 +530,7 @@ export async function updateDeposit(id: string, data: DepositFormData) {
           vatRate: data.vatRate,
           amount: data.amount,
           description: data.description,
+          paymentLinks: data.paymentLinks ?? {},
         },
       },
       include: depositInclude,

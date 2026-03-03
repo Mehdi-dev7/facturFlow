@@ -28,7 +28,7 @@ interface DepositFormData {
 	paymentLinks: {
 		stripe: boolean;
 		paypal: boolean;
-		sepa: boolean;
+		gocardless: boolean;
 	};
 }
 

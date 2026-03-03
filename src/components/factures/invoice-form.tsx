@@ -13,7 +13,6 @@ import {
 	Trash2,
 	Building2,
 	AlertCircle,
-	Link as LinkIcon,
 	Layers,
 	Tag,
 } from "lucide-react";
@@ -22,7 +21,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
 	Select,
 	SelectContent,
@@ -95,8 +93,8 @@ export function InvoiceForm({
 	const { fields, append, remove } = useFieldArray({ control, name: "lines" });
 
 	const [showCompanyModal, setShowCompanyModal] = useState(false);
-	const [showPaymentLinks, setShowPaymentLinks] = useState(false);
 
+	// État local des boutons de paiement actifs (toggle directs, sans checkbox parent)
 	const [activePayments, setActivePayments] = useState(() => {
 		const links = form.getValues("paymentLinks");
 		return {
@@ -105,16 +103,21 @@ export function InvoiceForm({
 			gocardless: !!(links?.gocardless),
 		};
 	});
-	const togglePayment = useCallback((key: "stripe" | "paypal" | "gocardless") => {
-		// Lire la valeur actuelle en dehors du callback setState pour éviter
-		// d'appeler setValue (qui déclenche un re-render) pendant la mise à jour d'état
-		setActivePayments((prev) => ({ ...prev, [key]: !prev[key] }));
-		setValue(
-			`paymentLinks.${key}`,
-			!activePayments[key] ? "enabled" : "",
-			{ shouldDirty: true }
-		);
-	}, [setValue, activePayments]);
+
+	const togglePayment = useCallback(
+		(key: "stripe" | "paypal" | "gocardless") => {
+			setActivePayments((prev) => {
+				const next = !prev[key];
+				setValue(
+					`paymentLinks.${key}` as "paymentLinks.stripe" | "paymentLinks.paypal" | "paymentLinks.gocardless",
+					next,
+					{ shouldDirty: true },
+				);
+				return { ...prev, [key]: next };
+			});
+		},
+		[setValue],
+	);
 
 	// ── Watch ──────────────────────────────────────────────────────────────
 	const lines = useWatch({ control, name: "lines" });
@@ -838,55 +841,67 @@ export function InvoiceForm({
 
 						{/* ── Liens de paiement ─────────────────────────── */}
 						<section className="space-y-3">
-							<div className="flex items-center gap-2">
-								<Checkbox
-									id="togglePayments"
-									checked={showPaymentLinks}
-									onCheckedChange={(v) => setShowPaymentLinks(!!v)}
-									className="border-2 border-violet-400 dark:border-violet-400 bg-white dark:bg-[#2a2254] data-[state=checked]:bg-violet-600 data-[state=checked]:border-violet-600 dark:data-[state=checked]:bg-violet-500 dark:data-[state=checked]:border-violet-500 data-[state=checked]:text-white"
-								/>
-								<Label
-									htmlFor="togglePayments"
-									className="flex items-center gap-1.5 cursor-pointer text-xs xs:text-sm font-medium text-slate-800 dark:text-slate-200"
+							<h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+								Liens de paiement
+							</h3>
+							<div className="flex flex-wrap gap-2 xs:gap-3">
+								{/* Stripe */}
+								<button
+									type="button"
+									onClick={() => togglePayment("stripe")}
+									className={`flex items-center gap-2 px-3 xs:px-4 py-2 xs:py-2.5 rounded-xl border-2 transition-all duration-300 cursor-pointer text-xs xs:text-sm font-semibold ${
+										activePayments.stripe
+											? "border-[#635BFF]/40 bg-linear-to-r from-[#635BFF]/10 to-[#7C3AED]/10 text-[#635BFF] dark:text-violet-300 shadow-sm"
+											: "border-dashed border-slate-300 dark:border-violet-400/20 text-slate-400 dark:text-violet-400/50 hover:border-[#635BFF]/40 hover:text-[#635BFF] dark:hover:border-violet-400/40"
+									}`}
 								>
-									<LinkIcon className="size-3.5" />
-									Liens de paiement
-								</Label>
+									<SiStripe className="size-3.5 xs:size-4" />
+									Stripe
+									{activePayments.stripe && (
+										<span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-linear-to-r from-[#635BFF] to-[#7C3AED] text-white">
+											Actif
+										</span>
+									)}
+								</button>
+
+								{/* PayPal */}
+								<button
+									type="button"
+									onClick={() => togglePayment("paypal")}
+									className={`flex items-center gap-2 px-3 xs:px-4 py-2 xs:py-2.5 rounded-xl border-2 transition-all duration-300 cursor-pointer text-xs xs:text-sm font-semibold ${
+										activePayments.paypal
+											? "border-[#003087]/30 bg-linear-to-r from-[#003087]/10 to-[#009CDE]/10 text-[#003087] dark:text-blue-300 shadow-sm"
+											: "border-dashed border-slate-300 dark:border-violet-400/20 text-slate-400 dark:text-violet-400/50 hover:border-[#003087]/30 hover:text-[#003087] dark:hover:border-blue-400/40"
+									}`}
+								>
+									<SiPaypal className="size-3.5 xs:size-4" />
+									PayPal
+									{activePayments.paypal && (
+										<span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-linear-to-r from-[#003087] to-[#009CDE] text-white">
+											Actif
+										</span>
+									)}
+								</button>
+
+								{/* GoCardless SEPA */}
+								<button
+									type="button"
+									onClick={() => togglePayment("gocardless")}
+									className={`flex items-center gap-2 px-3 xs:px-4 py-2 xs:py-2.5 rounded-xl border-2 transition-all duration-300 cursor-pointer text-xs xs:text-sm font-semibold ${
+										activePayments.gocardless
+											? "border-[#0F766E]/30 bg-linear-to-r from-[#0F766E]/10 to-[#059669]/10 text-[#0F766E] dark:text-emerald-300 shadow-sm"
+											: "border-dashed border-slate-300 dark:border-violet-400/20 text-slate-400 dark:text-violet-400/50 hover:border-[#0F766E]/30 hover:text-[#0F766E] dark:hover:border-emerald-400/40"
+									}`}
+								>
+									<span className="size-3.5 xs:size-4 flex items-center justify-center font-black text-[10px]">GC</span>
+									SEPA
+									{activePayments.gocardless && (
+										<span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-linear-to-r from-[#0F766E] to-[#059669] text-white">
+											Actif
+										</span>
+									)}
+								</button>
 							</div>
-							{showPaymentLinks && (
-								<div className="space-y-2">
-									<button
-										type="button"
-										onClick={() => togglePayment("stripe")}
-										className={`w-full flex items-center gap-3 rounded-xl px-4 py-3 transition-all duration-200 cursor-pointer ${activePayments.stripe ? "bg-gradient-to-r from-[#635BFF] to-[#7C3AED] hover:scale-[1.02] hover:shadow-lg hover:shadow-violet-500/30" : "bg-slate-100 dark:bg-slate-800/40 border-2 border-dashed border-slate-300 dark:border-slate-600/50"}`}
-										aria-pressed={activePayments.stripe}
-									>
-										<SiStripe className={`size-5 shrink-0 transition-colors ${activePayments.stripe ? "text-white" : "text-slate-400 dark:text-slate-500"}`} />
-										<span className={`text-xs xs:text-sm font-semibold transition-colors ${activePayments.stripe ? "text-white" : "text-slate-400 dark:text-slate-500"}`}>Payer par carte bancaire</span>
-										{activePayments.stripe && <span className="ml-auto text-[10px] bg-white/20 text-white rounded-full px-2 py-0.5 shrink-0">Actif</span>}
-									</button>
-									<button
-										type="button"
-										onClick={() => togglePayment("paypal")}
-										className={`w-full flex items-center gap-3 rounded-xl px-4 py-3 transition-all duration-200 cursor-pointer ${activePayments.paypal ? "bg-gradient-to-r from-[#003087] to-[#009CDE] hover:scale-[1.02] hover:shadow-lg hover:shadow-blue-500/30" : "bg-slate-100 dark:bg-slate-800/40 border-2 border-dashed border-slate-300 dark:border-slate-600/50"}`}
-										aria-pressed={activePayments.paypal}
-									>
-										<SiPaypal className={`size-5 shrink-0 transition-colors ${activePayments.paypal ? "text-white" : "text-slate-400 dark:text-slate-500"}`} />
-										<span className={`text-xs xs:text-sm font-semibold transition-colors ${activePayments.paypal ? "text-white" : "text-slate-400 dark:text-slate-500"}`}>Payer par PayPal</span>
-										{activePayments.paypal && <span className="ml-auto text-[10px] bg-white/20 text-white rounded-full px-2 py-0.5 shrink-0">Actif</span>}
-									</button>
-									<button
-										type="button"
-										onClick={() => togglePayment("gocardless")}
-										className={`w-full flex items-center gap-3 rounded-xl px-4 py-3 transition-all duration-200 cursor-pointer ${activePayments.gocardless ? "bg-gradient-to-r from-[#0F766E] to-[#059669] hover:scale-[1.02] hover:shadow-lg hover:shadow-teal-500/30" : "bg-slate-100 dark:bg-slate-800/40 border-2 border-dashed border-slate-300 dark:border-slate-600/50"}`}
-										aria-pressed={activePayments.gocardless}
-									>
-										<span className={`flex size-5 items-center justify-center rounded text-[9px] font-bold shrink-0 transition-colors ${activePayments.gocardless ? "bg-white/25 text-white" : "bg-slate-300 dark:bg-slate-600 text-slate-500 dark:text-slate-400"}`}>GC</span>
-										<span className={`text-xs xs:text-sm font-semibold transition-colors ${activePayments.gocardless ? "text-white" : "text-slate-400 dark:text-slate-500"}`}>Prélèvement SEPA</span>
-										{activePayments.gocardless && <span className="ml-auto text-[10px] bg-white/20 text-white rounded-full px-2 py-0.5 shrink-0">Actif</span>}
-									</button>
-								</div>
-							)}
 						</section>
 					</>
 				)}

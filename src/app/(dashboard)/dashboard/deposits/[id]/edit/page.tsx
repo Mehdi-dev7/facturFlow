@@ -27,7 +27,7 @@ const depositFormSchema = z.object({
   paymentLinks: z.object({
     stripe: z.boolean(),
     paypal: z.boolean(),
-    sepa: z.boolean(),
+    gocardless: z.boolean(),
   }),
 });
 
@@ -57,7 +57,7 @@ function toFormValues(d: SavedDeposit): Partial<DepositFormData> {
     paymentLinks: d.paymentLinks || {
       stripe: true,
       paypal: true,
-      sepa: true,
+      gocardless: true,
     },
   };
 }
@@ -91,7 +91,7 @@ export default function EditDepositPage() {
       paymentLinks: {
         stripe: true,
         paypal: true,
-        sepa: true,
+        gocardless: true,
       },
     },
   });

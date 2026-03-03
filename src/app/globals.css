@@ -339,12 +339,22 @@ body {
 
 	/* Animation highlight ligne récemment modifiée (PAID, OVERDUE, ACCEPTED, REJECTED) */
 	@keyframes row-highlight {
-		0%   { background-color: rgba(124, 58, 237, 0.18); }
-		60%  { background-color: rgba(124, 58, 237, 0.08); }
+		0%   { background-color: rgba(124, 58, 237, 0.25); }
+		60%  { background-color: rgba(124, 58, 237, 0.12); }
+		100% { background-color: transparent; }
+	}
+
+	@keyframes row-highlight-dark {
+		0%   { background-color: rgba(167, 139, 250, 0.35); }
+		60%  { background-color: rgba(167, 139, 250, 0.15); }
 		100% { background-color: transparent; }
 	}
 
 	.row-highlight {
 		animation: row-highlight 3.5s ease-out forwards;
+	}
+
+	.dark .row-highlight {
+		animation: row-highlight-dark 3.5s ease-out forwards;
 	}
 }

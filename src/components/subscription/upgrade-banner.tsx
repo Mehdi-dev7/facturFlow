@@ -138,33 +138,44 @@ export function UpgradeBanner({ plan, effectivePlan, trialDaysLeft, documentsThi
   return (
     <div
       role="banner"
-      className={`flex items-center gap-3 px-4 py-3 border rounded-xl text-sm mb-4 ${VARIANT_STYLES[config.variant]}`}
+      className={`flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 px-4 py-3 border rounded-xl text-xs lg-text-sm mb-4 ${VARIANT_STYLES[config.variant]}`}
     >
-      {/* Icône */}
-      {VARIANT_ICONS[config.variant]}
+      {/* Ligne 1 : icône + message + fermeture (mobile) */}
+      <div className="flex items-center gap-3 flex-1 min-w-0">
+        {VARIANT_ICONS[config.variant]}
+        <span className="flex-1 font-medium">{config.message}</span>
+        {/* Bouton fermeture aligné à droite sur mobile */}
+        {config.dismissible && (
+          <button
+            onClick={handleDismiss}
+            aria-label="Fermer"
+            className="shrink-0 p-1 rounded-md opacity-60 hover:opacity-100 transition-opacity sm:hidden"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
+      </div>
 
-      {/* Message */}
-      <span className="flex-1 font-medium">{config.message}</span>
-
-      {/* CTA */}
-      <button
-        onClick={handleUpgrade}
-        className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${VARIANT_BUTTON_STYLES[config.variant]}`}
-      >
-        {config.cta}
-        <ArrowRight className="h-3 w-3" />
-      </button>
-
-      {/* Bouton fermeture */}
-      {config.dismissible && (
+      {/* Ligne 2 mobile / inline desktop : CTA + fermeture */}
+      <div className="flex items-center gap-2 sm:gap-2">
         <button
-          onClick={handleDismiss}
-          aria-label="Fermer"
-          className="shrink-0 p-1 rounded-md opacity-60 hover:opacity-100 transition-opacity"
+          onClick={handleUpgrade}
+          className={`flex-1 sm:flex-none  flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${VARIANT_BUTTON_STYLES[config.variant]}`}
         >
-          <X className="h-4 w-4" />
+          {config.cta}
+          <ArrowRight className="h-3 w-3" />
         </button>
-      )}
+        {/* Bouton fermeture visible seulement sur desktop */}
+        {config.dismissible && (
+          <button
+            onClick={handleDismiss}
+            aria-label="Fermer"
+            className="shrink-0 p-1 rounded-md opacity-60 hover:opacity-100 transition-opacity hidden sm:block"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
+      </div>
     </div>
   );
 }

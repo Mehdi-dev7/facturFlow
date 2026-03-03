@@ -1,12 +1,14 @@
 "use server";
 
-// Server action : envoie un email de demande d'acompte via Resend (pas de PDF)
+// Server action : envoie un email de demande d'acompte via Resend
+// Inclut les boutons de paiement selon les choix faits à la création (businessMetadata.paymentLinks)
 
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { resend } from "@/lib/email/resend";
 import { prisma } from "@/lib/prisma";
+import { getStripeCredential } from "@/lib/actions/payments";
 
 export async function sendDepositEmail(depositId: string) {
   // 1. Vérifier la session
@@ -16,7 +18,7 @@ export async function sendDepositEmail(depositId: string) {
   }
 
   try {
-    // 2. Récupérer l'acompte depuis la DB avec client + user
+    // 2. Récupérer l'acompte depuis la DB avec client + user + infos bancaires
     const doc = await prisma.document.findFirst({
       where: { id: depositId, userId: session.user.id, type: "DEPOSIT" },
       include: {
@@ -32,6 +34,8 @@ export async function sendDepositEmail(depositId: string) {
           select: {
             companyName: true,
             companyEmail: true,
+            iban: true,
+            bic: true,
           },
         },
       },
@@ -41,7 +45,7 @@ export async function sendDepositEmail(depositId: string) {
       return { success: false, error: "Acompte introuvable" };
     }
 
-    // 3. Construire les données pour l'email
+    // 3. Construire les données de base
     const clientName =
       doc.client.companyName ??
       (`${doc.client.firstName ?? ""} ${doc.client.lastName ?? ""}`.trim() ||
@@ -63,7 +67,61 @@ export async function sendDepositEmail(depositId: string) {
         })
       : null;
 
-    // 4. Envoyer l'email HTML simple via Resend
+    // 4. Boutons de paiement : lire les choix stockés dans businessMetadata
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://facturnow.fr";
+    const isLocalhost = appUrl.includes("localhost") || appUrl.includes("127.0.0.1");
+
+    const metadata = doc.businessMetadata as Record<string, unknown> | null;
+    const savedPaymentLinks = (metadata?.paymentLinks ?? {}) as {
+      stripe?: boolean;
+      paypal?: boolean;
+      gocardless?: boolean;
+    };
+
+    let stripePaymentUrl: string | null = null;
+    let paypalPaymentUrl: string | null = null;
+    let sepaPaymentUrl: string | null = null;
+
+    if (!isLocalhost) {
+      if (savedPaymentLinks.stripe === true) {
+        try {
+          const stripeCred = await getStripeCredential(session.user.id);
+          if (stripeCred) {
+            stripePaymentUrl = `${appUrl}/api/pay/${depositId}`;
+          }
+        } catch (err) {
+          console.warn("[sendDepositEmail] Stripe check failed:", err);
+        }
+      }
+
+      if (savedPaymentLinks.paypal === true) {
+        try {
+          const { getPaypalCredential } = await import("@/lib/actions/payments");
+          const paypalCred = await getPaypalCredential(session.user.id);
+          if (paypalCred) {
+            paypalPaymentUrl = `${appUrl}/api/pay-paypal/${depositId}`;
+          }
+        } catch (err) {
+          console.warn("[sendDepositEmail] PayPal check failed:", err);
+        }
+      }
+
+      if (savedPaymentLinks.gocardless === true) {
+        try {
+          const gcAccount = await prisma.paymentAccount.findUnique({
+            where: { userId_provider: { userId: session.user.id, provider: "GOCARDLESS" } },
+            select: { isActive: true },
+          });
+          if (gcAccount?.isActive) {
+            sepaPaymentUrl = `${appUrl}/api/pay-sepa/${depositId}`;
+          }
+        } catch (err) {
+          console.warn("[sendDepositEmail] GoCardless check failed:", err);
+        }
+      }
+    }
+
+    // 5. Construire et envoyer l'email
     const html = `
       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">
         <div style="background: linear-gradient(135deg, #7c3aed, #4f46e5); padding: 24px; border-radius: 12px; margin-bottom: 24px;">
@@ -97,6 +155,47 @@ export async function sendDepositEmail(depositId: string) {
 
         ${doc.notes ? `<p style="color: #334155; font-size: 15px; line-height: 1.6;"><em>${doc.notes}</em></p>` : ""}
 
+        ${stripePaymentUrl || paypalPaymentUrl || sepaPaymentUrl ? `
+        <div style="text-align: center; margin: 32px 0;">
+          ${stripePaymentUrl ? `
+          <a href="${stripePaymentUrl}"
+             style="display: inline-block; background-color: #635BFF; color: #ffffff; text-decoration: none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 15px; font-weight: 600; padding: 12px 28px; border-radius: 6px; cursor: pointer; margin: 6px;">
+            Payer ${amount} par CB
+          </a>
+          <p style="color: #6b7280; font-size: 12px; margin-top: 6px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;">
+            Paiement sécurisé par <strong style="color: #635BFF;">Stripe</strong> &nbsp;·&nbsp; CB, Apple Pay, Google Pay
+          </p>
+          ` : ""}
+          ${paypalPaymentUrl ? `
+          <a href="${paypalPaymentUrl}"
+             style="display: inline-block; background-color: #003087; color: #ffffff; text-decoration: none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 15px; font-weight: 600; padding: 12px 28px; border-radius: 6px; cursor: pointer; margin: 6px;">
+            Payer ${amount} via PayPal
+          </a>
+          <p style="color: #6b7280; font-size: 12px; margin-top: 6px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;">
+            Paiement sécurisé par <strong style="color: #003087;">PayPal</strong>
+          </p>
+          ` : ""}
+          ${sepaPaymentUrl ? `
+          <a href="${sepaPaymentUrl}"
+             style="display: inline-block; background-color: #0854b3; color: #ffffff; text-decoration: none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 15px; font-weight: 600; padding: 12px 28px; border-radius: 6px; cursor: pointer; margin: 6px;">
+            Autoriser le prélèvement SEPA
+          </a>
+          <p style="color: #6b7280; font-size: 12px; margin-top: 6px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;">
+            Prélèvement sécurisé via <strong style="color: #0854b3;">GoCardless</strong> &nbsp;·&nbsp; Délai 2–5 jours ouvrés
+          </p>
+          ` : ""}
+        </div>
+        ` : ""}
+
+        ${doc.user.iban ? `
+        <div style="margin:20px 0;padding:16px;background:#f8f7ff;border-left:4px solid #7c3aed;border-radius:4px;">
+          <p style="margin:0 0 8px;font-weight:600;color:#7c3aed;">Paiement par virement bancaire</p>
+          <p style="margin:0;font-size:14px;color:#374151;">IBAN : ${doc.user.iban}</p>
+          ${doc.user.bic ? `<p style="margin:4px 0 0;font-size:14px;color:#374151;">BIC : ${doc.user.bic}</p>` : ""}
+          <p style="margin:4px 0 0;font-size:12px;color:#6b7280;">Référence : ${doc.number}</p>
+        </div>
+        ` : ""}
+
         <p style="color: #334155; font-size: 15px; line-height: 1.6;">
           N'hésitez pas à revenir vers nous si vous avez la moindre question.
         </p>
@@ -126,7 +225,7 @@ export async function sendDepositEmail(depositId: string) {
       return { success: false, error: "Erreur d'envoi : " + error.message };
     }
 
-    // 5. Passer le statut à SENT après envoi réussi
+    // 6. Passer le statut à SENT après envoi réussi
     if (doc.status !== "PAID") {
       await prisma.document.update({
         where: { id: depositId },

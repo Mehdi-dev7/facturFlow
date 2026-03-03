@@ -32,7 +32,7 @@ const depositFormSchema = z.object({
   paymentLinks: z.object({
     stripe: z.boolean(),
     paypal: z.boolean(),
-    sepa: z.boolean(),
+    gocardless: z.boolean(),
   }),
 });
 
@@ -82,7 +82,7 @@ export default function NewDepositPage() {
       paymentLinks: {
         stripe: true,
         paypal: false,
-        sepa: false,
+        gocardless: false,
       },
     },
   });

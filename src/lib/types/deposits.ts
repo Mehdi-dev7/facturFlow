@@ -48,7 +48,7 @@ export interface SavedDeposit {
   paymentLinks?: {
     stripe: boolean;
     paypal: boolean;
-    sepa: boolean;
+    gocardless: boolean;
   };
   createdAt?: string;
   updatedAt?: string;

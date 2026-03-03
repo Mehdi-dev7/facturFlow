@@ -103,19 +103,23 @@ function QuotesPageContent() {
   // Fetch real data
   const { data: allQuotes = [], isLoading } = useQuotes();
 
-  // IDs des devis récemment modifiés (ACCEPTED/REJECTED depuis <7j) → highlight 3.5s
+  // IDs des devis récemment modifiés (ACCEPTED/REJECTED depuis <7j) → highlight 3.5s une seule fois
   const [highlightedIds, setHighlightedIds] = useState<Set<string>>(new Set());
   useEffect(() => {
     if (!allQuotes.length) return;
     const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    const seen = new Set<string>(JSON.parse(sessionStorage.getItem("highlight_quotes") ?? "[]"));
     const ids = allQuotes
       .filter((q) =>
         ["ACCEPTED", "REJECTED"].includes(q.status) &&
         q.updatedAt &&
-        new Date(q.updatedAt).getTime() > sevenDaysAgo
+        new Date(q.updatedAt).getTime() > sevenDaysAgo &&
+        !seen.has(q.id)
       )
       .map((q) => q.id);
     if (!ids.length) return;
+    const newSeen = [...seen, ...ids];
+    sessionStorage.setItem("highlight_quotes", JSON.stringify(newSeen));
     setHighlightedIds(new Set(ids));
     const t = setTimeout(() => setHighlightedIds(new Set()), 3600);
     return () => clearTimeout(t);

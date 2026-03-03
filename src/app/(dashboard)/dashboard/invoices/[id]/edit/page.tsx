@@ -38,9 +38,16 @@ function toFormValues(inv: SavedInvoice): Partial<InvoiceFormData> {
 
 	const sortedLines = [...inv.lineItems].sort((a, b) => a.order - b.order);
 
-	const rawPaymentLinks = meta.paymentLinks as
-		| { stripe?: string; paypal?: string; gocardless?: string }
-		| undefined;
+	// Rétrocompatibilité : anciens enregistrements stockaient "enabled"|"" (strings),
+	// nouveaux stockent boolean. On normalise en boolean dans les deux cas.
+	const rawLinks = meta.paymentLinks as Record<string, unknown> | undefined;
+	const paymentLinks = rawLinks
+		? {
+			stripe: rawLinks.stripe === true || rawLinks.stripe === "enabled",
+			paypal: rawLinks.paypal === true || rawLinks.paypal === "enabled",
+			gocardless: rawLinks.gocardless === true || rawLinks.gocardless === "enabled",
+		  }
+		: undefined;
 
 	return {
 		clientId: inv.client.id,
@@ -58,7 +65,7 @@ function toFormValues(inv: SavedInvoice): Partial<InvoiceFormData> {
 		discountValue: inv.discount ?? 0,
 		depositAmount: inv.depositAmount ?? 0,
 		notes: inv.notes ?? "",
-		paymentLinks: rawPaymentLinks,
+		paymentLinks,
 	};
 }
 

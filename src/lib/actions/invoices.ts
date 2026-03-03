@@ -106,9 +106,9 @@ const saveSchema = z
     notes: z.string().optional(),
     paymentLinks: z
       .object({
-        stripe: z.string().optional(),
-        paypal: z.string().optional(),
-        gocardless: z.string().optional(),
+        stripe: z.boolean().optional(),
+        paypal: z.boolean().optional(),
+        gocardless: z.boolean().optional(),
       })
       .optional(),
   })

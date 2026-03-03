@@ -42,8 +42,8 @@ const STEPS: TutorialStep[] = [
 			'Rendez-vous sur stripe.com. Si vous avez déjà un compte, entrez votre email et mot de passe puis cliquez sur "Connexion". Sinon, cliquez sur "Créez un compte" en bas du formulaire pour en créer un.',
 		image: "/tutos/stripe/step-01.png",
 		annotations: [
-			{ type: "circle", cx: 50, cy: 92, r: 4, color: "#635BFF" },
-			{ type: "badge", x: 32, y: 96, text: "Créez un compte", color: "#635BFF" },
+			
+			{ type: "badge", x: 49, y: 70, text: "Créez un compte", color: "#635BFF" },
 		],
 	},
 	{
@@ -54,7 +54,7 @@ const STEPS: TutorialStep[] = [
 		tip: "Stripe vous demandera votre numéro de TVA. Trouvez-le sur annuaire-entreprises.data.gouv.fr en cherchant votre SIREN. Saisissez-le sans espaces (ex: FR15101077105). Si vous êtes en franchise de base, le champ est facultatif. Un site web est obligatoire — votre profil LinkedIn ou GitHub est accepté.",
 		image: "/tutos/stripe/step-02.png",
 		annotations: [
-			{ type: "circle", cx: 50, cy: 68, r: 6, color: "#635BFF" },
+			
 		],
 	},
 	{
@@ -65,7 +65,7 @@ const STEPS: TutorialStep[] = [
 		tip: "Ne confondez pas les clés Test (sk_test_...) et Live (sk_live_...). Seules les clés Live permettent d'encaisser de vrais paiements.",
 		image: "/tutos/stripe/step-03.png",
 		annotations: [
-			{ type: "circle", cx: 88, cy: 2, r: 3, color: "#16a34a" },
+			{ type: "arrow", x1: 72, y1: 6, x2: 88, y2: 3, color: "#16a34a" },
 			{ type: "badge", x: 60, y: 6, text: "Basculer en production", color: "#16a34a" },
 		],
 	},
@@ -78,10 +78,10 @@ const STEPS: TutorialStep[] = [
 		image: "/tutos/stripe/step-04.png",
 		annotations: [
 			// Masquer la clé publique visible
-			{ type: "mask", x: 72, y: 30, w: 22, h: 5, bg: "#f8f9fa" },
+			{ type: "mask", x: 79, y: 55, w: 15, h: 5, bg: "#1e293b" },
 			// Cercle sur l'icône œil de la clé secrète
-			{ type: "circle", cx: 97, cy: 42, r: 2, color: "#635BFF" },
-			{ type: "badge", x: 63, y: 46, text: "Cliquez ici pour révéler", color: "#635BFF" },
+			{ type: "circle", cx: 93, cy: 64, r: 2, color: "#635BFF" },
+			
 		],
 	},
 	{
@@ -91,8 +91,9 @@ const STEPS: TutorialStep[] = [
 			'Tout en bas du menu latéral gauche, cliquez sur "Développeurs". Un sous-menu s\'ouvre : cliquez sur "Webhooks" pour accéder à la page de gestion des webhooks.',
 		image: "/tutos/stripe/step-05.png",
 		annotations: [
-			{ type: "circle", cx: 50, cy: 23, r: 8, color: "#635BFF" },
-			{ type: "badge", x: 25, y: 34, text: "Webhooks", color: "#635BFF" },
+			{ type: "rect", x: 8, y: 17, w: 30, h: 5, color: "#16a34a" },
+			{ type: "mask", x: 63, y: 97, w: 35, h: 4, bg: "#1e293b" },
+			
 		],
 	},
 	{
@@ -102,7 +103,7 @@ const STEPS: TutorialStep[] = [
 			'Sur la page Webhooks, cliquez sur le bouton "+ Ajouter une destination" pour démarrer la création de votre webhook.',
 		image: "/tutos/stripe/step-06.png",
 		annotations: [
-			{ type: "circle", cx: 34, cy: 32, r: 7, color: "#635BFF" },
+			
 		],
 	},
 	{
@@ -113,11 +114,11 @@ const STEPS: TutorialStep[] = [
 		tip: "Cet événement se déclenche dès qu'un client finalise son paiement — c'est lui qui marque la facture PAYÉE dans FacturNow.",
 		image: "/tutos/stripe/step-07.png",
 		annotations: [
-			{ type: "circle", cx: 9, cy: 67, r: 4, color: "#635BFF" },
+			{ type: "circle", cx: 8, cy: 69, r: 3, color: "#635BFF" },
 			{
 				type: "badge",
-				x: 15,
-				y: 72,
+				x: 45,
+				y: 53,
 				text: "checkout.session.completed",
 				color: "#635BFF",
 			},
@@ -131,7 +132,7 @@ const STEPS: TutorialStep[] = [
 		code: "https://facturnow.fr/api/webhooks/stripe",
 		image: "/tutos/stripe/step-08.png",
 		annotations: [
-			{ type: "circle", cx: 50, cy: 38, r: 5, color: "#635BFF" },
+			{ type: "rect", x: 10, y: 32, w: 36, h: 4, color: "#16a34a" },
 		],
 	},
 	{
@@ -142,10 +143,10 @@ const STEPS: TutorialStep[] = [
 		image: "/tutos/stripe/step-09.png",
 		annotations: [
 			// Masquer l'ID de destination (sensible)
-			{ type: "mask", x: 63, y: 21, w: 28, h: 4, bg: "#ffffff" },
+			{ type: "mask", x: 63, y: 38, w: 28, h: 4, bg: "#1e293b" },
 			// Encadrer la section Clé secrète
-			{ type: "rect", x: 62, y: 66, w: 36, h: 14, color: "#16a34a" },
-			{ type: "badge", x: 63, y: 82, text: "Copiez ce Webhook Secret", color: "#16a34a" },
+			{ type: "rect", x: 65, y: 64, w: 34, h: 20, color: "#16a34a" },
+			{ type: "badge", x: 43, y: 82, text: "Copiez ce Webhook Secret", color: "#16a34a" },
 		],
 	},
 ];

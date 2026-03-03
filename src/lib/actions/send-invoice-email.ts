@@ -126,47 +126,65 @@ export async function sendInvoiceEmail(
       },
     };
 
-    // 4. Vérifier Stripe + PayPal + GoCardless → URLs de paiement dans l'email
+    // 4. Construire les URLs de paiement : uniquement si le provider est connecté
+    //    ET si l'utilisateur a activé ce bouton lors de la création de la facture.
     const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://facturnow.fr";
     // En dev (localhost), on n'inclut pas les boutons de paiement :
     // les URLs localhost sont un signal spam massif pour Gmail.
     const isLocalhost = appUrl.includes("localhost") || appUrl.includes("127.0.0.1");
+
+    // Lire les choix de l'utilisateur stockés dans businessMetadata
+    const savedPaymentLinks = (invoice.businessMetadata?.paymentLinks ?? {}) as {
+      stripe?: boolean;
+      paypal?: boolean;
+      gocardless?: boolean;
+    };
+
     let stripePaymentUrl: string | null = null;
     let paypalPaymentUrl: string | null = null;
     let sepaPaymentUrl:   string | null = null;
 
     if (!isLocalhost) {
-      try {
-        const stripeCred = await getStripeCredential(session.user.id);
-        if (stripeCred) {
-          stripePaymentUrl = `${appUrl}/api/pay/${invoiceId}`;
+      // Stripe : uniquement si activé par l'user ET provider connecté
+      if (savedPaymentLinks.stripe === true) {
+        try {
+          const stripeCred = await getStripeCredential(session.user.id);
+          if (stripeCred) {
+            stripePaymentUrl = `${appUrl}/api/pay/${invoiceId}`;
+          }
+        } catch (err) {
+          console.warn("[sendInvoiceEmail] Stripe check failed:", err);
         }
-      } catch (err) {
-        console.warn("[sendInvoiceEmail] Stripe check failed:", err);
       }
 
-      try {
-        const { getPaypalCredential } = await import("@/lib/actions/payments");
-        const paypalCred = await getPaypalCredential(session.user.id);
-        if (paypalCred) {
-          paypalPaymentUrl = `${appUrl}/api/pay-paypal/${invoiceId}`;
+      // PayPal : uniquement si activé par l'user ET provider connecté
+      if (savedPaymentLinks.paypal === true) {
+        try {
+          const { getPaypalCredential } = await import("@/lib/actions/payments");
+          const paypalCred = await getPaypalCredential(session.user.id);
+          if (paypalCred) {
+            paypalPaymentUrl = `${appUrl}/api/pay-paypal/${invoiceId}`;
+          }
+        } catch (err) {
+          console.warn("[sendInvoiceEmail] PayPal check failed:", err);
         }
-      } catch (err) {
-        console.warn("[sendInvoiceEmail] PayPal check failed:", err);
       }
 
-      try {
-        const gcAccount = await import("@/lib/prisma").then(({ prisma }) =>
-          prisma.paymentAccount.findUnique({
-            where: { userId_provider: { userId: session.user.id, provider: "GOCARDLESS" } },
-            select: { isActive: true },
-          })
-        );
-        if (gcAccount?.isActive) {
-          sepaPaymentUrl = `${appUrl}/api/pay-sepa/${invoiceId}`;
+      // GoCardless : uniquement si activé par l'user ET provider connecté
+      if (savedPaymentLinks.gocardless === true) {
+        try {
+          const gcAccount = await import("@/lib/prisma").then(({ prisma }) =>
+            prisma.paymentAccount.findUnique({
+              where: { userId_provider: { userId: session.user.id, provider: "GOCARDLESS" } },
+              select: { isActive: true },
+            })
+          );
+          if (gcAccount?.isActive) {
+            sepaPaymentUrl = `${appUrl}/api/pay-sepa/${invoiceId}`;
+          }
+        } catch (err) {
+          console.warn("[sendInvoiceEmail] GoCardless check failed:", err);
         }
-      } catch (err) {
-        console.warn("[sendInvoiceEmail] GoCardless check failed:", err);
       }
     }
 
