@@ -115,7 +115,7 @@ export async function sendDepositEmail(depositId: string) {
     `;
 
     const { error } = await resend.emails.send({
-      from: `${emitterName} <noreply@resend.dev>`,
+      from: process.env.RESEND_FROM_EMAIL ?? `${emitterName} <noreply@facturnow.fr>`,
       to: [doc.client.email],
       subject: `Demande d'acompte ${doc.number} - ${amount}`,
       html,

@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { receiptSchema } from "@/lib/types/receipts";
+import { canCreateDocument } from "@/lib/feature-gate";
 import type { SavedReceipt, ReceiptPaymentMethod } from "@/lib/types/receipts";
 
 // ─── Prisma include + mapper ─────────────────────────────────────────────────
@@ -119,6 +120,15 @@ export async function createReceipt(data: z.infer<typeof receiptSchema>) {
     return { success: false, error: "Non authentifié" } as const;
   }
   const userId = session.user.id;
+
+  // Vérifier la limite de documents selon le plan (FREE = 10/mois)
+  const { allowed, count: docCount, max: docMax } = await canCreateDocument(userId);
+  if (!allowed) {
+    return {
+      success: false,
+      error: `Limite de ${docMax} documents/mois atteinte (${docCount}/${docMax}). Passez au plan Pro pour continuer.`,
+    } as const;
+  }
 
   // Validation côté serveur
   try {

@@ -15,6 +15,7 @@ import {
 	type SavedQuote,
 } from "@/lib/actions/quotes";
 import type { QuoteFormData } from "@/lib/validations/quote";
+import { useUpgradeStore } from "@/stores/use-upgrade-store";
 
 // Re-export pour faciliter l'import depuis d'autres fichiers
 export type { SavedQuote };
@@ -64,6 +65,7 @@ export function useQuote(id: string | null) {
 export function useCreateQuote() {
 	const queryClient = useQueryClient();
 	const router = useRouter();
+	const openUpgradeModal = useUpgradeStore((s) => s.openUpgradeModal);
 
 	return useMutation({
 		mutationFn: ({
@@ -79,12 +81,15 @@ export function useCreateQuote() {
 				toast.success("Devis créé !");
 				router.push(`/dashboard/quotes?preview=${result.data.id}`);
 			} else if (!result.success) {
+				if (result.error?.includes("Limite") || result.error?.includes("plan Pro")) {
+					openUpgradeModal("unlimited_documents");
+					return;
+				}
 				const details = (result as { details?: { message: string }[] }).details;
 				const detail = details?.[0]?.message;
 				toast.error(result.error ?? "Erreur lors de la création", {
 					description: detail ?? undefined,
 				});
-				console.error("[createQuote] Erreur serveur:", result.error, details);
 			}
 		},
 		onError: () => toast.error("Erreur lors de la création du devis"),

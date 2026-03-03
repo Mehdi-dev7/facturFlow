@@ -426,30 +426,32 @@ einvoiceSentAt DateTime? // Date d'envoi électronique
 - **Business (29€/mois)** : inclus sans limite (coût absorbé par FacturNow)
 - **Pro (14€/mois)** : 100 factures électroniques gratuites/mois, ensuite à décider
 
-## Pricing (Validated)
+## Pricing (Validé 02/03/2026)
 
 ### Free
-- 14 days Pro trial
-- Then: 10 documents/month, 5 clients, 1 user
-- Basic PDF, manual payment only
+- Trial 7 jours Pro (anti-cheat IP, 30j)
+- 10 documents/mois, 5 clients
+- Virement bancaire uniquement (IBAN affiché)
+- 5 e-invoices SuperPDP/mois
+- PDF basique
 
-### Pro - 14€/month
-- Unlimited documents/clients
-- SEPA Direct Debit (GoCardless) 🔥
-- Recurring invoices
-- Automatic reminders
-- 9 business templates
-- CB & PayPal payments
-- Annual reports & URSSAF docs
-- Facture électronique certifiée (100/mois incluses via SuperPDP)
+### Pro - 9,99€/mois (ou annuel -20%)
+- Documents & clients illimités
+- Stripe CB/Apple Pay/Google Pay
+- PayPal
+- SEPA GoCardless 🔥
+- Relances automatiques (3 niveaux)
+- Factures récurrentes
+- Export CSV
+- E-invoicing SuperPDP inclus (limité)
 
-### Business - 29€/month
-- All Pro features
-- Multi-users (3 accounts)
+### Business - 25€/mois (ou annuel -20%)
+- Tout Pro +
+- Multi-users (3 comptes)
+- Export comptable FEC + URSSAF
+- E-invoicing illimité (SuperPDP absorbé) 🏛️
 - API & Webhooks
-- Facture électronique certifiée illimitée (SuperPDP, absorbé) 🏛️
-- Priority support
-- Advanced exports
+- Support prioritaire
 
 ## Important Workflows
 
@@ -655,58 +657,59 @@ Utilise les agents quand :
 - Le gain de temps est significatif par rapport au mode solo
 ## État du Projet & Reste à faire
 
-### Fonctionnalités implémentées
-- [x] Auth (login, signup, OAuth Google/GitHub/Microsoft)
-- [x] Dashboard layout + sidebar (Templates retiré de Personnalisation)
-- [x] Factures — CRUD complet, PDF, email Resend, statuts, cron OVERDUE
-- [x] Devis — CRUD complet, email Resend (boutons Accepter/Refuser), statuts, cron CANCELLED
-- [x] Acomptes — CRUD complet, email Resend, automation depuis devis accepté, statuts, branché DB (page new + liste)
-- [x] Clients — CRUD complet, modale création/édition, SIRET lookup
+### Fonctionnalités implémentées ✅
+- [x] Auth (login, signup, OAuth Google/GitHub) — Microsoft OAuth à activer
+- [x] Dashboard layout + sidebar avec notification dots (rouges, animate-ping)
+- [x] Factures — CRUD complet, PDF, email Resend, statuts, cron OVERDUE, row highlight 3.5s
+- [x] Devis — CRUD complet, email Resend (boutons Accepter/Refuser tokens), statuts, cron CANCELLED
+- [x] Acomptes — CRUD complet, email Resend, automation depuis devis accepté, DB branché
+- [x] Clients — CRUD complet, modale Dialog, SIRET lookup
 - [x] E-invoicing SuperPDP — API intégrée (sendEInvoice + cron sync + badge UI)
-- [x] Reçus — génération PDF instantané + liste reçus manuels
-- [x] Apparence — page settings (themeColor, companyFont, companyLogo) appliquée en temps réel sur les previews facture/devis/acompte
-- [x] Paiements Stripe — connexion clé API, génération lien Checkout, bouton dans email, webhook → facture PAID
+- [x] Reçus — PDF instantané + liste manuels
+- [x] Apparence — themeColor, companyFont, companyLogo, previews temps réel
+- [x] Paiements Stripe — clé API user, Checkout, webhook PAID, email bouton ✅ testé en live
+- [x] Paiements PayPal — create order, capture, webhook, email bouton ✅ testé en live
+- [x] Paiements GoCardless — mandats SEPA, webhook PAID, email bouton ⚡ à tester sandbox
+- [x] Relances auto — 3 niveaux (FRIENDLY/FIRM/FORMAL), cron nightly J+2/J+7/J+15
+- [x] Système abonnements — Free/Pro 9,99€/Business 25€, trial 7j anti-cheat IP, feature-gate, guards, UpgradeBanner/FeatureGate, webhook Stripe subscription, page /dashboard/subscription
+- [x] IBAN/BIC — Mon Entreprise + PDF facture + email Resend
+- [x] Notification dots sidebar — rouge animate-ping, disparition au clic, row highlight 3.5s
+- [x] Pages légales (mentions, RGPD, CGU/CGV) + Formulaire contact/support
 
 ### Bugs connus
-- [ ] **Bug envoi facture électronique** : l'envoi via SuperPDP échoue dans certains cas — investiguer les logs, vérifier seller.electronic_address et le flux convert → send
-- [ ] **Retester e-invoicing SuperPDP sandbox** (mars 2026) — l'envoi était en échec en sandbox, retester de zéro avec un vrai SIREN de test et vérifier chaque étape (convert → send → polling statut)
-- [ ] **Vérifier webhooks SuperPDP** (mars 2026) — consulter la doc/changelog SuperPDP pour voir s'ils ont ajouté le support des webhooks ; si oui, remplacer le polling cron par des webhooks pour une sync temps réel
+- [ ] **Bug SuperPDP** : envoi e-invoicing échoue dans certains cas — investiguer logs, vérifier seller.electronic_address et flux convert → send
+- [ ] **STRIPE_SECRET_KEY** manquante dans Vercel — ⚡ à ajouter (clé plateforme pour abonnements)
 
-### Reste à faire — App
+### Pricing (validé 02/03/2026)
 
-- [ ] **Mon Compte** : ajouter page profil (email, téléphone, avatar), garder "Mon entreprise"
-- [ ] **Documents complémentaires** : avoirs (CREDIT_NOTE), bons de commande (PURCHASE_ORDER), bons de livraison (DELIVERY_NOTE), proforma (PROFORMA)
-- [ ] **Dots / badges d'action** : indicateurs visuels sur les listes factures, devis et acomptes
-  - Point rouge si action requise (DRAFT non envoyé, OVERDUE)
-  - Point vert si événement positif (PAID, ACCEPTED)
-  - Point orange si info (SENT, REMINDED)
-  - Applicable aussi aux notifications sidebar
-- [x] **Paiements PayPal** : intégré (create order, capture, webhook, email) — ✅ testé en live, OK
-- [x] **Paiements GoCardless** : mandats SEPA (Billing Request + Flow), webhook mandates.active → gcMandateId sur Client + payments.confirmed → PAID, bouton SEPA dans email, page /public/paiement-confirme — ⚡ À TESTER en sandbox (manage.gocardless.com, token sandbox_xxx)
-- [ ] **Factures récurrentes** : page /dashboard/recurring, génération auto via cron
-- [x] **Relances automatiques** : 3 niveaux (FRIENDLY/FIRM/FORMAL), cron sur dueDate — templates email + cron nightly + Reminder model DB (J+2/J+7/J+15)
-- [ ] **Statistiques** : page /dashboard/stats — CA, TVA collectée, exports URSSAF/FEC
-- [x] **Système d'abonnements** : Free/Pro/Business, Stripe Checkout, trial 7j anti-cheat IP, feature-gate, guards, UpgradeBanner/FeatureGate — reste à créer les prices Stripe dashboard + db push prod
-  - Mensuel et annuel avec réduction (ex: -20%)
-  - Gestion du plan actif par user (feature gating)
-  - Webhooks pour activation/annulation/renouvellement
-  - Page `/dashboard/subscription` avec résumé plan + historique factures
-- [x] **Pages légales** : Mentions légales, Politique de confidentialité (RGPD), CGU/CGV — routes `/public/legal/mentions|privacy|cgv`, infos complétées
-- [x] **Formulaire contact/support** : page `/dashboard/contact` + action `send-contact-email.ts` (Resend)
+**FREE** : 10 docs/mois, 5 clients, virement bancaire uniquement, 5 e-invoices SuperPDP
+**PRO — 9,99€/mois** (ou annuel -20%) : illimité, Stripe/PayPal/GoCardless, relances auto, templates, SEPA
+**BUSINESS — 25€/mois** : tout Pro + multi-users (3), export CSV comptable, e-invoicing illimité, API/webhooks
 
-### Reste à faire — Onboarding & Marketing
+### Reste à faire — App (02/03/2026)
 
-- [ ] **Tutoriels intégrés** : guides pas-à-pas dans le dashboard (section Aide ou `/dashboard/help`)
-  - Comment créer son premier client
-  - Comment créer et envoyer une facture
-  - Comment créer un devis et le convertir en facture
-  - Comment connecter Stripe / PayPal / GoCardless (créer un compte, récupérer les clés, coller dans FacturNow)
-  - Comment activer le prélèvement SEPA automatique
-  - Format : steps illustrés avec captures/GIFs, style "product tour"
-- [ ] **Landing page — animation hero** : petite animation ou image animée (Lottie / CSS / vidéo courte) montrant en 5-10s ce que fait FacturNow (créer facture → envoyer → client paie → PAID automatique)
-- [ ] **Démo vidéo** : vidéo de 1min à 1min30 pour le bouton "Voir la démo" sur la landing page
-  - Scénario : création facture, envoi client, paiement SEPA automatique, dashboard stats
-  - Format : screen recording avec voix-off ou sous-titres, montage propre
+- [ ] **Responsive xs** : revoir toute l'app — tutoriels Stripe/PayPal, preview acompte/facture uniforme
+- [ ] **Boutons paiement dans form facture** : afficher par provider connecté lors de la création
+- [ ] **Style email paiement** : responsive mobile des emails avec boutons Stripe/PayPal/SEPA
+- [ ] **OAuth Microsoft** : activer le provider (MICROSOFT_CLIENT_ID/SECRET dans .env + Vercel)
+- [ ] **Export CSV** (Pro) : factures, CA, TVA — page /dashboard/stats
+- [ ] **Export comptable** (Business) : FEC, URSSAF, attestations
+- [ ] **Statistiques** : page /dashboard/stats — CA, TVA, graphiques mensuels
+- [ ] **Factures récurrentes** : page /dashboard/recurring + cron
+- [ ] **Documents complémentaires** : avoirs, bons de commande, bons de livraison, proforma
+- [ ] **Mon Compte** : page profil (email, téléphone, avatar)
+- [ ] **PWA mobile** : manifest + service worker, encadré sidebar "Installer l'app" + prompt après X jours d'utilisation (Pro/Business uniquement)
+- [ ] **Tutoriels intégrés** : /dashboard/help — steps Stripe/PayPal/GoCardless/SEPA (format product tour)
+
+### Reste à faire — Qualité & Lancement
+
+- [ ] **SEO audit** : métadonnées, sitemap, og:image, structured data
+- [ ] **Security audit** : CSP headers, rate limiting, XSS, CSRF
+- [ ] **Tests unitaires** : agent spécial — calculs, feature-gate, webhooks critiques
+- [ ] **Test complet live .fr** : parcours complet en production
+- [ ] **Google Search Console** : soumettre sitemap
+- [ ] **Google Ads** : campagne de lancement
+- [ ] **Lancement officiel** 🚀
 
 ---
 

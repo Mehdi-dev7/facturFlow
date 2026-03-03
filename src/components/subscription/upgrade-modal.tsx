@@ -76,7 +76,7 @@ const PRO_HIGHLIGHTS = [
   "Relances automatiques",
   "Factures récurrentes",
   "Statistiques & export CSV",
-  "Facturation électronique certifiée (100/mois)",
+  "Facturation électronique certifiée",
 ];
 
 // Features supplémentaires Business
@@ -93,7 +93,7 @@ export function UpgradeModal({ open, onClose, feature }: UpgradeModalProps) {
   const requiredPlan = FEATURE_REQUIRED_PLAN[feature] ?? "PRO";
   const isPro = requiredPlan === "PRO";
 
-  const price = isPro ? "14€/mois" : "29€/mois";
+  const price = isPro ? "9,99€/mois" : "25€/mois";
   const highlights = isPro ? PRO_HIGHLIGHTS : BUSINESS_HIGHLIGHTS;
   const featureLabel = FEATURE_LABELS[feature] ?? feature;
 
@@ -142,7 +142,7 @@ export function UpgradeModal({ open, onClose, feature }: UpgradeModalProps) {
         <div className="flex flex-col gap-2 pb-2">
           <Button
             variant="gradient"
-            className="w-full gap-2"
+            className="w-full gap-2 cursor-pointer"
             onClick={() => { window.location.href = "/dashboard/subscription"; }}
           >
             <Sparkles className="h-4 w-4" />
@@ -151,7 +151,7 @@ export function UpgradeModal({ open, onClose, feature }: UpgradeModalProps) {
           </Button>
           <Button
             variant="ghost"
-            className="w-full text-slate-500 dark:text-slate-400"
+            className="w-full text-slate-500 dark:text-slate-400 cursor-pointer"
             onClick={onClose}
           >
             Pas maintenant

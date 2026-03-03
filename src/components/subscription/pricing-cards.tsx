@@ -80,8 +80,6 @@ export function PricingCards({ currentPlan, effectivePlan, stripeSubId }: Pricin
   const [cancelling, setCancelling] = useState(false);
 
   // Prix selon l'intervalle
-  // PRO : 9,99€/mois ou 7,99€/mois annuel (économie ~20%)
-  // BUSINESS : 25€/mois ou 19,99€/mois annuel (économie ~20%)
   const proPrice = interval === "yearly" ? "7,99€" : "9,99€";
   const businessPrice = interval === "yearly" ? "19,99€" : "25€";
   const proAnnualNote = interval === "yearly" ? "facturé 95,88€/an" : null;
@@ -132,7 +130,6 @@ export function PricingCards({ currentPlan, effectivePlan, stripeSubId }: Pricin
           Mensuel
         </span>
 
-        {/* Toggle */}
         <button
           role="switch"
           aria-checked={interval === "yearly"}
@@ -148,7 +145,6 @@ export function PricingCards({ currentPlan, effectivePlan, stripeSubId }: Pricin
           Annuel
         </span>
 
-        {/* Badge économie */}
         {interval === "yearly" && (
           <motion.span
             initial={{ opacity: 0, scale: 0.8 }}
@@ -160,180 +156,184 @@ export function PricingCards({ currentPlan, effectivePlan, stripeSubId }: Pricin
         )}
       </div>
 
-      {/* Grille des 3 plans */}
-      <div className="grid lg:grid-cols-3 gap-6 lg:gap-5 xl:gap-8 items-start">
+      {/* Grille des 3 plans — items-stretch pour hauteur uniforme */}
+      <div className="grid lg:grid-cols-3 gap-6 lg:gap-5 xl:gap-8 items-stretch">
 
         {/* ── FREE ── */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0 }}
-          className={`relative rounded-2xl border-2 overflow-hidden shadow-sm transition-all ${
-            isFree
-              ? "border-emerald-400 dark:border-emerald-600 shadow-emerald-100 dark:shadow-emerald-900/20"
-              : "border-slate-200 dark:border-slate-700"
-          }`}
-        >
+        {/* pt-6 réserve l'espace pour le badge au-dessus de la card */}
+        <div className="relative pt-4 flex flex-col">
           {isFree && (
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+            <div className="absolute top-1 left-1/2 -translate-x-1/2 z-10 whitespace-nowrap">
               <div className="bg-emerald-500 text-white px-3 py-1 rounded-full text-[11px] font-bold flex items-center gap-1">
                 <CheckCircle className="h-3 w-3" /> Plan actuel
               </div>
             </div>
           )}
-
-          <div className="bg-linear-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-6 space-y-5">
-            {/* Header */}
-            <div className="text-center space-y-1">
-              <div className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-slate-200 dark:bg-slate-700 mb-2">
-                <Star className="h-5 w-5 text-slate-600 dark:text-slate-400" />
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0 }}
+            className={`flex-1 rounded-2xl border-2 overflow-hidden shadow-sm transition-all flex flex-col ${
+              isFree
+                ? "border-emerald-400 dark:border-emerald-600 shadow-emerald-100 dark:shadow-emerald-900/20"
+                : "border-slate-200 dark:border-slate-700"
+            }`}
+          >
+            <div className="bg-linear-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-6 space-y-5 flex flex-col flex-1">
+              {/* Header */}
+              <div className="text-center space-y-1">
+                <div className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-slate-200 dark:bg-slate-700 mb-2">
+                  <Star className="h-5 w-5 text-slate-600 dark:text-slate-400" />
+                </div>
+                <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">Gratuit</h3>
+                <p className="text-xs text-slate-500">Découverte · Essai inclus</p>
+                <div className="pt-2">
+                  <span className="text-3xl font-bold text-slate-900 dark:text-slate-100">0€</span>
+                  <span className="text-slate-500 text-sm ml-1">/ mois</span>
+                </div>
+                <p className="text-xs text-slate-500">7 jours d&apos;essai Pro inclus</p>
               </div>
-              <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">Gratuit</h3>
-              <p className="text-xs text-slate-500">Découverte · Essai inclus</p>
-              <div className="pt-2">
-                <span className="text-3xl font-bold text-slate-900 dark:text-slate-100">0€</span>
-                <span className="text-slate-500 text-sm ml-1">/ mois</span>
+
+              {/* Features */}
+              <div className="space-y-2 flex-1">
+                {PLAN_FEATURES.FREE.map((f) => <FeatureRow key={f.label} {...f} />)}
               </div>
-              <p className="text-xs text-slate-500">7 jours d&apos;essai Pro inclus</p>
-            </div>
 
-            {/* Features */}
-            <div className="space-y-2">
-              {PLAN_FEATURES.FREE.map((f) => <FeatureRow key={f.label} {...f} />)}
+              {/* CTA — toujours en bas grâce à mt-auto */}
+              <Button variant="outline" className="w-full mt-auto cursor-not-allowed dark:text-slate-200" disabled>
+                {isFree ? "Plan actuel" : "Non disponible"}
+              </Button>
             </div>
-
-            {/* CTA */}
-            <Button variant="outline" className="w-full" disabled>
-              {isFree ? "Plan actuel" : "Non disponible"}
-            </Button>
-          </div>
-        </motion.div>
+          </motion.div>
+        </div>
 
         {/* ── PRO ── */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.05 }}
-          className={`relative rounded-2xl border-2 overflow-hidden shadow-lg transition-all lg:scale-[1.03] ${
-            isPro
-              ? "border-emerald-400 dark:border-emerald-600 shadow-emerald-100 dark:shadow-emerald-900/20"
-              : "border-primary/50 dark:border-primary/70 ring-2 ring-primary/20 dark:ring-primary/30"
-          }`}
-        >
-          {/* Badge "Le plus populaire" */}
+        <div className="relative pt-4 flex flex-col">
           {!isPro && (
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+            <div className="absolute top-[-2] left-1/2 -translate-x-1/2 z-10 whitespace-nowrap">
               <div className="bg-primary text-white px-3 py-1 rounded-full text-[11px] font-bold flex items-center gap-1">
                 <Sparkles className="h-3 w-3" /> Le plus populaire
               </div>
             </div>
           )}
           {isPro && (
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+            <div className="absolute top-[-2] left-1/2 -translate-x-1/2 z-10 whitespace-nowrap">
               <div className="bg-emerald-500 text-white px-3 py-1 rounded-full text-[11px] font-bold flex items-center gap-1">
                 <CheckCircle className="h-3 w-3" /> Plan actuel
               </div>
             </div>
           )}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.05 }}
+            className={`flex-1 rounded-2xl border-2 overflow-hidden shadow-lg transition-all flex flex-col lg:scale-[1.03] ${
+              isPro
+                ? "border-emerald-400 dark:border-emerald-600 shadow-emerald-100 dark:shadow-emerald-900/20"
+                : "border-primary/50 dark:border-primary/70 ring-2 ring-primary/20 dark:ring-primary/30"
+            }`}
+          >
+            <div className="bg-linear-to-br from-primary/10 via-violet-50 to-primary/5 dark:from-primary/20 dark:via-[#1e1845] dark:to-primary/10 p-6 space-y-5 flex flex-col flex-1">
+              {/* Header */}
+              <div className="text-center space-y-1">
+                <div className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-primary/20 dark:bg-primary/30 mb-2">
+                  <Zap className="h-5 w-5 text-primary" />
+                </div>
+                <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">Pro</h3>
+                <p className="text-xs text-slate-500">Freelances · Auto-entrepreneurs · PME</p>
+                <div className="pt-2">
+                  <span className="text-3xl font-bold text-gradient">{proPrice}</span>
+                  <span className="text-slate-500 text-sm ml-1">/ mois</span>
+                </div>
+                {proAnnualNote && (
+                  <p className="text-xs text-slate-400">{proAnnualNote}</p>
+                )}
+              </div>
 
-          <div className="bg-linear-to-br from-primary/10 via-violet-50 to-primary/5 dark:from-primary/20 dark:via-[#1e1845] dark:to-primary/10 p-6 space-y-5">
-            {/* Header */}
-            <div className="text-center space-y-1">
-              <div className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-primary/20 dark:bg-primary/30 mb-2">
-                <Zap className="h-5 w-5 text-primary" />
+              {/* Features */}
+              <div className="space-y-2 flex-1">
+                {PLAN_FEATURES.PRO.map((f) => <FeatureRow key={f.label} {...f} />)}
               </div>
-              <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">Pro</h3>
-              <p className="text-xs text-slate-500">Freelances · Auto-entrepreneurs · PME</p>
-              <div className="pt-2">
-                <span className="text-3xl font-bold text-gradient">{proPrice}</span>
-                <span className="text-slate-500 text-sm ml-1">/ mois</span>
-              </div>
-              {proAnnualNote && (
-                <p className="text-xs text-slate-400">{proAnnualNote}</p>
+
+              {/* CTA */}
+              {isPro ? (
+                <Button variant="outline" className="w-full mt-auto cursor-not-allowed" disabled>
+                  Plan actuel
+                </Button>
+              ) : (
+                <Button
+                  variant="gradient"
+                  className="w-full gap-2 mt-auto cursor-pointer"
+                  disabled={loadingPlan === "PRO"}
+                  onClick={() => handleCheckout("PRO")}
+                >
+                  {loadingPlan === "PRO" ? "Redirection..." : "Choisir ce plan"}
+                </Button>
               )}
             </div>
-
-            {/* Features */}
-            <div className="space-y-2">
-              {PLAN_FEATURES.PRO.map((f) => <FeatureRow key={f.label} {...f} />)}
-            </div>
-
-            {/* CTA */}
-            {isPro ? (
-              <Button variant="outline" className="w-full" disabled>
-                Plan actuel
-              </Button>
-            ) : (
-              <Button
-                variant="gradient"
-                className="w-full gap-2"
-                disabled={loadingPlan === "PRO"}
-                onClick={() => handleCheckout("PRO")}
-              >
-                {loadingPlan === "PRO" ? "Redirection..." : "Choisir ce plan"}
-              </Button>
-            )}
-          </div>
-        </motion.div>
+          </motion.div>
+        </div>
 
         {/* ── BUSINESS ── */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className={`relative rounded-2xl border-2 overflow-hidden shadow-sm transition-all ${
-            isBusiness
-              ? "border-emerald-400 dark:border-emerald-600 shadow-emerald-100 dark:shadow-emerald-900/20"
-              : "border-amber-300 dark:border-amber-700"
-          }`}
-        >
+        <div className="relative pt-4 flex flex-col">
           {isBusiness && (
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+            <div className="absolute top-1 left-1/2 -translate-x-1/2 z-10 whitespace-nowrap">
               <div className="bg-emerald-500 text-white px-3 py-1 rounded-full text-[11px] font-bold flex items-center gap-1">
                 <CheckCircle className="h-3 w-3" /> Plan actuel
               </div>
             </div>
           )}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className={`flex-1 rounded-2xl border-2 overflow-hidden shadow-sm transition-all flex flex-col ${
+              isBusiness
+                ? "border-emerald-400 dark:border-emerald-600 shadow-emerald-100 dark:shadow-emerald-900/20"
+                : "border-amber-300 dark:border-amber-700"
+            }`}
+          >
+            <div className="bg-linear-to-br from-amber-50 via-white to-blue-50 dark:from-amber-950/20 dark:via-slate-900 dark:to-blue-950/20 p-6 space-y-5 flex flex-col flex-1">
+              {/* Header */}
+              <div className="text-center space-y-1">
+                <div className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-amber-100 dark:bg-amber-900/30 mb-2">
+                  <Building className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                </div>
+                <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">Business</h3>
+                <p className="text-xs text-slate-500">Entreprises B2B · Équipes</p>
+                <div className="pt-2">
+                  <span className="text-3xl font-bold text-amber-600 dark:text-amber-400">{businessPrice}</span>
+                  <span className="text-slate-500 text-sm ml-1">/ mois</span>
+                </div>
+                {businessAnnualNote && (
+                  <p className="text-xs text-slate-400">{businessAnnualNote}</p>
+                )}
+              </div>
 
-          <div className="bg-linear-to-br from-amber-50 via-white to-blue-50 dark:from-amber-950/20 dark:via-slate-900 dark:to-blue-950/20 p-6 space-y-5">
-            {/* Header */}
-            <div className="text-center space-y-1">
-              <div className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-amber-100 dark:bg-amber-900/30 mb-2">
-                <Building className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+              {/* Features */}
+              <div className="space-y-2 flex-1">
+                {PLAN_FEATURES.BUSINESS.map((f) => <FeatureRow key={f.label} {...f} />)}
               </div>
-              <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">Business</h3>
-              <p className="text-xs text-slate-500">Entreprises B2B · Équipes</p>
-              <div className="pt-2">
-                <span className="text-3xl font-bold text-amber-600 dark:text-amber-400">{businessPrice}</span>
-                <span className="text-slate-500 text-sm ml-1">/ mois</span>
-              </div>
-              {businessAnnualNote && (
-                <p className="text-xs text-slate-400">{businessAnnualNote}</p>
+
+              {/* CTA */}
+              {isBusiness ? (
+                <Button variant="outline" className="w-full mt-auto cursor-not-allowed" disabled>
+                  Plan actuel
+                </Button>
+              ) : (
+                <Button
+                  variant="outline"
+                  className="w-full mt-auto cursor-pointer border-amber-400 dark:border-amber-600 text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/30"
+                  disabled={loadingPlan === "BUSINESS"}
+                  onClick={() => handleCheckout("BUSINESS")}
+                >
+                  {loadingPlan === "BUSINESS" ? "Redirection..." : "Choisir ce plan"}
+                </Button>
               )}
             </div>
+          </motion.div>
+        </div>
 
-            {/* Features */}
-            <div className="space-y-2">
-              {PLAN_FEATURES.BUSINESS.map((f) => <FeatureRow key={f.label} {...f} />)}
-            </div>
-
-            {/* CTA */}
-            {isBusiness ? (
-              <Button variant="outline" className="w-full" disabled>
-                Plan actuel
-              </Button>
-            ) : (
-              <Button
-                variant="outline"
-                className="w-full border-amber-400 dark:border-amber-600 text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/30"
-                disabled={loadingPlan === "BUSINESS"}
-                onClick={() => handleCheckout("BUSINESS")}
-              >
-                {loadingPlan === "BUSINESS" ? "Redirection..." : "Choisir ce plan"}
-              </Button>
-            )}
-          </div>
-        </motion.div>
       </div>
 
       {/* Boutons gestion abonnement actif */}
@@ -342,6 +342,7 @@ export function PricingCards({ currentPlan, effectivePlan, stripeSubId }: Pricin
           <Button
             variant="outline"
             size="sm"
+            className="cursor-pointer"
             onClick={async () => {
               const { getStripePortalUrl } = await import("@/lib/actions/subscription");
               const result = await getStripePortalUrl();
@@ -359,7 +360,7 @@ export function PricingCards({ currentPlan, effectivePlan, stripeSubId }: Pricin
             size="sm"
             disabled={cancelling}
             onClick={handleCancel}
-            className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
+            className="cursor-pointer text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
           >
             {cancelling ? "Annulation..." : "Annuler l'abonnement"}
           </Button>

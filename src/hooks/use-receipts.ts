@@ -8,6 +8,7 @@ import {
   deleteReceipt,
 } from "@/lib/actions/receipts";
 import type { SavedReceipt } from "@/lib/types/receipts";
+import { useUpgradeStore } from "@/stores/use-upgrade-store";
 
 // Re-export pour faciliter les imports
 export type { SavedReceipt };
@@ -30,6 +31,7 @@ export function useReceipts() {
 
 export function useCreateReceipt() {
   const queryClient = useQueryClient();
+  const openUpgradeModal = useUpgradeStore((s) => s.openUpgradeModal);
 
   return useMutation({
     mutationFn: createReceipt,
@@ -38,6 +40,10 @@ export function useCreateReceipt() {
         queryClient.invalidateQueries({ queryKey: ["receipts"] });
         toast.success("Reçu créé !");
       } else {
+        if (result.error?.includes("Limite") || result.error?.includes("plan Pro")) {
+          openUpgradeModal("unlimited_documents");
+          return;
+        }
         toast.error(result.error ?? "Erreur lors de la création");
       }
     },

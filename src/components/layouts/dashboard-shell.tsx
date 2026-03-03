@@ -26,6 +26,8 @@ import {
 } from "@/components/ui/tooltip";
 import { PlanBadge } from "@/components/subscription/plan-badge";
 import { UpgradeBanner } from "@/components/subscription/upgrade-banner";
+import { UpgradeModal } from "@/components/subscription/upgrade-modal";
+import { useUpgradeStore } from "@/stores/use-upgrade-store";
 import type { LucideIcon } from "lucide-react";
 import type { NotificationCounts } from "@/lib/actions/notifications";
 import {
@@ -367,6 +369,9 @@ export default function DashboardShell({
 
 	const user = session?.user;
 
+	// Store global pour l'UpgradeModal (déclenché depuis les hooks)
+	const { open: upgradeOpen, feature: upgradeFeature, closeUpgradeModal } = useUpgradeStore();
+
 	return (
 		<div className="flex h-screen overflow-hidden bg-slate-50 dark:bg-slate-950">
 			{/* Desktop Sidebar */}
@@ -516,10 +521,10 @@ export default function DashboardShell({
 					<button
 						onClick={toggleDark}
 						className="relative p-2 rounded-lg text-slate-500 hover:text-primary hover:bg-primary/20 dark:hover:bg-primary/80 transition-all duration-300 cursor-pointer"
-						aria-label={dark ? "Mode clair" : "Mode sombre"}
+						aria-label="Changer le thème"
 					>
-						<Sun className={`h-5 w-5 transition-all duration-300 ${dark ? "rotate-90 scale-0 opacity-0" : "rotate-0 scale-100 opacity-100"}`} />
-						<Moon className={`absolute inset-0 m-auto h-5 w-5 text-slate-200 transition-all duration-300 ${dark ? "rotate-0 scale-100 opacity-100" : "-rotate-90 scale-0 opacity-0"}`} />
+						<Sun className={`h-5 w-5 transition-all duration-300 ${isHydrated && dark ? "rotate-90 scale-0 opacity-0" : "rotate-0 scale-100 opacity-100"}`} />
+						<Moon className={`absolute inset-0 m-auto h-5 w-5 text-slate-200 transition-all duration-300 ${isHydrated && dark ? "rotate-0 scale-100 opacity-100" : "-rotate-90 scale-0 opacity-0"}`} />
 					</button>
 					{isHydrated ? (
 						<DropdownMenu>
@@ -630,6 +635,14 @@ export default function DashboardShell({
 					{children}
 				</main>
 			</div>
+
+			{/* Modale upgrade globale — déclenchée depuis les hooks via useUpgradeStore */}
+			<UpgradeModal
+				open={upgradeOpen}
+				onClose={closeUpgradeModal}
+				feature={upgradeFeature}
+				plan="PRO"
+			/>
 		</div>
 	);
 }

@@ -107,7 +107,7 @@ const S = StyleSheet.create({
     height: 48,
   },
   headerCompanyName: {
-    fontSize: 13,
+    fontSize: 18,
     fontFamily: "Helvetica-Bold",
     color: "#ffffff",
     textAlign: "center",

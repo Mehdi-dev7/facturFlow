@@ -10,6 +10,7 @@ import { auth } from "@/lib/auth";
 // ─── Imports des types ──────────────────────────────────────────────────────
 
 import type { SavedDeposit } from "@/lib/types/deposits";
+import { canCreateDocument } from "@/lib/feature-gate";
 
 // ─── Schema Zod (interne) ───────────────────────────────────────────────────
 
@@ -206,6 +207,15 @@ export async function createDeposit(data: DepositFormData, draftId?: string) {
   }
 
   const userId = session.user.id;
+
+  // Vérifier la limite de documents selon le plan (FREE = 10/mois)
+  const { allowed, count: docCount, max: docMax } = await canCreateDocument(userId);
+  if (!allowed) {
+    return {
+      success: false,
+      error: `Limite de ${docMax} documents/mois atteinte (${docCount}/${docMax}). Passez au plan Pro pour continuer.`,
+    } as const;
+  }
 
   // Validation côté serveur
   try {

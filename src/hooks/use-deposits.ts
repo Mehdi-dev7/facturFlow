@@ -12,6 +12,7 @@ import {
   deleteDeposit,
 } from "@/lib/actions/deposits";
 import type { SavedDeposit } from "@/lib/types/deposits";
+import { useUpgradeStore } from "@/stores/use-upgrade-store";
 
 // Type aligné sur le server action (date et description optionnels pour la modale rapide)
 export interface DepositFormData {
@@ -52,6 +53,7 @@ export function useDeposits(filters?: { month?: string }) {
  */
 export function useCreateDeposit() {
   const queryClient = useQueryClient();
+  const openUpgradeModal = useUpgradeStore((s) => s.openUpgradeModal);
 
   return useMutation({
     mutationFn: ({ data, draftId }: { data: DepositFormData; draftId?: string }) => 
@@ -61,6 +63,10 @@ export function useCreateDeposit() {
         queryClient.invalidateQueries({ queryKey: ["deposits"] });
         toast.success("Acompte créé !");
       } else {
+        if (result.error?.includes("Limite") || result.error?.includes("plan Pro")) {
+          openUpgradeModal("unlimited_documents");
+          return;
+        }
         toast.error(result.error ?? "Erreur lors de la création");
       }
     },

@@ -13,6 +13,7 @@ import {
   duplicateInvoice,
   type SavedInvoice,
 } from "@/lib/actions/invoices";
+import { useUpgradeStore } from "@/stores/use-upgrade-store";
 
 // Re-export pour faciliter l'import depuis d'autres fichiers
 export type { SavedInvoice };
@@ -61,6 +62,7 @@ export function useInvoice(id: string | null) {
 export function useCreateInvoice() {
   const queryClient = useQueryClient();
   const router = useRouter();
+  const openUpgradeModal = useUpgradeStore((s) => s.openUpgradeModal);
 
   return useMutation({
     mutationFn: ({
@@ -81,13 +83,17 @@ export function useCreateInvoice() {
           router.push(`/dashboard/invoices?preview=${result.data.id}`);
         }, 100);
       } else if (!result.success) {
-        // Si des détails Zod sont présents, afficher la première erreur précise
+        // Limite de plan atteinte → ouvrir l'UpgradeModal
+        if (result.error?.includes("Limite") || result.error?.includes("plan Pro")) {
+          openUpgradeModal("unlimited_documents");
+          return;
+        }
+        // Autres erreurs : afficher le détail Zod si dispo
         const details = (result as { details?: { message: string }[] }).details;
         const detail = details?.[0]?.message;
         toast.error(result.error ?? "Erreur lors de la création", {
           description: detail ?? undefined,
         });
-        console.error("[createInvoice] Erreur serveur:", result.error, details);
       }
     },
     onError: () => toast.error("Erreur lors de la création de la facture"),

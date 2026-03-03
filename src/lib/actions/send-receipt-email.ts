@@ -211,7 +211,7 @@ export async function sendReceiptFromInvoice(
 
     // 6. Envoyer via Resend
     const { error } = await resend.emails.send({
-      from: `${emitterName} <noreply@resend.dev>`,
+      from: process.env.RESEND_FROM_EMAIL ?? `${emitterName} <noreply@facturnow.fr>`,
       to: [doc.client.email],
       subject: `Reçu REC-${doc.number} – Paiement confirmé`,
       html: buildReceiptEmailHtml({
@@ -335,7 +335,7 @@ export async function sendSavedReceiptEmail(
 
     // 7. Envoyer via Resend
     const { error } = await resend.emails.send({
-      from: `${emitterName} <noreply@resend.dev>`,
+      from: process.env.RESEND_FROM_EMAIL ?? `${emitterName} <noreply@facturnow.fr>`,
       to: [doc.client.email],
       subject: `Reçu ${doc.number} – Paiement confirmé`,
       html: buildReceiptEmailHtml({
