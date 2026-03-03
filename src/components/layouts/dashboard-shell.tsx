@@ -54,6 +54,7 @@ import {
 	Moon,
 	Mail,
 	BookOpen,
+	UserCircle2,
 } from "lucide-react";
 
 interface NavItem {
@@ -104,6 +105,7 @@ const navSections: NavSection[] = [
 		color: "text-quinary dark:text-quinary",
 		activeColor: "border-quinary bg-quinary/10 text-quinary",
 		items: [
+			{ label: "Mon profil", href: "/dashboard/account", icon: UserCircle2 },
 			{ label: "Mon entreprise", href: "/dashboard/company", icon: Building2 },
 			{ label: "Paiements", href: "/dashboard/payments", icon: CreditCard },
 			{ label: "Abonnement", href: "/dashboard/subscription", icon: Crown },
@@ -321,20 +323,20 @@ export default function DashboardShell({
 	const [collapsed, setCollapsed] = useState(false);
 	const pathname = usePathname();
 
-	// Dot dismissal : persiste dans sessionStorage (survit aux HMR/refreshs)
+	// Dot dismissal : persiste dans localStorage (survit aux fermetures du navigateur)
 	const [dismissedNotifs, setDismissedNotifs] = useState<Set<string>>(() => {
 		if (typeof window === "undefined") return new Set();
 		try {
-			const stored = sessionStorage.getItem("notif_dismissed");
+			const stored = localStorage.getItem("notif_dismissed");
 			return stored ? new Set(JSON.parse(stored) as string[]) : new Set();
 		} catch {
 			return new Set();
 		}
 	});
 
-	// Aide pour persister le Set dans sessionStorage
+	// Aide pour persister le Set dans localStorage
 	const persistDismissed = useCallback((next: Set<string>) => {
-		try { sessionStorage.setItem("notif_dismissed", JSON.stringify([...next])); } catch { /* ignore */ }
+		try { localStorage.setItem("notif_dismissed", JSON.stringify([...next])); } catch { /* ignore */ }
 	}, []);
 
 	// Dismiss uniquement quand l'utilisateur visite une section QUI A une notification active

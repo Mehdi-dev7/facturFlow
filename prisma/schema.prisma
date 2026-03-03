@@ -93,6 +93,7 @@ model User {
   emailVerified Boolean   @default(false)
   name          String
   image         String?
+  phone         String?   // Téléphone personnel (≠ companyPhone)
 
   // Better Auth relations
   sessions Session[]
