@@ -96,7 +96,7 @@ const navSections: NavSection[] = [
 		activeColor: "border-accent bg-accent/10 text-accent",
 		items: [
 			{ label: "Clients", href: "/dashboard/clients", icon: Users },
-			{ label: "Statistiques", href: "/dashboard/reports", icon: BarChart3 },
+			{ label: "Statistiques", href: "/dashboard/stats", icon: BarChart3 },
 		],
 	},
 	{

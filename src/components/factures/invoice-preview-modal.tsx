@@ -224,7 +224,7 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
               </div>
             )}
             {displayName && (
-              <p className="text-white/90 text-xs text-center" style={{ fontFamily, fontWeight }}>{displayName}</p>
+              <p className="text-white/90 text-sm font-bold text-center" style={{ fontFamily, fontWeight }}>{displayName}</p>
             )}
           </div>
           {/* Droite : dates */}

@@ -844,6 +844,11 @@ export function InvoiceForm({
 							<h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100">
 								Liens de paiement
 							</h3>
+							{/* Tip email */}
+							<div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-violet-50 dark:bg-violet-500/10 border border-violet-200 dark:border-violet-400/20 text-xs text-violet-600 dark:text-violet-300">
+								<span className="shrink-0">💳</span>
+								<span>Ces boutons apparaîtront dans l&apos;email envoyé au client pour un paiement rapide.</span>
+							</div>
 							<div className="flex flex-wrap gap-2 xs:gap-3">
 								{/* Stripe */}
 								<button

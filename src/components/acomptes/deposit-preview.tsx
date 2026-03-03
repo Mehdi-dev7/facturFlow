@@ -216,7 +216,7 @@ export function DepositPreview({
 									</div>
 								)}
 								{companyName && (
-									<p className="text-white/90 text-xs text-center" style={{ fontFamily, fontWeight }}>
+									<p className="text-white/90 text-sm font-bold text-center" style={{ fontFamily, fontWeight }}>
 										{companyName}
 									</p>
 								)}

@@ -218,9 +218,18 @@ export function QuotePreview({
 
 	// ── Mode normal (desktop preview A4) ──────────────────────────────────
 	return (
-		<div className="bg-white rounded-2xl border border-slate-300/80 shadow-lg shadow-slate-200/50 overflow-hidden">
+		<div className="rounded-2xl border border-slate-300/80 dark:border-violet-500/20 shadow-lg shadow-slate-200/50 dark:shadow-violet-950/40 bg-white/75 dark:bg-[#1a1438] backdrop-blur-lg overflow-hidden">
+			{/* Bandeau "Aperçu temps réel" */}
+			<div className="p-3 px-4" style={{ backgroundColor: themeColor }}>
+				<p className="text-xs font-semibold text-white/90 uppercase tracking-wide">Aperçu temps réel</p>
+			</div>
+
+			{/* Contenu du document */}
+			<div className="p-3 md:p-6 overflow-auto max-h-[calc(100vh-200px)]">
+			<div className="bg-white dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 p-3 md:p-6 space-y-6 shadow-sm">
+
 			{/* Header 3 colonnes : type+N° | logo+nom | dates */}
-			<div className="px-6 py-5 text-white" style={{ backgroundColor: themeColor }}>
+			<div className="rounded-lg px-6 py-5 text-white" style={{ backgroundColor: themeColor }}>
 				<div className="flex items-start gap-4">
 					{/* Gauche : DEVIS + N° */}
 					<div className="flex-1">
@@ -240,7 +249,7 @@ export function QuotePreview({
 							</div>
 						)}
 						{companyName && (
-							<p className="text-white/90 text-xs text-center" style={{ fontFamily, fontWeight }}>
+							<p className="text-white/90 text-sm font-bold text-center" style={{ fontFamily, fontWeight }}>
 								{companyName}
 							</p>
 						)}
@@ -253,8 +262,7 @@ export function QuotePreview({
 				</div>
 			</div>
 
-			<div className="p-6 space-y-6">
-				{/* Émetteur & Destinataire */}
+			{/* Émetteur & Destinataire */}
 				<div className="grid grid-cols-2 gap-6">
 					<div>
 						<p className="text-[10px] uppercase tracking-wider mb-1 font-semibold" style={{ color: themeColor }}>
@@ -439,7 +447,8 @@ export function QuotePreview({
 				<div className="text-center text-[10px] text-slate-400 pt-4 border-t border-slate-100">
 					<p>Document généré par FacturNow</p>
 				</div>
-			</div>
+			</div>{/* end inner white card */}
+			</div>{/* end scrollable */}
 		</div>
 	);
 }
