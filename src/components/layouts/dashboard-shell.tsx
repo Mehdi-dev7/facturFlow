@@ -321,23 +321,56 @@ export default function DashboardShell({
 	const [collapsed, setCollapsed] = useState(false);
 	const pathname = usePathname();
 
-	// Dot dismissal : quand on visite une section, son dot disparaît
-	const [dismissedNotifs, setDismissedNotifs] = useState<Set<string>>(new Set());
+	// Dot dismissal : persiste dans sessionStorage (survit aux HMR/refreshs)
+	const [dismissedNotifs, setDismissedNotifs] = useState<Set<string>>(() => {
+		if (typeof window === "undefined") return new Set();
+		try {
+			const stored = sessionStorage.getItem("notif_dismissed");
+			return stored ? new Set(JSON.parse(stored) as string[]) : new Set();
+		} catch {
+			return new Set();
+		}
+	});
+
+	// Aide pour persister le Set dans sessionStorage
+	const persistDismissed = useCallback((next: Set<string>) => {
+		try { sessionStorage.setItem("notif_dismissed", JSON.stringify([...next])); } catch { /* ignore */ }
+	}, []);
+
+	// Dismiss uniquement quand l'utilisateur visite une section QUI A une notification active
 	useEffect(() => {
-		const map: Record<string, string> = {
-			"/dashboard/invoices": "invoices",
-			"/dashboard/quotes": "quotes",
-			"/dashboard/deposits": "deposits",
-		};
-		for (const [prefix, key] of Object.entries(map)) {
-			if (pathname.startsWith(prefix)) {
+		const map: Array<[string, keyof NotificationCounts]> = [
+			["/dashboard/invoices", "invoices"],
+			["/dashboard/quotes",   "quotes"],
+			["/dashboard/deposits", "deposits"],
+		];
+		for (const [prefix, key] of map) {
+			if (pathname.startsWith(prefix) && notifications?.[key]) {
 				setDismissedNotifs((prev) => {
 					if (prev.has(key)) return prev;
-					return new Set([...prev, key]);
+					const next = new Set([...prev, key]);
+					persistDismissed(next);
+					return next;
 				});
 			}
 		}
-	}, [pathname]);
+	}, [pathname, notifications, persistDismissed]);
+
+	// Quand le serveur dit qu'une notif n'existe plus, on efface son dismissed
+	// → la prochaine nouvelle notif pourra s'afficher correctement
+	useEffect(() => {
+		if (!notifications) return;
+		setDismissedNotifs((prev) => {
+			const next = new Set(prev);
+			let changed = false;
+			if (!notifications.invoices && next.has("invoices")) { next.delete("invoices"); changed = true; }
+			if (!notifications.quotes  && next.has("quotes"))   { next.delete("quotes");   changed = true; }
+			if (!notifications.deposits && next.has("deposits")) { next.delete("deposits"); changed = true; }
+			if (!changed) return prev;
+			persistDismissed(next);
+			return next;
+		});
+	}, [notifications, persistDismissed]);
 	const { data: session } = useSession();
 
 	// Initialiser dark mode avec une fonction pour éviter l'accès SSR à window

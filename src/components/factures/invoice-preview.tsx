@@ -233,7 +233,7 @@ export function InvoicePreview({
 
 			{/* Contenu du document */}
 			<div className="p-3 md:p-6 overflow-auto max-h-[calc(100vh-200px)]">
-			<div className="bg-white dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 p-3 md:p-6 space-y-6 shadow-sm">
+			<div className="bg-white rounded-lg border border-slate-200 p-3 md:p-6 space-y-6 shadow-sm">
 
 			{/* Header 3 colonnes : type+N° | logo+nom | dates */}
 			<div className="rounded-lg px-6 py-5 text-white" style={{ backgroundColor: themeColor }}>
@@ -256,7 +256,7 @@ export function InvoicePreview({
 							</div>
 						)}
 						{companyName && (
-							<p className="text-white/90 text-sm font-bold text-center" style={{ fontFamily, fontWeight }}>
+							<p className="text-white/90 text-base font-bold text-center" style={{ fontFamily, fontWeight }}>
 								{companyName}
 							</p>
 						)}

@@ -146,16 +146,16 @@ export function DepositPreview({
 					className="rounded-lg border p-2.5 space-y-1"
 					style={{ backgroundColor: themeColor + "0d", borderColor: themeColor + "33" }}
 				>
-					<div className="flex justify-between text-xs text-slate-600 dark:text-slate-400">
+					<div className="flex justify-between text-xs text-slate-600">
 						<span>Sous-total HT</span>
 						<span>{fmtMoney(calc.subtotal)} €</span>
 					</div>
-					<div className="flex justify-between text-xs text-slate-600 dark:text-slate-400">
+					<div className="flex justify-between text-xs text-slate-600">
 						<span>TVA ({formData.vatRate ?? 20}%)</span>
 						<span>{fmtMoney(calc.taxAmount)} €</span>
 					</div>
 					<div className="flex justify-between text-sm font-bold pt-1.5 mt-1" style={{ borderTop: `1px solid ${themeColor}33` }}>
-						<span className="text-slate-900 dark:text-slate-50">Total TTC</span>
+						<span className="text-slate-900">Total TTC</span>
 						<span style={{ color: themeColor }}>{fmtMoney(calc.total)} €</span>
 					</div>
 				</div>
@@ -198,7 +198,7 @@ export function DepositPreview({
 
 			{/* Contenu du document */}
 			<div className="p-3 md:p-6 overflow-auto max-h-[calc(100vh-200px)]">
-				<div className="bg-white dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 p-3 md:p-6 space-y-6 shadow-sm">
+				<div className="bg-white rounded-lg border border-slate-200 p-3 md:p-6 space-y-6 shadow-sm">
 
 					{/* En-tête 3 colonnes : ACOMPTE+N° | logo+nom | dates */}
 					<div className="rounded-lg p-4 text-white" style={{ backgroundColor: themeColor }}>
@@ -237,23 +237,23 @@ export function DepositPreview({
 							</h3>
 							{companyInfo ? (
 								<div className="space-y-0.5 text-xs">
-									<p className="font-semibold text-slate-900 dark:text-slate-50">{companyInfo.name}</p>
+									<p className="font-semibold text-slate-900">{companyInfo.name}</p>
 									{companyInfo.address && (
-										<p className="text-slate-600 dark:text-violet-300/80 text-[11px]">{companyInfo.address}</p>
+										<p className="text-slate-600 text-[11px]">{companyInfo.address}</p>
 									)}
 									{(companyInfo.zipCode || companyInfo.city) && (
-										<p className="text-slate-600 dark:text-violet-300/80 text-[11px]">
+										<p className="text-slate-600 text-[11px]">
 											{[companyInfo.zipCode, companyInfo.city].filter(Boolean).join(" ")}
 										</p>
 									)}
-									<p className="text-slate-600 dark:text-violet-300/80 text-[11px]">SIRET : {companyInfo.siret}</p>
-									<p className="text-slate-600 dark:text-violet-300/80">{companyInfo.email}</p>
+									<p className="text-slate-600 text-[11px]">SIRET : {companyInfo.siret}</p>
+									<p className="text-slate-600">{companyInfo.email}</p>
 									{companyInfo.phone && (
-										<p className="text-slate-600 dark:text-violet-300/80 text-[11px]">{companyInfo.phone}</p>
+										<p className="text-slate-600 text-[11px]">{companyInfo.phone}</p>
 									)}
 								</div>
 							) : (
-								<p className="text-violet-300/80 italic text-xs lg:text-sm">Informations manquantes</p>
+								<p className="text-slate-400 italic text-xs lg:text-sm">Informations manquantes</p>
 							)}
 						</div>
 
@@ -263,33 +263,33 @@ export function DepositPreview({
 							</h3>
 							{clientName ? (
 								<div className="space-y-0.5">
-									<p className="font-medium text-slate-900 dark:text-slate-50 text-xs lg:text-sm">{clientName}</p>
+									<p className="font-medium text-slate-900 text-xs lg:text-sm">{clientName}</p>
 									{selectedClient?.email && (
-										<p className="text-slate-600 dark:text-violet-300/80 text-[11px] lg:text-xs">{selectedClient.email}</p>
+										<p className="text-slate-600 text-[11px] lg:text-xs">{selectedClient.email}</p>
 									)}
 									{selectedClient?.address && (
-										<p className="text-slate-600 dark:text-violet-300/80 text-[11px] lg:text-xs">{selectedClient.address}</p>
+										<p className="text-slate-600 text-[11px] lg:text-xs">{selectedClient.address}</p>
 									)}
 									{(selectedClient?.postalCode || selectedClient?.city) && (
-										<p className="text-slate-600 dark:text-violet-300/80 text-[11px] lg:text-xs">
+										<p className="text-slate-600 text-[11px] lg:text-xs">
 											{[selectedClient.postalCode, selectedClient.city].filter(Boolean).join(" ")}
 										</p>
 									)}
 								</div>
 							) : (
-								<p className="text-violet-300/80 italic text-xs lg:text-sm">Aucun client sélectionné</p>
+								<p className="text-slate-400 italic text-xs lg:text-sm">Aucun client sélectionné</p>
 							)}
 						</div>
 					</div>
 
-					<div className="h-px bg-slate-200 dark:bg-slate-700" />
+					<div className="h-px bg-slate-200" />
 
 					{/* Tableau de la ligne d'acompte */}
 					<div>
 						<h3 className="font-semibold mb-3 text-xs uppercase tracking-wide" style={{ color: themeColor }}>
 							Détails
 						</h3>
-						<div className="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
+						<div className="border border-slate-200 rounded-lg overflow-hidden">
 							<table className="w-full">
 								<thead style={{ backgroundColor: themeColor + "1a" }}>
 									<tr>
@@ -308,14 +308,14 @@ export function DepositPreview({
 									</tr>
 								</thead>
 								<tbody>
-									<tr className="border-t border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30">
-										<td className="p-2 lg:p-3 text-xs lg:text-sm text-slate-900 dark:text-slate-50">
+									<tr className="border-t border-slate-200 bg-slate-50/50">
+										<td className="p-2 lg:p-3 text-xs lg:text-sm text-slate-900">
 											{formData.description || "Description de l'acompte"}
 										</td>
-										<td className="p-2 lg:p-3 text-xs lg:text-sm text-right text-slate-900 dark:text-slate-50">
+										<td className="p-2 lg:p-3 text-xs lg:text-sm text-right text-slate-900">
 											{fmtMoney(calc.subtotal)} €
 										</td>
-										<td className="p-2 lg:p-3 text-xs lg:text-sm text-right text-slate-900 dark:text-slate-50">
+										<td className="p-2 lg:p-3 text-xs lg:text-sm text-right text-slate-900">
 											{fmtMoney(calc.taxAmount)} €
 										</td>
 										<td className="p-2 lg:p-3 text-xs lg:text-sm text-right font-medium" style={{ color: themeColor }}>
@@ -335,17 +335,17 @@ export function DepositPreview({
 						>
 							<div className="flex justify-between text-xs lg:text-sm">
 								<span style={{ color: themeColor }}>Sous-total HT :</span>
-								<span className="text-slate-900 dark:text-slate-50 font-medium">{fmtMoney(calc.subtotal)} €</span>
+								<span className="text-slate-900 font-medium">{fmtMoney(calc.subtotal)} €</span>
 							</div>
 							<div className="flex justify-between text-xs lg:text-sm">
 								<span style={{ color: themeColor }}>TVA ({formData.vatRate ?? 20}%) :</span>
-								<span className="text-slate-900 dark:text-slate-50 font-medium">{fmtMoney(calc.taxAmount)} €</span>
+								<span className="text-slate-900 font-medium">{fmtMoney(calc.taxAmount)} €</span>
 							</div>
 							<div
 								className="flex justify-between text-sm lg:text-base font-bold pt-2"
 								style={{ borderTop: `1px solid ${themeColor}33` }}
 							>
-								<span className="text-slate-900 dark:text-slate-50">Total TTC :</span>
+								<span className="text-slate-900">Total TTC :</span>
 								<span style={{ color: themeColor }}>{fmtMoney(calc.total)} €</span>
 							</div>
 						</div>
@@ -353,20 +353,20 @@ export function DepositPreview({
 
 					{/* Notes */}
 					{formData.notes && formData.notes.trim() && (
-						<div className="rounded-lg bg-slate-50 dark:bg-[#1f4a3c]/60 border border-slate-100 dark:border-violet-500/20 p-3">
+						<div className="rounded-lg bg-slate-50 border border-slate-100 p-3">
 							<p className="font-medium mb-1 text-xs lg:text-sm" style={{ color: themeColor }}>Notes</p>
-							<p className="text-[11px] lg:text-xs text-slate-600 dark:text-slate-300 whitespace-pre-line">
+							<p className="text-[11px] lg:text-xs text-slate-600 whitespace-pre-line">
 								{formData.notes}
 							</p>
 						</div>
 					)}
 
 					{/* Modalités de paiement */}
-					<div className="border-t border-slate-200 dark:border-slate-700 pt-4">
+					<div className="border-t border-slate-200 pt-4">
 						<h3 className="font-semibold mb-3 text-xs uppercase tracking-wide" style={{ color: themeColor }}>
 							Modalités de paiement
 						</h3>
-						<div className="space-y-1 text-[11px] lg:text-xs text-slate-600 dark:text-slate-400">
+						<div className="space-y-1 text-[11px] lg:text-xs text-slate-600">
 							<p>• Paiement attendu avant le {fmtDate(formData.dueDate)}</p>
 							<p>• Liens de paiement sécurisés inclus dans l&apos;email</p>
 						</div>
@@ -392,7 +392,7 @@ export function DepositPreview({
 					</div>
 
 					{/* Footer */}
-					<div className="text-center text-[10px] lg:text-xs text-slate-400 dark:text-violet-300/80 pt-4 border-t border-slate-100 dark:border-slate-700">
+					<div className="text-center text-[10px] lg:text-xs text-slate-400 pt-4 border-t border-slate-100">
 						<p>Document généré par FacturNow</p>
 					</div>
 				</div>

@@ -55,7 +55,7 @@ function getBannerConfig(
       variant: "danger",
       message: "Limite atteinte — Vous ne pouvez plus créer de documents ce mois-ci",
       cta: "Passer au Pro",
-      dismissible: false, // Bloquant : pas de fermeture
+      dismissible: true,
     };
   }
 

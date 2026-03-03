@@ -147,7 +147,7 @@ export default function StatsPage() {
           value={String(year)}
           onValueChange={(v) => setYear(Number(v))}
         >
-          <SelectTrigger className="w-32 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700">
+          <SelectTrigger className="w-32 bg-white dark:bg-slate-900 border-slate-200 dark:border-violet-400 dark:text-violet-400">
             <SelectValue />
           </SelectTrigger>
           <SelectContent className="bg-linear-to-b from-violet-100 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/30 rounded-xl shadow-xl dark:shadow-violet-950/50 z-50">
@@ -165,7 +165,7 @@ export default function StatsPage() {
       </div>
 
       {/* KPI Cards — 2 cols mobile, 4 cols desktop */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
         {isLoading
           ? Array.from({ length: 4 }).map((_, i) => (
               <div
