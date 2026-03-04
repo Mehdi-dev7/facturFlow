@@ -1,7 +1,6 @@
-"use server";
-
-// Server Action — lookup d'entreprise via l'API Recherche Entreprises (data.gouv.fr)
-// S'exécute côté serveur (Vercel) → pas de CORS, pas de cache browser.
+// Lookup d'entreprise via l'API officielle Recherche Entreprises (data.gouv.fr)
+// Exécuté côté CLIENT (browser) — pas de "use server" pour éviter le rate-limit serveur.
+// Aucune clé API requise, données publiques INSEE.
 
 import type { SiretData } from "@/types/siret";
 
@@ -10,16 +9,13 @@ export async function lookupSiret(siret: string): Promise<SiretData> {
 
 	const res = await fetch(
 		`https://recherche-entreprises.api.gouv.fr/search?q=${encodeURIComponent(clean)}&per_page=1`,
-		{ next: { revalidate: 86400 } }, // cache 24h côté serveur — données entreprise stables
 	);
 
 	if (!res.ok) {
-		const text = await res.text().catch(() => "");
-		console.error(`[lookupSiret] API ${res.status}: ${text}`);
 		if (res.status === 429) {
-			throw new Error("Trop de recherches — patientez quelques secondes puis réessayez");
+			throw new Error("Trop de recherches — patientez quelques secondes");
 		}
-		throw new Error(`Erreur API (${res.status}) — réessayez`);
+		throw new Error("Erreur lors de la recherche SIRET");
 	}
 
 	const data = await res.json();
