@@ -10,7 +10,7 @@ import { auth } from "@/lib/auth";
 
 const companySchema = z.object({
   // Tous les champs sont optionnels (String? en DB) — pas de blocage si incomplet
-  companyName: z.string().optional().default(""),
+  companyName: z.string().optional(),
   // SIREN : si renseigné, doit faire exactement 9 chiffres
   companySiren: z
     .string()
@@ -18,9 +18,9 @@ const companySchema = z.object({
     .optional(),
   companySiret: z.string().optional(),
   companyVatNumber: z.string().optional(),
-  companyAddress: z.string().optional().default(""),
-  companyPostalCode: z.string().optional().default(""),
-  companyCity: z.string().optional().default(""),
+  companyAddress: z.string().optional(),
+  companyPostalCode: z.string().optional(),
+  companyCity: z.string().optional(),
   // Email : si renseigné, doit être valide
   companyEmail: z
     .union([z.literal(""), z.string().email("Email professionnel invalide")])
