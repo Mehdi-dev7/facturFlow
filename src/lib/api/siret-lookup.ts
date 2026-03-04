@@ -1,26 +1,31 @@
-// Lookup d'entreprise via l'API officielle Recherche Entreprises (data.gouv.fr)
-// Aucune clé API requise, données publiques INSEE
+"use server";
+
+// Server Action — lookup d'entreprise via l'API Recherche Entreprises (data.gouv.fr)
+// S'exécute côté serveur (Vercel) → pas de CORS, pas de cache browser.
+// Aucune clé API requise, données publiques INSEE.
 
 export interface SiretData {
 	name: string;
 	siret: string;
 	siren: string;
-	address: string;   // numéro + type + libellé voie
+	address: string;
 	zipCode: string;
 	city: string;
-	legalForm?: string; // "SAS, société par actions simplifiée"
-	nafCode?: string;  // Code NAF (activité principale)
-	nafLabel?: string; // Libellé de l'activité principale
-	employeeRange?: string; // Tranche d'effectifs
-	creationDate?: string; // Date de création
-	vatNumber?: string; // Numéro TVA calculé
+	legalForm?: string;
+	nafCode?: string;
+	nafLabel?: string;
+	employeeRange?: string;
+	creationDate?: string;
+	vatNumber?: string;
 }
 
 export async function lookupSiret(siret: string): Promise<SiretData> {
 	const clean = siret.replace(/\s/g, "");
 
-	// Proxy via notre API route pour éviter les problèmes CORS en prod
-	const res = await fetch(`/api/siret?q=${encodeURIComponent(clean)}`);
+	const res = await fetch(
+		`https://recherche-entreprises.api.gouv.fr/search?q=${encodeURIComponent(clean)}&limite=1`,
+		{ cache: "no-store" },
+	);
 
 	if (!res.ok) {
 		throw new Error("Erreur lors de la recherche SIRET");
@@ -29,39 +34,35 @@ export async function lookupSiret(siret: string): Promise<SiretData> {
 	const data = await res.json();
 
 	if (!data.results?.length) {
-		throw new Error("Aucune entreprise trouvée pour ce SIRET");
+		throw new Error("Aucune entreprise trouvée pour ce SIRET/SIREN");
 	}
 
 	const company = data.results[0];
 	const siege = company.siege ?? {};
 
-	// Construction de l'adresse : "12 RUE DE LA PAIX"
 	const addressParts = [
 		siege.numero_voie,
 		siege.type_voie,
 		siege.libelle_voie,
 	].filter(Boolean);
 
-	// Certaines communes ont un suffixe d'arrondissement ex: "PARIS-1" → "PARIS"
 	const cityRaw: string = siege.libelle_commune ?? "";
 	const city = cityRaw.replace(/-\d+$/, "");
 
-	// Calcul du numéro de TVA français (FR + clé + SIREN)
 	const calculateTvaKey = (siren: string): string => {
 		const sirenNum = parseInt(siren, 10);
 		const key = (12 + 3 * (sirenNum % 97)) % 97;
-		return key.toString().padStart(2, '0');
+		return key.toString().padStart(2, "0");
 	};
 
 	const siren = company.siren ?? "";
 	const vatNumber = siren ? `FR${calculateTvaKey(siren)}${siren}` : undefined;
 
-	// Mapping des tranches d'effectifs
 	const getEmployeeRangeLabel = (code: string): string => {
 		const ranges: Record<string, string> = {
 			"00": "0 salarié",
 			"01": "1 ou 2 salariés",
-			"02": "3 à 5 salariés", 
+			"02": "3 à 5 salariés",
 			"03": "6 à 9 salariés",
 			"11": "10 à 19 salariés",
 			"12": "20 à 49 salariés",
@@ -73,7 +74,7 @@ export async function lookupSiret(siret: string): Promise<SiretData> {
 			"42": "1000 à 1999 salariés",
 			"51": "2000 à 4999 salariés",
 			"52": "5000 à 9999 salariés",
-			"53": "10000 salariés et plus"
+			"53": "10000 salariés et plus",
 		};
 		return ranges[code] || `${code} salariés`;
 	};
@@ -87,8 +88,10 @@ export async function lookupSiret(siret: string): Promise<SiretData> {
 		city,
 		legalForm: company.libelle_nature_juridique ?? undefined,
 		nafCode: company.activite_principale ?? undefined,
-		nafLabel: undefined, // Pas disponible dans cette API
-		employeeRange: siege.tranche_effectif_salarie ? getEmployeeRangeLabel(siege.tranche_effectif_salarie) : undefined,
+		nafLabel: undefined,
+		employeeRange: siege.tranche_effectif_salarie
+			? getEmployeeRangeLabel(siege.tranche_effectif_salarie)
+			: undefined,
 		creationDate: company.date_creation ?? undefined,
 		vatNumber,
 	};
