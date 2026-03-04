@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import Link from "next/link";
 import { auth } from "@/lib/auth";
-import { Shield, Users, LayoutDashboard } from "lucide-react";
+import { Shield, LayoutDashboard } from "lucide-react";
 
 export const metadata = {
   title: "Admin — FacturNow",
@@ -47,7 +47,6 @@ export default async function AdminLayout({
             Navigation
           </p>
           <AdminNavLink href="/admin" icon={LayoutDashboard} label="Dashboard" exact />
-          <AdminNavLink href="/admin/users" icon={Users} label="Utilisateurs" />
         </nav>
 
         {/* Footer : lien retour dashboard */}

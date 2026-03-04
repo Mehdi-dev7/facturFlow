@@ -112,11 +112,6 @@ export async function createBillingRequest(
         },
         links: {},
         metadata: { invoiceId: params.invoiceId },
-        payer_details: {
-          email: params.clientEmail,
-          given_name: params.clientName.split(" ")[0],
-          family_name: params.clientName.split(" ").slice(1).join(" ") || params.clientName,
-        },
       },
     },
   );

@@ -100,13 +100,15 @@ const VARIANT_ICONS: Record<BannerVariant, React.ReactNode> = {
 };
 
 export function UpgradeBanner({ plan, effectivePlan, trialDaysLeft, documentsThisMonth }: UpgradeBannerProps) {
-  // Initialisation lazy : lire localStorage directement lors du premier rendu client.
-  // typeof window check empêche l'erreur SSR.
-  const [dismissed, setDismissed] = useState<boolean>(() => {
-    if (typeof window === "undefined") return false;
+  // false par défaut (SSR safe), puis sync localStorage après montage
+  const [dismissed, setDismissed] = useState(false);
+
+  useEffect(() => {
     const stored = localStorage.getItem(DISMISS_KEY);
-    return stored ? Date.now() - parseInt(stored, 10) < DISMISS_TTL_MS : false;
-  });
+    if (stored && Date.now() - parseInt(stored, 10) < DISMISS_TTL_MS) {
+      setDismissed(true);
+    }
+  }, []);
 
   // Évite le flash SSR : on ne rend la bannière qu'après l'hydratation côté client.
   // On utilise setTimeout(0) pour différer le setState hors du corps de l'effet (pattern projet).

@@ -34,6 +34,7 @@ export interface AdminUser {
   trialEndsAt: Date | null;
   trialUsed: boolean;
   createdAt: Date;
+  isAdminUser: boolean; // true si email === ADMIN_EMAIL
 }
 
 export interface AdminStats {
@@ -102,7 +103,12 @@ export async function getAdminUsers({
         orderBy: { createdAt: "desc" },
         skip,
         take: PAGE_SIZE,
-      }),
+      }).then((users) =>
+        users.map((u) => ({
+          ...u,
+          isAdminUser: !!process.env.ADMIN_EMAIL && u.email === process.env.ADMIN_EMAIL,
+        }))
+      ),
       prisma.user.count({ where }),
     ]);
 

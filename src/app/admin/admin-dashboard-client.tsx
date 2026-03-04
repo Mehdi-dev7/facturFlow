@@ -33,6 +33,9 @@ import {
 function getEffectivePlanLabel(user: AdminUser): { label: string; className: string } {
   const now = new Date();
 
+  if (user.isAdminUser) {
+    return { label: "ADMIN", className: "bg-violet-900/60 text-violet-200 border-violet-500/60" };
+  }
   if (user.grantedPlan === "BUSINESS") {
     return { label: "INVITÉ", className: "bg-emerald-900/40 text-emerald-300 border-emerald-700/50" };
   }
@@ -292,6 +295,8 @@ export default function AdminDashboardClient({
                     <TableCell className="text-right">
                       {isLoading ? (
                         <Loader2 className="h-4 w-4 animate-spin text-slate-400 ml-auto" />
+                      ) : user.isAdminUser ? (
+                        <span className="text-xs text-slate-600 italic">—</span>
                       ) : user.grantedPlan === "BUSINESS" ? (
                         <Button
                           variant="ghost"
