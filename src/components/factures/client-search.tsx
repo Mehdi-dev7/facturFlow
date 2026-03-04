@@ -13,7 +13,7 @@ import {
 } from "@/lib/validations/invoice";
 import { useClients, type SavedClient } from "@/hooks/use-clients";
 import { SiretLookupInput } from "@/components/shared/siret-lookup-input";
-import type { SiretData } from "@/lib/api/siret-lookup";
+import type { SiretData } from "@/types/siret";
 
 interface ClientSearchProps {
 	selectedClientId?: string;

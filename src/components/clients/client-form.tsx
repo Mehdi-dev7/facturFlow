@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { clientFormSchema, type ClientFormData } from "@/lib/validations/client";
 import { SiretLookupInput } from "@/components/shared/siret-lookup-input";
-import type { SiretData } from "@/lib/api/siret-lookup";
+import type { SiretData } from "@/types/siret";
 
 export function ClientForm() {
 	const router = useRouter();

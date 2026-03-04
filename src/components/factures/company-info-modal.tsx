@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { companyInfoSchema, type CompanyInfo } from "@/lib/validations/invoice";
 import { SiretLookupInput } from "@/components/shared/siret-lookup-input";
-import type { SiretData } from "@/lib/api/siret-lookup";
+import type { SiretData } from "@/types/siret";
 
 interface CompanyInfoModalProps {
 	open: boolean;

@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useCompanyInfo, useUpdateCompanyInfo } from "@/hooks/use-company";
 import { SiretLookupInput } from "@/components/shared/siret-lookup-input";
-import type { SiretData } from "@/lib/api/siret-lookup";
+import type { SiretData } from "@/types/siret";
 
 // ─── Schema de validation ─────────────────────────────────────────────────────
 

@@ -20,7 +20,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { clientFormSchema, type ClientFormData } from "@/lib/validations/client";
 import { SiretLookupInput } from "@/components/shared/siret-lookup-input";
 import { useCreateClient, useUpdateClient, type SavedClient } from "@/hooks/use-clients";
-import type { SiretData } from "@/lib/api/siret-lookup";
+import type { SiretData } from "@/types/siret";
 
 interface ClientModalProps {
   open: boolean;

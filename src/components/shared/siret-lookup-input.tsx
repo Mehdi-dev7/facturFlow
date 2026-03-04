@@ -7,7 +7,8 @@ import { useState, useCallback } from "react";
 import { Search, Loader2, CheckCircle2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { lookupSiret, type SiretData } from "@/lib/api/siret-lookup";
+import { lookupSiret } from "@/lib/api/siret-lookup";
+import type { SiretData } from "@/types/siret";
 
 interface SiretLookupInputProps {
 	onFound: (data: SiretData) => void;
