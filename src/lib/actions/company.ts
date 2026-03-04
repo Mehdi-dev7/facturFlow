@@ -9,14 +9,22 @@ import { auth } from "@/lib/auth";
 // ─── Schema de validation ─────────────────────────────────────────────────────
 
 const companySchema = z.object({
-  companyName: z.string().min(2, "Nom de l'entreprise requis"),
-  companySiren: z.string().min(9, "SIREN requis (9 chiffres)").max(9, "SIREN doit faire 9 chiffres"),
+  // Tous les champs sont optionnels (String? en DB) — pas de blocage si incomplet
+  companyName: z.string().optional().default(""),
+  // SIREN : si renseigné, doit faire exactement 9 chiffres
+  companySiren: z
+    .string()
+    .refine((v) => !v || /^\d{9}$/.test(v), "SIREN doit faire 9 chiffres")
+    .optional(),
   companySiret: z.string().optional(),
   companyVatNumber: z.string().optional(),
-  companyAddress: z.string().min(5, "Adresse requise"),
-  companyPostalCode: z.string().min(5, "Code postal requis"),
-  companyCity: z.string().min(2, "Ville requise"),
-  companyEmail: z.string().email("Email invalide").min(1, "Email entreprise requis"),
+  companyAddress: z.string().optional().default(""),
+  companyPostalCode: z.string().optional().default(""),
+  companyCity: z.string().optional().default(""),
+  // Email : si renseigné, doit être valide
+  companyEmail: z
+    .union([z.literal(""), z.string().email("Email professionnel invalide")])
+    .optional(),
   companyPhone: z.string().optional(),
   // Coordonnées bancaires affichées sur les factures
   iban: z.string().optional(),
@@ -78,18 +86,18 @@ export async function updateCompanyInfo(data: CompanyFormData) {
     // Validation des données
     const validatedData = companySchema.parse(data);
 
-    // Mise à jour en base
+    // Mise à jour en base (|| null → champ vide stocké comme NULL, pas string vide)
     await prisma.user.update({
       where: { id: session.user.id },
       data: {
-        companyName: validatedData.companyName,
-        companySiren: validatedData.companySiren,
+        companyName: validatedData.companyName || null,
+        companySiren: validatedData.companySiren || null,
         companySiret: validatedData.companySiret || null,
         companyVatNumber: validatedData.companyVatNumber || null,
-        companyAddress: validatedData.companyAddress,
-        companyPostalCode: validatedData.companyPostalCode,
-        companyCity: validatedData.companyCity,
-        companyEmail: validatedData.companyEmail,
+        companyAddress: validatedData.companyAddress || null,
+        companyPostalCode: validatedData.companyPostalCode || null,
+        companyCity: validatedData.companyCity || null,
+        companyEmail: validatedData.companyEmail || null,
         companyPhone: validatedData.companyPhone || null,
         // Coordonnées bancaires (affichées sur les factures)
         iban: validatedData.iban || null,

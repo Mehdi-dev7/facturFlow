@@ -19,10 +19,8 @@ export interface SiretData {
 export async function lookupSiret(siret: string): Promise<SiretData> {
 	const clean = siret.replace(/\s/g, "");
 
-	const res = await fetch(
-		`https://recherche-entreprises.api.gouv.fr/search?q=${encodeURIComponent(clean)}&limite=1`,
-		{ cache: "force-cache" } // mise en cache côté browser pour la session
-	);
+	// Proxy via notre API route pour éviter les problèmes CORS en prod
+	const res = await fetch(`/api/siret?q=${encodeURIComponent(clean)}`);
 
 	if (!res.ok) {
 		throw new Error("Erreur lors de la recherche SIRET");

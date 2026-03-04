@@ -16,14 +16,19 @@ import type { SiretData } from "@/lib/api/siret-lookup";
 // ─── Schema de validation ─────────────────────────────────────────────────────
 
 const companySchema = z.object({
-  companyName: z.string().min(2, "Nom de l'entreprise requis"),
-  companySiren: z.string().min(9, "SIREN requis (9 chiffres)").max(9, "SIREN doit faire 9 chiffres"),
+  companyName: z.string().optional().default(""),
+  companySiren: z
+    .string()
+    .refine((v) => !v || /^\d{9}$/.test(v), "SIREN doit faire 9 chiffres")
+    .optional(),
   companySiret: z.string().optional(),
   companyVatNumber: z.string().optional(),
-  companyAddress: z.string().min(5, "Adresse requise"),
-  companyPostalCode: z.string().min(5, "Code postal requis"),
-  companyCity: z.string().min(2, "Ville requise"),
-  companyEmail: z.string().email("Email invalide").min(1, "Email entreprise requis"),
+  companyAddress: z.string().optional().default(""),
+  companyPostalCode: z.string().optional().default(""),
+  companyCity: z.string().optional().default(""),
+  companyEmail: z
+    .union([z.literal(""), z.string().email("Email professionnel invalide")])
+    .optional(),
   companyPhone: z.string().optional(),
   // Informations bancaires — affichées sur les factures pour le virement
   iban: z.string().optional(),
