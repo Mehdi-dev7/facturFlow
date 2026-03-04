@@ -92,18 +92,17 @@ export default function CompanyPage() {
     setValue("iban", formatted, { shouldValidate: false });
   }, [setValue]);
 
-  // Auto-remplissage via SIRET
+  // Auto-remplissage via SIRET — shouldDirty force le re-render des inputs register()
   const handleSiretFound = useCallback((data: SiretData) => {
-    setValue("companyName", data.name);
-    setValue("companySiren", data.siren);
-    setValue("companySiret", data.siret);
-    setValue("companyAddress", data.address);
-    setValue("companyPostalCode", data.zipCode);
-    setValue("companyCity", data.city);
-    
-    // Utiliser le numéro de TVA calculé par l'API
+    const opts = { shouldDirty: true } as const;
+    setValue("companyName", data.name, opts);
+    setValue("companySiren", data.siren, opts);
+    setValue("companySiret", data.siret, opts);
+    setValue("companyAddress", data.address, opts);
+    setValue("companyPostalCode", data.zipCode, opts);
+    setValue("companyCity", data.city, opts);
     if (data.vatNumber) {
-      setValue("companyVatNumber", data.vatNumber);
+      setValue("companyVatNumber", data.vatNumber, opts);
     }
   }, [setValue]);
 
