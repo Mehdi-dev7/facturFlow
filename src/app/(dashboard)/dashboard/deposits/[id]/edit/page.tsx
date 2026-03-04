@@ -13,6 +13,7 @@ import { z } from "zod";
 import { getDeposit } from "@/lib/actions/deposits";
 import { useUpdateDeposit, type SavedDeposit } from "@/hooks/use-deposits";
 import type { CompanyInfo } from "@/lib/validations/invoice";
+import { useCompanyInfoForForms } from "@/hooks/use-company";
 
 // ─── Schema local ─────────────────────────────────────────────────────────────
 
@@ -71,8 +72,12 @@ export default function EditDepositPage() {
 
   const [mounted, setMounted] = useState(false);
   const [deposit, setDeposit] = useState<SavedDeposit | null>(null);
-  const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
+  const [companyInfoLocal, setCompanyInfoLocal] = useState<CompanyInfo | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Charger les infos company depuis la DB
+  const { data: companyInfoDB } = useCompanyInfoForForms();
+  const companyInfo = companyInfoLocal ?? companyInfoDB ?? null;
 
   const updateMutation = useUpdateDeposit();
 
@@ -131,22 +136,13 @@ export default function EditDepositPage() {
     loadDeposit();
   }, [depositId, form, router]);
 
-  // Charger les infos société
+  // Marquer comme monté (les infos company sont chargées via useCompanyInfoForForms)
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem("facturnow_company");
-      if (saved) {
-        setCompanyInfo(JSON.parse(saved) as CompanyInfo);
-      }
-    } catch {
-      // ignore
-    }
     setMounted(true);
   }, []);
 
   const handleCompanyChange = useCallback((data: CompanyInfo) => {
-    setCompanyInfo(data);
-    localStorage.setItem("facturnow_company", JSON.stringify(data));
+    setCompanyInfoLocal(data);
   }, []);
 
   const onSubmit = useCallback(

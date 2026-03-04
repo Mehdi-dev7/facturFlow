@@ -115,17 +115,10 @@ export default function EditQuotePage() {
 				// Pre-remplir le formulaire avec les donnees du devis
 				form.reset(toFormValues(q));
 
-				// Company info depuis DB d'abord, puis localStorage en fallback
+				// Company info depuis le devis en DB
 				const dbCompany = toCompanyInfo(q.user);
 				if (dbCompany) {
 					setCompanyInfo(dbCompany);
-				} else {
-					try {
-						const saved = localStorage.getItem("facturnow_company");
-						if (saved) setCompanyInfo(JSON.parse(saved) as CompanyInfo);
-					} catch {
-						// ignore
-					}
 				}
 			} else {
 				setLoadError(result.error ?? "Devis introuvable");
@@ -137,7 +130,6 @@ export default function EditQuotePage() {
 
 	const handleCompanyChange = useCallback((data: CompanyInfo) => {
 		setCompanyInfo(data);
-		localStorage.setItem("facturnow_company", JSON.stringify(data));
 	}, []);
 
 	// ─── Submit : mettre a jour le devis ───────────────────────────────────

@@ -126,17 +126,10 @@ export default function EditInvoicePage() {
 				// Pré-remplir le formulaire avec les données de la facture
 				form.reset(toFormValues(inv));
 
-				// Company info depuis DB d'abord, puis localStorage en fallback
+				// Company info depuis la facture en DB
 				const dbCompany = toCompanyInfo(inv.user);
 				if (dbCompany) {
 					setCompanyInfo(dbCompany);
-				} else {
-					try {
-						const saved = localStorage.getItem("facturnow_company");
-						if (saved) setCompanyInfo(JSON.parse(saved) as CompanyInfo);
-					} catch {
-						// ignore
-					}
 				}
 			} else {
 				setLoadError(result.error ?? "Facture introuvable");
@@ -148,7 +141,6 @@ export default function EditInvoicePage() {
 
 	const handleCompanyChange = useCallback((data: CompanyInfo) => {
 		setCompanyInfo(data);
-		localStorage.setItem("facturnow_company", JSON.stringify(data));
 	}, []);
 
 	// ─── Submit ──────────────────────────────────────────────────────────────

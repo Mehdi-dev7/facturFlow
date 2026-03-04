@@ -16,6 +16,7 @@ import { useCreateDeposit, useSaveDraftDeposit } from "@/hooks/use-deposits";
 import { getNextDepositNumber } from "@/lib/actions/deposits";
 import type { CompanyInfo } from "@/lib/validations/invoice";
 import { useAppearance } from "@/hooks/use-appearance";
+import { useCompanyInfoForForms } from "@/hooks/use-company";
 
 const AUTOSAVE_INTERVAL = 30_000;
 
@@ -56,8 +57,12 @@ export default function NewDepositPage() {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [depositNumber, setDepositNumber] = useState("DEP-…-…");
-  const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
+  const [companyInfoLocal, setCompanyInfoLocal] = useState<CompanyInfo | null>(null);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
+
+  // Charger les infos company depuis la DB (source de vérité)
+  const { data: companyInfoDB } = useCompanyInfoForForms();
+  const companyInfo = companyInfoLocal ?? companyInfoDB ?? null;
 
   	const { themeColor, companyFont, companyLogo, companyName } = useAppearance();
 
@@ -104,15 +109,7 @@ export default function NewDepositPage() {
         setDepositNumber(`ACC-${year}-0001`);
       }
 
-      // 2. Infos société depuis localStorage
-      try {
-        const saved = localStorage.getItem("facturnow_company");
-        if (saved) setCompanyInfo(JSON.parse(saved) as CompanyInfo);
-      } catch {
-        // ignore
-      }
-
-      // 3. Dates par défaut — shouldValidate: false pour ne pas déclencher
+      // 2. Dates par défaut (les infos company sont chargées via useCompanyInfoForForms) — shouldValidate: false pour ne pas déclencher
       //    la validation sur les autres champs vides (description, clientId…)
       form.setValue("date", todayISO(), { shouldValidate: false });
       form.setValue("dueDate", dueDateISO(), { shouldValidate: false });
@@ -124,8 +121,7 @@ export default function NewDepositPage() {
   }, [form]);
 
   const handleCompanyChange = useCallback((data: CompanyInfo) => {
-    setCompanyInfo(data);
-    localStorage.setItem("facturnow_company", JSON.stringify(data));
+    setCompanyInfoLocal(data);
   }, []);
 
   // ─── Auto-save en DB toutes les 30s ─────────────────────────────────────────

@@ -17,6 +17,7 @@ import {
 import { getNextInvoiceNumber, saveDraft } from "@/lib/actions/invoices";
 import { useCreateInvoice } from "@/hooks/use-invoices";
 import { useAppearance } from "@/hooks/use-appearance";
+import { useCompanyInfoForForms } from "@/hooks/use-company";
 
 const AUTOSAVE_INTERVAL = 30_000;
 
@@ -34,8 +35,13 @@ export default function NewInvoicePage() {
 	// Tout le state client-only initialisé dans useEffect pour éviter les hydration mismatches
 	const [mounted, setMounted] = useState(false);
 	const [invoiceNumber, setInvoiceNumber] = useState("");
-	const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
+	const [companyInfoLocal, setCompanyInfoLocal] = useState<CompanyInfo | null>(null);
 	const [lastSaved, setLastSaved] = useState<Date | null>(null);
+
+	// Charger les infos company depuis la DB (source de vérité)
+	const { data: companyInfoDB } = useCompanyInfoForForms();
+	// Priorité : édition locale (modale) > DB > null
+	const companyInfo = companyInfoLocal ?? companyInfoDB ?? null;
 
 	// Mutation de création (gère toast + redirect auto vers /dashboard/invoices?preview=<id>)
 		const { themeColor, companyFont, companyLogo, companyName } = useAppearance();
@@ -75,15 +81,7 @@ export default function NewInvoicePage() {
 			}
 		});
 
-		// 2. Charger les infos société depuis localStorage
-		try {
-			const savedCompany = localStorage.getItem("facturnow_company");
-			if (savedCompany) setCompanyInfo(JSON.parse(savedCompany) as CompanyInfo);
-		} catch {
-			// ignore
-		}
-
-		// 3. Initialiser les dates
+		// 2. Initialiser les dates (les infos company sont chargées via useCompanyInfoForForms)
 		form.setValue("date", todayISO());
 		form.setValue("dueDate", dueDateISO());
 
@@ -91,8 +89,7 @@ export default function NewInvoicePage() {
 	}, [form]);
 
 	const handleCompanyChange = useCallback((data: CompanyInfo) => {
-		setCompanyInfo(data);
-		localStorage.setItem("facturnow_company", JSON.stringify(data));
+		setCompanyInfoLocal(data);
 	}, []);
 
 	// ─── Auto-save en DB toutes les 30s ───────────────────────────────────────
