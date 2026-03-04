@@ -60,7 +60,12 @@ export default function CompanyPage() {
     },
   });
 
-  const { register, handleSubmit, formState: { errors }, setValue, reset, getValues } = form;
+  const { register, handleSubmit, formState: { errors }, setValue, reset, watch } = form;
+
+  // Souscrire aux changements du form → force un re-render quand setValue/reset modifie les valeurs
+  // Sans ça, les inputs register() (non-contrôlés) ne se mettent pas à jour visuellement
+  // C'est ce qui fait marcher le SIRET auto-fill dans le form client (qui a watch("type"))
+  watch();
 
   // Charger les données de l'entreprise
   useEffect(() => {
@@ -92,21 +97,20 @@ export default function CompanyPage() {
     setValue("iban", formatted, { shouldValidate: false });
   }, [setValue]);
 
-  // Auto-remplissage via SIRET — reset() met à jour le DOM de tous les inputs (register + refs)
-  // setValue seul ne suffit pas sur des inputs non-contrôlés (register), reset() force la MAJ
+  // Auto-remplissage via SIRET — grâce à watch() ci-dessus, setValue déclenche un re-render
+  // et les inputs register() se synchronisent avec les nouvelles valeurs
   const handleSiretFound = useCallback((data: SiretData) => {
-    const current = getValues();
-    reset({
-      ...current,
-      companyName: data.name,
-      companySiren: data.siren,
-      companySiret: data.siret,
-      companyAddress: data.address,
-      companyPostalCode: data.zipCode,
-      companyCity: data.city,
-      ...(data.vatNumber ? { companyVatNumber: data.vatNumber } : {}),
-    }, { keepDirty: true });
-  }, [getValues, reset]);
+    const opts = { shouldDirty: true } as const;
+    setValue("companyName", data.name, opts);
+    setValue("companySiren", data.siren, opts);
+    setValue("companySiret", data.siret, opts);
+    setValue("companyAddress", data.address, opts);
+    setValue("companyPostalCode", data.zipCode, opts);
+    setValue("companyCity", data.city, opts);
+    if (data.vatNumber) {
+      setValue("companyVatNumber", data.vatNumber, opts);
+    }
+  }, [setValue]);
 
 
   const onSubmit = (data: CompanyFormData) => {
