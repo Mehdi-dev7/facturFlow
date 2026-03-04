@@ -60,7 +60,7 @@ export default function CompanyPage() {
     },
   });
 
-  const { register, handleSubmit, formState: { errors }, setValue, reset } = form;
+  const { register, handleSubmit, formState: { errors }, setValue, reset, getValues } = form;
 
   // Charger les données de l'entreprise
   useEffect(() => {
@@ -92,19 +92,21 @@ export default function CompanyPage() {
     setValue("iban", formatted, { shouldValidate: false });
   }, [setValue]);
 
-  // Auto-remplissage via SIRET — shouldDirty force le re-render des inputs register()
+  // Auto-remplissage via SIRET — reset() met à jour le DOM de tous les inputs (register + refs)
+  // setValue seul ne suffit pas sur des inputs non-contrôlés (register), reset() force la MAJ
   const handleSiretFound = useCallback((data: SiretData) => {
-    const opts = { shouldDirty: true } as const;
-    setValue("companyName", data.name, opts);
-    setValue("companySiren", data.siren, opts);
-    setValue("companySiret", data.siret, opts);
-    setValue("companyAddress", data.address, opts);
-    setValue("companyPostalCode", data.zipCode, opts);
-    setValue("companyCity", data.city, opts);
-    if (data.vatNumber) {
-      setValue("companyVatNumber", data.vatNumber, opts);
-    }
-  }, [setValue]);
+    const current = getValues();
+    reset({
+      ...current,
+      companyName: data.name,
+      companySiren: data.siren,
+      companySiret: data.siret,
+      companyAddress: data.address,
+      companyPostalCode: data.zipCode,
+      companyCity: data.city,
+      ...(data.vatNumber ? { companyVatNumber: data.vatNumber } : {}),
+    }, { keepDirty: true });
+  }, [getValues, reset]);
 
 
   const onSubmit = (data: CompanyFormData) => {
@@ -152,14 +154,14 @@ export default function CompanyPage() {
         <div className={dividerClass} />
 
         {/* ── Alerte SIREN obligatoire ─────────────────────────────── */}
-        <section className="rounded-xl border border-amber-300 dark:border-amber-400/30 bg-amber-50/80 dark:bg-amber-900/15 p-4">
+        <section className="rounded-xl border border-amber-300 dark:border-amber-400/30 bg-amber-50/80 dark:bg-amber-900/15 p-2 sm:p-4">
           <div className="flex items-start gap-3">
             <AlertCircle className="size-5 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
             <div>
-              <h3 className="font-semibold text-amber-800 dark:text-amber-200 text-sm">
+              <h3 className="font-semibold text-amber-800 dark:text-amber-200 text-xs">
                 SIREN obligatoire pour la facturation électronique
               </h3>
-              <p className="text-xs text-amber-700 dark:text-amber-300 mt-1 leading-relaxed">
+              <p className="text-[10px] text-amber-700 dark:text-amber-300 mt-1 leading-relaxed">
                 Le SIREN de votre entreprise est requis pour envoyer des factures électroniques via le réseau Peppol (obligatoire dès septembre 2026).
               </p>
             </div>
