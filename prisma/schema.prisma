@@ -260,6 +260,7 @@ model Client {
 
   // Relations
   documents Document[]
+  recurring  RecurringInvoice[]
 
   // Timestamps
   createdAt DateTime @default(now())
@@ -431,6 +432,11 @@ model RecurringInvoice {
 
   // Client
   clientId String
+  client   Client @relation(fields: [clientId], references: [id])
+
+  // Infos
+  label         String?  // Nom de la récurrence (ex: "Maintenance mensuelle")
+  paymentMethod String?  // BANK_TRANSFER | STRIPE | PAYPAL | SEPA
 
   // Schedule
   frequency RecurringFrequency
@@ -441,7 +447,7 @@ model RecurringInvoice {
   // Status
   active Boolean @default(true)
 
-  // Template data
+  // Template data (lignes, TVA, notes)
   templateData Json
 
   // Statistics

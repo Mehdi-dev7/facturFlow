@@ -3,21 +3,23 @@ import { runUpdateOverdue } from "@/app/api/cron/update-overdue/route"
 import { runUpdateExpiredQuotes } from "@/app/api/cron/update-expired-quotes/route"
 import { runSendReminders } from "@/app/api/cron/send-reminders/route"
 import { runSyncEInvoiceEvents } from "@/app/api/cron/sync-einvoice-events/route"
+import { runExpireTrials } from "@/app/api/cron/expire-trials/route"
+import { runGenerateRecurring } from "@/app/api/cron/generate-recurring/route"
 
 // ─── Cron nightly — point d'entrée unique ────────────────────────────────────
 //
-// Exécuté chaque nuit à 00:00 UTC par Vercel Cron (1 seul slot utilisé).
-// Enchaîne les 4 tâches dans l'ordre logique :
+// Exécuté chaque nuit à 01:00 UTC par Vercel Cron (1 seul slot utilisé).
+// Enchaîne les tâches dans l'ordre logique :
 //   1. Factures OVERDUE + planification des relances (J+2 / J+7 / J+15)
 //   2. Devis expirés → CANCELLED
 //   3. Envoi des relances dont la date est atteinte
 //   4. Sync des statuts factures électroniques (SuperPDP)
+//   5. Trials expirés — rappel J-1 par email
+//   6. Génération des factures récurrentes + paiements SEPA auto
 //
-// Les routes individuelles (/api/cron/update-overdue, etc.) restent disponibles
-// pour les tests manuels en dev.
+// Les routes individuelles restent disponibles pour les tests manuels en dev.
 
 export async function GET(request: NextRequest) {
-  // Vérifier le secret Vercel Cron
   const authHeader = request.headers.get("authorization")
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
@@ -56,6 +58,22 @@ export async function GET(request: NextRequest) {
   } catch (err) {
     errors.einvoice = String(err)
     console.error("[nightly] einvoice sync failed:", err)
+  }
+
+  // 5. Trials expirés (rappel J-1 + log)
+  try {
+    results.trials = await runExpireTrials()
+  } catch (err) {
+    errors.trials = String(err)
+    console.error("[nightly] expire-trials failed:", err)
+  }
+
+  // 6. Génération des factures récurrentes
+  try {
+    results.recurring = await runGenerateRecurring()
+  } catch (err) {
+    errors.recurring = String(err)
+    console.error("[nightly] recurring failed:", err)
   }
 
   console.log("[nightly] Tâches terminées", { results, errors })

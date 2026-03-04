@@ -357,4 +357,13 @@ body {
 	.dark .row-highlight {
 		animation: row-highlight-dark 3.5s ease-out forwards;
 	}
+
+	/* Icône calendrier native des inputs date — visible en dark mode */
+	.dark input[type="date"]::-webkit-calendar-picker-indicator {
+		filter: invert(1) opacity(0.6);
+		cursor: pointer;
+	}
+	.dark input[type="date"]::-webkit-calendar-picker-indicator:hover {
+		filter: invert(1) opacity(1);
+	}
 }
