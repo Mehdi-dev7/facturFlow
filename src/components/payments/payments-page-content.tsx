@@ -230,6 +230,7 @@ export function PaymentsPageContent({
 
   // GoCardless
   const [gcToken, setGcToken] = useState("");
+  const [gcWebhookSecret, setGcWebhookSecret] = useState("");
   const [gcLoading, setGcLoading] = useState(false);
 
   // ── Ajout d'un compte dans la liste locale ────────────────────────────────
@@ -280,16 +281,16 @@ export function PaymentsPageContent({
   const handleConnectGC = useCallback(async () => {
     if (!gcToken.trim()) return;
     setGcLoading(true);
-    const result = await connectGoCardless(gcToken.trim());
+    const result = await connectGoCardless(gcToken.trim(), gcWebhookSecret.trim() || undefined);
     if (result.success) {
       toast.success("GoCardless connecté !");
-      setOpenProvider(null); setGcToken("");
+      setOpenProvider(null); setGcToken(""); setGcWebhookSecret("");
       addAccount("GOCARDLESS");
     } else {
       toast.error(result.error ?? "Erreur GoCardless");
     }
     setGcLoading(false);
-  }, [gcToken, addAccount]);
+  }, [gcToken, gcWebhookSecret, addAccount]);
 
   const handleDisconnect = useCallback(async (provider: PaymentProvider) => {
     setDisconnecting(provider);
@@ -456,14 +457,22 @@ export function PaymentsPageContent({
         >
           <TutoSteps steps={[
             { text: <>Allez sur <a href="https://manage.gocardless.com/developers/access-tokens" target="_blank" rel="noopener noreferrer" className="text-[#00A27B] hover:underline inline-flex items-center gap-0.5">manage.gocardless.com <ExternalLink className="h-2.5 w-2.5" /></a></> },
-            { text: <>Créez un <strong>Access Token</strong> en lecture/écriture</> },
+            { text: <>Developers → <strong>Access Tokens</strong> → créez un token lecture/écriture</> },
+            { text: <>Developers → <strong>Webhooks</strong> → ajoutez l&apos;URL : <code className="text-[10px] bg-slate-100 dark:bg-slate-800 px-1 rounded">facturnow.fr/api/webhooks/gocardless</code> → copiez le <strong>Secret</strong></> },
           ]} />
 
           <SecretInput
             label="Access Token *"
-            placeholder="live_..."
+            placeholder="live_... ou sandbox_..."
             value={gcToken}
             onChange={setGcToken}
+          />
+          <SecretInput
+            label="Webhook Secret"
+            placeholder="Collé depuis GoCardless → Webhooks"
+            value={gcWebhookSecret}
+            onChange={setGcWebhookSecret}
+            hint="Recommandé en production pour sécuriser les notifications de paiement."
           />
           <button
             onClick={handleConnectGC}
@@ -478,13 +487,13 @@ export function PaymentsPageContent({
       </div>
 
       {/* Note dev Stripe CLI */}
-      <div className="bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl p-4 space-y-1.5">
+      {/* <div className="bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl p-4 space-y-1.5">
         <p className="text-xs font-medium text-slate-600 dark:text-slate-400">Test local Stripe (webhook)</p>
         <code className="block text-[11px] text-slate-500 bg-slate-100 dark:bg-slate-800 rounded-lg px-3 py-2 font-mono">
           stripe listen --api-key sk_test_... --forward-to localhost:3000/api/webhooks/stripe
         </code>
         <p className="text-[11px] text-slate-400">Copie le <code>whsec_...</code> généré dans le champ Webhook Secret ci-dessus.</p>
-      </div>
+      </div> */}
     </div>
   );
 }

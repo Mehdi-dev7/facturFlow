@@ -49,6 +49,8 @@ export async function getCurrentSubscription() {
         trialEndsAt: true,
         stripeSubId: true,
         stripeCustomerId: true,
+        email: true,
+        grantedPlan: true,
       },
     });
 

@@ -290,7 +290,7 @@ export async function sendEInvoice(invoiceId: string) {
 	// ─ Guard plan : vérifier la limite de factures électroniques du mois ─
 	const user = await prisma.user.findUnique({
 		where: { id: session.user.id },
-		select: { plan: true, trialEndsAt: true },
+		select: { plan: true, trialEndsAt: true, email: true, grantedPlan: true },
 	});
 	const effectivePlan = getEffectivePlan(user!);
 	const eInvoiceCheck = await canSendEInvoice(session.user.id, effectivePlan);

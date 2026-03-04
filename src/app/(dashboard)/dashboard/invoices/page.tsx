@@ -112,7 +112,7 @@ function InvoicesPageContent() {
     if (!allInvoices.length) return;
     const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
     // Récupérer les IDs déjà mis en surbrillance (sessionStorage)
-    const seen = new Set<string>(JSON.parse(sessionStorage.getItem("highlight_invoices") ?? "[]"));
+    const seen = new Set<string>(JSON.parse(localStorage.getItem("highlight_invoices") ?? "[]"));
     const ids = allInvoices
       .filter((inv) =>
         ["PAID", "OVERDUE"].includes(inv.status) &&
@@ -122,9 +122,9 @@ function InvoicesPageContent() {
       )
       .map((inv) => inv.id);
     if (!ids.length) return;
-    // Marquer comme vus immédiatement
+    // Marquer comme vus immédiatement (persiste entre les sessions)
     const newSeen = [...seen, ...ids];
-    sessionStorage.setItem("highlight_invoices", JSON.stringify(newSeen));
+    localStorage.setItem("highlight_invoices", JSON.stringify(newSeen));
     setHighlightedIds(new Set(ids));
     const t = setTimeout(() => setHighlightedIds(new Set()), 3600);
     return () => clearTimeout(t);

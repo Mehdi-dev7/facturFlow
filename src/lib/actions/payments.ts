@@ -32,6 +32,7 @@ export interface PaypalCredential {
 }
 export interface GocardlessCredential {
   accessToken: string;
+  webhookSecret?: string;
 }
 
 // ─── Récupérer les comptes connectés (sans les credentials) ───────────────────
@@ -83,7 +84,7 @@ export async function connectStripe(
   // Vérifier que l'utilisateur a accès à Stripe (plan PRO ou supérieur)
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
-    select: { plan: true, trialEndsAt: true },
+    select: { plan: true, trialEndsAt: true, email: true, grantedPlan: true },
   });
   if (!user || !canUseFeature(user, "payment_stripe")) {
     return { success: false, error: "Fonctionnalité réservée au plan Pro." } as const;
@@ -168,7 +169,7 @@ export async function connectPayPal(
   // Vérifier que l'utilisateur a accès à PayPal (plan PRO ou supérieur)
   const userPaypal = await prisma.user.findUnique({
     where: { id: session.user.id },
-    select: { plan: true, trialEndsAt: true },
+    select: { plan: true, trialEndsAt: true, email: true, grantedPlan: true },
   });
   if (!userPaypal || !canUseFeature(userPaypal, "payment_paypal")) {
     return { success: false, error: "Fonctionnalité réservée au plan Pro." } as const;
@@ -221,14 +222,14 @@ export async function connectPayPal(
 
 // ─── Connecter GoCardless ─────────────────────────────────────────────────────
 
-export async function connectGoCardless(accessToken: string) {
+export async function connectGoCardless(accessToken: string, webhookSecret?: string) {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) return { success: false, error: "Non authentifié" } as const;
 
   // Vérifier que l'utilisateur a accès à GoCardless (plan PRO ou supérieur)
   const userGC = await prisma.user.findUnique({
     where: { id: session.user.id },
-    select: { plan: true, trialEndsAt: true },
+    select: { plan: true, trialEndsAt: true, email: true, grantedPlan: true },
   });
   if (!userGC || !canUseFeature(userGC, "payment_gocardless")) {
     return { success: false, error: "Fonctionnalité réservée au plan Pro." } as const;
@@ -249,7 +250,9 @@ export async function connectGoCardless(accessToken: string) {
   }
 
   try {
-    const credential = encrypt(JSON.stringify({ accessToken: accessToken.trim() }));
+    const credData: GocardlessCredential = { accessToken: accessToken.trim() };
+    if (webhookSecret?.trim()) credData.webhookSecret = webhookSecret.trim();
+    const credential = encrypt(JSON.stringify(credData));
 
     await prisma.paymentAccount.upsert({
       where: {

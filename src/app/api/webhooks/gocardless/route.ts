@@ -24,10 +24,43 @@ export const runtime = "nodejs";
 export async function POST(req: NextRequest) {
   const body = await req.text();
   const signature = req.headers.get("Webhook-Signature") ?? "";
-  const webhookSecret = process.env.GOCARDLESS_WEBHOOK_SECRET;
+
+  // ── Trouver le webhookSecret : depuis la DB (par user) ou env global (fallback dev) ──
+  let webhookSecret: string | undefined;
+
+  // Extraire l'invoiceId des events pour retrouver le user
+  try {
+    const parsed = JSON.parse(body) as { events?: GcWebhookEvent[] };
+    const firstEvent = parsed.events?.[0];
+    const invoiceId = firstEvent?.metadata?.invoiceId;
+
+    if (invoiceId) {
+      const invoice = await prisma.document.findFirst({
+        where: { id: invoiceId },
+        select: { userId: true },
+      });
+
+      if (invoice?.userId) {
+        const account = await prisma.paymentAccount.findUnique({
+          where: { userId_provider: { userId: invoice.userId, provider: "GOCARDLESS" } },
+          select: { credential: true, isActive: true },
+        });
+
+        if (account?.isActive) {
+          const cred = JSON.parse(decrypt(account.credential)) as GocardlessCredential;
+          if (cred.webhookSecret) webhookSecret = cred.webhookSecret;
+        }
+      }
+    }
+  } catch {
+    // Pas grave — on tombe sur le fallback env
+  }
+
+  // Fallback : variable d'env globale (dev / CI)
+  if (!webhookSecret) webhookSecret = process.env.GOCARDLESS_WEBHOOK_SECRET;
 
   if (!webhookSecret) {
-    console.error("[GC webhook] GOCARDLESS_WEBHOOK_SECRET non défini");
+    console.error("[GC webhook] Aucun webhookSecret disponible");
     return NextResponse.json({ error: "config" }, { status: 500 });
   }
 

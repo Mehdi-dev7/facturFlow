@@ -174,19 +174,22 @@ export function DepositsPageContent() {
   // ─── Hooks pour les données réelles ─────────────────────────────────────────
   const { data: deposits = [] } = useDeposits();
 
-  // IDs des acomptes récemment modifiés (PAID/OVERDUE depuis <7j) → highlight 3.5s
+  // IDs des acomptes récemment modifiés (PAID/OVERDUE depuis <7j) → highlight 3.5s une seule fois
   const [highlightedIds, setHighlightedIds] = useState<Set<string>>(new Set());
   useEffect(() => {
     if (!deposits.length) return;
     const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    const seen = new Set<string>(JSON.parse(localStorage.getItem("highlight_deposits") ?? "[]"));
     const ids = deposits
       .filter((d) =>
         ["PAID", "OVERDUE"].includes(d.status) &&
         d.updatedAt &&
-        new Date(d.updatedAt).getTime() > sevenDaysAgo
+        new Date(d.updatedAt).getTime() > sevenDaysAgo &&
+        !seen.has(d.id)
       )
       .map((d) => d.id);
     if (!ids.length) return;
+    localStorage.setItem("highlight_deposits", JSON.stringify([...seen, ...ids]));
     setHighlightedIds(new Set(ids));
     const t = setTimeout(() => setHighlightedIds(new Set()), 3600);
     return () => clearTimeout(t);

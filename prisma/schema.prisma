@@ -146,6 +146,10 @@ model User {
   trialUsed        Boolean   @default(false)  // Anti-cheat : trial déjà utilisé
   signupIp         String?   // IP d'inscription pour anti-cheat trial
 
+  // Admin / Guest Access
+  grantedPlan String?  // "BUSINESS" si accès invité accordé par admin, null sinon
+  grantedById String?  // userId de l'admin qui a accordé l'accès
+
   // Stripe platform (abonnement FacturNow)
   stripeCustomerId String?   // ID client Stripe de la plateforme (cus_xxx)
   stripeSubId      String?   // ID d'abonnement Stripe actif (sub_xxx)

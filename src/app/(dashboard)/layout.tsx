@@ -47,8 +47,14 @@ export default async function DashboardLayout({
     notifications = notifCounts;
   }
 
+  // Vérifie si l'utilisateur connecté est admin (server-side only)
+  const isAdmin =
+    !!session?.user?.email &&
+    !!process.env.ADMIN_EMAIL &&
+    session.user.email === process.env.ADMIN_EMAIL;
+
   return (
-    <DashboardShell subscription={subscription} notifications={notifications}>
+    <DashboardShell subscription={subscription} notifications={notifications} isAdmin={isAdmin}>
       {children}
     </DashboardShell>
   );

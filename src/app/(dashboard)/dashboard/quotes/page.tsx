@@ -108,7 +108,7 @@ function QuotesPageContent() {
   useEffect(() => {
     if (!allQuotes.length) return;
     const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-    const seen = new Set<string>(JSON.parse(sessionStorage.getItem("highlight_quotes") ?? "[]"));
+    const seen = new Set<string>(JSON.parse(localStorage.getItem("highlight_quotes") ?? "[]"));
     const ids = allQuotes
       .filter((q) =>
         ["ACCEPTED", "REJECTED"].includes(q.status) &&
@@ -119,7 +119,7 @@ function QuotesPageContent() {
       .map((q) => q.id);
     if (!ids.length) return;
     const newSeen = [...seen, ...ids];
-    sessionStorage.setItem("highlight_quotes", JSON.stringify(newSeen));
+    localStorage.setItem("highlight_quotes", JSON.stringify(newSeen));
     setHighlightedIds(new Set(ids));
     const t = setTimeout(() => setHighlightedIds(new Set()), 3600);
     return () => clearTimeout(t);

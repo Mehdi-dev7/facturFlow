@@ -55,6 +55,7 @@ import {
 	Mail,
 	BookOpen,
 	UserCircle2,
+	Shield,
 } from "lucide-react";
 
 interface NavItem {
@@ -314,25 +315,28 @@ export default function DashboardShell({
 	children,
 	subscription,
 	notifications,
+	isAdmin = false,
 }: {
 	children: React.ReactNode;
 	subscription?: SubscriptionData;
 	notifications?: NotificationCounts;
+	isAdmin?: boolean;
 }) {
 	const [sidebarOpen, setSidebarOpen] = useState(false);
 	const [collapsed, setCollapsed] = useState(false);
 	const pathname = usePathname();
 
 	// Dot dismissal : persiste dans localStorage (survit aux fermetures du navigateur)
-	const [dismissedNotifs, setDismissedNotifs] = useState<Set<string>>(() => {
-		if (typeof window === "undefined") return new Set();
+	// Initialisé à Set vide pour éviter le mismatch hydratation server/client,
+	// puis synchronisé avec localStorage après montage dans un useEffect.
+	const [dismissedNotifs, setDismissedNotifs] = useState<Set<string>>(new Set());
+
+	useEffect(() => {
 		try {
 			const stored = localStorage.getItem("notif_dismissed");
-			return stored ? new Set(JSON.parse(stored) as string[]) : new Set();
-		} catch {
-			return new Set();
-		}
-	});
+			if (stored) setDismissedNotifs(new Set(JSON.parse(stored) as string[]));
+		} catch { /* ignore */ }
+	}, []);
 
 	// Aide pour persister le Set dans localStorage
 	const persistDismissed = useCallback((next: Set<string>) => {
@@ -468,6 +472,16 @@ export default function DashboardShell({
 									activeClassName={helpSection.activeColor}
 								/>
 							))}
+
+							{/* Lien Admin — visible uniquement pour l'admin */}
+							{isAdmin && (
+								<NavLink
+									item={{ label: "Admin", href: "/admin", icon: Shield }}
+									collapsed={collapsed}
+									isActive={isItemActive("/admin", pathname)}
+									activeClassName="border-violet-600 bg-violet-600/10 text-violet-600 dark:text-violet-300"
+								/>
+							)}
 						</div>
 					</TooltipProvider>
 				</div>
@@ -529,6 +543,17 @@ export default function DashboardShell({
 														activeClassName={helpSection.activeColor}
 													/>
 												))}
+
+												{/* Admin link mobile */}
+												{isAdmin && (
+													<NavLink
+														item={{ label: "Admin", href: "/admin", icon: Shield }}
+														collapsed={false}
+														onNavigate={() => setSidebarOpen(false)}
+														isActive={isItemActive("/admin", pathname)}
+														activeClassName="border-violet-600 bg-violet-600/10 text-violet-600 dark:text-violet-300"
+													/>
+												)}
 											</div>
 										</TooltipProvider>
 									</div>

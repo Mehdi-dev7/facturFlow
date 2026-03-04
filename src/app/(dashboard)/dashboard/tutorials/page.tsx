@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, Video, FileText, ExternalLink, ChevronRight } from "lucide-react";
+import { BookOpen, ImageIcon, FileText, ExternalLink, ChevronRight } from "lucide-react";
 
 export const metadata: Metadata = {
 	title: "Tutoriels | FacturNow",
@@ -12,13 +12,13 @@ export const metadata: Metadata = {
 const tutorialCategories = [
 	{
 		title: "Paiements",
-		icon: Video,
+		icon: ImageIcon,
 		color: "text-violet-500",
 		bgColor: "bg-violet-500/10",
 		tutorials: [
 			{ title: "Comment créer un compte Stripe en 2 minutes", duration: "5 min", href: "/dashboard/tutorials/stripe" },
 			{ title: "Configurer PayPal pour recevoir des paiements", duration: "5 min", href: "/dashboard/tutorials/paypal" },
-			{ title: "Activer le prélèvement SEPA avec GoCardless", duration: "5 min", href: null },
+			{ title: "Activer le prélèvement SEPA avec GoCardless", duration: "10 min", href: "/dashboard/tutorials/gocardless" },
 		],
 	},
 	{
@@ -72,7 +72,7 @@ export default function TutorialsPage() {
 								const isActive = !!tutorial.href;
 								const inner = (
 									<>
-										<Video className={`h-4 w-4 shrink-0 mt-0.5 ${isActive ? "text-primary" : "text-slate-400"}`} />
+										<ImageIcon className={`h-4 w-4 shrink-0 mt-0.5 ${isActive ? "text-primary" : "text-slate-400"}`} />
 										<div className="flex-1 min-w-0">
 											<p className={`text-xs xs:text-sm font-medium line-clamp-2 ${isActive ? "text-slate-900 dark:text-slate-100" : "text-slate-500 dark:text-slate-500"}`}>
 												{tutorial.title}
@@ -129,7 +129,7 @@ export default function TutorialsPage() {
 							Centre d'aide complet
 						</p>
 						<p className="text-xs text-slate-600 dark:text-slate-400">
-							Tous nos tutoriels vidéo seront bientôt disponibles. En attendant, n'hésitez pas à nous contacter pour toute question.
+							De nouveaux tutoriels illustrés seront bientôt disponibles. En attendant, n'hésitez pas à nous contacter pour toute question.
 						</p>
 					</div>
 				</CardContent>

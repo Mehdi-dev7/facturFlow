@@ -81,12 +81,26 @@ const FEATURES_BY_PLAN: Record<string, Feature[]> = {
 
 /**
  * Retourne le plan effectif de l'utilisateur.
- * Si le trial est encore actif (trialEndsAt > maintenant), le plan retourné est PRO.
+ * Ordre de priorité :
+ *  1. Admin (ADMIN_EMAIL) → BUSINESS illimité
+ *  2. Accès invité accordé par admin (grantedPlan) → BUSINESS
+ *  3. Trial actif → PRO
+ *  4. Plan DB
  */
 export function getEffectivePlan(
-  user: { plan: string; trialEndsAt: Date | null }
+  user: { plan: string; trialEndsAt: Date | null; email?: string | null; grantedPlan?: string | null }
 ): "FREE" | "PRO" | "BUSINESS" {
-  // Trial actif → on considère l'utilisateur en PRO
+  // 1. Admin → toujours BUSINESS
+  if (user.email && process.env.ADMIN_EMAIL && user.email === process.env.ADMIN_EMAIL) {
+    return "BUSINESS";
+  }
+
+  // 2. Accès invité accordé manuellement par l'admin
+  if (user.grantedPlan === "BUSINESS") {
+    return "BUSINESS";
+  }
+
+  // 3. Trial actif → PRO
   if (user.trialEndsAt && user.trialEndsAt > new Date()) {
     return "PRO";
   }
@@ -118,7 +132,7 @@ export async function canCreateDocument(
   // Récupérer le plan de l'utilisateur
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { plan: true, trialEndsAt: true },
+    select: { plan: true, trialEndsAt: true, email: true, grantedPlan: true },
   });
 
   if (!user) return { allowed: false, count: 0, max: 0 };
@@ -158,7 +172,7 @@ export async function canAddClient(
   // Récupérer le plan de l'utilisateur
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { plan: true, trialEndsAt: true },
+    select: { plan: true, trialEndsAt: true, email: true, grantedPlan: true },
   });
 
   if (!user) return { allowed: false, count: 0, max: 0 };
