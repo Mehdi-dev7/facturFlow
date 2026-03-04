@@ -428,7 +428,7 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
           {paymentLinks && (paymentLinks.stripe || paymentLinks.paypal || paymentLinks.gocardless) && (
             <div className="mt-3 flex flex-wrap gap-2">
               {paymentLinks.stripe && (
-                paymentLinks.stripe.startsWith("http") ? (
+                typeof paymentLinks.stripe === "string" && paymentLinks.stripe.startsWith("http") ? (
                   <a
                     href={paymentLinks.stripe}
                     target="_blank"
@@ -444,7 +444,7 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
                 )
               )}
               {paymentLinks.paypal && (
-                paymentLinks.paypal.startsWith("http") ? (
+                typeof paymentLinks.paypal === "string" && paymentLinks.paypal.startsWith("http") ? (
                   <a
                     href={paymentLinks.paypal}
                     target="_blank"
@@ -460,7 +460,7 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
                 )
               )}
               {paymentLinks.gocardless && (
-                paymentLinks.gocardless.startsWith("http") ? (
+                typeof paymentLinks.gocardless === "string" && paymentLinks.gocardless.startsWith("http") ? (
                   <a
                     href={paymentLinks.gocardless}
                     target="_blank"

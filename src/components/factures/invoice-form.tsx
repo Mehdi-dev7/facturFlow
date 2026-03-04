@@ -106,17 +106,17 @@ export function InvoiceForm({
 
 	const togglePayment = useCallback(
 		(key: "stripe" | "paypal" | "gocardless") => {
-			setActivePayments((prev) => {
-				const next = !prev[key];
-				setValue(
-					`paymentLinks.${key}` as "paymentLinks.stripe" | "paymentLinks.paypal" | "paymentLinks.gocardless",
-					next,
-					{ shouldDirty: true },
-				);
-				return { ...prev, [key]: next };
-			});
+			// Lire la valeur actuelle sans passer par le state updater
+			// pour éviter d'appeler setValue() pendant un setState (interdit par React)
+			setActivePayments((prev) => ({ ...prev, [key]: !prev[key] }));
+			const current = form.getValues(`paymentLinks.${key}`);
+			setValue(
+				`paymentLinks.${key}` as "paymentLinks.stripe" | "paymentLinks.paypal" | "paymentLinks.gocardless",
+				!current,
+				{ shouldDirty: true },
+			);
 		},
-		[setValue],
+		[setValue, form],
 	);
 
 	// ── Watch ──────────────────────────────────────────────────────────────
