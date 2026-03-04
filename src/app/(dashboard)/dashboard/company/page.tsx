@@ -117,7 +117,7 @@ export default function CompanyPage() {
 
   if (isLoading) {
     return (
-      <div className="p-6 max-w-4xl mx-auto">
+      <div className="p-2 sm:p-4 md:p-6 max-w-4xl mx-auto">
         <div className="animate-pulse space-y-6">
           <div className="h-8 w-64 bg-slate-200 dark:bg-violet-900/30 rounded-lg" />
           <div className="h-96 bg-slate-200 dark:bg-violet-900/30 rounded-2xl" />
@@ -127,7 +127,7 @@ export default function CompanyPage() {
   }
 
   return (
-    <div className="p-8 max-w-4xl mx-auto">
+    <div className="p-0 sm:p-4 md:p-6 max-w-4xl mx-auto">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50 flex items-center gap-3">
@@ -139,7 +139,7 @@ export default function CompanyPage() {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 bg-white dark:bg-slate-900/50 rounded-2xl border border-violet-200 dark:border-violet-400/25 shadow-lg dark:shadow-violet-900/20 p-8">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 bg-white dark:bg-slate-900/50 rounded-2xl border border-violet-200 dark:border-violet-400/25 shadow-lg dark:shadow-violet-900/20 p-3 xs:-p-4 sm:p-6">
         {/* ── Recherche SIRET ────────────────────────────────────── */}
         <section className="space-y-3">
           <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-2">
