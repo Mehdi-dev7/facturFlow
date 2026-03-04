@@ -119,8 +119,8 @@ export async function sendRecurringInvoiceEmail(opts: SendRecurringEmailOptions)
 
   // 4. Données d'affichage
   const clientName =
-    doc.client.companyName ??
-    [doc.client.firstName, doc.client.lastName].filter(Boolean).join(" ") ||
+    (doc.client.companyName ??
+    [doc.client.firstName, doc.client.lastName].filter(Boolean).join(" ")) ||
     doc.client.email
 
   const amount = invoice.total.toLocaleString("fr-FR", {
