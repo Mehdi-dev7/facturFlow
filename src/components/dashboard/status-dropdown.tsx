@@ -12,7 +12,7 @@ const DB_TO_UI: Record<string, InvoiceStatus> = {
   SENT:         "envoyée",
   PAID:         "payée",
   OVERDUE:      "impayée",
-  REMINDED:     "relancée",
+  REMINDED:     "impayée",  // Relancée = toujours impayée visuellement
   SEPA_PENDING: "sepa en cours",
 };
 
@@ -34,8 +34,7 @@ const TRANSITIONS: Record<string, Transition[]> = {
     { status: "OVERDUE", label: "Marquer comme impayée",  color: "text-orange-500" },
   ],
   OVERDUE: [
-    { status: "PAID",     label: "Marquer comme payée",    color: "text-emerald-500" },
-    { status: "REMINDED", label: "Marquer comme relancée", color: "text-red-500" },
+    { status: "PAID", label: "Marquer comme payée", color: "text-emerald-500" },
   ],
   REMINDED: [
     { status: "PAID", label: "Marquer comme payée", color: "text-emerald-500" },

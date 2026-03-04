@@ -12,7 +12,7 @@ const DB_TO_UI: Record<string, InvoiceStatus> = {
   SENT:     "envoyée",
   PAID:     "payée",
   OVERDUE:  "impayée",
-  REMINDED: "relancée",
+  REMINDED: "impayée",
 };
 
 // ─── Transitions disponibles par statut DB ────────────────────────────────────

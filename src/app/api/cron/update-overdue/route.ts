@@ -11,30 +11,38 @@ function addDays(date: Date, days: number): Date {
 // ─── Logique métier (réutilisable par le cron nightly) ───────────────────────
 
 export async function runUpdateOverdue() {
-  const today = new Date()
-  today.setUTCHours(0, 0, 0, 0)
+  const now = new Date()
 
-  // Trouver les factures SENT dont la dueDate est dépassée.
-  // SEPA_PENDING est exclu : le prélèvement est en cours (2-5 jours), pas besoin de relancer.
+  // Statuts éligibles au passage OVERDUE :
+  //  - SENT uniquement (REMINDED exclu pour éviter les boucles)
+  // SEPA_PENDING exclu (prélèvement en cours)
   const candidates = await prisma.document.findMany({
-    where: { type: "INVOICE", status: "SENT", dueDate: { lt: today } },
+    where: {
+      type: { in: ["INVOICE", "DEPOSIT"] },
+      status: "SENT",
+      dueDate: { lt: now },
+    },
     select: {
       id: true,
       number: true,
       dueDate: true,
+      type: true,
       _count: { select: { reminders: true } },
     },
   })
 
   if (candidates.length === 0) return { updated: 0, remindersCreated: 0 }
 
-  // Créer les 3 relances uniquement pour les nouvelles factures OVERDUE
-  const newOnes = candidates.filter((inv) => inv._count.reminders === 0)
+  // Créer les 3 relances uniquement pour les nouveaux documents OVERDUE (pas de relances existantes)
+  // et uniquement pour les FACTURES (les acomptes n'ont pas de relances automatiques)
+  const invoicesToRemind = candidates.filter(
+    (doc) => doc.type === "INVOICE" && doc._count.reminders === 0
+  )
   let remindersCreated = 0
 
-  if (newOnes.length > 0) {
+  if (invoicesToRemind.length > 0) {
     const { count } = await prisma.reminder.createMany({
-      data: newOnes.flatMap((inv) => {
+      data: invoicesToRemind.flatMap((inv) => {
         const due = inv.dueDate!
         return [
           {
@@ -64,13 +72,13 @@ export async function runUpdateOverdue() {
     remindersCreated = count
   }
 
-  // Passer toutes les candidates en OVERDUE
+  // Passer tous les candidats en OVERDUE
   const { count: updated } = await prisma.document.updateMany({
-    where: { id: { in: candidates.map((inv) => inv.id) } },
+    where: { id: { in: candidates.map((doc) => doc.id) } },
     data: { status: "OVERDUE" },
   })
 
-  console.log(`[update-overdue] ${updated} facture(s) → OVERDUE | ${remindersCreated} relance(s) planifiée(s)`)
+  console.log(`[update-overdue] ${updated} document(s) → OVERDUE | ${remindersCreated} relance(s) planifiée(s)`)
   return { updated, remindersCreated }
 }
 
