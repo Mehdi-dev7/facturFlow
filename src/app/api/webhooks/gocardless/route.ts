@@ -25,10 +25,13 @@ export async function POST(req: NextRequest) {
   const body = await req.text();
   const signature = req.headers.get("Webhook-Signature") ?? "";
 
-  // ── Trouver le webhookSecret : depuis la DB (par user) ou env global (fallback dev) ──
+  // ── Trouver le webhookSecret ──────────────────────────────────────────────
+  // Stratégie 1 : via invoiceId dans les metadata (paiements)
+  // Stratégie 2 : tester la signature avec chaque compte GoCardless actif (mandats, etc.)
+  // Fallback   : variable d'env globale (dev uniquement)
   let webhookSecret: string | undefined;
 
-  // Extraire l'invoiceId des events pour retrouver le user
+  // Stratégie 1 : retrouver le user via invoiceId
   try {
     const parsed = JSON.parse(body) as { events?: GcWebhookEvent[] };
     const firstEvent = parsed.events?.[0];
@@ -53,7 +56,27 @@ export async function POST(req: NextRequest) {
       }
     }
   } catch {
-    // Pas grave — on tombe sur le fallback env
+    // Pas grave — on tente la stratégie 2
+  }
+
+  // Stratégie 2 : parcourir tous les comptes GC actifs et tester la signature
+  if (!webhookSecret) {
+    try {
+      const gcAccounts = await prisma.paymentAccount.findMany({
+        where: { provider: "GOCARDLESS", isActive: true },
+        select: { credential: true },
+      });
+
+      for (const account of gcAccounts) {
+        const cred = JSON.parse(decrypt(account.credential)) as GocardlessCredential;
+        if (cred.webhookSecret && verifyGoCardlessWebhook(body, signature, cred.webhookSecret)) {
+          webhookSecret = cred.webhookSecret;
+          break;
+        }
+      }
+    } catch {
+      // Fallback env ci-dessous
+    }
   }
 
   // Fallback : variable d'env globale (dev / CI)
