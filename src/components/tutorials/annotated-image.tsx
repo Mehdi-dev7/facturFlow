@@ -1,5 +1,8 @@
 // src/components/tutorials/annotated-image.tsx
 // Composant image avec annotations CSS (cercles, masques, badges, flèches) superposés
+// Utilise next/image pour l'optimisation (lazy loading, responsive, formats modernes)
+
+import Image from "next/image";
 
 export type Annotation =
   | { type: "circle"; cx: number; cy: number; r: number; color?: string }
@@ -18,8 +21,17 @@ interface AnnotatedImageProps {
 export function AnnotatedImage({ src, alt, annotations = [] }: AnnotatedImageProps) {
   return (
     <div className="relative overflow-hidden rounded-xl border border-slate-200 dark:border-slate-700 shadow-lg select-none">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={src} alt={alt} className="w-full h-auto block" draggable={false} />
+      {/* Conteneur responsive — l'image remplit toute la largeur */}
+      <Image
+        src={src}
+        alt={alt}
+        width={1200}
+        height={750}
+        className="w-full h-auto block"
+        draggable={false}
+        sizes="(max-width: 768px) 100vw, 720px"
+        quality={80}
+      />
 
       {/* SVG overlay pour les flèches */}
       {annotations.some((a) => a.type === "arrow") && (

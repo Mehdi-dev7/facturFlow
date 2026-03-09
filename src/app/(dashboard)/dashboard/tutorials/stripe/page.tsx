@@ -40,7 +40,7 @@ const STEPS: TutorialStep[] = [
 		title: "Créer ou se connecter à un compte Stripe",
 		description:
 			'Rendez-vous sur stripe.com. Si vous avez déjà un compte, entrez votre email et mot de passe puis cliquez sur "Connexion". Sinon, cliquez sur "Créez un compte" en bas du formulaire pour en créer un.',
-		image: "/tutos/stripe/step-01.png",
+		image: "/tutos/stripe/step-01.webp",
 		annotations: [
 			
 			{ type: "badge", x: 49, y: 70, text: "Créez un compte", color: "#635BFF" },
@@ -52,7 +52,7 @@ const STEPS: TutorialStep[] = [
 		description:
 			"Stripe vous guide à travers plusieurs formulaires d'activation (type d'entreprise, informations personnelles, coordonnées bancaires…). Suivez chaque étape jusqu'à la validation complète. Choisissez bien \"Entrepreneur individuel / Micro-entrepreneur\" si vous êtes auto-entrepreneur.",
 		tip: "Stripe vous demandera votre numéro de TVA. Trouvez-le sur annuaire-entreprises.data.gouv.fr en cherchant votre SIREN. Saisissez-le sans espaces (ex: FR15101077105). Si vous êtes en franchise de base, le champ est facultatif. Un site web est obligatoire — votre profil LinkedIn ou GitHub est accepté.",
-		image: "/tutos/stripe/step-02.png",
+		image: "/tutos/stripe/step-02.webp",
 		annotations: [
 			
 		],
@@ -63,7 +63,7 @@ const STEPS: TutorialStep[] = [
 		description:
 			'Par défaut vous êtes en mode Test. Sur le bandeau en haut du dashboard, cliquez sur "Basculer sur le compte de production" pour accéder à votre environnement réel et générer vos vraies clés API.',
 		tip: "Ne confondez pas les clés Test (sk_test_...) et Live (sk_live_...). Seules les clés Live permettent d'encaisser de vrais paiements.",
-		image: "/tutos/stripe/step-03.png",
+		image: "/tutos/stripe/step-03.webp",
 		annotations: [
 			{ type: "arrow", x1: 72, y1: 6, x2: 88, y2: 3, color: "#16a34a" },
 			{ type: "badge", x: 60, y: 6, text: "Basculer en production", color: "#16a34a" },
@@ -75,7 +75,7 @@ const STEPS: TutorialStep[] = [
 		description:
 			'Sur la page d\'accueil de votre dashboard Live, un widget "Clés API" est affiché à droite. Sur la ligne "Clé secrète", cliquez sur l\'icône œil pour la révéler, puis copiez-la. Elle commence par sk_live_.',
 		tip: "La clé secrète ne doit jamais être partagée. Traitez-la comme un mot de passe. Si vous ne voyez pas le widget, allez dans Développeurs → Clés API dans le menu gauche.",
-		image: "/tutos/stripe/step-04.png",
+		image: "/tutos/stripe/step-04.webp",
 		annotations: [
 			// Masquer la clé publique visible
 			{ type: "mask", x: 79, y: 55, w: 15, h: 5, bg: "#1e293b" },
@@ -89,7 +89,7 @@ const STEPS: TutorialStep[] = [
 		title: "Accéder aux Webhooks",
 		description:
 			'Tout en bas du menu latéral gauche, cliquez sur "Développeurs". Un sous-menu s\'ouvre : cliquez sur "Webhooks" pour accéder à la page de gestion des webhooks.',
-		image: "/tutos/stripe/step-05.png",
+		image: "/tutos/stripe/step-05.webp",
 		annotations: [
 			{ type: "rect", x: 8, y: 17, w: 30, h: 5, color: "#16a34a" },
 			{ type: "mask", x: 63, y: 97, w: 35, h: 4, bg: "#1e293b" },
@@ -101,7 +101,7 @@ const STEPS: TutorialStep[] = [
 		title: "Ajouter une nouvelle destination",
 		description:
 			'Sur la page Webhooks, cliquez sur le bouton "+ Ajouter une destination" pour démarrer la création de votre webhook.',
-		image: "/tutos/stripe/step-06.png",
+		image: "/tutos/stripe/step-06.webp",
 		annotations: [
 			
 		],
@@ -112,7 +112,7 @@ const STEPS: TutorialStep[] = [
 		description:
 			'Dans la section "Événements", sélectionnez "Votre compte", puis dans la barre de recherche tapez checkout.session et cochez uniquement "checkout.session.completed". Cliquez sur "Continuer".',
 		tip: "Cet événement se déclenche dès qu'un client finalise son paiement — c'est lui qui marque la facture PAYÉE dans FacturNow.",
-		image: "/tutos/stripe/step-07.png",
+		image: "/tutos/stripe/step-07.webp",
 		annotations: [
 			{ type: "circle", cx: 8, cy: 69, r: 3, color: "#635BFF" },
 			{
@@ -130,7 +130,7 @@ const STEPS: TutorialStep[] = [
 		description:
 			'Sur l\'écran suivant, choisissez "Endpoint de webhook", puis renseignez le nom (ex: FacturNow) et collez l\'URL ci-dessous dans le champ "URL d\'endpoint". Cliquez sur "Créer une destination".',
 		code: "https://facturnow.fr/api/webhooks/stripe",
-		image: "/tutos/stripe/step-08.png",
+		image: "/tutos/stripe/step-08.webp",
 		annotations: [
 			{ type: "rect", x: 10, y: 32, w: 36, h: 4, color: "#16a34a" },
 		],
@@ -140,7 +140,7 @@ const STEPS: TutorialStep[] = [
 		title: "Copier le Webhook Secret",
 		description:
 			'Une fois le webhook créé, Stripe affiche la page de détails. Dans le panneau de droite, repérez "Clé secrète de signature" et cliquez sur l\'icône œil pour révéler le secret. Copiez la valeur qui commence par whsec_ et collez-la dans FacturNow → Paiements → Stripe.',
-		image: "/tutos/stripe/step-09.png",
+		image: "/tutos/stripe/step-09.webp",
 		annotations: [
 			// Masquer l'ID de destination (sensible)
 			{ type: "mask", x: 63, y: 38, w: 28, h: 4, bg: "#1e293b" },

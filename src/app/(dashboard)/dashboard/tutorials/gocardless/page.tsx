@@ -50,77 +50,55 @@ const GC_COLOR = "#00A27B";
 const STEPS: TutorialStep[] = [
 	{
 		number: 1,
-		title: "Se rendre sur GoCardless et créer un compte",
+		title: "Créer un compte GoCardless",
 		description:
-			'Ouvrez votre navigateur et allez sur gocardless.com. Cliquez sur le bouton vert "S\'inscrire" en haut à droite pour démarrer la création de votre compte.',
-		image: "/tutos/gocardless/step-02.png",
-		annotations: [
-			{ type: "rect", x: 67, y: 7, w: 10, h: 8, color: GC_COLOR },
-			{ type: "badge", x: 72, y: 19, text: "Cliquez ici", color: GC_COLOR },
-		],
-	},
-	{
-		number: 2,
-		title: "Remplir le formulaire d'inscription",
-		description:
-			"Saisissez le nom de votre société, sélectionnez la France comme pays, choisissez votre type d'entreprise (Auto-entrepreneur, EURL, SASU…), puis entrez votre email et un mot de passe sécurisé. Cochez les conditions d'utilisation et cliquez sur \"S'inscrire\".",
-		tip: "Choisissez bien votre type d'entreprise — GoCardless adapte le formulaire d'activation KYC en fonction de ce choix.",
-		image: "/tutos/gocardless/step-04.png",
-		annotations: [
-			
-		],
-	},
-	{
-		number: 3,
-		title: "Choisir l'offre Standard",
-		description:
-			'GoCardless vous propose 3 offres. Sélectionnez l\'offre <strong>Standard</strong> (la première colonne) à <strong>1% + 0,20€</strong> par prélèvement. Cliquez sur "Sélectionner GoCardless Standard" pour continuer.<br/><br/>Suivez ensuite les instructions de GoCardless : remplissez les formulaires d\'inscription, renseignez vos informations bancaires et professionnelles, et complétez la vérification d\'identité (KYC). Continuez jusqu\'à arriver sur votre <strong>dashboard GoCardless</strong>.',
-		tip: "L'offre Standard est largement suffisante pour des freelances et PME. Les offres Advanced et Pro sont pour des volumes très importants.",
-		image: "/tutos/gocardless/step-05.png",
+			'Rendez-vous sur <strong>gocardless.com</strong> et cliquez sur "S\'inscrire". Remplissez le formulaire (nom de société, pays France, type d\'entreprise, email, mot de passe). Choisissez l\'offre <strong>Standard</strong> (1% + 0,20€ par prélèvement), puis suivez les instructions pour renseigner vos informations bancaires et compléter la vérification d\'identité (KYC).',
+		tip: "L'offre Standard est largement suffisante pour des freelances et PME. Munissez-vous de votre IBAN, SIRET et pièce d'identité pour le KYC.",
+		image: "/tutos/gocardless/step-05.webp",
 		annotations: [
 			{ type: "rect", x: 10, y: 2, w: 31, h: 96, color: GC_COLOR },
 			{ type: "badge", x: 25, y: 93, text: "Sélectionnez Standard", color: GC_COLOR },
 		],
 	},
 	{
-		number: 4,
+		number: 2,
 		title: "Votre dashboard GoCardless est prêt",
 		description:
 			"Vous arrivez sur votre dashboard GoCardless. Ne vous inquiétez pas du message \"La vérification de votre compte est en cours\" — vous pouvez dès maintenant récupérer votre clé API et configurer FacturNow pendant que GoCardless valide vos informations.",
-		image: "/tutos/gocardless/step-06.png",
+		image: "/tutos/gocardless/step-06.webp",
 		annotations: [
 			{ type: "rect", x: 0, y: 25, w: 12, h: 6, color: GC_COLOR },
 			{ type: "badge", x: 40, y: 15, text: "Bienvenue !", color: GC_COLOR },
 		],
 	},
 	{
-		number: 5,
+		number: 3,
 		title: "Accéder à Développeurs → Paramètres de l'API",
 		description:
 			'Dans le menu latéral gauche, cliquez sur "Développeurs" pour dérouler le sous-menu. Cliquez ensuite sur "Paramètres de l\'API" pour accéder à la gestion des jetons et webhooks.',
-		image: "/tutos/gocardless/step-07.png",
+		image: "/tutos/gocardless/step-07.webp",
 		annotations: [
 			{ type: "rect", x: 3, y: 50, w: 60, h: 9, color: GC_COLOR },
 			
 		],
 	},
 	{
-		number: 6,
+		number: 4,
 		title: "Créer un jeton d'accès",
 		description:
 			'Sur la page "Paramètres de l\'API", vous voyez deux sections : "Jetons d\'accès" et "Points de terminaison de webhook". Dans la section Jetons d\'accès, cliquez sur le lien "Créer un jeton d\'accès".',
-		image: "/tutos/gocardless/step-08.png",
+		image: "/tutos/gocardless/step-08.webp",
 		annotations: [
 			{ type: "rect", x:15, y: 46, w: 15, h: 5, color: GC_COLOR },
 			{ type: "badge", x: 45, y: 45, text: "Créer un jeton d'accès", color: GC_COLOR },
 		],
 	},
 	{
-		number: 7,
+		number: 5,
 		title: "Configurer le jeton — Nom et permissions",
 		description:
 			'Une fenêtre s\'ouvre. Dans le champ "Nom", saisissez <strong>FacturNow</strong>. Pour le "Champ d\'application", sélectionnez <strong>"Accès en mode lecture et écriture"</strong> (indispensable pour créer des mandats et des paiements). Cliquez sur "Créer".',
-		image: "/tutos/gocardless/step-10.png",
+		image: "/tutos/gocardless/step-10.webp",
 		annotations: [
 			
 			{ type: "badge", x: 42, y: 55, text: "Nom : FacturNow", color: GC_COLOR },
@@ -131,12 +109,12 @@ const STEPS: TutorialStep[] = [
 		],
 	},
 	{
-		number: 8,
+		number: 6,
 		title: "Copier votre jeton d'accès immédiatement",
 		description:
 			'GoCardless affiche votre jeton une seule fois. Copiez-le maintenant en cliquant sur l\'icône de copie à droite du champ. Collez-le dans un endroit sûr (gestionnaire de mots de passe). Cliquez ensuite sur "J\'ai copié ce jeton d\'accès".',
 		tip: "Ce jeton commence par live_ en production. Si vous le perdez, vous devrez en créer un nouveau — GoCardless ne le stocke pas.",
-		image: "/tutos/gocardless/step-11.png",
+		image: "/tutos/gocardless/step-11.webp",
 		annotations: [
 			// Masquer le vrai token
 			{ type: "mask", x: 15, y: 28, w: 57, h: 6, bg: "#0f172a" },
@@ -145,12 +123,12 @@ const STEPS: TutorialStep[] = [
 		],
 	},
 	{
-		number: 9,
+		number: 7,
 		title: "Créer le point de terminaison webhook",
 		description:
 			'Revenez sur la page "Paramètres de l\'API". Dans la section "Points de terminaison de webhook", cliquez sur "Créer un point de terminaison de webhook". Saisissez le nom <strong>FacturNow</strong> et collez l\'URL ci-dessous dans le champ URL. Laissez le champ Secret vide (GoCardless le génère) puis cliquez "Créer".',
 		code: "https://facturnow.fr/api/webhooks/gocardless",
-		image: "/tutos/gocardless/step-12.png",
+		image: "/tutos/gocardless/step-12.webp",
 		annotations: [
 
 			{ type: "badge", x: 42, y: 29, text: "Nom : FacturNow", color: GC_COLOR },
@@ -160,11 +138,11 @@ const STEPS: TutorialStep[] = [
 		],
 	},
 	{
-		number: 10,
+		number: 8,
 		title: "Webhook activé — votre endpoint est prêt",
 		description:
 			'Votre webhook apparaît dans la liste avec le statut <strong>Activé</strong> (badge vert). GoCardless enverra désormais les notifications de paiement à FacturNow automatiquement. Cliquez sur le nom "FacturNow" pour afficher les détails et récupérer le Secret.',
-		image: "/tutos/gocardless/step-13.png",
+		image: "/tutos/gocardless/step-13.webp",
 		annotations: [
 			{ type: "rect", x: 0, y: 35, w: 100, h: 32, color: GC_COLOR },
 			// Masquer l'identifiant webhook
@@ -173,11 +151,11 @@ const STEPS: TutorialStep[] = [
 		],
 	},
 	{
-		number: 11,
+		number: 9,
 		title: "Copier le Secret du webhook",
 		description:
 			'Sur la page de détails du webhook, repérez la ligne "Secret". Copiez la valeur affichée et collez-la dans FacturNow → Paiements → GoCardless dans le champ "Webhook Secret". Ce secret permet à FacturNow de vérifier que les notifications viennent bien de GoCardless.',
-		image: "/tutos/gocardless/step-14.png",
+		image: "/tutos/gocardless/step-14.webp",
 		annotations: [
 			// Masquer l'identifiant webhook
 			{ type: "mask", x: 14, y: 45, w: 12, h: 5, bg: "#0f172a" },
@@ -248,7 +226,7 @@ export default function GoCardlessTutorialPage() {
 				<Lightbulb className="h-4 w-4 text-[#00A27B] mt-0.5 shrink-0" />
 				<div>
 					<p className="text-xs font-semibold text-[#00A27B] mb-0.5">
-						URL webhook à copier (étape 9)
+						URL webhook à copier (étape 7)
 					</p>
 					<code className="text-xs text-[#00A27B] dark:text-emerald-400 bg-[#00A27B]/10 dark:bg-[#00A27B]/20 px-2 py-0.5 rounded font-mono">
 						https://facturnow.fr/api/webhooks/gocardless
