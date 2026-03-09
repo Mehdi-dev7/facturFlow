@@ -5,7 +5,7 @@
 // Flow :
 //  1. createBillingRequest()  → billing_request_id
 //  2. createBillingRequestFlow() → authorisation_url (à envoyer au client)
-//  3. Webhook mandates.active → stocker mandate_id sur le Client
+//  3. Webhook billing_requests.fulfilled → stocker mandate_id sur le Client
 //  4. createSepaPayment()  → payment en cours
 //  5. Webhook payments.confirmed → facture PAID
 
@@ -145,6 +145,20 @@ export async function createBillingRequestFlow(
   return data.billing_request_flows.authorisation_url;
 }
 
+// ─── Récupérer les metadata d'un billing_request (invoiceId) ─────────────────
+
+export async function getBillingRequestMetadata(
+  accessToken: string,
+  isSandbox: boolean,
+  billingRequestId: string,
+): Promise<Record<string, string>> {
+  const data = await gcGet<{
+    billing_requests: { metadata?: Record<string, string> };
+  }>(accessToken, isSandbox, `/billing_requests/${billingRequestId}`);
+
+  return data.billing_requests?.metadata ?? {};
+}
+
 // ─── Créer un paiement SEPA sur un mandat actif ───────────────────────────────
 
 export async function createSepaPayment(
@@ -201,11 +215,7 @@ export interface GcWebhookEvent {
   created_at: string;
   resource_type: string;
   action: string;
-  links: {
-    mandate?: string;
-    payment?: string;
-    billing_request?: string;
-  };
+  links: Record<string, string | undefined>;
   metadata: Record<string, string>;
   details: {
     cause: string;
