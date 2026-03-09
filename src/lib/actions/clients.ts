@@ -31,6 +31,7 @@ export interface SavedClient {
   totalPaid: number;
   documentCount: number;
   createdAt: string;
+  gcMandateStatus: string | null;
 }
 
 // ─── Helper : mapper un Client Prisma vers SavedClient ──────────────────────
@@ -53,6 +54,7 @@ type PrismaClientRow = {
   totalInvoiced: { toNumber: () => number };
   totalPaid: { toNumber: () => number };
   createdAt: Date;
+  gcMandateStatus: string | null;
   _count?: { documents: number };
 };
 
@@ -82,6 +84,7 @@ function mapToSavedClient(row: PrismaClientRow): SavedClient {
     totalPaid: row.totalPaid.toNumber(),
     documentCount: row._count?.documents ?? 0,
     createdAt: row.createdAt.toISOString(),
+    gcMandateStatus: row.gcMandateStatus,
   };
 }
 

@@ -73,6 +73,21 @@ function buildKpiData(clients: SavedClient[]): KpiData[] {
   ];
 }
 
+/* ─── Badge SEPA — affiché à côté du nom si mandat GoCardless actif ─── */
+function SepaBadge() {
+  return (
+    <span
+      className="inline-flex items-center gap-0.5 rounded-full px-1.5 py-px text-[9px] lg:text-[10px] font-bold uppercase tracking-wide bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-500/40"
+      title="Mandat SEPA actif — prélèvement direct"
+    >
+      <svg className="size-2.5 lg:size-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M2 7h20M2 12h20M6 17h12" />
+      </svg>
+      SEPA
+    </span>
+  );
+}
+
 /* ─── Type Badge ─── */
 function TypeBadge({ type }: { type: SavedClient["type"] }) {
   const isEntreprise = type === "entreprise";
@@ -97,8 +112,9 @@ const columns: Column<SavedClient>[] = [
     sortable: true,
     getValue: (c) => c.name,
     render: (c) => (
-      <span className="text-xs lg:text-sm font-semibold text-violet-600 dark:text-violet-400">
+      <span className="inline-flex items-center gap-1.5 text-xs lg:text-sm font-semibold text-violet-600 dark:text-violet-400">
         {c.name}
+        {c.gcMandateStatus === "active" && <SepaBadge />}
       </span>
     ),
   },

@@ -6,8 +6,8 @@
 //   - payments.confirmed    → marquer la facture PAID
 //   - payments.failed       → logger l'échec (notification future)
 //
-// Sécurité : signature vérifiée via GOCARDLESS_WEBHOOK_SECRET (env global).
-// Pour le multi-tenant, on retrouve d'abord le user via le metadata.invoiceId.
+// Sécurité : signature vérifiée via le webhookSecret stocké en DB (par user).
+// Fallback : variable d'env GOCARDLESS_WEBHOOK_SECRET (dev uniquement).
 
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
@@ -25,11 +25,12 @@ export async function POST(req: NextRequest) {
   const body = await req.text();
   const signature = req.headers.get("Webhook-Signature") ?? "";
 
-  // ── Trouver le webhookSecret ──────────────────────────────────────────────
-  // Stratégie 1 : via invoiceId dans les metadata (paiements)
-  // Stratégie 2 : tester la signature avec chaque compte GoCardless actif (mandats, etc.)
+  // ── Trouver le webhookSecret + credentials du user ──────────────────────
+  // Stratégie 1 : via invoiceId dans les metadata (events paiement)
+  // Stratégie 2 : tester la signature avec chaque compte GoCardless actif (events mandat)
   // Fallback   : variable d'env globale (dev uniquement)
   let webhookSecret: string | undefined;
+  let matchedCred: GocardlessCredential | undefined;
 
   // Stratégie 1 : retrouver le user via invoiceId
   try {
@@ -51,7 +52,10 @@ export async function POST(req: NextRequest) {
 
         if (account?.isActive) {
           const cred = JSON.parse(decrypt(account.credential)) as GocardlessCredential;
-          if (cred.webhookSecret) webhookSecret = cred.webhookSecret;
+          if (cred.webhookSecret) {
+            webhookSecret = cred.webhookSecret;
+            matchedCred = cred;
+          }
         }
       }
     }
@@ -71,6 +75,7 @@ export async function POST(req: NextRequest) {
         const cred = JSON.parse(decrypt(account.credential)) as GocardlessCredential;
         if (cred.webhookSecret && verifyGoCardlessWebhook(body, signature, cred.webhookSecret)) {
           webhookSecret = cred.webhookSecret;
+          matchedCred = cred;
           break;
         }
       }
@@ -103,18 +108,25 @@ export async function POST(req: NextRequest) {
   }
 
   // GoCardless attend un 200 rapide — on traite en arrière-plan (fire & forget)
-  handleEvents(events).catch((err) => console.error("[GC webhook] handleEvents:", err));
+  handleEvents(events, matchedCred).catch((err) =>
+    console.error("[GC webhook] handleEvents:", err),
+  );
 
   return NextResponse.json({ ok: true }, { status: 200 });
 }
 
 // ─── Traitement des events ────────────────────────────────────────────────────
 
-async function handleEvents(events: GcWebhookEvent[]) {
+async function handleEvents(events: GcWebhookEvent[], cred?: GocardlessCredential) {
   for (const event of events) {
     try {
+      console.log(`[GC webhook] Event: ${event.resource_type}.${event.action}`, {
+        links: event.links,
+        metadata: event.metadata,
+      });
+
       if (event.resource_type === "mandates" && event.action === "active") {
-        await handleMandateActive(event);
+        await handleMandateActive(event, cred);
       } else if (event.resource_type === "payments" && event.action === "confirmed") {
         await handlePaymentConfirmed(event);
       } else if (event.resource_type === "payments" && event.action === "failed") {
@@ -127,19 +139,39 @@ async function handleEvents(events: GcWebhookEvent[]) {
 }
 
 // ─── Mandat activé : stocker le mandate_id + déclencher le paiement ──────────
+// GoCardless ne propage PAS les metadata du billing_request vers l'event mandat.
+// On retrouve l'invoiceId via l'API billing_request si nécessaire.
 
-async function handleMandateActive(event: GcWebhookEvent) {
+async function handleMandateActive(event: GcWebhookEvent, cred?: GocardlessCredential) {
   const mandateId = event.links.mandate;
-  const invoiceId = event.metadata?.invoiceId;
+  if (!mandateId) return;
 
-  if (!mandateId || !invoiceId) return;
+  // Essayer de récupérer l'invoiceId — d'abord dans les metadata de l'event...
+  let invoiceId: string | undefined = event.metadata?.invoiceId;
+
+  // ...sinon via le billing_request lié (API GoCardless)
+  if (!invoiceId && event.links.billing_request && cred?.accessToken) {
+    invoiceId = await fetchInvoiceIdFromBillingRequest(
+      cred.accessToken,
+      cred.accessToken.startsWith("sandbox_"),
+      event.links.billing_request,
+    );
+  }
+
+  if (!invoiceId) {
+    console.warn("[GC webhook] mandates.active sans invoiceId — impossible de retrouver la facture", {
+      mandateId,
+      links: event.links,
+    });
+    return;
+  }
 
   // Récupérer la facture + client + user
   const invoice = await prisma.document.findFirst({
     where: { id: invoiceId, type: "INVOICE" },
     include: {
       client: true,
-      user:   { select: { id: true } },
+      user: { select: { id: true } },
     },
   });
 
@@ -157,22 +189,24 @@ async function handleMandateActive(event: GcWebhookEvent) {
     },
   });
 
-  // Récupérer les credentials GoCardless du user
-  const account = await prisma.paymentAccount.findUnique({
-    where: { userId_provider: { userId: invoice.user.id, provider: "GOCARDLESS" } },
-    select: { credential: true, isActive: true },
-  });
+  // Récupérer les credentials GoCardless du user (si pas déjà disponibles)
+  let userCred = cred;
+  if (!userCred) {
+    const account = await prisma.paymentAccount.findUnique({
+      where: { userId_provider: { userId: invoice.user.id, provider: "GOCARDLESS" } },
+      select: { credential: true, isActive: true },
+    });
 
-  if (!account || !account.isActive) return;
+    if (!account || !account.isActive) return;
 
-  let cred: GocardlessCredential;
-  try {
-    cred = JSON.parse(decrypt(account.credential)) as GocardlessCredential;
-  } catch {
-    return;
+    try {
+      userCred = JSON.parse(decrypt(account.credential)) as GocardlessCredential;
+    } catch {
+      return;
+    }
   }
 
-  const isSandbox = cred.accessToken.startsWith("sandbox_");
+  const isSandbox = userCred.accessToken.startsWith("sandbox_");
   const amountCents = Math.round(Number(invoice.total) * 100);
 
   if (amountCents < 1) {
@@ -182,7 +216,7 @@ async function handleMandateActive(event: GcWebhookEvent) {
 
   // Déclencher le paiement SEPA
   const { paymentId } = await createSepaPayment(
-    cred.accessToken,
+    userCred.accessToken,
     isSandbox,
     {
       mandateId,
@@ -192,7 +226,7 @@ async function handleMandateActive(event: GcWebhookEvent) {
     },
   );
 
-  // Passer la facture en SEPA_PENDING (prélèvement soumis, en attente confirmation bancaire 2-5j)
+  // Passer la facture en SEPA_PENDING
   if (invoice.status !== "PAID") {
     await prisma.document.update({
       where: { id: invoice.id },
@@ -202,6 +236,42 @@ async function handleMandateActive(event: GcWebhookEvent) {
   }
 
   console.log(`[GC webhook] Paiement SEPA créé: ${paymentId} pour facture ${invoice.number}`);
+}
+
+// ─── Récupérer l'invoiceId depuis un billing_request GoCardless ──────────────
+
+async function fetchInvoiceIdFromBillingRequest(
+  accessToken: string,
+  isSandbox: boolean,
+  billingRequestId: string,
+): Promise<string | undefined> {
+  try {
+    const base = isSandbox
+      ? "https://api-sandbox.gocardless.com"
+      : "https://api.gocardless.com";
+
+    const res = await fetch(`${base}/billing_requests/${billingRequestId}`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "GoCardless-Version": "2015-07-06",
+        Accept: "application/json",
+      },
+    });
+
+    if (!res.ok) {
+      console.warn("[GC webhook] Échec GET billing_request:", res.status);
+      return undefined;
+    }
+
+    const data = (await res.json()) as {
+      billing_requests: { metadata?: Record<string, string> };
+    };
+
+    return data.billing_requests?.metadata?.invoiceId;
+  } catch (err) {
+    console.error("[GC webhook] Erreur fetch billing_request:", err);
+    return undefined;
+  }
 }
 
 // ─── Paiement confirmé : marquer la facture PAID ──────────────────────────────
@@ -220,9 +290,9 @@ async function handlePaymentConfirmed(event: GcWebhookEvent) {
   await prisma.document.update({
     where: { id: invoice.id },
     data: {
-      status:        "PAID",
-      paidAt:        new Date(),
-      paidAmount:    invoice.total,
+      status: "PAID",
+      paidAt: new Date(),
+      paidAmount: invoice.total,
       paymentMethod: "sepa",
     },
   });

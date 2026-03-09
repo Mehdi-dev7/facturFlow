@@ -119,8 +119,13 @@ export function ClientSearch({
 					)}
 				</div>
 				<div className="flex-1 min-w-0">
-					<p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
+					<p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate inline-flex items-center gap-1.5">
 						{selectedClient.name}
+						{selectedClient.gcMandateStatus === "active" && (
+							<span className="inline-flex items-center gap-0.5 rounded-full px-1.5 py-px text-[9px] font-bold uppercase tracking-wide bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-500/40 shrink-0">
+								SEPA
+							</span>
+						)}
 					</p>
 					<p className="text-xs text-slate-500 dark:text-violet-300/80 truncate">
 						{selectedClient.email} — {selectedClient.city ?? ""}
@@ -204,9 +209,14 @@ export function ClientSearch({
 											<User className="size-3.5 text-slate-500 dark:text-violet-400" />
 										)}
 									</div>
-									<div className="min-w-0">
-										<p className="text-xs sm:text-sm font-medium text-slate-800 dark:text-slate-200 truncate">
+									<div className="min-w-0 flex-1">
+										<p className="text-xs sm:text-sm font-medium text-slate-800 dark:text-slate-200 truncate inline-flex items-center gap-1.5">
 											{client.name}
+											{client.gcMandateStatus === "active" && (
+												<span className="inline-flex items-center gap-0.5 rounded-full px-1 py-px text-[8px] sm:text-[9px] font-bold uppercase tracking-wide bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-500/40 shrink-0">
+													SEPA
+												</span>
+											)}
 										</p>
 										<p className="text-xs text-slate-500 dark:text-violet-300/80 truncate">
 											{client.email} — {client.city ?? ""}
