@@ -139,8 +139,10 @@ model User {
   nextInvoiceNumber Int    @default(1)
   nextQuoteNumber   Int    @default(1)
   nextCreditNumber  Int    @default(1)
-  nextDepositNumber Int    @default(1)
-  nextReceiptNumber Int    @default(1)
+  nextDepositNumber  Int    @default(1)
+  nextReceiptNumber  Int    @default(1)
+  nextDeliveryNumber Int    @default(1)
+  deliveryNotePrefix String @default("BL")
 
   // Subscription & Plan
   plan             String    @default("FREE") // FREE | PRO | BUSINESS

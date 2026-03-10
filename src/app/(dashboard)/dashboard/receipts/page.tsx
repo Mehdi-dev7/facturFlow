@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { InvoiceSearchCombobox } from "@/components/shared/invoice-search-combobox";
 import { useReceipts, useDeleteReceipt, type SavedReceipt } from "@/hooks/use-receipts";
 import { useInvoices } from "@/hooks/use-invoices";
 import { ReceiptModal } from "@/components/receipts/receipt-modal";
@@ -28,7 +29,6 @@ import { ReceiptPreviewModal } from "@/components/receipts/receipt-preview-modal
 import { RECEIPT_PAYMENT_METHODS } from "@/lib/types/receipts";
 import { ReceiptPdfDocument } from "@/lib/pdf/receipt-pdf-document";
 import { sendReceiptFromInvoice } from "@/lib/actions/send-receipt-email";
-import type { SavedInvoice } from "@/lib/actions/invoices";
 
 // PDFDownloadLink chargé côté client uniquement (utilise des APIs navigateur)
 const PDFDownloadLink = dynamic(
@@ -53,10 +53,6 @@ function getClientName(client: SavedReceipt["client"]): string {
   return [client.firstName, client.lastName].filter(Boolean).join(" ") || client.email;
 }
 
-function getInvoiceClientName(client: SavedInvoice["client"]): string {
-  if (client.companyName) return client.companyName;
-  return [client.firstName, client.lastName].filter(Boolean).join(" ") || client.email;
-}
 
 function formatDateFR(iso: string) {
   return new Date(iso).toLocaleDateString("fr-FR");
@@ -224,35 +220,14 @@ function InvoiceReceiptGenerator() {
 
   return (
     <div className="space-y-3">
-      {/* Ligne 1 : sélecteur + badge */}
-      <div className="flex items-center gap-1">
-        <Select value={selectedInvoiceId} onValueChange={handleSelectChange}>
-          <SelectTrigger className="flex-1 max-w-xs sm:max-w-sm md:max-w-lg h-auto min-h-9 py-1.5 bg-white/90 dark:bg-[#2a2254]/80 border-slate-300 dark:border-violet-400/30 rounded-xl text-[11px] xs:text-xs sm:text-sm text-slate-900 dark:text-violet-100 cursor-pointer">
-            <SelectValue placeholder="Sélectionner une facture payée..." />
-          </SelectTrigger>
-          <SelectContent className="max-w-[92vw] xs:max-w-sm md:max-w-lg rounded-xl shadow-lg dark:shadow-violet-950/50 bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#1e1845] dark:to-[#1a1438] border border-primary/20 dark:border-violet-400/30">
-            {paidInvoices.map((inv) => (
-              <SelectItem
-                key={inv.id}
-                value={inv.id}
-                className="text-slate-800 dark:text-violet-100 focus:bg-violet-100 dark:focus:bg-violet-500/25 focus:text-slate-900 dark:focus:text-violet-50 cursor-pointer py-2.5"
-              >
-                {/* Numéro | Client (milieu tronqué) | Montant (droite) */}
-                <div className="flex items-center gap-2 xs:gap-3 w-full min-w-0">
-                  <span className="font-bold text-[11px] xs:text-xs sm:text-sm text-violet-700 dark:text-violet-300 shrink-0">
-                    {inv.number}
-                  </span>
-                  <span className="flex-1 text-[10px] xs:text-[11px] sm:text-xs text-slate-500 dark:text-violet-400/80 truncate">
-                    {getInvoiceClientName(inv.client)}
-                  </span>
-                  <span className="text-[11px] xs:text-xs sm:text-sm font-semibold text-slate-700 dark:text-violet-200 tabular-nums shrink-0 ml-auto">
-                    {formatAmount(inv.total)}
-                  </span>
-                </div>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      {/* Ligne 1 : combobox de recherche + badge */}
+      <div className="flex items-center gap-2">
+        <InvoiceSearchCombobox
+          invoices={paidInvoices}
+          value={selectedInvoiceId}
+          onChange={handleSelectChange}
+          placeholder="Rechercher une facture payée..."
+        />
 
         {/* Badge "Envoyé" — visible uniquement après un envoi réussi */}
         {wasSent && (

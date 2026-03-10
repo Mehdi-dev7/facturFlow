@@ -9,8 +9,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Printer, Download, Send, Pencil, X, FileCheck2, ShieldCheck, Trash2 } from "lucide-react";
+import { Printer, Download, Send, Pencil, X, FileCheck2, ShieldCheck, Trash2, FileMinus } from "lucide-react";
 import { DeleteConfirmModal } from "@/components/shared/delete-confirm-modal";
+import { CreditNoteDialog } from "@/components/avoirs/credit-note-dialog";
 import { SiStripe, SiPaypal } from "react-icons/si";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -636,6 +637,16 @@ export function InvoicePreviewModal({
     onOpenChange(false);
   }, [invoice, router, onOpenChange]);
 
+  // État pour le dialog de création d'avoir
+  const [creditNoteOpen, setCreditNoteOpen] = useState(false);
+
+  // Ferme la preview puis ouvre le dialog avoir
+  const handleCreditNote = useCallback(() => {
+    if (!invoice) return;
+    onOpenChange(false);
+    setCreditNoteOpen(true);
+  }, [invoice, onOpenChange]);
+
   const [isSendingEInvoice, setIsSendingEInvoice] = useState(false);
 
   const handleSendEInvoice = useCallback(async () => {
@@ -714,6 +725,17 @@ export function InvoicePreviewModal({
                   >
                     <Pencil size={16} />
                   </button>
+
+                  {/* Avoir - Logo seul (visible uniquement si facture payée) */}
+                  {invoice && invoice.status === "PAID" && (
+                    <button
+                      onClick={handleCreditNote}
+                      className="rounded-lg border p-2 text-sm font-medium transition-colors border-rose-300 text-rose-600 hover:bg-rose-50 dark:border-rose-500 dark:text-rose-400 dark:hover:bg-rose-950 cursor-pointer"
+                      title="Émettre un avoir"
+                    >
+                      <FileMinus size={16} />
+                    </button>
+                  )}
                 </div>
 
                 {/* Supprimer - Seul à droite */}
@@ -867,6 +889,20 @@ export function InvoicePreviewModal({
       documentLabel="la facture"
       documentNumber={invoice?.number ?? ""}
     />
+
+    {/* Dialog de création d'avoir — s'ouvre après fermeture de la modal de prévisualisation */}
+    {invoice && (
+      <CreditNoteDialog
+        invoice={{
+          id: invoice.id,
+          number: invoice.number,
+          total: invoice.total,
+          client: { email: invoice.client.email },
+        }}
+        open={creditNoteOpen}
+        onOpenChange={setCreditNoteOpen}
+      />
+    )}
     </>
   );
 }

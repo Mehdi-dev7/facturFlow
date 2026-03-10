@@ -1,0 +1,543 @@
+"use client";
+
+// Page liste des avoirs (notes de crédit)
+// Création directement depuis cette page via sélection d'une facture (pattern identique aux reçus)
+
+import { useState, useMemo, useCallback, Suspense } from "react";
+import dynamic from "next/dynamic";
+import { FileMinus, Download, Loader2, Send, CheckCircle2 } from "lucide-react";
+import {
+  PageHeader,
+  KpiCard,
+  SearchBar,
+  DataTable,
+  ActionButtons,
+} from "@/components/dashboard";
+import type { KpiData, Column } from "@/components/dashboard";
+import { DeleteConfirmModal } from "@/components/shared/delete-confirm-modal";
+import { InvoiceSearchCombobox } from "@/components/shared/invoice-search-combobox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { useCreditNotes, useDeleteCreditNote } from "@/hooks/use-credit-notes";
+import type { SavedCreditNote } from "@/lib/types/credit-notes";
+import { CREDIT_NOTE_REASONS } from "@/lib/types/credit-notes";
+import { CreditNotePdfDocument } from "@/lib/pdf/credit-note-pdf-document";
+import { useInvoices } from "@/hooks/use-invoices";
+import { createCreditNote } from "@/lib/actions/credit-notes";
+import { sendCreditNoteEmail } from "@/lib/actions/send-credit-note-email";
+import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
+
+// PDFDownloadLink chargé côté client uniquement
+const PDFDownloadLink = dynamic(
+  () => import("@react-pdf/renderer").then((m) => m.PDFDownloadLink),
+  { ssr: false, loading: () => null },
+);
+
+// ─── Types & Helpers ──────────────────────────────────────────────────────────
+
+interface CreditNoteRow {
+  id: string;
+  number: string;
+  client: string;
+  invoiceNumber: string;
+  date: string;
+  amount: string;
+  reason: string;
+}
+
+function getClientName(client: SavedCreditNote["client"]): string {
+  if (client.companyName) return client.companyName;
+  return [client.firstName, client.lastName].filter(Boolean).join(" ") || client.email;
+}
+
+
+function getReasonLabel(value: string): string {
+  return CREDIT_NOTE_REASONS.find((r) => r.value === value)?.label ?? value;
+}
+
+function formatDateFR(iso: string) {
+  return new Date(iso).toLocaleDateString("fr-FR");
+}
+
+function formatAmount(n: number) {
+  return n.toLocaleString("fr-FR", { minimumFractionDigits: 2 }) + " €";
+}
+
+function toRow(cn: SavedCreditNote): CreditNoteRow {
+  return {
+    id: cn.id,
+    number: cn.number,
+    client: getClientName(cn.client),
+    invoiceNumber: cn.invoiceNumber,
+    date: formatDateFR(cn.date),
+    amount: formatAmount(cn.total),
+    reason: getReasonLabel(cn.reason),
+  };
+}
+
+// ─── KPIs ─────────────────────────────────────────────────────────────────────
+
+function buildKpis(creditNotes: SavedCreditNote[]): KpiData[] {
+  const total = creditNotes.length;
+  const totalAmount = creditNotes.reduce((s, cn) => s + cn.total, 0);
+
+  return [
+    {
+      label: "Total avoirs",
+      value: String(total),
+      change: `${total} avoir${total > 1 ? "s" : ""}`,
+      changeType: "up",
+      icon: "file",
+      iconBg: "bg-rose-500",
+      borderAccent: "border-rose-500/30",
+      gradientFrom: "#fff1f2",
+      gradientTo: "#fecdd3",
+      darkGradientFrom: "#1e1b4b",
+      darkGradientTo: "#4c0519",
+    },
+    {
+      label: "Montant total crédité",
+      value: formatAmount(totalAmount),
+      change: "Tous avoirs confondus",
+      changeType: "neutral",
+      icon: "check",
+      iconBg: "bg-red-500",
+      borderAccent: "border-red-500/30",
+      gradientFrom: "#fff1f2",
+      gradientTo: "#fca5a5",
+      darkGradientFrom: "#1e1b4b",
+      darkGradientTo: "#7f1d1d",
+    },
+  ];
+}
+
+// ─── Générateur d'avoir depuis une facture ────────────────────────────────────
+
+function InvoiceCreditNoteGenerator() {
+  const queryClient = useQueryClient();
+  const { data: allInvoices = [] } = useInvoices();
+
+  const [selectedInvoiceId, setSelectedInvoiceId] = useState("");
+  const [type, setType] = useState<"full" | "partial">("full");
+  const [amount, setAmount] = useState("");
+  const [reason, setReason] = useState("");
+  const [isCreating, setIsCreating] = useState(false);
+  const [wasSent, setWasSent] = useState(false);
+
+  // Factures éligibles (tout sauf brouillons)
+  // Uniquement les factures payées (logique métier : on n'émet un avoir que sur du payé)
+  const eligibleInvoices = useMemo(
+    () => allInvoices.filter((inv) => inv.status === "PAID"),
+    [allInvoices],
+  );
+
+  const selectedInvoice = useMemo(
+    () => eligibleInvoices.find((inv) => inv.id === selectedInvoiceId),
+    [eligibleInvoices, selectedInvoiceId],
+  );
+
+  // Réinitialiser les champs quand on change de facture
+  const handleInvoiceChange = useCallback((value: string) => {
+    setSelectedInvoiceId(value);
+    setType("full");
+    setAmount("");
+    setReason("");
+    setWasSent(false);
+  }, []);
+
+  const handleCreate = useCallback(async () => {
+    if (!selectedInvoice || !reason || isCreating) return;
+
+    if (type === "partial") {
+      const parsed = parseFloat(amount.replace(",", "."));
+      if (!parsed || parsed <= 0 || parsed > selectedInvoice.total) {
+        toast.error("Montant invalide (doit être entre 0 et " + formatAmount(selectedInvoice.total) + ")");
+        return;
+      }
+    }
+
+    setIsCreating(true);
+    try {
+      const parsed = type === "partial" ? parseFloat(amount.replace(",", ".")) : undefined;
+
+      const result = await createCreditNote({
+        invoiceId: selectedInvoice.id,
+        type,
+        amount: parsed,
+        reason,
+      });
+
+      if (!result.success) {
+        toast.error(result.error ?? "Erreur lors de la création de l'avoir");
+        return;
+      }
+
+      // Envoyer l'email en arrière-plan
+      sendCreditNoteEmail(result.data.id).catch((err) =>
+        console.error("[avoir] Erreur envoi email:", err),
+      );
+
+      queryClient.invalidateQueries({ queryKey: ["credit-notes"] });
+      toast.success(`Avoir ${result.data.number} créé et envoyé à ${selectedInvoice.client.email}`);
+      setWasSent(true);
+      setSelectedInvoiceId("");
+      setType("full");
+      setAmount("");
+      setReason("");
+    } finally {
+      setIsCreating(false);
+    }
+  }, [selectedInvoice, type, amount, reason, isCreating, queryClient]);
+
+  if (eligibleInvoices.length === 0) {
+    return (
+      <p className="text-xs text-slate-400 dark:text-violet-400/60 italic">
+        Aucune facture disponible pour émettre un avoir.
+      </p>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      {/* Ligne 1 : combobox de recherche de facture */}
+      <InvoiceSearchCombobox
+        invoices={eligibleInvoices}
+        value={selectedInvoiceId}
+        onChange={handleInvoiceChange}
+        placeholder="Rechercher une facture payée..."
+      />
+
+      {/* Options si facture sélectionnée */}
+      {selectedInvoice && (
+        <div className="space-y-3 pt-1">
+          {/* Type : total / partiel */}
+          <div className="flex items-center gap-3">
+            <label className="flex items-center gap-1.5 cursor-pointer text-xs xs:text-sm text-slate-700 dark:text-slate-300">
+              <input
+                type="radio"
+                name="creditType"
+                value="full"
+                checked={type === "full"}
+                onChange={() => setType("full")}
+                className="accent-rose-600 cursor-pointer"
+              />
+              Total ({formatAmount(selectedInvoice.total)})
+            </label>
+            <label className="flex items-center gap-1.5 cursor-pointer text-xs xs:text-sm text-slate-700 dark:text-slate-300">
+              <input
+                type="radio"
+                name="creditType"
+                value="partial"
+                checked={type === "partial"}
+                onChange={() => setType("partial")}
+                className="accent-rose-600 cursor-pointer"
+              />
+              Partiel
+            </label>
+          </div>
+
+          {/* Montant si partiel */}
+          {type === "partial" && (
+            <input
+              type="number"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              placeholder={`Montant (max ${formatAmount(selectedInvoice.total)})`}
+              min={0.01}
+              max={selectedInvoice.total}
+              step={0.01}
+              className="w-full max-w-xs rounded-xl border border-slate-300 dark:border-violet-400/30 bg-white/90 dark:bg-[#2a2254]/80 px-3 py-1.5 text-xs xs:text-sm text-slate-900 dark:text-violet-100 focus:outline-none focus:ring-2 focus:ring-rose-500/50"
+            />
+          )}
+
+          {/* Motif */}
+          <Select value={reason} onValueChange={setReason}>
+            <SelectTrigger className="w-full max-w-xs sm:max-w-sm h-auto min-h-9 py-1.5 bg-white/90 dark:bg-[#2a2254]/80 border-slate-300 dark:border-violet-400/30 rounded-xl text-[11px] xs:text-xs sm:text-sm text-slate-900 dark:text-violet-100 cursor-pointer">
+              <SelectValue placeholder="Motif de l'avoir..." />
+            </SelectTrigger>
+            <SelectContent className="rounded-xl shadow-lg dark:shadow-violet-950/50 bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#1e1845] dark:to-[#1a1438] border border-primary/20 dark:border-violet-400/30">
+              {CREDIT_NOTE_REASONS.map((r) => (
+                <SelectItem
+                  key={r.value}
+                  value={r.value}
+                  className="text-slate-800 dark:text-violet-100 focus:bg-violet-100 dark:focus:bg-violet-500/25 cursor-pointer"
+                >
+                  {r.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {/* Bouton créer + badge succès */}
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              disabled={!reason || isCreating}
+              onClick={handleCreate}
+              className="bg-linear-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700 text-white font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-sm"
+            >
+              {isCreating ? (
+                <Loader2 className="size-3.5 sm:size-4 animate-spin mr-1.5" />
+              ) : (
+                <Send className="size-3.5 sm:size-4 mr-1.5" />
+              )}
+              {isCreating ? "Création en cours..." : "Émettre l'avoir et envoyer par email"}
+            </Button>
+
+            {wasSent && (
+              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-500/40 shrink-0">
+                <CheckCircle2 size={12} />
+                Émis
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Contenu de la page ───────────────────────────────────────────────────────
+
+function AvoirsPageContent() {
+  const [search, setSearch] = useState("");
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+
+  const { data: allCreditNotes = [], isLoading } = useCreditNotes();
+  const deleteMutation = useDeleteCreditNote();
+
+  const creditNoteMap = useMemo(() => {
+    const m = new Map<string, SavedCreditNote>();
+    for (const cn of allCreditNotes) m.set(cn.id, cn);
+    return m;
+  }, [allCreditNotes]);
+
+  const handleSearch = useCallback((v: string) => setSearch(v), []);
+
+  const allRows = useMemo(() => allCreditNotes.map(toRow), [allCreditNotes]);
+  const filteredRows = useMemo(() => {
+    if (!search.trim()) return allRows;
+    const q = search.toLowerCase();
+    return allRows.filter(
+      (r) =>
+        r.number.toLowerCase().includes(q) ||
+        r.client.toLowerCase().includes(q) ||
+        r.invoiceNumber.toLowerCase().includes(q),
+    );
+  }, [allRows, search]);
+
+  const kpis = useMemo(() => buildKpis(allCreditNotes), [allCreditNotes]);
+
+  const columns = useMemo(
+    (): Column<CreditNoteRow>[] => [
+      {
+        key: "number",
+        label: "N° Avoir",
+        headerClassName: "md:w-[130px] lg:w-auto",
+        cellClassName: "md:w-[130px] lg:w-auto overflow-hidden",
+        render: (row) => (
+          <span className="text-[11px] lg:text-xs xl:text-sm font-semibold text-rose-600 dark:text-rose-400 block truncate md:max-w-[110px] lg:max-w-none">
+            {row.number}
+          </span>
+        ),
+      },
+      {
+        key: "client",
+        label: "Client",
+        headerClassName: "md:w-[120px] lg:w-auto",
+        cellClassName: "md:w-[120px] lg:w-auto overflow-hidden",
+        render: (row) => (
+          <span className="text-[11px] lg:text-xs xl:text-sm text-slate-700 dark:text-slate-300 block truncate md:max-w-[100px] lg:max-w-none">
+            {row.client}
+          </span>
+        ),
+      },
+      {
+        key: "invoiceNumber",
+        label: "Facture d'origine",
+        render: (row) => (
+          <span className="text-xs lg:text-sm text-slate-500 dark:text-slate-400">
+            {row.invoiceNumber}
+          </span>
+        ),
+      },
+      {
+        key: "reason",
+        label: "Motif",
+        render: (row) => (
+          <span className="text-xs lg:text-sm text-slate-500 dark:text-slate-400 truncate max-w-[160px] block">
+            {row.reason}
+          </span>
+        ),
+      },
+      {
+        key: "date",
+        label: "Date",
+        sortable: true,
+        getValue: (row) =>
+          new Date(row.date.split("/").reverse().join("-")).getTime(),
+        render: (row) => (
+          <span className="text-xs lg:text-sm text-slate-500 dark:text-slate-400">
+            {row.date}
+          </span>
+        ),
+      },
+      {
+        key: "amount",
+        label: "Montant",
+        align: "right",
+        sortable: true,
+        getValue: (row) => creditNoteMap.get(row.id)?.total ?? 0,
+        render: (row) => (
+          <span className="text-xs lg:text-sm font-semibold text-rose-600 dark:text-rose-400">
+            − {row.amount}
+          </span>
+        ),
+      },
+      {
+        key: "id",
+        label: "PDF",
+        align: "center",
+        render: (row) => {
+          const cn = creditNoteMap.get(row.id);
+          if (!cn) return null;
+          return (
+            <PDFDownloadLink
+              document={<CreditNotePdfDocument creditNote={cn} />}
+              fileName={`${cn.number}.pdf`}
+            >
+              {({ loading }) =>
+                loading ? (
+                  <Loader2 className="size-4 animate-spin text-slate-400 mx-auto" />
+                ) : (
+                  <button
+                    type="button"
+                    className="flex items-center gap-1 text-xs font-medium text-rose-600 hover:text-rose-800 dark:text-rose-400 dark:hover:text-rose-300 transition-colors cursor-pointer mx-auto"
+                    aria-label={`Télécharger le PDF de l'avoir ${cn.number}`}
+                  >
+                    <Download className="size-3.5" />
+                    <span className="hidden lg:inline">PDF</span>
+                  </button>
+                )
+              }
+            </PDFDownloadLink>
+          );
+        },
+      },
+    ],
+    [creditNoteMap],
+  );
+
+  const handleDeleteConfirm = useCallback(() => {
+    if (!deleteTargetId) return;
+    deleteMutation.mutate(deleteTargetId);
+    setDeleteTargetId(null);
+  }, [deleteTargetId, deleteMutation]);
+
+  return (
+    <div>
+      {/* Header */}
+      <PageHeader
+        title="Avoirs"
+        subtitle="Gérez vos notes de crédit"
+      />
+
+      {/* KPI Cards — 1 col mobile, 2 col md+, taille limitée sur grand écran */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8 max-w-2xl lg:max-w-5xl">
+        {kpis.map((kpi, i) => (
+          <KpiCard key={kpi.label} data={kpi} index={i} />
+        ))}
+      </div>
+
+      {/* Générateur d'avoir depuis une facture — même pattern que la page Reçus */}
+      <div className="rounded-2xl border border-slate-300/80 dark:border-violet-500/20 shadow-md shadow-slate-200/50 dark:shadow-violet-950/30 bg-white/75 dark:bg-[#1a1438] backdrop-blur-lg p-2.5 lg:p-3 mb-6">
+        <div className="flex items-center gap-2 mb-4">
+          <div className="p-1.5 rounded-lg bg-rose-100 dark:bg-rose-500/20">
+            <FileMinus className="size-4 text-rose-600 dark:text-rose-400" />
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+              Émettre un avoir depuis une facture
+            </h3>
+            <p className="text-[11px] text-slate-400 dark:text-violet-400/60">
+              Sélectionnez une facture — créez un avoir total ou partiel et envoyez-le par email
+            </p>
+          </div>
+        </div>
+        <InvoiceCreditNoteGenerator />
+      </div>
+
+      {/* SearchBar */}
+      <div className="mb-6">
+        <SearchBar
+          placeholder="Rechercher par n° avoir, client, facture..."
+          onSearch={handleSearch}
+        />
+      </div>
+
+      {/* Tableau des avoirs */}
+      <div className="rounded-2xl border border-slate-300/80 dark:border-violet-500/20 shadow-lg shadow-slate-200/50 dark:shadow-violet-950/40 bg-white/75 dark:bg-[#1a1438] backdrop-blur-lg overflow-hidden">
+        <div className="flex items-center gap-3 px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-200 dark:border-violet-500/20">
+          <div className="p-1.5 rounded-lg bg-rose-100 dark:bg-rose-500/20 shrink-0">
+            <FileMinus className="size-4 text-rose-600 dark:text-rose-400" />
+          </div>
+          <div>
+            <h2 className="text-base sm:text-lg lg:text-2xl font-bold text-slate-900 dark:text-slate-100">
+              Avoirs émis
+            </h2>
+            <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">
+              {isLoading
+                ? "Chargement..."
+                : `${filteredRows.length} avoir${filteredRows.length > 1 ? "s" : ""}`}
+            </p>
+          </div>
+        </div>
+
+        <DataTable<CreditNoteRow>
+          data={filteredRows}
+          columns={columns}
+          getRowId={(row) => row.id}
+          limit={10}
+          mobileFields={["number", "client"]}
+          mobileAmountKey="amount"
+          actions={(row) => (
+            <ActionButtons onDelete={() => setDeleteTargetId(row.id)} />
+          )}
+          emptyTitle={isLoading ? "Chargement…" : "Aucun avoir émis"}
+          emptyDescription={
+            isLoading
+              ? "Récupération des avoirs en cours…"
+              : "Utilisez le formulaire ci-dessus pour émettre votre premier avoir."
+          }
+        />
+      </div>
+
+      {/* Modale suppression */}
+      <DeleteConfirmModal
+        open={!!deleteTargetId}
+        onOpenChange={(o) => !o && setDeleteTargetId(null)}
+        onConfirm={handleDeleteConfirm}
+        isDeleting={deleteMutation.isPending}
+        documentLabel="l'avoir"
+        documentNumber={deleteTargetId ? (creditNoteMap.get(deleteTargetId)?.number ?? "") : ""}
+      />
+    </div>
+  );
+}
+
+// ─── Page avec Suspense ───────────────────────────────────────────────────────
+
+export default function AvoirsPage() {
+  return (
+    <Suspense>
+      <AvoirsPageContent />
+    </Suspense>
+  );
+}
