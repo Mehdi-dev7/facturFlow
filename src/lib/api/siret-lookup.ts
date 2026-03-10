@@ -68,7 +68,9 @@ export async function lookupSiret(siret: string): Promise<SiretData> {
 
 	return {
 		name: company.nom_complet ?? "",
-		siret: company.siret ?? clean,
+		// Pour les entreprises non-diffusables, l'API peut retourner le SIREN (9 chiffres)
+		// à la place du SIRET (14 chiffres) — dans ce cas on garde ce que l'utilisateur a tapé
+		siret: (company.siret?.length === 14) ? company.siret : clean,
 		siren,
 		address: addressParts.join(" "),
 		zipCode: siege.code_postal ?? "",
