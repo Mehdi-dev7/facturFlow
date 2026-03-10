@@ -105,6 +105,10 @@ function buildEN16931(invoice: InvoiceWithFullData): EN16931Invoice {
 
 	const { client, user } = invoice;
 
+	// SIREN : priorité au champ dédié, fallback sur les 9 premiers chiffres du SIRET
+	const userSiren  = user.companySiren  ?? user.companySiret?.slice(0, 9)  ?? null;
+	const clientSiren = client.companySiren ?? client.companySiret?.slice(0, 9) ?? null;
+
 	// Nom affiché du client
 	const fullName = `${client.firstName ?? ""} ${client.lastName ?? ""}`.trim();
 	const buyerName = client.companyName ?? (fullName || client.email);
@@ -119,7 +123,7 @@ function buildEN16931(invoice: InvoiceWithFullData): EN16931Invoice {
 		}),
 		currency_code: "EUR",
 
-		// ─ Notes légales obligatoires (France) ─
+		// ─ Notes légales obligatoires (France) + notes libres de la facture ─
 		notes: [
 			{
 				subject_code: "PMT",
@@ -133,6 +137,8 @@ function buildEN16931(invoice: InvoiceWithFullData): EN16931Invoice {
 				subject_code: "AAB",
 				note: "Aucun escompte pour paiement anticipé.",
 			},
+			// Notes libres de l'utilisateur (ex: mentions URSSAF, auto-entrepreneur, etc.)
+			...(invoice.notes ? [{ note: invoice.notes }] : []),
 		],
 
 		// ─ Processus Peppol ─
@@ -145,30 +151,17 @@ function buildEN16931(invoice: InvoiceWithFullData): EN16931Invoice {
 		seller: (() => {
 			const seller: any = {
 				name: user.companyName ?? "FacturNow User",
-				identifiers: [
-					{
-						value: user.companySiren,
-						scheme: "0225",
-					},
-				],
-				postal_address: {
-					country_code: "FR",
-				},
-				electronic_address: { scheme: "0225", value: user.companySiren },
-				legal_registration_identifier: {
-					scheme: "0002",
-					value: user.companySiren,
-				},
+				identifiers: [{ value: userSiren, scheme: "0225" }],
+				postal_address: { country_code: "FR" },
+				electronic_address: { scheme: "0225", value: userSiren },
+				legal_registration_identifier: { scheme: "0002", value: userSiren },
 			};
-			
-			// Ajouter les champs d'adresse seulement s'ils existent
+
 			if (user.companyAddress) seller.postal_address.address_line1 = user.companyAddress;
 			if (user.companyCity) seller.postal_address.city = user.companyCity;
 			if (user.companyPostalCode) seller.postal_address.post_code = user.companyPostalCode;
-			
-			// Ajouter le numéro de TVA seulement s'il existe
 			if (user.companyVatNumber) seller.vat_identifier = user.companyVatNumber;
-			
+
 			return seller;
 		})(),
 
@@ -180,20 +173,12 @@ function buildEN16931(invoice: InvoiceWithFullData): EN16931Invoice {
 					country_code: client.country === "France" ? "FR" : (client.country ?? "FR"),
 				},
 			};
-			
-			// Ajouter les identifiants seulement si le client a un SIREN
-			if (client.companySiren) {
-				buyer.identifiers = [
-					{
-						value: client.companySiren,
-						scheme: "0225",
-					},
-				];
-				buyer.electronic_address = { scheme: "0225", value: client.companySiren };
-				buyer.legal_registration_identifier = {
-					scheme: "0002",
-					value: client.companySiren,
-				};
+
+			// Identifiants Peppol uniquement si le client a un SIREN (B2B français)
+			if (clientSiren) {
+				buyer.identifiers = [{ value: clientSiren, scheme: "0225" }];
+				buyer.electronic_address = { scheme: "0225", value: clientSiren };
+				buyer.legal_registration_identifier = { scheme: "0002", value: clientSiren };
 			}
 			
 			// Ajouter les champs d'adresse seulement s'ils existent
@@ -208,6 +193,12 @@ function buildEN16931(invoice: InvoiceWithFullData): EN16931Invoice {
 			
 			return buyer;
 		})(),
+
+		// ─ Livraison (BG-13) — requis pour éviter un élément CII vide (PEPPOL-EN16931-R008) ─
+		// On utilise la date de facture comme date de livraison par défaut
+		delivery_information: {
+			delivery_date: invoice.date.toISOString().substring(0, 10),
+		},
 
 		// ─ Lignes de facture ─
 		lines: invoice.lineItems.map((li, idx) => ({
@@ -247,11 +238,6 @@ function buildEN16931(invoice: InvoiceWithFullData): EN16931Invoice {
 				}),
 			},
 		],
-
-		// ─ Notes ─
-		...(invoice.notes && {
-			notes: [{ note: invoice.notes }],
-		}),
 
 		// ─ Instructions de paiement (virement SEPA si IBAN disponible) ─
 		...(user.iban && {
@@ -374,17 +360,21 @@ export async function sendEInvoice(invoiceId: string) {
 		}
 
 		// ─ 3. Vérification : le client doit avoir un SIREN pour le routage Peppol ─
-		if (!invoice.client.companySiren) {
+		// SIREN avec fallback SIRET (les 9 premiers chiffres du SIRET = SIREN)
+		const clientSirenFinal = invoice.client.companySiren ?? invoice.client.companySiret?.slice(0, 9) ?? null;
+		const userSirenFinal   = invoice.user.companySiren   ?? invoice.user.companySiret?.slice(0, 9)   ?? null;
+
+		if (!clientSirenFinal) {
 			return {
 				success: false,
 				error:
-					"Le client doit avoir un SIREN pour recevoir une facture électronique. " +
-					"Ajoutez son SIREN dans la fiche client.",
+					"Le client doit avoir un SIREN ou SIRET pour recevoir une facture électronique. " +
+					"Ajoutez-le dans la fiche client.",
 			} as const;
 		}
 
 		// ─ 4. Vérification : le vendeur doit avoir un SIREN (requis pour son adresse Peppol) ─
-		if (!invoice.user.companySiren) {
+		if (!userSirenFinal) {
 			return {
 				success: false,
 				error:
@@ -428,6 +418,59 @@ export async function sendEInvoice(invoiceId: string) {
 			success: false,
 			error: `Envoi électronique échoué : ${message}`,
 		} as const;
+	}
+}
+
+// ─── Action : tester la conversion EN16931 → XML (sans envoyer sur Peppol) ────
+// Utile pour vérifier que la facture est valide avant de passer en production.
+
+export async function testEInvoiceConversion(invoiceId: string) {
+	const session = await auth.api.getSession({ headers: await headers() });
+	if (!session?.user?.id) {
+		return { success: false, error: "Non authentifié", xml: null } as const;
+	}
+
+	try {
+		const invoice = await prisma.document.findFirst({
+			where: { id: invoiceId, userId: session.user.id, type: "INVOICE" },
+			select: {
+				id: true, number: true, date: true, dueDate: true, notes: true,
+				subtotal: true, taxTotal: true, total: true, depositAmount: true,
+				businessMetadata: true, einvoiceRef: true,
+				lineItems: {
+					select: { description: true, quantity: true, unitPrice: true, vatRate: true, subtotal: true },
+					orderBy: { order: "asc" },
+				},
+				client: {
+					select: {
+						companyName: true, firstName: true, lastName: true,
+						companySiren: true, companySiret: true, companyVatNumber: true,
+						email: true, address: true, postalCode: true, city: true, country: true, phone: true,
+					},
+				},
+				user: {
+					select: {
+						companyName: true, companySiren: true, companySiret: true,
+						companyVatNumber: true, companyAddress: true, companyPostalCode: true,
+						companyCity: true, companyEmail: true, companyPhone: true, iban: true, bic: true,
+					},
+				},
+			},
+		});
+
+		if (!invoice) return { success: false, error: "Facture introuvable", xml: null } as const;
+		const clientSirenCheck = invoice.client.companySiren ?? invoice.client.companySiret?.slice(0, 9) ?? null;
+		const userSirenCheck   = invoice.user.companySiren   ?? invoice.user.companySiret?.slice(0, 9)   ?? null;
+		if (!clientSirenCheck) return { success: false, error: "SIREN/SIRET client manquant", xml: null } as const;
+		if (!userSirenCheck) return { success: false, error: "SIREN/SIRET vendeur manquant", xml: null } as const;
+
+		const en16931 = removeEmptyProperties(buildEN16931(invoice as unknown as InvoiceWithFullData)) as EN16931Invoice;
+		const xml = await convertInvoiceToXml(en16931);
+
+		return { success: true, xml, en16931 } as const;
+	} catch (error) {
+		const message = error instanceof Error ? error.message : "Erreur inconnue";
+		return { success: false, error: message, xml: null } as const;
 	}
 }
 

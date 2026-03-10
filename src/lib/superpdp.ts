@@ -25,6 +25,8 @@ export interface EN16931Invoice {
   totals: EN16931Totals
   vat_break_down: EN16931VatBreakdown[]
   notes?: { note: string; subject_code?: string }[]
+  // BG-13 — Date de livraison (obligatoire pour éviter un ApplicableHeaderTradeDelivery vide en CII)
+  delivery_information?: { delivery_date: string }
   payment_instructions?: {
     credit_transfers?: {
       payment_account_identifier?: { scheme: string; value: string }
@@ -197,9 +199,6 @@ export async function getTestInvoice(): Promise<any> {
  * SuperPDP génère le XML conforme — on n'a pas à le faire nous-mêmes.
  */
 export async function convertInvoiceToXml(invoice: EN16931Invoice): Promise<string> {
-  // Debug: log de l'objet qu'on envoie (à supprimer en production)
-  console.log("[SuperPDP] Envoi EN16931:", JSON.stringify(invoice, null, 2));
-  
   const res = await superpdpFetch(
     "/v1.beta/invoices/convert?from=en16931&to=cii",
     {
@@ -279,7 +278,9 @@ export async function getInvoiceEvents(startingAfterId: number): Promise<SuperPD
  */
 export async function validateInvoice(xml: string, fileName = "invoice.xml") {
   const formData = new FormData()
+  // SuperPDP attend le fichier XML sous la clé "file_name" en multipart
   formData.append("file_name", new Blob([xml], { type: "application/xml" }), fileName)
+  // Supprimer le header Content-Type pour que fetch génère automatiquement le boundary multipart
 
   const res = await superpdpFetch("/v1.beta/validation_reports", {
     method: "POST",
