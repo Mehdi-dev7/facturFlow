@@ -692,7 +692,7 @@ Utilise les agents quand :
 - [ ] **Boutons paiement dans form facture** : afficher par provider connecté lors de la création
 - [ ] **Style email paiement** : responsive mobile des emails avec boutons Stripe/PayPal/SEPA
 - [ ] **OAuth Microsoft** : activer le provider (MICROSOFT_CLIENT_ID/SECRET dans .env + Vercel)
-- [ ] **Export CSV** (Pro) : factures, CA, TVA — page /dashboard/stats
+- [x] **Export CSV** (Pro) : factures, CA, TVA — page /dashboard/stats ✅
 - [ ] **Export comptable** (Business) : FEC, URSSAF, attestations
 - [ ] **Statistiques** : page /dashboard/stats — CA, TVA, graphiques mensuels
 - [ ] **Factures récurrentes** : page /dashboard/recurring + cron

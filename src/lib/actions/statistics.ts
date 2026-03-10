@@ -3,6 +3,9 @@
 import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { getEffectivePlan, canUseFeature } from "@/lib/feature-gate";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -177,5 +180,173 @@ export async function getStats(
   } catch (error) {
     console.error("getStats error:", error);
     return { success: false, error: "Erreur lors du chargement des statistiques" };
+  }
+}
+
+// ─── Export CSV ──────────────────────────────────────────────────────────────
+
+export type CsvExportType = "invoices" | "monthly" | "tva";
+
+// Formatte un nombre au format FR (virgule décimale)
+function fmtNum(val: number): string {
+  return val.toFixed(2).replace(".", ",");
+}
+
+// Nom du mois en français
+function monthName(month: number, year: number): string {
+  return format(new Date(year, month, 1), "MMMM yyyy", { locale: fr });
+}
+
+// Statut facture lisible
+const STATUS_LABELS: Record<string, string> = {
+  DRAFT: "Brouillon",
+  SENT: "Envoyée",
+  VIEWED: "Vue",
+  PAID: "Payée",
+  OVERDUE: "En retard",
+  REMINDED: "Relancée",
+  CANCELLED: "Annulée",
+};
+
+export async function exportCsv(
+  year: number,
+  type: CsvExportType
+): Promise<{ success: boolean; csv?: string; filename?: string; error?: string }> {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session?.user?.id) return { success: false, error: "Non authentifié" };
+
+  // Vérifier l'accès à la feature csv_export
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { plan: true, trialEndsAt: true, email: true, grantedPlan: true },
+  });
+  if (!user) return { success: false, error: "Utilisateur introuvable" };
+
+  const effectivePlan = getEffectivePlan(user);
+  if (!canUseFeature({ plan: effectivePlan, trialEndsAt: null }, "csv_export")) {
+    return { success: false, error: "Fonctionnalité réservée au plan Pro" };
+  }
+
+  try {
+    const startDate = new Date(year, 0, 1);
+    const endDate = new Date(year, 11, 31, 23, 59, 59);
+
+    // BOM UTF-8 pour que Excel ouvre correctement les accents
+    const BOM = "\uFEFF";
+
+    if (type === "invoices") {
+      // Export de toutes les factures de l'année
+      const invoices = await prisma.document.findMany({
+        where: {
+          userId: session.user.id,
+          type: "INVOICE",
+          date: { gte: startDate, lte: endDate },
+        },
+        include: {
+          client: {
+            select: { companyName: true, firstName: true, lastName: true },
+          },
+        },
+        orderBy: { date: "asc" },
+      });
+
+      const header = "Numéro;Client;Date;Échéance;Montant HT;TVA;Total TTC;Statut;Date paiement";
+      const rows = invoices.map((inv) => {
+        const clientName = inv.client?.companyName
+          || [inv.client?.firstName, inv.client?.lastName].filter(Boolean).join(" ")
+          || "—";
+        const dateStr = format(new Date(inv.date), "dd/MM/yyyy");
+        const dueStr = inv.dueDate ? format(new Date(inv.dueDate), "dd/MM/yyyy") : "—";
+        const paidStr = inv.paidAt ? format(new Date(inv.paidAt), "dd/MM/yyyy") : "—";
+        const status = STATUS_LABELS[inv.status] ?? inv.status;
+
+        return [
+          inv.number ?? "—",
+          clientName,
+          dateStr,
+          dueStr,
+          fmtNum(Number(inv.subtotal)),
+          fmtNum(Number(inv.taxTotal)),
+          fmtNum(Number(inv.total)),
+          status,
+          paidStr,
+        ].join(";");
+      });
+
+      return {
+        success: true,
+        csv: BOM + [header, ...rows].join("\n"),
+        filename: `factures-${year}.csv`,
+      };
+    }
+
+    if (type === "monthly") {
+      // Récap mensuel — réutilise getStats
+      const statsResult = await getStats(year);
+      if (!statsResult.success || !statsResult.data) {
+        return { success: false, error: "Erreur chargement statistiques" };
+      }
+
+      const header = "Mois;CA encaissé;En attente;Devis;Acomptes";
+      const rows = statsResult.data.monthly.map((m) => [
+        monthName(m.month, year),
+        fmtNum(m.invoicesPaid),
+        fmtNum(m.invoicesSent),
+        fmtNum(m.quotesTotal),
+        fmtNum(m.depositsTotal),
+      ].join(";"));
+
+      return {
+        success: true,
+        csv: BOM + [header, ...rows].join("\n"),
+        filename: `recap-mensuel-${year}.csv`,
+      };
+    }
+
+    if (type === "tva") {
+      // TVA par mois — factures payées uniquement
+      const invoices = await prisma.document.findMany({
+        where: {
+          userId: session.user.id,
+          type: "INVOICE",
+          status: "PAID",
+          date: { gte: startDate, lte: endDate },
+        },
+        select: { date: true, subtotal: true, taxTotal: true, total: true },
+      });
+
+      // Agrégation par mois
+      const monthlyTva = Array.from({ length: 12 }, () => ({
+        ht: 0,
+        tva: 0,
+        ttc: 0,
+      }));
+
+      for (const inv of invoices) {
+        const m = new Date(inv.date).getMonth();
+        monthlyTva[m].ht += Number(inv.subtotal);
+        monthlyTva[m].tva += Number(inv.taxTotal);
+        monthlyTva[m].ttc += Number(inv.total);
+      }
+
+      const header = "Mois;Chiffre d'affaires HT;TVA collectée;Total TTC";
+      const rows = monthlyTva.map((m, i) => [
+        monthName(i, year),
+        fmtNum(m.ht),
+        fmtNum(m.tva),
+        fmtNum(m.ttc),
+      ].join(";"));
+
+      return {
+        success: true,
+        csv: BOM + [header, ...rows].join("\n"),
+        filename: `tva-${year}.csv`,
+      };
+    }
+
+    return { success: false, error: "Type d'export inconnu" };
+  } catch (error) {
+    console.error("exportCsv error:", error);
+    return { success: false, error: "Erreur lors de l'export CSV" };
   }
 }

@@ -5,6 +5,7 @@ import { runSendReminders } from "@/app/api/cron/send-reminders/route"
 import { runSyncEInvoiceEvents } from "@/app/api/cron/sync-einvoice-events/route"
 import { runExpireTrials } from "@/app/api/cron/expire-trials/route"
 import { runGenerateRecurring } from "@/app/api/cron/generate-recurring/route"
+import { runSendAccountingEmails } from "@/app/api/cron/send-accounting-emails/route"
 
 // ─── Cron nightly — point d'entrée unique ────────────────────────────────────
 //
@@ -16,6 +17,7 @@ import { runGenerateRecurring } from "@/app/api/cron/generate-recurring/route"
 //   4. Sync des statuts factures électroniques (SuperPDP)
 //   5. Trials expirés — rappel J-1 par email
 //   6. Génération des factures récurrentes + paiements SEPA auto
+//   7. Envoi des exports comptables au comptable (1er du mois uniquement)
 //
 // Les routes individuelles restent disponibles pour les tests manuels en dev.
 
@@ -74,6 +76,14 @@ export async function GET(request: NextRequest) {
   } catch (err) {
     errors.recurring = String(err)
     console.error("[nightly] recurring failed:", err)
+  }
+
+  // 7. Envoi des exports comptables (1er du mois uniquement)
+  try {
+    results.accountingEmails = await runSendAccountingEmails()
+  } catch (err) {
+    errors.accountingEmails = String(err)
+    console.error("[nightly] accounting-emails failed:", err)
   }
 
   console.log("[nightly] Tâches terminées", { results, errors })

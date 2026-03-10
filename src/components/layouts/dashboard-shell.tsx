@@ -41,6 +41,7 @@ import {
 	Repeat,
 	Banknote,
 	BarChart3,
+	Calculator,
 	Building2,
 	CreditCard,
 	Paintbrush,
@@ -99,6 +100,7 @@ const navSections: NavSection[] = [
 		items: [
 			{ label: "Clients", href: "/dashboard/clients", icon: Users },
 			{ label: "Statistiques", href: "/dashboard/stats", icon: BarChart3 },
+			{ label: "Comptabilité", href: "/dashboard/compta", icon: Calculator },
 		],
 	},
 	{
