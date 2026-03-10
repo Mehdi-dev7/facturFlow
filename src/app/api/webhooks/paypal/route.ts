@@ -13,6 +13,7 @@ import { prisma } from "@/lib/prisma";
 import { decrypt } from "@/lib/encrypt";
 import { getPaypalAccessToken, verifyPaypalWebhook } from "@/lib/paypal";
 import type { PaypalCredential } from "@/lib/actions/payments";
+import { dispatchWebhook } from "@/lib/webhook-dispatcher";
 
 export const runtime = "nodejs";
 
@@ -117,6 +118,7 @@ export async function POST(req: NextRequest) {
 
       revalidatePath("/dashboard/invoices");
       console.log(`[PayPal webhook] Facture ${invoiceId} marquée PAID`);
+      dispatchWebhook(invoice.user.id, "invoice.paid", { id: invoiceId, provider: "paypal" }).catch(() => {});
     }
   } catch (err) {
     console.error("[PayPal webhook] Erreur DB :", err);

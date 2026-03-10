@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getReminderSubject } from "@/lib/email/reminder-templates"
+import { dispatchWebhook } from "@/lib/webhook-dispatcher"
 
 function addDays(date: Date, days: number): Date {
   const result = new Date(date)
@@ -27,6 +28,7 @@ export async function runUpdateOverdue() {
       number: true,
       dueDate: true,
       type: true,
+      userId: true,
       _count: { select: { reminders: true } },
     },
   })
@@ -77,6 +79,14 @@ export async function runUpdateOverdue() {
     where: { id: { in: candidates.map((doc) => doc.id) } },
     data: { status: "OVERDUE" },
   })
+
+  // Webhooks — fire & forget par userId (groupés pour éviter les doublons)
+  const invoicesByUser = candidates.filter((d) => d.type === "INVOICE")
+  const userIds = [...new Set(invoicesByUser.map((d) => d.userId))]
+  for (const uid of userIds) {
+    const ids = invoicesByUser.filter((d) => d.userId === uid).map((d) => d.id)
+    dispatchWebhook(uid, "invoice.overdue", { ids }).catch(() => {})
+  }
 
   console.log(`[update-overdue] ${updated} document(s) → OVERDUE | ${remindersCreated} relance(s) planifiée(s)`)
   return { updated, remindersCreated }

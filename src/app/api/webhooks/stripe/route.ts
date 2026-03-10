@@ -19,6 +19,7 @@ import { prisma } from "@/lib/prisma";
 import { decrypt } from "@/lib/encrypt";
 import { getStripeClient } from "@/lib/stripe";
 import type { StripeCredential } from "@/lib/actions/payments";
+import { dispatchWebhook } from "@/lib/webhook-dispatcher";
 
 export const runtime = "nodejs";
 
@@ -142,6 +143,9 @@ export async function POST(req: NextRequest) {
           });
           revalidatePath("/dashboard/invoices");
           console.log(`[Stripe webhook] Facture ${invoiceId} marquée PAID`);
+          if (userId) {
+            dispatchWebhook(userId, "invoice.paid", { id: invoiceId, provider: "stripe" }).catch(() => {});
+          }
         }
         break;
       }

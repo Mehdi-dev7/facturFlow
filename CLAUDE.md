@@ -678,7 +678,6 @@ Utilise les agents quand :
 
 ### Bugs connus
 - [ ] **Bug SuperPDP** : envoi e-invoicing échoue dans certains cas — investiguer logs, vérifier seller.electronic_address et flux convert → send
-- [ ] **STRIPE_SECRET_KEY** manquante dans Vercel — ⚡ à ajouter (clé plateforme pour abonnements)
 
 ### Pricing (validé 02/03/2026)
 
@@ -686,20 +685,21 @@ Utilise les agents quand :
 **PRO — 9,99€/mois** (ou annuel -20%) : illimité, Stripe/PayPal/GoCardless, relances auto, templates, SEPA
 **BUSINESS — 25€/mois** : tout Pro + multi-users (3), export CSV comptable, e-invoicing illimité, API/webhooks
 
-### Reste à faire — App (02/03/2026)
+### Reste à faire — App (11/03/2026)
 
-- [ ] **Responsive xs** : revoir toute l'app — tutoriels Stripe/PayPal, preview acompte/facture uniforme
-- [ ] **Boutons paiement dans form facture** : afficher par provider connecté lors de la création
-- [ ] **Style email paiement** : responsive mobile des emails avec boutons Stripe/PayPal/SEPA
-- [ ] **OAuth Microsoft** : activer le provider (MICROSOFT_CLIENT_ID/SECRET dans .env + Vercel)
+- [x] **Responsive xs** : revoir toute l'app ✅
+- [x] **Boutons paiement dans form facture** : afficher par provider connecté ✅
+- [x] **OAuth Microsoft** : activé ✅
 - [x] **Export CSV** (Pro) : factures, CA, TVA — page /dashboard/stats ✅
-- [ ] **Export comptable** (Business) : FEC, URSSAF, attestations
-- [ ] **Statistiques** : page /dashboard/stats — CA, TVA, graphiques mensuels
-- [ ] **Factures récurrentes** : page /dashboard/recurring + cron
+- [x] **Export comptable** (Business) : FEC, URSSAF, rapport annuel, journal mensuel, email comptable ✅
+- [x] **Statistiques** : page /dashboard/stats — CA, TVA, graphiques mensuels ✅
+- [x] **Factures récurrentes** : page /dashboard/recurring + cron ✅
+- [x] **Mon Compte** : page profil (email, téléphone, avatar) ✅
+- [x] **Tutoriels intégrés** : optimisés (images WebP, steps fusionnés) ✅
+- [x] **API & Webhooks** (Business) : clés API `fnk_xxx`, routes `/api/v1/`, dispatcher HMAC, page `/dashboard/api`, logs livraisons ✅ (11/03/2026)
+- [ ] **Style email paiement** : responsive mobile des emails avec boutons Stripe/PayPal/SEPA
 - [ ] **Documents complémentaires** : avoirs, bons de commande, bons de livraison, proforma
-- [ ] **Mon Compte** : page profil (email, téléphone, avatar)
 - [ ] **PWA mobile** : manifest + service worker, encadré sidebar "Installer l'app" + prompt après X jours d'utilisation (Pro/Business uniquement)
-- [ ] **Tutoriels intégrés** : /dashboard/help — steps Stripe/PayPal/GoCardless/SEPA (format product tour)
 
 ### Reste à faire — Qualité & Lancement
 

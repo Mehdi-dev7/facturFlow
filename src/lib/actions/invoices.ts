@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { calcInvoiceTotals } from "@/lib/utils/calculs-facture";
 import { canCreateDocument } from "@/lib/feature-gate";
+import { dispatchWebhook } from "@/lib/webhook-dispatcher";
 import type { InvoiceFormData, VatRate } from "@/lib/validations/invoice";
 
 // ─── Type exporté (utilisé par les hooks et les modals) ──────────────────────
@@ -569,6 +570,14 @@ export async function createInvoice(data: InvoiceFormData, draftId?: string) {
 
     revalidatePath("/dashboard/invoices");
 
+    // Webhook — fire & forget
+    dispatchWebhook(userId, "invoice.created", {
+      id: documentId,
+      number: invoiceNumber,
+      total: totals.totalTTC,
+      clientId: client.id,
+    }).catch(() => {});
+
     return { success: true, data: { id: documentId, number: invoiceNumber } } as const;
   } catch (error) {
     console.error("[createInvoice] Erreur:", error);
@@ -834,6 +843,15 @@ export async function updateInvoiceStatus(id: string, newStatus: string) {
     });
 
     revalidatePath("/dashboard/invoices");
+
+    // Webhook — fire & forget selon le nouveau statut
+    if (newStatus === "PAID") {
+      dispatchWebhook(session.user.id, "invoice.paid", { id, status: "PAID" }).catch(() => {});
+    } else if (newStatus === "SENT") {
+      dispatchWebhook(session.user.id, "invoice.sent", { id, status: "SENT" }).catch(() => {});
+    } else if (newStatus === "OVERDUE") {
+      dispatchWebhook(session.user.id, "invoice.overdue", { id, status: "OVERDUE" }).catch(() => {});
+    }
 
     return { success: true } as const;
   } catch (error) {

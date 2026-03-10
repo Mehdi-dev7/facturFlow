@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { clientFormSchema, type ClientFormData } from "@/lib/validations/client";
 import { canAddClient } from "@/lib/feature-gate";
+import { dispatchWebhook } from "@/lib/webhook-dispatcher";
 
 // ─── Type exporté (utilisé par les hooks et les pages) ──────────────────────
 
@@ -219,6 +220,13 @@ export async function createClient(data: ClientFormData) {
     });
 
     revalidatePath("/dashboard/clients");
+
+    // Webhook — fire & forget
+    dispatchWebhook(session.user.id, "client.created", {
+      id: client.id,
+      name: client.companyName ?? [client.firstName, client.lastName].filter(Boolean).join(" "),
+      email: client.email,
+    }).catch(() => {});
 
     return {
       success: true,

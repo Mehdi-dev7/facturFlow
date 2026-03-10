@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { dispatchWebhook } from "@/lib/webhook-dispatcher";
 
 export async function GET(
 	_req: NextRequest,
@@ -18,6 +19,7 @@ export async function GET(
 				id: true,
 				status: true,
 				respondedAt: true,
+				userId: true,
 			},
 		});
 
@@ -47,6 +49,8 @@ export async function GET(
 				respondedAt: new Date(),
 			},
 		});
+
+		dispatchWebhook(document.userId, "quote.accepted", { id: document.id }).catch(() => {});
 
 		return NextResponse.redirect(
 			new URL(`/public/devis/accepte?ref=${document.id}`, _req.url),

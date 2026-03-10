@@ -210,8 +210,8 @@ export default function ContactForm({ defaultName, defaultEmail }: ContactFormPr
           </div>
 
           {/* Footer du form */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-slate-100 dark:border-slate-800">
-            <Button type="submit" disabled={isSubmitting} className="gap-2 shadow-sm cursor-pointer hover:scale-102 transition-all duration-300 sm:order-2">
+          <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
+            <Button type="submit" disabled={isSubmitting} className="gap-2 shadow-sm cursor-pointer hover:scale-102 transition-all duration-300">
               {isSubmitting ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -224,12 +224,6 @@ export default function ContactForm({ defaultName, defaultEmail }: ContactFormPr
                 </>
               )}
             </Button>
-            <p className="text-xs text-slate-400 dark:text-slate-500 sm:order-1">
-              Besoin urgent ?{" "}
-              <a href="mailto:support@facturnow.fr" className="text-primary hover:underline font-medium">
-                support@facturnow.fr
-              </a>
-            </p>
           </div>
         </form>
       </div>

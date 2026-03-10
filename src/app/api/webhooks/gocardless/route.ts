@@ -25,6 +25,7 @@ import {
 } from "@/lib/gocardless";
 import type { GcWebhookEvent } from "@/lib/gocardless";
 import type { GocardlessCredential } from "@/lib/actions/payments";
+import { dispatchWebhook } from "@/lib/webhook-dispatcher";
 
 export const runtime = "nodejs";
 
@@ -319,7 +320,7 @@ async function handlePaymentConfirmed(event: GcWebhookEvent, cred?: GocardlessCr
 
   const invoice = await prisma.document.findFirst({
     where: { id: invoiceId, type: "INVOICE" },
-    select: { id: true, status: true, total: true },
+    select: { id: true, status: true, total: true, userId: true },
   });
 
   if (!invoice || invoice.status === "PAID") return;
@@ -336,4 +337,5 @@ async function handlePaymentConfirmed(event: GcWebhookEvent, cred?: GocardlessCr
 
   revalidatePath("/dashboard/invoices");
   console.log(`[GC webhook] Facture ${invoiceId} marquée PAID via SEPA`);
+  dispatchWebhook(invoice.userId, "invoice.paid", { id: invoiceId, provider: "sepa" }).catch(() => {});
 }

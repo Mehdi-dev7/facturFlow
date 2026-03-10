@@ -57,6 +57,7 @@ import {
 	BookOpen,
 	UserCircle2,
 	Shield,
+	Code2,
 } from "lucide-react";
 
 interface NavItem {
@@ -112,6 +113,7 @@ const navSections: NavSection[] = [
 			{ label: "Mon entreprise", href: "/dashboard/company", icon: Building2 },
 			{ label: "Paiements", href: "/dashboard/payments", icon: CreditCard },
 			{ label: "Abonnement", href: "/dashboard/subscription", icon: Crown },
+			// "API & Webhooks" est ajouté dynamiquement pour le plan Business (voir SidebarNav)
 		],
 	},
 	{
@@ -212,12 +214,14 @@ function SidebarNav({
 	collapsed = false,
 	notifications,
 	dismissedNotifs,
+	effectivePlan,
 }: {
 	pathname: string;
 	onNavigate?: () => void;
 	collapsed?: boolean;
 	notifications?: NotificationCounts;
 	dismissedNotifs?: Set<string>;
+	effectivePlan?: string;
 }) {
 	const isDashboardActive = pathname === "/dashboard";
 
@@ -234,37 +238,48 @@ function SidebarNav({
 				/>
 
 				{/* Sections */}
-				{navSections.map((section, sectionIndex) => (
-					<div key={section.title} className="flex flex-col gap-1">
-						{/* Section header / divider */}
-						{collapsed ? (
-							<div className={`mx-auto my-2 h-px w-6 bg-slate-200 dark:bg-slate-700 ${sectionIndex === 0 ? "mt-3" : ""}`} />
-						) : (
-							<p className={`mt-4 mb-1 px-3 text-[11px] font-semibold uppercase tracking-wider ${section.color}`}>
-								{section.title}
-							</p>
-						)}
+				{navSections.map((section, sectionIndex) => {
+					// Injecter "API & Webhooks" dans la section "Mon Compte" pour les plans Business
+					const items =
+						section.title === "Mon Compte" && effectivePlan === "BUSINESS"
+							? [
+									...section.items,
+									{ label: "API & Webhooks", href: "/dashboard/api", icon: Code2 },
+								]
+							: section.items;
 
-						{/* Section items */}
-						{section.items.map((item) => {
-							const dot =
-								(item.href === "/dashboard/invoices" && notifications?.invoices && !dismissedNotifs?.has("invoices")) ||
-								(item.href === "/dashboard/quotes" && notifications?.quotes && !dismissedNotifs?.has("quotes")) ||
-								(item.href === "/dashboard/deposits" && notifications?.deposits && !dismissedNotifs?.has("deposits")) ||
-								false;
-							return (
-								<NavLink
-									key={item.href}
-									item={{ ...item, dot }}
-									collapsed={collapsed}
-									onNavigate={onNavigate}
-									isActive={isItemActive(item.href, pathname)}
-									activeClassName={section.activeColor}
-								/>
-							);
-						})}
-					</div>
-				))}
+					return (
+						<div key={section.title} className="flex flex-col gap-1">
+							{/* Section header / divider */}
+							{collapsed ? (
+								<div className={`mx-auto my-2 h-px w-6 bg-slate-200 dark:bg-slate-700 ${sectionIndex === 0 ? "mt-3" : ""}`} />
+							) : (
+								<p className={`mt-4 mb-1 px-3 text-[11px] font-semibold uppercase tracking-wider ${section.color}`}>
+									{section.title}
+								</p>
+							)}
+
+							{/* Section items */}
+							{items.map((item) => {
+								const dot =
+									(item.href === "/dashboard/invoices" && notifications?.invoices && !dismissedNotifs?.has("invoices")) ||
+									(item.href === "/dashboard/quotes" && notifications?.quotes && !dismissedNotifs?.has("quotes")) ||
+									(item.href === "/dashboard/deposits" && notifications?.deposits && !dismissedNotifs?.has("deposits")) ||
+									false;
+								return (
+									<NavLink
+										key={item.href}
+										item={{ ...item, dot }}
+										collapsed={collapsed}
+										onNavigate={onNavigate}
+										isActive={isItemActive(item.href, pathname)}
+										activeClassName={section.activeColor}
+									/>
+								);
+							})}
+						</div>
+					);
+				})}
 			</nav>
 		</TooltipProvider>
 	);
@@ -451,7 +466,7 @@ export default function DashboardShell({
 
 				{/* Navigation */}
 				<div className="flex-1 overflow-y-auto py-4">
-					<SidebarNav pathname={pathname} collapsed={collapsed} notifications={notifications} dismissedNotifs={dismissedNotifs} />
+					<SidebarNav pathname={pathname} collapsed={collapsed} notifications={notifications} dismissedNotifs={dismissedNotifs} effectivePlan={subscription?.effectivePlan} />
 				</div>
 
 				{/* Aide section (sticky en bas avec espacement) */}
@@ -525,6 +540,7 @@ export default function DashboardShell({
 											onNavigate={() => setSidebarOpen(false)}
 											notifications={notifications}
 											dismissedNotifs={dismissedNotifs}
+											effectivePlan={subscription?.effectivePlan}
 										/>
 									</div>
 
@@ -575,6 +591,8 @@ export default function DashboardShell({
 						<h1 className="text-lg lg:text-2xl font-semibold text-slate-900 dark:text-slate-100">
 							{pathname === "/dashboard"
 								? "Tableau de bord"
+								: pathname.startsWith("/dashboard/api")
+								? "API & Webhooks"
 								: [...navSections.flatMap((s) => s.items), ...helpSection.items].find((item) => pathname.startsWith(item.href))?.label ?? "Tableau de bord"}
 						</h1>
 					</div>

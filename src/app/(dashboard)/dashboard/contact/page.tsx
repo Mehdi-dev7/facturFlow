@@ -16,7 +16,7 @@ export default async function ContactPage() {
   const userEmail = session?.user?.email ?? "";
 
   return (
-    <div className="space-y-6 max-w-2xl">
+    <div className="space-y-6 max-w-2xl mx-auto">
       {/* Header */}
       <div>
         <h1 className="text-2xl md:text-3xl font-bold text-gradient mb-2">Contact Support</h1>

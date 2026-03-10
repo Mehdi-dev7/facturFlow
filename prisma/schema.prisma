@@ -166,12 +166,14 @@ model User {
   lateFeesPercentage   Decimal  @default(0) @db.Decimal(5, 2)
 
   // Relations
-  clients         Client[]
-  products        Product[]
-  documents       Document[]
-  templates       Template[]
-  recurring       RecurringInvoice[]
-  paymentAccounts PaymentAccount[]
+  clients          Client[]
+  products         Product[]
+  documents        Document[]
+  templates        Template[]
+  recurring        RecurringInvoice[]
+  paymentAccounts  PaymentAccount[]
+  apiKeys          ApiKey[]
+  webhookEndpoints WebhookEndpoint[]
 
   // Timestamps
   createdAt DateTime @default(now())
@@ -526,6 +528,55 @@ model EInvoiceSyncState {
   id          String   @id @default("singleton")
   lastEventId Int      @default(0) // Dernier event_id traité
   updatedAt   DateTime @updatedAt
+}
+
+// Clés API — authentification externe (plan BUSINESS uniquement)
+model ApiKey {
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name       String                          // "n8n prod", "Shopify store"
+  keyHash    String    @unique               // SHA-256 du token (jamais en clair)
+  keyPrefix  String                          // 8 premiers chars pour affichage : "fnk_xxxx"
+  lastUsedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([userId])
+  @@index([keyHash])
+}
+
+// Endpoints webhooks — notifications sortantes (plan BUSINESS uniquement)
+model WebhookEndpoint {
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  url        String
+  secret     String                          // Secret HMAC signé sur chaque envoi
+  events     String[]                        // ["invoice.paid", "invoice.created", ...]
+  active     Boolean   @default(true)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  deliveries WebhookDelivery[]
+
+  @@index([userId])
+}
+
+// Historique des livraisons webhooks
+model WebhookDelivery {
+  id         String          @id @default(cuid())
+  endpointId String
+  endpoint   WebhookEndpoint @relation(fields: [endpointId], references: [id], onDelete: Cascade)
+  event      String                          // "invoice.paid"
+  payload    Json                            // Payload envoyé
+  statusCode Int?                            // HTTP response code
+  success    Boolean
+  attempts   Int             @default(1)
+  error      String?
+  createdAt  DateTime        @default(now())
+
+  @@index([endpointId])
+  @@index([createdAt])
 }
 
 model Reminder {
