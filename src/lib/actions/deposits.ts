@@ -12,6 +12,7 @@ import { auth } from "@/lib/auth";
 import type { SavedDeposit } from "@/lib/types/deposits";
 import { canCreateDocument } from "@/lib/feature-gate";
 import { dispatchWebhook } from "@/lib/webhook-dispatcher";
+import { sendDepositEmail } from "@/lib/actions/send-deposit-email";
 
 // ─── Schema Zod (interne) ───────────────────────────────────────────────────
 
@@ -429,6 +430,20 @@ export async function createDepositFromQuote(quoteId: string, userId: string) {
     });
 
     revalidatePath("/dashboard/acomptes");
+
+    // Envoyer l'email automatiquement avec les boutons de paiement (fire & forget)
+    sendDepositEmail(doc.id).catch((err) =>
+      console.error("[createDepositFromQuote] Erreur envoi email:", err)
+    );
+
+    // Webhook deposit.created
+    dispatchWebhook(userId, "deposit.created", {
+      id: doc.id,
+      number: depositNumber,
+      status: "SENT",
+      total,
+      client_id: quote.clientId,
+    }).catch(() => {});
 
     const saved = mapToSavedDeposit(doc as unknown as PrismaDepositWithRelations);
     return { success: true, data: saved } as const;

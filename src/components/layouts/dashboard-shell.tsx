@@ -5,6 +5,8 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useSession, signOut } from "@/lib/auth-client";
+import { PwaInstallBanner } from "@/components/pwa/pwa-install-banner";
+
 import {
 	Sheet,
 	SheetContent,
