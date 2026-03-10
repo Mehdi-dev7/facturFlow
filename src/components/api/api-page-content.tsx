@@ -158,7 +158,7 @@ function ApiKeysSection({
   }, []);
 
   return (
-    <section className="rounded-2xl border border-slate-200 dark:border-violet-500/20 bg-white dark:bg-slate-900 p-6">
+    <section className="rounded-2xl border border-slate-200 dark:border-violet-500/20 bg-white dark:bg-slate-900 p-3 sm:p-5">
       {/* En-tête */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
@@ -185,7 +185,7 @@ function ApiKeysSection({
       </div>
 
       {/* Documentation rapide */}
-      <div className="mb-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 p-4">
+      <div className="mb-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 p-3 sm-p-4">
         <div className="flex items-start gap-2">
           <Code2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
           <div className="text-xs text-slate-600 dark:text-slate-400">
@@ -454,7 +454,7 @@ function WebhooksSection({
   }, []);
 
   return (
-    <section className="rounded-2xl border border-slate-200 dark:border-violet-500/20 bg-white dark:bg-slate-900 p-6">
+    <section className="rounded-2xl border border-slate-200 dark:border-violet-500/20 bg-white dark:bg-slate-900 p-3 sm:p-5">
       {/* En-tête */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
@@ -685,7 +685,7 @@ function DeliveryLogsSection({
   deliveries: (SavedDelivery & { endpointUrl: string })[];
 }) {
   return (
-    <section className="rounded-2xl border border-slate-200 dark:border-violet-500/20 bg-white dark:bg-slate-900 p-6">
+    <section className="rounded-2xl border border-slate-200 dark:border-violet-500/20 bg-white dark:bg-slate-900 p-3 sm:p-5">
       <div className="flex items-center gap-3 mb-6">
         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100 dark:bg-blue-500/20">
           <Clock className="h-5 w-5 text-blue-600 dark:text-blue-400" />
