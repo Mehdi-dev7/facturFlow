@@ -112,9 +112,12 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="w-[95vw] sm:max-w-lg max-h-[90dvh] overflow-y-auto bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25 shadow-lg dark:shadow-violet-950/40">
+      <DialogContent
+        onOpenAutoFocus={(e) => e.preventDefault()}
+        className="w-[95vw] sm:max-w-lg max-h-[90dvh] overflow-y-auto p-3 xs:p-3 sm:p-5 bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25 shadow-lg dark:shadow-violet-950/40"
+      >
         <DialogHeader>
-          <DialogTitle className="text-lg font-bold text-slate-900 dark:text-slate-100">
+          <DialogTitle className="text-base xs:text-lg font-bold text-slate-900 dark:text-slate-100">
             Nouvel acompte
           </DialogTitle>
         </DialogHeader>
@@ -122,7 +125,7 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-2">
           {/* Client */}
           <div className="space-y-1.5">
-            <Label className="text-slate-700 dark:text-violet-200">Client *</Label>
+            <Label className="text-xs xs:text-sm text-slate-700 dark:text-violet-200">Client *</Label>
             <ClientSearch
               selectedClientId={selectedClientId}
               onSelectClient={handleSelectClient}
@@ -133,7 +136,7 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
 
           {/* Montant HT */}
           <div className="space-y-1.5">
-            <Label htmlFor="deposit-amount" className="text-slate-700 dark:text-violet-200">
+            <Label htmlFor="deposit-amount" className="text-xs xs:text-sm text-slate-700 dark:text-violet-200">
               Montant HT *
             </Label>
             <div className="relative">
@@ -144,7 +147,7 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
                 min="0.01"
                 placeholder="0.00"
                 {...register("amount", { valueAsNumber: true })}
-                className="pr-8 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50"
+                className="pr-8 text-xs xs:text-sm bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50"
                 aria-invalid={!!errors.amount}
               />
               <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-400 dark:text-violet-400/60">
@@ -158,7 +161,7 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
 
           {/* TVA */}
           <div className="space-y-1.5">
-            <Label className="text-slate-700 dark:text-violet-200">Taux de TVA</Label>
+            <Label className="text-xs xs:text-sm text-slate-700 dark:text-violet-200">Taux de TVA</Label>
             <Controller
               name="vatRate"
               control={control}
@@ -167,7 +170,7 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
                   value={String(field.value)}
                   onValueChange={(v) => field.onChange(Number(v))}
                 >
-                  <SelectTrigger className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50">
+                  <SelectTrigger className="text-xs xs:text-sm bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25">
@@ -193,14 +196,14 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
 
           {/* Date d'échéance */}
           <div className="space-y-1.5">
-            <Label htmlFor="deposit-due-date" className="text-slate-700 dark:text-violet-200">
+            <Label htmlFor="deposit-due-date" className="text-xs xs:text-sm text-slate-700 dark:text-violet-200">
               Date d&apos;échéance *
             </Label>
             <Input
               id="deposit-due-date"
               type="date"
               {...register("dueDate")}
-              className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50"
+              className="text-xs xs:text-sm bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50"
               aria-invalid={!!errors.dueDate}
             />
             {errors.dueDate && (
@@ -210,7 +213,7 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
 
           {/* Notes */}
           <div className="space-y-1.5">
-            <Label htmlFor="deposit-notes" className="text-slate-700 dark:text-violet-200">
+            <Label htmlFor="deposit-notes" className="text-xs xs:text-sm text-slate-700 dark:text-violet-200">
               Notes
             </Label>
             <Textarea
@@ -218,7 +221,7 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
               rows={3}
               placeholder="Notes optionnelles..."
               {...register("notes")}
-              className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50 resize-none"
+              className="text-xs xs:text-sm bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50 resize-none"
             />
           </div>
 

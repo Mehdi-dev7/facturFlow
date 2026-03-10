@@ -106,7 +106,7 @@ export function StatsDonutChart({ byStatus }: StatsDonutChartProps) {
             y="38%"
             textAnchor="middle"
             dominantBaseline="middle"
-            style={{ fontSize: 20, fontWeight: 700, fill: "dark:#E3E9F0" }}
+            style={{ fontSize: 20, fontWeight: 700, fill: "#E3E9F0" }}
           >
             {total}
           </text>

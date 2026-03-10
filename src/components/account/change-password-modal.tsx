@@ -72,7 +72,7 @@ export function ChangePasswordModal({ open, onClose }: ChangePasswordModalProps)
   const strength = getPasswordStrength(newPassword || "");
 
   const inputClass =
-    "bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-violet-300/50 pr-10";
+    "text-xs xs:text-sm bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-violet-300/50 pr-10";
 
   // ── Submit ──────────────────────────────────────────────────────────────────
   const onSubmit = async (data: ChangePasswordFormData) => {
@@ -97,9 +97,9 @@ export function ChangePasswordModal({ open, onClose }: ChangePasswordModalProps)
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && handleClose()}>
-      <DialogContent className="bg-white dark:bg-slate-900 border-violet-200 dark:border-violet-400/25 rounded-2xl max-w-md">
+      <DialogContent className="max-w-md max-h-[90dvh] overflow-y-auto p-3 xs:p-3 sm:p-5 bg-white dark:bg-slate-900 border-violet-200 dark:border-violet-400/25 rounded-2xl">
         <DialogHeader>
-          <DialogTitle className="text-lg font-semibold text-slate-900 dark:text-slate-50 flex items-center gap-2">
+          <DialogTitle className="text-base xs:text-lg font-semibold text-slate-900 dark:text-slate-50 flex items-center gap-2">
             <Shield className="size-5 text-violet-600 dark:text-violet-400" />
             Changer le mot de passe
           </DialogTitle>

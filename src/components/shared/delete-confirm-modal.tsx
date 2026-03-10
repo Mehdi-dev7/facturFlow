@@ -40,7 +40,7 @@ export function DeleteConfirmModal({
 }: DeleteConfirmModalProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="w-[92vw] max-w-md bg-white dark:bg-[#1e1845] border border-red-200 dark:border-red-500/30 rounded-xl shadow-xl dark:shadow-red-950/40">
+      <AlertDialogContent className="w-[92vw] max-w-md p-3 xs:p-3 sm:p-5 bg-white dark:bg-[#1e1845] border border-red-200 dark:border-red-500/30 rounded-xl shadow-xl dark:shadow-red-950/40">
 
         {/* Icône d'avertissement */}
         <div className="flex justify-center mb-1 pt-1">
@@ -50,7 +50,7 @@ export function DeleteConfirmModal({
         </div>
 
         <AlertDialogHeader className="text-center space-y-2">
-          <AlertDialogTitle className="text-base font-semibold text-slate-900 dark:text-slate-100">
+          <AlertDialogTitle className="text-base xs:text-lg font-semibold text-slate-900 dark:text-slate-100">
             Supprimer ce document ?
           </AlertDialogTitle>
 

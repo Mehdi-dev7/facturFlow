@@ -33,6 +33,20 @@ interface ReceiptModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
+// ─── Constantes de style ─────────────────────────────────────────────────────
+
+const inputClass =
+  "text-xs xs:text-sm bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-violet-300/50";
+
+const selectTriggerClass =
+  "text-xs xs:text-sm bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50 cursor-pointer";
+
+const selectContentClass =
+  "bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25";
+
+const selectItemClass =
+  "text-xs xs:text-sm focus:bg-violet-100 dark:focus:bg-violet-500/20 focus:text-slate-900 dark:focus:text-slate-100 cursor-pointer";
+
 // ─── Composant ───────────────────────────────────────────────────────────────
 
 export function ReceiptModal({ open, onOpenChange }: ReceiptModalProps) {
@@ -110,17 +124,20 @@ export function ReceiptModal({ open, onOpenChange }: ReceiptModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-lg bg-gradient-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25 shadow-lg dark:shadow-violet-950/40">
+      <DialogContent
+        onOpenAutoFocus={(e) => e.preventDefault()}
+        className="sm:max-w-lg max-h-[90dvh] overflow-y-auto p-3 xs:p-3 sm:p-5 bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25 shadow-lg dark:shadow-violet-950/40"
+      >
         <DialogHeader>
-          <DialogTitle className="text-lg font-bold text-slate-900 dark:text-slate-100">
+          <DialogTitle className="text-base xs:text-lg font-bold text-slate-900 dark:text-slate-100">
             Nouveau reçu
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-2">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-3 xs:space-y-4 mt-1">
           {/* Client */}
           <div className="space-y-1.5">
-            <Label className="text-slate-700 dark:text-violet-200">Client *</Label>
+            <Label className="text-xs xs:text-sm text-slate-700 dark:text-violet-200">Client *</Label>
             <ClientSearch
               selectedClientId={watch("clientId") || undefined}
               onSelectClient={handleSelectClient}
@@ -131,14 +148,14 @@ export function ReceiptModal({ open, onOpenChange }: ReceiptModalProps) {
 
           {/* Objet du paiement */}
           <div className="space-y-1.5">
-            <Label htmlFor="receipt-description" className="text-slate-700 dark:text-violet-200">
+            <Label htmlFor="receipt-description" className="text-xs xs:text-sm text-slate-700 dark:text-violet-200">
               Objet du paiement *
             </Label>
             <Input
               id="receipt-description"
               placeholder="Ex: Paiement facture FAC-2024-0001"
               {...register("description")}
-              className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-violet-300/50"
+              className={inputClass}
             />
             {errors.description && (
               <p className="text-xs text-red-500 dark:text-red-400">{errors.description.message}</p>
@@ -148,7 +165,7 @@ export function ReceiptModal({ open, onOpenChange }: ReceiptModalProps) {
           {/* Ligne : montant + mode de paiement */}
           <div className="flex gap-3">
             <div className="flex-1 space-y-1.5">
-              <Label htmlFor="receipt-amount" className="text-slate-700 dark:text-violet-200">
+              <Label htmlFor="receipt-amount" className="text-xs xs:text-sm text-slate-700 dark:text-violet-200">
                 Montant *
               </Label>
               <div className="relative">
@@ -159,9 +176,9 @@ export function ReceiptModal({ open, onOpenChange }: ReceiptModalProps) {
                   min="0.01"
                   placeholder="0.00"
                   {...register("amount", { valueAsNumber: true })}
-                  className="pr-8 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50"
+                  className={`pr-7 ${inputClass}`}
                 />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-400 dark:text-violet-400/60">
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs xs:text-sm text-slate-400 dark:text-violet-400/60">
                   €
                 </span>
               </div>
@@ -171,21 +188,21 @@ export function ReceiptModal({ open, onOpenChange }: ReceiptModalProps) {
             </div>
 
             <div className="flex-1 space-y-1.5">
-              <Label className="text-slate-700 dark:text-violet-200">Mode de paiement</Label>
+              <Label className="text-xs xs:text-sm text-slate-700 dark:text-violet-200">Mode de paiement</Label>
               <Controller
                 name="paymentMethod"
                 control={control}
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50 cursor-pointer">
+                    <SelectTrigger className={selectTriggerClass}>
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25">
+                    <SelectContent className={selectContentClass}>
                       {RECEIPT_PAYMENT_METHODS.map((m) => (
                         <SelectItem
                           key={m.value}
                           value={m.value}
-                          className="focus:bg-violet-100 dark:focus:bg-violet-500/20 focus:text-slate-900 dark:focus:text-slate-100 cursor-pointer"
+                          className={selectItemClass}
                         >
                           {m.label}
                         </SelectItem>
@@ -198,31 +215,31 @@ export function ReceiptModal({ open, onOpenChange }: ReceiptModalProps) {
           </div>
 
           {/* Récap montant */}
-          <div className="flex items-center justify-between rounded-xl border border-violet-200 dark:border-violet-400/25 bg-violet-50/80 dark:bg-[#251e4d] px-4 py-3">
-            <span className="text-sm font-medium text-slate-700 dark:text-violet-200">
+          <div className="flex items-center justify-between rounded-xl border border-violet-200 dark:border-violet-400/25 bg-violet-50/80 dark:bg-[#251e4d] px-3 xs:px-4 py-2.5 xs:py-3">
+            <span className="text-xs xs:text-sm font-medium text-slate-700 dark:text-violet-200">
               Montant encaissé
             </span>
-            <span className="text-lg font-bold text-violet-700 dark:text-violet-300">
+            <span className="text-base xs:text-lg font-bold text-violet-700 dark:text-violet-300">
               {amountDisplay}
             </span>
           </div>
 
           {/* Date */}
           <div className="space-y-1.5">
-            <Label htmlFor="receipt-date" className="text-slate-700 dark:text-violet-200">
+            <Label htmlFor="receipt-date" className="text-xs xs:text-sm text-slate-700 dark:text-violet-200">
               Date du paiement
             </Label>
             <Input
               id="receipt-date"
               type="date"
               {...register("date")}
-              className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50"
+              className={inputClass}
             />
           </div>
 
           {/* Notes */}
           <div className="space-y-1.5">
-            <Label htmlFor="receipt-notes" className="text-slate-700 dark:text-violet-200">
+            <Label htmlFor="receipt-notes" className="text-xs xs:text-sm text-slate-700 dark:text-violet-200">
               Notes
             </Label>
             <Textarea
@@ -230,14 +247,14 @@ export function ReceiptModal({ open, onOpenChange }: ReceiptModalProps) {
               rows={2}
               placeholder="Notes optionnelles..."
               {...register("notes")}
-              className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50 resize-none"
+              className={`${inputClass} resize-none`}
             />
           </div>
 
           <Button
             type="submit"
             disabled={createMutation.isPending}
-            className="w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white font-semibold cursor-pointer transition-all duration-300 hover:scale-[1.02]"
+            className="w-full text-xs xs:text-sm bg-linear-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white font-semibold cursor-pointer transition-all duration-300 hover:scale-[1.02]"
           >
             {createMutation.isPending ? (
               <>

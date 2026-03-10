@@ -64,9 +64,9 @@ export function CompanyInfoModal({
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="sm:max-w-md bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25 shadow-lg dark:shadow-violet-950/40 rounded-xl max-h-[90dvh] overflow-y-auto">
+			<DialogContent className="sm:max-w-md max-h-[90dvh] overflow-y-auto p-3 xs:p-3 sm:p-5 bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25 shadow-lg dark:shadow-violet-950/40 rounded-xl">
 				<DialogHeader>
-					<DialogTitle className="text-slate-900 dark:text-slate-100">
+					<DialogTitle className="text-base xs:text-lg text-slate-900 dark:text-slate-100">
 						Informations de votre entreprise
 					</DialogTitle>
 					<DialogDescription className="text-xs xs:text-sm text-slate-500 dark:text-slate-400">

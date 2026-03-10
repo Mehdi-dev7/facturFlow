@@ -433,12 +433,12 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
                     href={paymentLinks.stripe}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-gradient-to-r from-[#635BFF] to-[#7C3AED] px-3 py-1.5 rounded-lg hover:opacity-90 transition-opacity"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-linear-to-r from-[#635BFF] to-[#7C3AED] px-3 py-1.5 rounded-lg hover:opacity-90 transition-opacity"
                   >
                     <SiStripe className="size-3.5" /> Carte bancaire
                   </a>
                 ) : (
-                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-gradient-to-r from-[#635BFF] to-[#7C3AED] px-3 py-1.5 rounded-lg">
+                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-linear-to-r from-[#635BFF] to-[#7C3AED] px-3 py-1.5 rounded-lg">
                     <SiStripe className="size-3.5" /> Carte bancaire
                   </span>
                 )
@@ -449,12 +449,12 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
                     href={paymentLinks.paypal}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-gradient-to-r from-[#003087] to-[#009CDE] px-3 py-1.5 rounded-lg hover:opacity-90 transition-opacity"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-linear-to-r from-[#003087] to-[#009CDE] px-3 py-1.5 rounded-lg hover:opacity-90 transition-opacity"
                   >
                     <SiPaypal className="size-3.5" /> PayPal
                   </a>
                 ) : (
-                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-gradient-to-r from-[#003087] to-[#009CDE] px-3 py-1.5 rounded-lg">
+                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-linear-to-r from-[#003087] to-[#009CDE] px-3 py-1.5 rounded-lg">
                     <SiPaypal className="size-3.5" /> PayPal
                   </span>
                 )
@@ -465,12 +465,12 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
                     href={paymentLinks.gocardless}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-gradient-to-r from-[#0F766E] to-[#059669] px-3 py-1.5 rounded-lg hover:opacity-90 transition-opacity"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-linear-to-r from-[#0F766E] to-[#059669] px-3 py-1.5 rounded-lg hover:opacity-90 transition-opacity"
                   >
                     <span className="font-bold text-[10px]">GC</span> SEPA
                   </a>
                 ) : (
-                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-gradient-to-r from-[#0F766E] to-[#059669] px-3 py-1.5 rounded-lg">
+                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-linear-to-r from-[#0F766E] to-[#059669] px-3 py-1.5 rounded-lg">
                     <span className="font-bold text-[10px]">GC</span> SEPA
                   </span>
                 )

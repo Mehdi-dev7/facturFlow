@@ -296,7 +296,7 @@ export function ReceiptPreviewModal({
     <>
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent
-        className="w-[95vw] sm:w-[90vw] sm:max-w-2xl md:max-w-3xl bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25 shadow-lg dark:shadow-violet-950/40 rounded-xl overflow-hidden p-0"
+        className="w-[95vw] sm:w-[90vw] sm:max-w-2xl md:max-w-3xl max-h-[90dvh] bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25 shadow-lg dark:shadow-violet-950/40 rounded-xl overflow-hidden p-0"
         showCloseButton={false}
       >
         {/* ── Header : numéro + badges + boutons d'action ─────────────── */}

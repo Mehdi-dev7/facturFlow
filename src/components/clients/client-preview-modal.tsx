@@ -138,7 +138,7 @@ export function ClientPreviewModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="w-[95vw] max-w-lg max-h-[90dvh] overflow-hidden flex flex-col bg-gradient-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25 shadow-lg dark:shadow-violet-950/40 rounded-xl p-0"
+        className="w-[95vw] max-w-lg max-h-[90dvh] overflow-hidden flex flex-col bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25 shadow-lg dark:shadow-violet-950/40 rounded-xl p-0"
         showCloseButton={false}
       >
         {/* ─── Header ─── */}
@@ -233,7 +233,7 @@ export function ClientPreviewModal({
               {/* Identité légale */}
               {hasLegalInfo && (
                 <>
-                  <div className="h-px bg-gradient-to-r from-transparent via-primary/20 dark:via-violet-200/20 to-transparent" />
+                  <div className="h-px bg-linear-to-r from-transparent via-primary/20 dark:via-violet-200/20 to-transparent" />
                   <section className="space-y-3">
                     <h3 className="text-[10px] font-semibold text-slate-500 dark:text-violet-300/70 uppercase tracking-wide">
                       Identité légale
@@ -254,7 +254,7 @@ export function ClientPreviewModal({
               {/* Adresse */}
               {hasAddress && (
                 <>
-                  <div className="h-px bg-gradient-to-r from-transparent via-primary/20 dark:via-violet-200/20 to-transparent" />
+                  <div className="h-px bg-linear-to-r from-transparent via-primary/20 dark:via-violet-200/20 to-transparent" />
                   <section className="space-y-3">
                     <h3 className="text-[10px] font-semibold text-slate-500 dark:text-violet-300/70 uppercase tracking-wide">
                       Adresse
@@ -269,7 +269,7 @@ export function ClientPreviewModal({
               )}
 
               {/* Statistiques */}
-              <div className="h-px bg-gradient-to-r from-transparent via-primary/20 dark:via-violet-200/20 to-transparent" />
+              <div className="h-px bg-linear-to-r from-transparent via-primary/20 dark:via-violet-200/20 to-transparent" />
               <section className="space-y-3">
                 <h3 className="text-[10px] font-semibold text-slate-500 dark:text-violet-300/70 uppercase tracking-wide">
                   Statistiques
@@ -296,7 +296,7 @@ export function ClientPreviewModal({
               {/* Notes internes */}
               {client.notes && (
                 <>
-                  <div className="h-px bg-gradient-to-r from-transparent via-primary/20 dark:via-violet-200/20 to-transparent" />
+                  <div className="h-px bg-linear-to-r from-transparent via-primary/20 dark:via-violet-200/20 to-transparent" />
                   <section className="space-y-2">
                     <h3 className="text-[10px] font-semibold text-slate-500 dark:text-violet-300/70 uppercase tracking-wide">
                       Notes internes

@@ -57,9 +57,9 @@ export function ClientForm() {
 	);
 
 	const inputClass =
-		"bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-violet-300/50";
+		"text-xs xs:text-sm bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-violet-300/50";
 
-	const labelClass = "text-sm font-medium text-slate-700 dark:text-violet-200";
+	const labelClass = "text-xs xs:text-sm font-medium text-slate-700 dark:text-violet-200";
 
 	return (
 		<form onSubmit={handleSubmit(onSubmit)} className="space-y-6">

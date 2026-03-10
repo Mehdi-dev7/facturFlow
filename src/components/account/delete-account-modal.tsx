@@ -50,13 +50,13 @@ export function DeleteAccountModal({ open, onClose }: DeleteAccountModalProps) {
 
   return (
     <AlertDialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <AlertDialogContent className="bg-white dark:bg-slate-900 border-red-200 dark:border-red-500/30 rounded-2xl max-w-xs xs:max-w-sm">
+      <AlertDialogContent className="max-w-xs xs:max-w-sm p-3 xs:p-3 sm:p-5 bg-white dark:bg-slate-900 border-red-200 dark:border-red-500/30 rounded-2xl">
         {/* Header — div plain pour forcer le centrage sans être override par AlertDialogHeader */}
         <div className="flex flex-col items-center gap-3 text-center">
           <div className="size-12 rounded-full bg-red-100 dark:bg-red-500/20 flex items-center justify-center">
             <AlertTriangle className="size-6 text-red-600 dark:text-red-400" />
           </div>
-          <AlertDialogTitle className="text-lg font-semibold text-slate-900 dark:text-slate-50">
+          <AlertDialogTitle className="text-base xs:text-lg font-semibold text-slate-900 dark:text-slate-50">
             Supprimer mon compte
           </AlertDialogTitle>
           <AlertDialogDescription className="text-sm text-slate-600 dark:text-slate-400">

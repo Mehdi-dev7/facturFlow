@@ -120,13 +120,13 @@ export function ClientModal({ open, onOpenChange, editClient, onSuccess }: Clien
   const isPending = createMutation.isPending || updateMutation.isPending;
 
   const inputClass =
-    "bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-violet-300/50";
+    "text-xs xs:text-sm bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-violet-300/50";
 
   const labelClass = "text-xs xs:text-sm font-medium text-slate-700 dark:text-violet-200";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25 shadow-lg dark:shadow-violet-950/40 rounded-xl">
+      <DialogContent className="max-w-lg max-h-[90dvh] overflow-y-auto p-3 xs:p-3 sm:p-5 bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25 shadow-lg dark:shadow-violet-950/40 rounded-xl">
         <DialogHeader>
           <DialogTitle className="text-base xs:text-lg font-bold text-slate-900 dark:text-slate-100">
             {isEdit ? "Modifier le client" : "Nouveau client"}
@@ -142,7 +142,7 @@ export function ClientModal({ open, onOpenChange, editClient, onSuccess }: Clien
             <SiretLookupInput onFound={handleSiretFound} />
           </section>
 
-          <div className="h-px bg-gradient-to-r from-transparent via-primary/20 dark:via-violet-200/20 to-transparent" />
+          <div className="h-px bg-linear-to-r from-transparent via-primary/20 dark:via-violet-200/20 to-transparent" />
 
           {/* ─── Type de client ─── */}
           <section className="space-y-2">
@@ -204,7 +204,7 @@ export function ClientModal({ open, onOpenChange, editClient, onSuccess }: Clien
             </div>
           </section>
 
-          <div className="h-px bg-gradient-to-r from-transparent via-primary/20 dark:via-violet-200/20 to-transparent" />
+          <div className="h-px bg-linear-to-r from-transparent via-primary/20 dark:via-violet-200/20 to-transparent" />
 
           {/* ─── Informations principales ─── */}
           <section className="space-y-3">
@@ -295,7 +295,7 @@ export function ClientModal({ open, onOpenChange, editClient, onSuccess }: Clien
             </div>
           </section>
 
-          <div className="h-px bg-gradient-to-r from-transparent via-primary/20 dark:via-violet-200/20 to-transparent" />
+          <div className="h-px bg-linear-to-r from-transparent via-primary/20 dark:via-violet-200/20 to-transparent" />
 
           {/* ─── Adresse ─── */}
           <section className="space-y-3">
@@ -345,7 +345,7 @@ export function ClientModal({ open, onOpenChange, editClient, onSuccess }: Clien
             </div>
           </section>
 
-          <div className="h-px bg-gradient-to-r from-transparent via-primary/20 dark:via-violet-200/20 to-transparent" />
+          <div className="h-px bg-linear-to-r from-transparent via-primary/20 dark:via-violet-200/20 to-transparent" />
 
           {/* ─── Notes ─── */}
           <section className="space-y-2">
