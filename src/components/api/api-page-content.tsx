@@ -180,7 +180,7 @@ function ApiKeysSection({
           className="gap-2 bg-primary hover:bg-primary/90 text-white cursor-pointer"
         >
           <Plus className="h-4 w-4" />
-          Nouvelle clé
+          <span className="hidden sm:inline">Nouvelle clé</span>
         </Button>
       </div>
 
@@ -476,7 +476,7 @@ function WebhooksSection({
           className="gap-2 bg-violet-600 hover:bg-violet-700 text-white cursor-pointer"
         >
           <Plus className="h-4 w-4" />
-          Ajouter
+          <span className="hidden sm:inline">Ajouter</span>
         </Button>
       </div>
 

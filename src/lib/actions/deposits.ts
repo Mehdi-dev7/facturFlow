@@ -11,6 +11,7 @@ import { auth } from "@/lib/auth";
 
 import type { SavedDeposit } from "@/lib/types/deposits";
 import { canCreateDocument } from "@/lib/feature-gate";
+import { dispatchWebhook } from "@/lib/webhook-dispatcher";
 
 // ─── Schema Zod (interne) ───────────────────────────────────────────────────
 
@@ -331,6 +332,17 @@ export async function createDeposit(data: DepositFormData, draftId?: string) {
     revalidatePath("/dashboard/acomptes");
 
     const saved = mapToSavedDeposit(doc as unknown as PrismaDepositWithRelations);
+
+    // Dispatcher webhook deposit.created (fire & forget)
+    dispatchWebhook(userId, "deposit.created", {
+      id: saved.id,
+      number: saved.number,
+      status: saved.status,
+      total: saved.total,
+      due_date: saved.dueDate,
+      client_id: saved.client.id,
+    }).catch(() => {});
+
     return { success: true, data: saved } as const;
   } catch (error) {
     console.error("[createDeposit] Erreur:", error);
@@ -586,6 +598,11 @@ export async function updateDepositStatus(id: string, newStatus: string) {
     });
 
     revalidatePath("/dashboard/acomptes");
+
+    // Dispatcher webhook deposit.paid si applicable (fire & forget)
+    if (newStatus === "PAID") {
+      dispatchWebhook(session.user.id, "deposit.paid", { id, status: "PAID" }).catch(() => {});
+    }
 
     return { success: true } as const;
   } catch (error) {

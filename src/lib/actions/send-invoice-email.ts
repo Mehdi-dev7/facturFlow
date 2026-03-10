@@ -10,6 +10,7 @@ import { prisma } from "@/lib/prisma";
 import { renderToBuffer } from "@react-pdf/renderer";
 import InvoicePdfDocument from "@/lib/pdf/invoice-pdf-document";
 import type { SavedInvoice } from "@/lib/actions/invoices";
+import { wrapEmail, emailHeader, EMAIL_FOOTER } from "@/lib/email/email-base";
 import { getStripeCredential } from "@/lib/actions/payments";
 import { getStripeClient } from "@/lib/stripe";
 
@@ -212,94 +213,81 @@ export async function sendInvoiceEmail(
       from: fromEmail,
       to: [doc.client.email],
       subject: `Facture ${doc.number} – PDF ci-joint`,
-      html: `
-        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">
-          <div style="background: linear-gradient(135deg, #7c3aed, #4f46e5); padding: 24px; border-radius: 12px; margin-bottom: 24px;">
-            <h1 style="color: white; margin: 0; font-size: 20px;">Facture ${doc.number}</h1>
-          </div>
+      html: wrapEmail(`
+        ${emailHeader("linear-gradient(135deg, #7c3aed, #4f46e5)", "", `Facture ${doc.number}`)}
 
-          <p style="color: #334155; font-size: 15px; line-height: 1.6;">
-            Bonjour ${clientName},
-          </p>
+        <p style="color:#334155;font-size:15px;line-height:1.6;">Bonjour ${clientName},</p>
 
-          <p style="color: #334155; font-size: 15px; line-height: 1.6;">
-            Veuillez trouver ci-joint la facture <strong>n°${doc.number}</strong> d'un montant total de <strong>${amount} €</strong>.
-          </p>
+        <p style="color:#334155;font-size:15px;line-height:1.6;">
+          Veuillez trouver ci-joint la facture <strong>n°${doc.number}</strong> d'un montant total de <strong>${amount} €</strong>.
+        </p>
 
-          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin: 20px 0;">
-            <table style="width: 100%; font-size: 14px; color: #475569;">
-              <tr>
-                <td style="padding: 4px 0;">Montant TTC</td>
-                <td style="padding: 4px 0; text-align: right; font-weight: 600; color: #7c3aed;">${amount} €</td>
-              </tr>
-              <tr>
-                <td style="padding: 4px 0;">Date d'échéance</td>
-                <td style="padding: 4px 0; text-align: right; font-weight: 600;">${dueDate}</td>
-              </tr>
-            </table>
-          </div>
-
-          ${stripePaymentUrl || paypalPaymentUrl || sepaPaymentUrl ? `
-          <div style="text-align: center; margin: 32px 0;">
-            ${stripePaymentUrl ? `
-            <a href="${stripePaymentUrl}"
-               style="display: inline-block; background-color: #635BFF; color: #ffffff; text-decoration: none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 15px; font-weight: 600; padding: 12px 28px; border-radius: 6px; cursor: pointer; margin: 6px;">
-              Payer ${amount} € par CB
-            </a>
-            <p style="color: #6b7280; font-size: 12px; margin-top: 6px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;">
-              Paiement sécurisé par <strong style="color: #635BFF;">Stripe</strong> &nbsp;·&nbsp; CB, Apple Pay, Google Pay
-            </p>
-            ` : ""}
-            ${paypalPaymentUrl ? `
-            <a href="${paypalPaymentUrl}"
-               style="display: inline-block; background-color: #003087; color: #ffffff; text-decoration: none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 15px; font-weight: 600; padding: 12px 28px; border-radius: 6px; cursor: pointer; margin: 6px;">
-              Payer ${amount} € via PayPal
-            </a>
-            <p style="color: #6b7280; font-size: 12px; margin-top: 6px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;">
-              Paiement sécurisé par <strong style="color: #003087;">PayPal</strong>
-            </p>
-            ` : ""}
-            ${sepaPaymentUrl ? `
-            <a href="${sepaPaymentUrl}"
-               style="display: inline-block; background-color: #0854b3; color: #ffffff; text-decoration: none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 15px; font-weight: 600; padding: 12px 28px; border-radius: 6px; cursor: pointer; margin: 6px;">
-              Autoriser le prélèvement SEPA
-            </a>
-            <p style="color: #6b7280; font-size: 12px; margin-top: 6px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;">
-              Prélèvement sécurisé via <strong style="color: #0854b3;">GoCardless</strong> &nbsp;·&nbsp; Délai 2–5 jours ouvrés
-            </p>
-            ` : ""}
-          </div>
-          ` : ""}
-
-          ${invoice.user.iban ? `
-          <div style="margin:20px 0;padding:16px;background:#f8f7ff;border-left:4px solid #7c3aed;border-radius:4px;">
-            <p style="margin:0 0 8px;font-weight:600;color:#7c3aed;">Paiement par virement bancaire</p>
-            <p style="margin:0;font-size:14px;color:#374151;">IBAN : ${invoice.user.iban}</p>
-            ${invoice.user.bic ? `<p style="margin:4px 0 0;font-size:14px;color:#374151;">BIC : ${invoice.user.bic}</p>` : ""}
-            <p style="margin:4px 0 0;font-size:12px;color:#6b7280;">Référence : ${invoice.number ?? ""}</p>
-          </div>
-          ` : ""}
-
-          <p style="color: #334155; font-size: 15px; line-height: 1.6;">
-            N'hésitez pas à revenir vers nous si vous avez la moindre question concernant cette facture.
-          </p>
-
-          <p style="color: #334155; font-size: 15px; line-height: 1.6;">
-            Nous vous remercions par avance pour votre règlement.
-          </p>
-
-          <p style="color: #334155; font-size: 15px; line-height: 1.6;">
-            Bien cordialement,<br/>
-            <strong>${emitterName}</strong>
-          </p>
-
-          <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 24px 0;" />
-
-          <p style="color: #94a3b8; font-size: 12px; text-align: center;">
-            Email envoyé via FacturNow
-          </p>
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin:20px 0;">
+          <table style="width:100%;font-size:14px;color:#475569;">
+            <tr>
+              <td style="padding:4px 0;">Montant TTC</td>
+              <td style="padding:4px 0;text-align:right;font-weight:600;color:#7c3aed;">${amount} €</td>
+            </tr>
+            <tr>
+              <td style="padding:4px 0;">Date d'échéance</td>
+              <td style="padding:4px 0;text-align:right;font-weight:600;">${dueDate}</td>
+            </tr>
+          </table>
         </div>
-      `,
+
+        ${stripePaymentUrl || paypalPaymentUrl || sepaPaymentUrl ? `
+        <div style="text-align:center;margin:32px 0;">
+          ${stripePaymentUrl ? `
+          <a href="${stripePaymentUrl}" class="ebtn"
+             style="display:inline-block;background-color:#635BFF;color:#ffffff;text-decoration:none;font-size:15px;font-weight:600;padding:12px 28px;border-radius:6px;margin:6px;">
+            Payer ${amount} € par CB
+          </a>
+          <p style="color:#6b7280;font-size:12px;margin-top:6px;">
+            Paiement sécurisé par <strong style="color:#635BFF;">Stripe</strong> &nbsp;·&nbsp; CB, Apple Pay, Google Pay
+          </p>
+          ` : ""}
+          ${paypalPaymentUrl ? `
+          <a href="${paypalPaymentUrl}" class="ebtn"
+             style="display:inline-block;background-color:#003087;color:#ffffff;text-decoration:none;font-size:15px;font-weight:600;padding:12px 28px;border-radius:6px;margin:6px;">
+            Payer ${amount} € via PayPal
+          </a>
+          <p style="color:#6b7280;font-size:12px;margin-top:6px;">
+            Paiement sécurisé par <strong style="color:#003087;">PayPal</strong>
+          </p>
+          ` : ""}
+          ${sepaPaymentUrl ? `
+          <a href="${sepaPaymentUrl}" class="ebtn"
+             style="display:inline-block;background-color:#0854b3;color:#ffffff;text-decoration:none;font-size:15px;font-weight:600;padding:12px 28px;border-radius:6px;margin:6px;">
+            Autoriser le prélèvement SEPA
+          </a>
+          <p style="color:#6b7280;font-size:12px;margin-top:6px;">
+            Prélèvement sécurisé via <strong style="color:#0854b3;">GoCardless</strong> &nbsp;·&nbsp; Délai 2–5 jours ouvrés
+          </p>
+          ` : ""}
+        </div>
+        ` : ""}
+
+        ${invoice.user.iban ? `
+        <div style="margin:20px 0;padding:16px;background:#f8f7ff;border-left:4px solid #7c3aed;border-radius:4px;">
+          <p style="margin:0 0 8px;font-weight:600;color:#7c3aed;">Paiement par virement bancaire</p>
+          <p style="margin:0;font-size:14px;color:#374151;">IBAN : ${invoice.user.iban}</p>
+          ${invoice.user.bic ? `<p style="margin:4px 0 0;font-size:14px;color:#374151;">BIC : ${invoice.user.bic}</p>` : ""}
+          <p style="margin:4px 0 0;font-size:12px;color:#6b7280;">Référence : ${invoice.number ?? ""}</p>
+        </div>
+        ` : ""}
+
+        <p style="color:#334155;font-size:15px;line-height:1.6;">
+          N'hésitez pas à revenir vers nous si vous avez la moindre question concernant cette facture.
+        </p>
+        <p style="color:#334155;font-size:15px;line-height:1.6;">
+          Nous vous remercions par avance pour votre règlement.
+        </p>
+        <p style="color:#334155;font-size:15px;line-height:1.6;">
+          Bien cordialement,<br/><strong>${emitterName}</strong>
+        </p>
+
+        ${EMAIL_FOOTER}
+      `),
       attachments: [
         {
           filename: `${doc.number}.pdf`,

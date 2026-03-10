@@ -102,6 +102,7 @@ const navSections: NavSection[] = [
 			{ label: "Clients", href: "/dashboard/clients", icon: Users },
 			{ label: "Statistiques", href: "/dashboard/stats", icon: BarChart3 },
 			{ label: "Comptabilité", href: "/dashboard/compta", icon: Calculator },
+			{ label: "Paiements", href: "/dashboard/payments", icon: CreditCard },
 		],
 	},
 	{
@@ -111,7 +112,6 @@ const navSections: NavSection[] = [
 		items: [
 			{ label: "Mon profil", href: "/dashboard/account", icon: UserCircle2 },
 			{ label: "Mon entreprise", href: "/dashboard/company", icon: Building2 },
-			{ label: "Paiements", href: "/dashboard/payments", icon: CreditCard },
 			{ label: "Abonnement", href: "/dashboard/subscription", icon: Crown },
 			// "API & Webhooks" est ajouté dynamiquement pour le plan Business (voir SidebarNav)
 		],
@@ -340,7 +340,11 @@ export default function DashboardShell({
 	isAdmin?: boolean;
 }) {
 	const [sidebarOpen, setSidebarOpen] = useState(false);
-	const [collapsed, setCollapsed] = useState(false);
+	// Collapsed par défaut sur tablette (md→lg), ouvert sur desktop (lg+)
+	const [collapsed, setCollapsed] = useState(() => {
+		if (typeof window === "undefined") return false;
+		return window.innerWidth < 1024;
+	});
 	const pathname = usePathname();
 
 	// Dot dismissal : persiste dans localStorage (survit aux fermetures du navigateur)

@@ -7,6 +7,7 @@ import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { resend } from "@/lib/email/resend";
 import { prisma } from "@/lib/prisma";
+import { wrapEmail, emailHeader, EMAIL_FOOTER } from "@/lib/email/email-base";
 import { renderToBuffer } from "@react-pdf/renderer";
 import { ReceiptPdfDocument } from "@/lib/pdf/receipt-pdf-document";
 import type { SavedReceipt, ReceiptPaymentMethod } from "@/lib/types/receipts";
@@ -72,57 +73,44 @@ function buildReceiptEmailHtml(opts: {
 }): string {
   const { receiptNumber, clientName, emitterName, amountFormatted, dateFormatted, description, paymentMethod } = opts;
 
-  return `
-    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">
-      <div style="background: linear-gradient(135deg, #7c3aed, #4f46e5); padding: 24px; border-radius: 12px; margin-bottom: 24px;">
-        <h1 style="color: white; margin: 0; font-size: 20px;">Reçu ${receiptNumber}</h1>
-      </div>
+  return wrapEmail(`
+    ${emailHeader("linear-gradient(135deg, #7c3aed, #4f46e5)", "", `Reçu ${receiptNumber}`)}
 
-      <p style="color: #334155; font-size: 15px; line-height: 1.6;">
-        Bonjour ${clientName},
-      </p>
+    <p style="color:#334155;font-size:15px;line-height:1.6;">Bonjour ${clientName},</p>
+    <p style="color:#334155;font-size:15px;line-height:1.6;">
+      Votre reçu est en pièce jointe. Nous confirmons avoir bien reçu votre paiement.
+    </p>
 
-      <p style="color: #334155; font-size: 15px; line-height: 1.6;">
-        Votre reçu est en pièce jointe. Nous confirmons avoir bien reçu votre paiement.
-      </p>
-
-      <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin: 20px 0;">
-        <table style="width: 100%; font-size: 14px; color: #475569;">
-          <tr>
-            <td style="padding: 4px 0;">Montant encaissé</td>
-            <td style="padding: 4px 0; text-align: right; font-weight: 600; color: #7c3aed;">${amountFormatted}</td>
-          </tr>
-          <tr>
-            <td style="padding: 4px 0;">Date du paiement</td>
-            <td style="padding: 4px 0; text-align: right; font-weight: 600;">${dateFormatted}</td>
-          </tr>
-          <tr>
-            <td style="padding: 4px 0;">Objet</td>
-            <td style="padding: 4px 0; text-align: right;">${description}</td>
-          </tr>
-          <tr>
-            <td style="padding: 4px 0;">Mode de paiement</td>
-            <td style="padding: 4px 0; text-align: right;">${paymentMethod}</td>
-          </tr>
-        </table>
-      </div>
-
-      <p style="color: #334155; font-size: 15px; line-height: 1.6;">
-        N'hésitez pas à nous contacter si vous avez la moindre question.
-      </p>
-
-      <p style="color: #334155; font-size: 15px; line-height: 1.6;">
-        Bien cordialement,<br/>
-        <strong>${emitterName}</strong>
-      </p>
-
-      <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 24px 0;" />
-
-      <p style="color: #94a3b8; font-size: 12px; text-align: center;">
-        Email envoyé via FacturNow
-      </p>
+    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin:20px 0;">
+      <table style="width:100%;font-size:14px;color:#475569;">
+        <tr>
+          <td style="padding:4px 0;">Montant encaissé</td>
+          <td style="padding:4px 0;text-align:right;font-weight:600;color:#7c3aed;">${amountFormatted}</td>
+        </tr>
+        <tr>
+          <td style="padding:4px 0;">Date du paiement</td>
+          <td style="padding:4px 0;text-align:right;font-weight:600;">${dateFormatted}</td>
+        </tr>
+        <tr>
+          <td style="padding:4px 0;">Objet</td>
+          <td style="padding:4px 0;text-align:right;">${description}</td>
+        </tr>
+        <tr>
+          <td style="padding:4px 0;">Mode de paiement</td>
+          <td style="padding:4px 0;text-align:right;">${paymentMethod}</td>
+        </tr>
+      </table>
     </div>
-  `;
+
+    <p style="color:#334155;font-size:15px;line-height:1.6;">
+      N'hésitez pas à nous contacter si vous avez la moindre question.
+    </p>
+    <p style="color:#334155;font-size:15px;line-height:1.6;">
+      Bien cordialement,<br/><strong>${emitterName}</strong>
+    </p>
+
+    ${EMAIL_FOOTER}
+  `);
 }
 
 // ─── Action 1 : reçu virtuel depuis une facture PAID ─────────────────────────

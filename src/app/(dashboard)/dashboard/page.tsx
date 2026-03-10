@@ -3,18 +3,16 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Plus, ChevronDown } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSession } from "@/lib/auth-client";
 import {
   ChartIcon,
   TrendUpIcon,
   KpiCard,
-  SortIcon,
-  parseDate,
-  parseAmount,
+  DataTable,
 } from "@/components/dashboard";
-import type { KpiData } from "@/components/dashboard";
+import type { KpiData, Column } from "@/components/dashboard";
 import type { InvoiceStatus } from "@/components/dashboard/status-badge";
 import { StatusDropdown } from "@/components/dashboard/status-dropdown";
 import { useInvoices, type SavedInvoice } from "@/hooks/use-invoices";
@@ -60,9 +58,6 @@ interface InvoiceRow {
   dbStatus: string;
 }
 
-type SortKey = "date" | "echeance" | "amount" | "status";
-type SortDir = "asc" | "desc";
-
 const statusOrder: Record<InvoiceStatus, number> = {
   relancée: 0, impayée: 1, "sepa en cours": 2, envoyée: 3, "en attente": 4, "à envoyer": 5, payée: 6,
 };
@@ -85,9 +80,6 @@ function toRow(inv: SavedInvoice): InvoiceRow {
 export default function DashboardPage() {
   const router = useRouter();
   const [tableVisible, setTableVisible] = useState(false);
-  const [sortKey, setSortKey] = useState<SortKey | null>(null);
-  const [sortDir, setSortDir] = useState<SortDir>("asc");
-  const [expandedId, setExpandedId] = useState<string | null>(null);
   const [previewInvoice, setPreviewInvoice] = useState<SavedInvoice | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
   const { data: session } = useSession();
@@ -106,15 +98,6 @@ export default function DashboardPage() {
     const timer = setTimeout(() => setTableVisible(true), 400);
     return () => clearTimeout(timer);
   }, []);
-
-  const handleSort = useCallback((key: SortKey) => {
-    if (sortKey === key) {
-      setSortDir((prev) => (prev === "asc" ? "desc" : "asc"));
-    } else {
-      setSortKey(key);
-      setSortDir("asc");
-    }
-  }, [sortKey]);
 
   // Clic sur une ligne : brouillon → édition, sinon → prévisualisation
   const handleRowClick = useCallback((inv: InvoiceRow) => {
@@ -135,19 +118,69 @@ export default function DashboardPage() {
     return rows.sort((a, b) => b.rawDate - a.rawDate).slice(0, 10);
   }, [allInvoices]);
 
-  const sortedInvoices = useMemo(() => {
-    if (!sortKey) return recentRows;
-    return [...recentRows].sort((a, b) => {
-      let cmp = 0;
-      switch (sortKey) {
-        case "date":     cmp = parseDate(a.date !== "—" ? a.date : "01/01/1970") - parseDate(b.date !== "—" ? b.date : "01/01/1970"); break;
-        case "echeance": cmp = parseDate(a.echeance !== "—" ? a.echeance : "01/01/1970") - parseDate(b.echeance !== "—" ? b.echeance : "01/01/1970"); break;
-        case "amount":   cmp = parseAmount(a.amount) - parseAmount(b.amount); break;
-        case "status":   cmp = statusOrder[a.status] - statusOrder[b.status]; break;
-      }
-      return sortDir === "asc" ? cmp : -cmp;
-    });
-  }, [recentRows, sortKey, sortDir]);
+  // Colonnes identiques à la page /dashboard/invoices
+  const columns = useMemo((): Column<InvoiceRow>[] => [
+    {
+      key: "number",
+      label: "N° Facture",
+      headerClassName: "md:w-[120px] lg:w-auto",
+      cellClassName: "md:w-[120px] lg:w-auto overflow-hidden",
+      render: (row) => (
+        <span className="text-[11px] lg:text-xs xl:text-sm font-semibold text-violet-600 dark:text-violet-400 group-hover:text-violet-800 transition-colors block truncate md:max-w-[100px] lg:max-w-none">
+          {row.number}
+        </span>
+      ),
+    },
+    {
+      key: "client",
+      label: "Client",
+      headerClassName: "md:w-[120px] lg:w-auto",
+      cellClassName: "md:w-[120px] lg:w-auto overflow-hidden",
+      render: (row) => (
+        <span className="text-[11px] lg:text-xs xl:text-sm text-slate-700 dark:text-slate-300 block truncate md:max-w-[100px] lg:max-w-none">{row.client}</span>
+      ),
+    },
+    {
+      key: "date",
+      label: "Émission",
+      sortable: true,
+      getValue: (row) => new Date(row.date.split("/").reverse().join("-")).getTime(),
+      render: (row) => (
+        <span className="text-xs lg:text-sm text-slate-500 dark:text-slate-400">{row.date}</span>
+      ),
+    },
+    {
+      key: "echeance",
+      label: "Échéance",
+      sortable: true,
+      getValue: (row) => row.echeance !== "—" ? new Date(row.echeance.split("/").reverse().join("-")).getTime() : 0,
+      render: (row) => (
+        <span className="text-xs lg:text-sm text-slate-500 dark:text-slate-400">{row.echeance}</span>
+      ),
+    },
+    {
+      key: "amount",
+      label: "Montant",
+      align: "right" as const,
+      sortable: true,
+      getValue: (row) => invoiceMap.get(row.id)?.total ?? 0,
+      render: (row) => (
+        <span className="text-xs lg:text-sm font-semibold text-slate-900 dark:text-slate-100">{row.amount}</span>
+      ),
+    },
+    {
+      key: "status",
+      label: "Statut",
+      align: "center" as const,
+      sortable: true,
+      getValue: (row) => statusOrder[row.status],
+      headerClassName: "md:w-[115px] lg:w-auto",
+      cellClassName: "md:w-[115px] lg:w-auto",
+      render: (row) => (
+        <StatusDropdown invoiceId={row.id} dbStatus={row.dbStatus} />
+      ),
+    },
+  ], [invoiceMap]);
 
   // KPIs calculés sur le mois courant
   const currentYear = new Date().getFullYear();
@@ -269,144 +302,17 @@ export default function DashboardPage() {
           </Link>
         </div>
 
-        {/* ── Loading skeleton ── */}
-        {isLoading && (
-          <div className="divide-y divide-slate-200 dark:divide-violet-500/20">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="px-4 sm:px-6 py-3.5 flex items-center gap-4">
-                <div className="h-4 w-24 bg-slate-200 dark:bg-violet-800/40 rounded animate-pulse" />
-                <div className="h-4 flex-1 bg-slate-100 dark:bg-violet-800/20 rounded animate-pulse" />
-                <div className="h-4 w-16 bg-slate-100 dark:bg-violet-800/20 rounded animate-pulse" />
-                <div className="h-5 w-20 bg-slate-200 dark:bg-violet-800/40 rounded-full animate-pulse" />
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* ── Vide ── */}
-        {!isLoading && sortedInvoices.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-            <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">Aucune facture</p>
-            <p className="text-xs text-slate-400 dark:text-violet-400 mt-1">Créez votre première facture pour commencer.</p>
-          </div>
-        )}
-
-        {/* ── Mobile: Accordion View ── */}
-        {!isLoading && sortedInvoices.length > 0 && (
-          <div className="md:hidden divide-y divide-slate-200 dark:divide-violet-500/20">
-            {sortedInvoices.map((inv) => {
-              const isExpanded = expandedId === inv.id;
-              return (
-                <div key={inv.id}>
-                  <div
-                    onClick={() => {
-                      if (expandedId === inv.id) { setExpandedId(null); return; }
-                      setExpandedId(inv.id);
-                    }}
-                    className="w-full flex items-center justify-between px-4 py-3.5 hover:bg-violet-200/30 dark:hover:bg-violet-500/10 transition-colors cursor-pointer"
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <span className="text-xs font-semibold text-violet-600 dark:text-violet-400 shrink-0">{inv.number}</span>
-                      <span className="text-xs text-slate-700 dark:text-slate-300 truncate">{inv.client}</span>
-                    </div>
-                    <div className="flex items-center gap-2.5 shrink-0 ml-2" onClick={(e) => e.stopPropagation()}>
-                      <StatusDropdown invoiceId={inv.id} dbStatus={inv.dbStatus} />
-                      <ChevronDown className={`h-4 w-4 text-slate-400 transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`} />
-                    </div>
-                  </div>
-                  <div className={`grid transition-all duration-200 ease-in-out ${isExpanded ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
-                    <div className="overflow-hidden">
-                      <div className="px-4 pb-3.5 pt-0 flex flex-col gap-2 bg-violet-50/50 dark:bg-violet-950/30">
-                        <div className="flex justify-between text-xs">
-                          <span className="text-slate-500 dark:text-slate-400">Émission</span>
-                          <span className="text-slate-700 dark:text-slate-300">{inv.date}</span>
-                        </div>
-                        <div className="flex justify-between text-xs">
-                          <span className="text-slate-500 dark:text-slate-400">Échéance</span>
-                          <span className="text-slate-700 dark:text-slate-300">{inv.echeance}</span>
-                        </div>
-                        <div className="flex justify-between text-xs">
-                          <span className="text-slate-500 dark:text-slate-400">Montant</span>
-                          <span className="font-semibold text-slate-900 dark:text-slate-100">{inv.amount}</span>
-                        </div>
-                        <button
-                          onClick={() => handleRowClick(inv)}
-                          className="mt-1 text-xs font-semibold text-violet-600 dark:text-violet-400 text-left hover:underline cursor-pointer"
-                        >
-                          {inv.dbStatus === "DRAFT" ? "Continuer l'édition →" : "Voir la facture →"}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        {/* ── Desktop: Table View ── */}
-        {!isLoading && sortedInvoices.length > 0 && (
-          <div className="hidden md:block overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-slate-200 dark:border-violet-500/20 bg-violet-200/90 dark:bg-violet-950/50">
-                  <th className="px-3 lg:px-6 py-3 text-left text-[10px] lg:text-xs font-semibold text-slate-500 dark:text-violet-300 uppercase tracking-wider border-r border-slate-200 dark:border-violet-500/20 md:w-[120px] lg:w-auto">N° Facture</th>
-                  <th className="px-3 lg:px-6 py-3 text-left text-[10px] lg:text-xs font-semibold text-slate-500 dark:text-violet-300 uppercase tracking-wider border-r border-slate-200 dark:border-violet-500/20 md:w-[120px] lg:w-auto">Client</th>
-                  <th className="px-3 lg:px-6 py-3 text-left text-[10px] lg:text-xs font-semibold text-slate-500 dark:text-violet-300 uppercase tracking-wider border-r border-slate-200 dark:border-violet-500/20">
-                    <button onClick={() => handleSort("date")} className="inline-flex items-center gap-1.5 cursor-pointer hover:text-primary transition-colors">
-                      Émission <SortIcon direction={sortKey === "date" ? sortDir : null} />
-                    </button>
-                  </th>
-                  <th className="px-3 lg:px-6 py-3 text-left text-[10px] lg:text-xs font-semibold text-slate-500 dark:text-violet-300 uppercase tracking-wider border-r border-slate-200 dark:border-violet-500/20">
-                    <button onClick={() => handleSort("echeance")} className="inline-flex items-center gap-1.5 cursor-pointer hover:text-primary transition-colors">
-                      Échéance <SortIcon direction={sortKey === "echeance" ? sortDir : null} />
-                    </button>
-                  </th>
-                  <th className="px-3 lg:px-6 py-3 text-right text-[10px] lg:text-xs font-semibold text-slate-500 dark:text-violet-300 uppercase tracking-wider border-r border-slate-200 dark:border-violet-500/20">
-                    <button onClick={() => handleSort("amount")} className="inline-flex items-center gap-1.5 cursor-pointer hover:text-primary transition-colors ml-auto">
-                      Montant <SortIcon direction={sortKey === "amount" ? sortDir : null} />
-                    </button>
-                  </th>
-                  <th className="px-3 lg:px-6 py-3 text-center text-[10px] lg:text-xs font-semibold text-slate-500 dark:text-violet-300 uppercase tracking-wider md:w-[115px] lg:w-auto">
-                    <button onClick={() => handleSort("status")} className="inline-flex items-center gap-1.5 cursor-pointer hover:text-primary transition-colors mx-auto">
-                      Statut <SortIcon direction={sortKey === "status" ? sortDir : null} />
-                    </button>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {sortedInvoices.map((inv) => (
-                  <tr
-                    key={inv.id}
-                    onClick={() => handleRowClick(inv)}
-                    className="border-b border-slate-200 dark:border-violet-500/20 hover:bg-violet-200/30 dark:hover:bg-violet-500/10 transition-colors cursor-pointer group"
-                  >
-                    <td className="px-3 lg:px-6 py-3.5 border-r border-slate-200 dark:border-violet-500/15 md:w-[120px] lg:w-auto">
-                      <span className="text-[11px] lg:text-xs xl:text-sm font-semibold text-violet-600 dark:text-violet-400 group-hover:text-violet-800 transition-colors block truncate md:max-w-[100px] lg:max-w-none">
-                        {inv.number}
-                      </span>
-                    </td>
-                    <td className="px-3 lg:px-6 py-3.5 border-r border-slate-200 dark:border-violet-500/15 md:w-[120px] lg:w-auto">
-                      <span className="text-[11px] lg:text-xs xl:text-sm text-slate-700 dark:text-slate-300 block truncate md:max-w-[100px] lg:max-w-none">{inv.client}</span>
-                    </td>
-                    <td className="px-3 lg:px-6 py-3.5 border-r border-slate-200 dark:border-violet-500/15">
-                      <span className="text-[10px] lg:text-sm text-slate-500 dark:text-slate-400">{inv.date}</span>
-                    </td>
-                    <td className="px-3 lg:px-6 py-3.5 border-r border-slate-200 dark:border-violet-500/15">
-                      <span className="text-[10px] lg:text-sm text-slate-500 dark:text-slate-400">{inv.echeance}</span>
-                    </td>
-                    <td className="px-3 lg:px-6 py-3.5 text-right border-r border-slate-200 dark:border-violet-500/15">
-                      <span className="text-[10px] lg:text-sm font-semibold text-slate-900 dark:text-slate-100">{inv.amount}</span>
-                    </td>
-                    <td className="px-3 lg:px-6 py-3.5 text-center md:w-[115px] lg:w-auto" onClick={(e) => e.stopPropagation()}>
-                      <StatusDropdown invoiceId={inv.id} dbStatus={inv.dbStatus} />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+        <DataTable<InvoiceRow>
+          data={recentRows}
+          columns={columns}
+          getRowId={(row) => row.id}
+          mobileFields={["number", "client"]}
+          mobileStatusKey="status"
+          mobileAmountKey="amount"
+          onRowClick={handleRowClick}
+          emptyTitle={isLoading ? "Chargement…" : "Aucune facture"}
+          emptyDescription={isLoading ? "Récupération des factures en cours…" : "Créez votre première facture pour commencer."}
+        />
       </div>
 
       {/* Modal prévisualisation facture */}

@@ -15,6 +15,8 @@ export const WEBHOOK_EVENTS = [
   "invoice.paid",
   "invoice.overdue",
   "invoice.sent",
+  "deposit.created",
+  "deposit.paid",
   "client.created",
   "quote.accepted",
   "quote.refused",
