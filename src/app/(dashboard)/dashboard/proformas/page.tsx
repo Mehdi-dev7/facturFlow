@@ -289,7 +289,7 @@ function ProformasPageContent() {
 				headerClassName: "md:w-[130px] lg:w-auto",
 				cellClassName: "md:w-[130px] lg:w-auto overflow-hidden",
 				render: (row) => (
-					<span className="text-[11px] lg:text-xs xl:text-sm font-semibold text-orange-600 dark:text-orange-400 group-hover:text-orange-800 transition-colors block truncate md:max-w-[110px] lg:max-w-none">
+					<span className="text-[11px] lg:text-xs xl:text-sm font-semibold text-violet-600 dark:text-violet-400 group-hover:text-violet-800 transition-colors block truncate md:max-w-[110px] lg:max-w-none">
 						{row.number}
 					</span>
 				),

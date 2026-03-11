@@ -7,6 +7,9 @@ import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { resend } from "@/lib/email/resend";
 import { prisma } from "@/lib/prisma";
+import { renderToBuffer } from "@react-pdf/renderer";
+import InvoicePdfDocument from "@/lib/pdf/invoice-pdf-document";
+import type { SavedInvoice } from "@/lib/actions/invoices";
 import { wrapEmail, emailHeader, EMAIL_FOOTER } from "@/lib/email/email-base";
 
 // ─── Action ──────────────────────────────────────────────────────────────────
@@ -92,7 +95,12 @@ export async function sendProformaEmail(proformaId: string) {
 			)
 			.join("");
 
-		// 5. Envoyer l'email via Resend
+		// 5. Générer le PDF en buffer
+		const pdfBuffer = await renderToBuffer(
+			InvoicePdfDocument({ invoice: doc as unknown as SavedInvoice, documentLabel: "PROFORMA" }),
+		);
+
+		// 6. Envoyer l'email via Resend
 		const { error } = await resend.emails.send({
 			from:
 				process.env.RESEND_FROM_EMAIL ??
@@ -151,6 +159,12 @@ export async function sendProformaEmail(proformaId: string) {
 
 				${EMAIL_FOOTER}
 			`),
+			attachments: [
+				{
+					filename: `${doc.number}.pdf`,
+					content: pdfBuffer,
+				},
+			],
 		});
 
 		if (error) {
