@@ -103,10 +103,10 @@ const DOCS: DocCard[] = [
     icon: FileStack,
     label: "Proforma",
     description: "Émettez une facture proforma indicative avant confirmation définitive de la commande.",
-    href: "/dashboard/documents",
-    accent: "#9333ea",
-    iconColor: "text-purple-600 dark:text-purple-400",
-    available: false,
+    href: "/dashboard/proformas",
+    accent: "#ea580c",
+    iconColor: "text-orange-600 dark:text-orange-400",
+    available: true,
   },
 ];
 

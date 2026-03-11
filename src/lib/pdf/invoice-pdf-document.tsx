@@ -325,7 +325,13 @@ function LinesTablePdf({ lines, typeConfig, isForfait, title, themeColor }: Line
 
 // ─── Composant principal : document PDF ──────────────────────────────────────
 
-export default function InvoicePdfDocument({ invoice }: { invoice: SavedInvoice }) {
+export default function InvoicePdfDocument({
+  invoice,
+  documentLabel = "FACTURE",
+}: {
+  invoice: SavedInvoice;
+  documentLabel?: string;
+}) {
   // Couleur du thème — fallback violet si non définie
   const themeColor = invoice.user.themeColor ?? "#7c3aed";
   const logo       = invoice.user.companyLogo;
@@ -360,7 +366,7 @@ export default function InvoicePdfDocument({ invoice }: { invoice: SavedInvoice 
           <View style={S.headerRow}>
             {/* Gauche : titre + numéro */}
             <View style={S.headerLeft}>
-              <Text style={S.headerTitle}>FACTURE</Text>
+              <Text style={S.headerTitle}>{documentLabel}</Text>
               <Text style={S.headerNumber}>{invoice.number}</Text>
             </View>
 

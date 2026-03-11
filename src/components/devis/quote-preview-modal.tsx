@@ -563,7 +563,7 @@ export function QuotePreviewModal({
     <>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="w-[95vw] h-[90vh] sm:w-[90vw] sm:h-auto sm:max-w-2xl md:max-w-3xl lg:max-w-5xl bg-linear-to-b from-emerald-50 via-white to-white dark:from-[#1f4a3c] dark:via-[#1a3d35] dark:to-[#1a3d35] border border-primary/20 dark:border-emerald-400/25 shadow-lg dark:shadow-emerald-950/40 rounded-xl overflow-hidden p-0"
+        className="w-[95vw] h-[90vh] sm:w-[90vw] sm:h-auto sm:max-w-2xl md:max-w-3xl lg:max-w-5xl bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25 shadow-lg dark:shadow-violet-950/40 rounded-xl overflow-hidden p-0"
         showCloseButton={false}
       >
         {/* Header du modal : titre + bouton fermer + actions */}
@@ -633,7 +633,7 @@ export function QuotePreviewModal({
                 <button
                   onClick={handleSend}
                   disabled={!quote || isSending}
-                  className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-emerald-300 text-emerald-600 hover:bg-emerald-50 dark:border-emerald-500 dark:text-emerald-400 dark:hover:bg-emerald-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-violet-300 text-violet-600 hover:bg-violet-50 dark:border-violet-500 dark:text-violet-400 dark:hover:bg-violet-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 >
                   <Send size={14} />
                   {isSending ? "Envoi..." : "Envoyer"}
@@ -679,7 +679,7 @@ export function QuotePreviewModal({
                 <button
                   onClick={handleSend}
                   disabled={!quote || isSending}
-                  className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-emerald-300 text-emerald-600 hover:bg-emerald-50 dark:border-emerald-500 dark:text-emerald-400 dark:hover:bg-emerald-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-violet-300 text-violet-600 hover:bg-violet-50 dark:border-violet-500 dark:text-violet-400 dark:hover:bg-violet-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 >
                   <Send size={14} />
                   {isSending ? "Envoi..." : "Envoyer"}
