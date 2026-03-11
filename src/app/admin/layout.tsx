@@ -6,7 +6,8 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import Link from "next/link";
 import { auth } from "@/lib/auth";
-import { Shield, LayoutDashboard } from "lucide-react";
+import { getPendingReviewsCount } from "@/lib/actions/reviews";
+import { Shield, LayoutDashboard, MessageSquare } from "lucide-react";
 
 export const metadata = {
   title: "Admin — FacturNow",
@@ -18,6 +19,7 @@ export default async function AdminLayout({
   children: React.ReactNode;
 }) {
   const session = await auth.api.getSession({ headers: await headers() });
+  const pendingReviews = await getPendingReviewsCount();
 
   // Accès interdit si pas admin
   if (
@@ -47,6 +49,7 @@ export default async function AdminLayout({
             Navigation
           </p>
           <AdminNavLink href="/admin" icon={LayoutDashboard} label="Dashboard" exact />
+          <AdminNavLink href="/admin/avis" icon={MessageSquare} label="Avis" badge={pendingReviews} />
         </nav>
 
         {/* Footer : lien retour dashboard */}
@@ -86,11 +89,13 @@ function AdminNavLink({
   href,
   icon: Icon,
   label,
+  badge = 0,
   exact = false,
 }: {
   href: string;
   icon: React.ComponentType<{ className?: string }>;
   label: string;
+  badge?: number;
   exact?: boolean;
 }) {
   return (
@@ -99,7 +104,12 @@ function AdminNavLink({
       className="flex items-center gap-3 rounded-md px-3 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
     >
       <Icon className="h-4 w-4 shrink-0" />
-      {label}
+      <span className="flex-1">{label}</span>
+      {badge > 0 && (
+        <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+          {badge}
+        </span>
+      )}
     </Link>
   );
 }

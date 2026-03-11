@@ -30,6 +30,7 @@ import { PlanBadge } from "@/components/subscription/plan-badge";
 import { UpgradeBanner } from "@/components/subscription/upgrade-banner";
 import { UpgradeModal } from "@/components/subscription/upgrade-modal";
 import { useUpgradeStore } from "@/stores/use-upgrade-store";
+import { useOnboardingStore } from "@/stores/use-onboarding-store";
 import type { LucideIcon } from "lucide-react";
 import type { NotificationCounts } from "@/lib/actions/notifications";
 import {
@@ -168,19 +169,34 @@ function NavLink({
 	onNavigate,
 	isActive,
 	activeClassName,
+	isDimmed = false,
+	isSpotlit = false,
 }: {
 	item: NavItem;
 	collapsed: boolean;
 	onNavigate?: () => void;
 	isActive: boolean;
 	activeClassName: string;
+	/** Atténué pendant le spotlight : opacity réduite + non cliquable */
+	isDimmed?: boolean;
+	/** Mis en évidence pendant le spotlight : ring + pleine visibilité */
+	isSpotlit?: boolean;
 }) {
 	const link = (
 		<Link
 			href={item.href}
-			onClick={onNavigate}
-			className={`relative flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-colors cursor-pointer ${
+			onClick={isDimmed ? undefined : onNavigate}
+			className={`relative flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-colors ${
 				collapsed ? "justify-center" : ""
+			} ${
+				isDimmed
+					? "opacity-25 pointer-events-none select-none"
+					: "cursor-pointer"
+			} ${
+				// Ring pulsant sur le lien ciblé par le spotlight
+				isSpotlit
+					? "ring-2 ring-violet-400/80 dark:ring-violet-400/60 ring-offset-1 ring-offset-white dark:ring-offset-slate-900"
+					: ""
 			} ${
 				isActive
 					? `border-l-4 font-semibold ${activeClassName}`
@@ -217,6 +233,7 @@ function SidebarNav({
 	notifications,
 	dismissedNotifs,
 	effectivePlan,
+	spotlitHref,
 }: {
 	pathname: string;
 	onNavigate?: () => void;
@@ -224,19 +241,23 @@ function SidebarNav({
 	notifications?: NotificationCounts;
 	dismissedNotifs?: Set<string>;
 	effectivePlan?: string;
+	/** Lien mis en évidence pendant le spotlight (tous les autres sont atténués) */
+	spotlitHref?: string | null;
 }) {
 	const isDashboardActive = pathname === "/dashboard";
 
 	return (
 		<TooltipProvider delayDuration={100}>
 			<nav className="flex flex-col gap-1 px-3" aria-label="Menu principal">
-				{/* Dashboard standalone */}
+				{/* Dashboard standalone — atténué si spotlight actif */}
 				<NavLink
 					item={dashboardItem}
 					collapsed={collapsed}
 					onNavigate={onNavigate}
 					isActive={isDashboardActive}
 					activeClassName="border-primary bg-primary/10 text-primary"
+					isDimmed={!!spotlitHref && spotlitHref !== dashboardItem.href}
+					isSpotlit={spotlitHref === dashboardItem.href}
 				/>
 
 				{/* Sections */}
@@ -276,6 +297,8 @@ function SidebarNav({
 										onNavigate={onNavigate}
 										isActive={isItemActive(item.href, pathname)}
 										activeClassName={section.activeColor}
+										isDimmed={!!spotlitHref && spotlitHref !== item.href}
+										isSpotlit={spotlitHref === item.href}
 									/>
 								);
 							})}
@@ -350,6 +373,14 @@ export default function DashboardShell({
 		return window.innerWidth < 1024;
 	});
 	const pathname = usePathname();
+
+	// Spotlight onboarding — lien mis en évidence dans la sidebar
+	const { activeStep } = useOnboardingStore();
+	// hrefs ciblés par chaque étape d'onboarding (même ordre que STEPS dans onboarding-tutorial)
+	const ONBOARDING_HREFS = ["/dashboard/company", "/dashboard/payments", "/dashboard/appearance"];
+	const spotlitHref = activeStep !== null ? ONBOARDING_HREFS[activeStep] ?? null : null;
+	// Spotlight actif uniquement si on n'est PAS sur la page cible
+	const isSpotlightMode = spotlitHref !== null && !pathname.startsWith(spotlitHref);
 
 	// Dot dismissal : persiste dans localStorage (survit aux fermetures du navigateur)
 	// Initialisé à Set vide pour éviter le mismatch hydratation server/client,
@@ -443,6 +474,9 @@ export default function DashboardShell({
 			<aside
 				className={`hidden shrink-0 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 md:flex transition-all duration-300 ${
 					collapsed ? "w-18" : "w-70"
+				} ${
+					// Élever la sidebar au-dessus de l'overlay d'onboarding (z-40)
+					isSpotlightMode ? "relative z-50" : ""
 				}`}
 			>
 				{/* Logo */}
@@ -474,7 +508,7 @@ export default function DashboardShell({
 
 				{/* Navigation */}
 				<div className="flex-1 overflow-y-auto py-4">
-					<SidebarNav pathname={pathname} collapsed={collapsed} notifications={notifications} dismissedNotifs={dismissedNotifs} effectivePlan={subscription?.effectivePlan} />
+					<SidebarNav pathname={pathname} collapsed={collapsed} notifications={notifications} dismissedNotifs={dismissedNotifs} effectivePlan={subscription?.effectivePlan} spotlitHref={isSpotlightMode ? spotlitHref : null} />
 				</div>
 
 				{/* Aide section (sticky en bas avec espacement) */}
@@ -495,6 +529,7 @@ export default function DashboardShell({
 									collapsed={collapsed}
 									isActive={isItemActive(item.href, pathname)}
 									activeClassName={helpSection.activeColor}
+									isDimmed={isSpotlightMode}
 								/>
 							))}
 
@@ -505,6 +540,7 @@ export default function DashboardShell({
 									collapsed={collapsed}
 									isActive={isItemActive("/admin", pathname)}
 									activeClassName="border-violet-600 bg-violet-600/10 text-violet-600 dark:text-violet-300"
+									isDimmed={isSpotlightMode}
 								/>
 							)}
 						</div>

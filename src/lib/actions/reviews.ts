@@ -150,6 +150,7 @@ export async function approveReview(id: string): Promise<{ success: boolean; err
   try {
     await prisma.review.update({ where: { id }, data: { status: "APPROVED" } })
     revalidatePath("/admin")
+    revalidatePath("/admin/avis")
     return { success: true }
   } catch {
     return { success: false, error: "Erreur lors de l'approbation" }
@@ -164,6 +165,7 @@ export async function rejectReview(id: string): Promise<{ success: boolean; erro
   try {
     await prisma.review.update({ where: { id }, data: { status: "REJECTED" } })
     revalidatePath("/admin")
+    revalidatePath("/admin/avis")
     return { success: true }
   } catch {
     return { success: false, error: "Erreur lors du rejet" }
