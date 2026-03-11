@@ -178,6 +178,13 @@ model User {
   paymentAccounts  PaymentAccount[]
   apiKeys          ApiKey[]
   webhookEndpoints WebhookEndpoint[]
+  reviews          Review[]
+
+  // Onboarding
+  onboardingCompletedAt DateTime? // null = onboarding pas encore terminé
+
+  // Avis clients
+  reviewEmailSentAt DateTime? // Date d'envoi de l'email de demande d'avis
 
   // Timestamps
   createdAt DateTime @default(now())
@@ -581,6 +588,23 @@ model WebhookDelivery {
 
   @@index([endpointId])
   @@index([createdAt])
+}
+
+// Avis clients — soumis par email 7 jours après inscription
+model Review {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token       String    @unique  // Token unique inclus dans le lien email
+  rating      Int       // 1 à 5
+  comment     String?   @db.Text
+  status      String    @default("PENDING") // PENDING | APPROVED | REJECTED
+  submittedAt DateTime? // null si l'user n'a pas encore répondu
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([status])
 }
 
 model Reminder {

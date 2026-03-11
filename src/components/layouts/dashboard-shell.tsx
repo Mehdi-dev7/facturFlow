@@ -335,11 +335,13 @@ export default function DashboardShell({
 	subscription,
 	notifications,
 	isAdmin = false,
+	pendingReviewsCount = 0,
 }: {
 	children: React.ReactNode;
 	subscription?: SubscriptionData;
 	notifications?: NotificationCounts;
 	isAdmin?: boolean;
+	pendingReviewsCount?: number;
 }) {
 	const [sidebarOpen, setSidebarOpen] = useState(false);
 	// Collapsed par défaut sur tablette (md→lg), ouvert sur desktop (lg+)
@@ -499,7 +501,7 @@ export default function DashboardShell({
 							{/* Lien Admin — visible uniquement pour l'admin */}
 							{isAdmin && (
 								<NavLink
-									item={{ label: "Admin", href: "/admin", icon: Shield }}
+									item={{ label: "Admin", href: "/admin", icon: Shield, dot: pendingReviewsCount > 0 }}
 									collapsed={collapsed}
 									isActive={isItemActive("/admin", pathname)}
 									activeClassName="border-violet-600 bg-violet-600/10 text-violet-600 dark:text-violet-300"
@@ -571,7 +573,7 @@ export default function DashboardShell({
 												{/* Admin link mobile */}
 												{isAdmin && (
 													<NavLink
-														item={{ label: "Admin", href: "/admin", icon: Shield }}
+														item={{ label: "Admin", href: "/admin", icon: Shield, dot: pendingReviewsCount > 0 }}
 														collapsed={false}
 														onNavigate={() => setSidebarOpen(false)}
 														isActive={isItemActive("/admin", pathname)}

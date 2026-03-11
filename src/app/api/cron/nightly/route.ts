@@ -6,6 +6,7 @@ import { runSyncEInvoiceEvents } from "@/app/api/cron/sync-einvoice-events/route
 import { runExpireTrials } from "@/app/api/cron/expire-trials/route"
 import { runGenerateRecurring } from "@/app/api/cron/generate-recurring/route"
 import { runSendAccountingEmails } from "@/app/api/cron/send-accounting-emails/route"
+import { runSendReviewRequests } from "@/app/api/cron/send-review-requests/route"
 
 // ─── Cron nightly — point d'entrée unique ────────────────────────────────────
 //
@@ -84,6 +85,14 @@ export async function GET(request: NextRequest) {
   } catch (err) {
     errors.accountingEmails = String(err)
     console.error("[nightly] accounting-emails failed:", err)
+  }
+
+  // 8. Envoi des demandes d'avis (J+7 après inscription)
+  try {
+    results.reviewRequests = await runSendReviewRequests()
+  } catch (err) {
+    errors.reviewRequests = String(err)
+    console.error("[nightly] review-requests failed:", err)
   }
 
   console.log("[nightly] Tâches terminées", { results, errors })

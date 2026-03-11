@@ -8,8 +8,9 @@ import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
 import { toast } from "sonner";
 import { grantGuestAccess, revokeGuestAccess } from "@/lib/actions/admin";
+import { approveReview, rejectReview } from "@/lib/actions/reviews";
 import type { AdminUser } from "@/lib/actions/admin";
-import { Search, Gift, X, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { Search, Gift, X, ChevronLeft, ChevronRight, Loader2, Star, Check, ThumbsDown, MessageSquare } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -78,6 +79,144 @@ function UserAvatar({ name, image }: { name: string; image: string | null }) {
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
+// ─── Types Reviews ────────────────────────────────────────────────────────────
+
+interface AdminReview {
+  id: string;
+  rating: number;
+  comment: string | null;
+  status: string;
+  submittedAt: string | null;
+  user: { name: string; email: string };
+}
+
+// ─── Composant StarRating ─────────────────────────────────────────────────────
+
+function StarRating({ rating }: { rating: number }) {
+  return (
+    <div className="flex gap-0.5">
+      {[1, 2, 3, 4, 5].map((s) => (
+        <Star
+          key={s}
+          className={`h-3.5 w-3.5 ${s <= rating ? "fill-amber-400 text-amber-400" : "fill-transparent text-slate-600"}`}
+        />
+      ))}
+    </div>
+  );
+}
+
+// ─── Section Avis ─────────────────────────────────────────────────────────────
+
+function ReviewsSection({ reviews }: { reviews: AdminReview[] }) {
+  const [loadingId, setLoadingId] = useState<string | null>(null);
+  const router = useRouter();
+
+  const handleApprove = useCallback(async (id: string) => {
+    setLoadingId(id);
+    const result = await approveReview(id);
+    setLoadingId(null);
+    if (result.success) {
+      toast.success("Avis approuvé");
+      router.refresh();
+    } else {
+      toast.error(result.error ?? "Erreur");
+    }
+  }, [router]);
+
+  const handleReject = useCallback(async (id: string) => {
+    setLoadingId(id);
+    const result = await rejectReview(id);
+    setLoadingId(null);
+    if (result.success) {
+      toast.success("Avis rejeté");
+      router.refresh();
+    } else {
+      toast.error(result.error ?? "Erreur");
+    }
+  }, [router]);
+
+  const pending = reviews.filter((r) => r.status === "PENDING");
+  const others = reviews.filter((r) => r.status !== "PENDING");
+
+  return (
+    <div className="rounded-xl border border-slate-800 bg-slate-900 overflow-hidden mt-8">
+      <div className="flex items-center gap-2 border-b border-slate-800 p-4">
+        <MessageSquare className="h-4 w-4 text-violet-400" />
+        <h2 className="text-sm font-semibold text-slate-100">Avis clients</h2>
+        {pending.length > 0 && (
+          <span className="ml-1 rounded-full bg-red-500 px-2 py-0.5 text-[11px] font-bold text-white">
+            {pending.length}
+          </span>
+        )}
+        <span className="ml-auto text-xs text-slate-500">{reviews.length} avis soumis</span>
+      </div>
+
+      {reviews.length === 0 ? (
+        <div className="py-12 text-center text-slate-500 text-sm">Aucun avis pour l&apos;instant</div>
+      ) : (
+        <div className="divide-y divide-slate-800">
+          {[...pending, ...others].map((review) => (
+            <div key={review.id} className="flex flex-wrap items-start gap-3 p-4">
+              {/* Info user */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-sm font-medium text-slate-200">{review.user.name}</span>
+                  <span className="text-xs text-slate-500">{review.user.email}</span>
+                  <StarRating rating={review.rating} />
+                  <span
+                    className={`rounded-full border px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
+                      review.status === "APPROVED"
+                        ? "bg-emerald-900/40 text-emerald-300 border-emerald-700/50"
+                        : review.status === "REJECTED"
+                        ? "bg-red-900/30 text-red-400 border-red-700/40"
+                        : "bg-amber-900/30 text-amber-300 border-amber-700/40"
+                    }`}
+                  >
+                    {review.status === "APPROVED" ? "Approuvé" : review.status === "REJECTED" ? "Rejeté" : "En attente"}
+                  </span>
+                </div>
+                {review.comment && (
+                  <p className="mt-1.5 text-xs text-slate-400 line-clamp-3">{review.comment}</p>
+                )}
+              </div>
+
+              {/* Actions — uniquement sur PENDING */}
+              {review.status === "PENDING" && (
+                <div className="flex items-center gap-2 shrink-0">
+                  {loadingId === review.id ? (
+                    <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
+                  ) : (
+                    <>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleApprove(review.id)}
+                        className="text-emerald-400 hover:text-emerald-300 hover:bg-emerald-950/30 text-xs h-7 px-2 cursor-pointer"
+                      >
+                        <Check className="h-3 w-3 mr-1" /> Approuver
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleReject(review.id)}
+                        className="text-red-400 hover:text-red-300 hover:bg-red-950/30 text-xs h-7 px-2 cursor-pointer"
+                      >
+                        <ThumbsDown className="h-3 w-3 mr-1" /> Rejeter
+                      </Button>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Props ────────────────────────────────────────────────────────────────────
+
 interface Props {
   initialUsers: AdminUser[];
   totalPages: number;
@@ -85,6 +224,7 @@ interface Props {
   currentPage: number;
   currentSearch: string;
   currentPlan: string;
+  initialReviews: AdminReview[];
 }
 
 export default function AdminDashboardClient({
@@ -94,6 +234,7 @@ export default function AdminDashboardClient({
   currentPage,
   currentSearch,
   currentPlan,
+  initialReviews,
 }: Props) {
   const router = useRouter();
   const pathname = usePathname();
@@ -174,6 +315,7 @@ export default function AdminDashboardClient({
   // ─ Render ─────────────────────────────────────────────────────────────────
 
   return (
+    <>
     <div className="rounded-xl border border-slate-800 bg-slate-900 overflow-hidden">
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-3 border-b border-slate-800 p-4">
@@ -354,5 +496,9 @@ export default function AdminDashboardClient({
         </div>
       )}
     </div>
+
+    {/* Section avis clients */}
+    <ReviewsSection reviews={initialReviews} />
+    </>
   );
 }

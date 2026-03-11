@@ -3,6 +3,7 @@
 
 import { Suspense } from "react";
 import { getAdminStats, getAdminUsers } from "@/lib/actions/admin";
+import { getReviews } from "@/lib/actions/reviews";
 import AdminDashboardClient from "./admin-dashboard-client";
 import { Users, Crown, Sparkles, Gift, Timer } from "lucide-react";
 
@@ -53,7 +54,10 @@ export default async function AdminPage({
   const search = params.search ?? "";
   const planFilter = params.plan ?? "";
 
-  const usersResult = await getAdminUsers({ page, search, planFilter });
+  const [usersResult, reviewsResult] = await Promise.all([
+    getAdminUsers({ page, search, planFilter }),
+    getReviews(),
+  ]);
 
   return (
     <div>
@@ -76,6 +80,7 @@ export default async function AdminPage({
         currentPage={page}
         currentSearch={search}
         currentPlan={planFilter}
+        initialReviews={reviewsResult.data ?? []}
       />
     </div>
   );

@@ -8,8 +8,10 @@ import {
   ProblemSolutionSection,
   PricingSection,
   FaqSection,
-  Footer
+  Footer,
+  ReviewsCarousel,
 } from "@/components/landing"
+import { getApprovedReviews } from "@/lib/actions/reviews"
 
 export const metadata: Metadata = {
   title: "FacturNow — Facturation intelligente avec prélèvement SEPA",
@@ -33,7 +35,10 @@ export const metadata: Metadata = {
   },
 }
 
-export default function Home() {
+export default async function Home() {
+  // Récupérer les avis approuvés (Server Component — zéro JS client)
+  const reviews = await getApprovedReviews()
+
   return (
     <>
       <Navbar />
@@ -42,6 +47,8 @@ export default function Home() {
       <SecurePaymentsSection />
       <HowItWorksSection />
       <ProblemSolutionSection />
+      {/* Carousel d'avis — affiché uniquement si au moins un avis est approuvé */}
+      {reviews.length > 0 && <ReviewsCarousel reviews={reviews} />}
       <PricingSection />
       <FaqSection />
       <Footer />
