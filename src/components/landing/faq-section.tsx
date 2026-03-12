@@ -78,7 +78,7 @@ export function FaqSection() {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl text-slate-900 mb-4">
+          <h2 className="text-3xl xs:text-4xl md:text-5xl text-slate-900 mb-4">
             Questions <span className="text-gradient">fréquentes</span>
           </h2>
           <p className="text-xl text-slate-600 max-w-2xl mx-auto">

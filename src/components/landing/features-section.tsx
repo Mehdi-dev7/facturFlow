@@ -312,7 +312,7 @@ export function FeaturesSection() {
         {/* Titre */}
         <div className="text-center mb-16">
           
-          <h2 className="text-4xl md:text-5xl mb-4">
+          <h2 className="text-3xl xs:text-4xl md:text-5xl mb-4">
             <span className="text-gradient">Tout ce dont vous avez besoin</span>
             <br />
             <span className="text-slate-900">pour gérer vos factures</span>

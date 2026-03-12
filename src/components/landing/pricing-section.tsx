@@ -118,7 +118,7 @@ export function PricingSection() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl text-slate-900 mb-4">
+          <h2 className="text-3xl xs:text-4xl md:text-5xl text-slate-900 mb-4">
             Tarifs <span className="text-gradient">transparents</span>
           </h2>
           <p className="text-xl text-slate-600 max-w-2xl mx-auto mb-8">
@@ -133,10 +133,10 @@ export function PricingSection() {
                 <span className="text-amber-600 text-sm font-bold">📋</span>
               </div>
               <div className="text-left">
-                <h3 className="font-semibold text-amber-800 mb-2">
+                <h3 className="font-semibold text-sm sm:text-base text-amber-800 mb-2">
                   Facturation électronique obligatoire
                 </h3>
-                <div className="text-sm text-amber-700 space-y-1">
+                <div className="text-xs  text-amber-700 space-y-1">
                   <p><strong>Entreprises B2B :</strong> Obligatoire septembre 2026 (inclus dans Business)</p>
                   <p><strong>Freelances, auto-entrepreneurs et PME B2C :</strong> Obligatoire septembre 2027</p>
                   

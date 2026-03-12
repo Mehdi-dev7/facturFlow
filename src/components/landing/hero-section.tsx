@@ -44,27 +44,27 @@ function DashboardMockup() {
 			{/* Layout dashboard */}
 			<div className="flex" style={{ height: "380px" }}>
 
-				{/* Sidebar */}
-				<div className="w-[130px] shrink-0 border-r border-slate-100 bg-slate-50/60 flex flex-col py-3 px-2 gap-0.5">
+				{/* Sidebar — icônes seules sur mobile, pleine sur lg */}
+				<div className="w-9 lg:w-[130px] shrink-0 border-r border-slate-100 bg-slate-50/60 flex flex-col py-3 px-1.5 lg:px-2 gap-0.5">
 					{/* Logo */}
-					<div className="flex items-center gap-1.5 px-2 py-1.5 mb-2">
+					<div className="flex items-center justify-center lg:justify-start gap-1.5 px-0 lg:px-2 py-1.5 mb-2">
 						<div className="h-5 w-5 rounded-md bg-linear-to-br from-violet-600 to-indigo-600 flex items-center justify-center shrink-0">
 							<span className="text-white text-[8px] font-black">FN</span>
 						</div>
-						<span className="text-[11px] font-bold text-slate-800">FacturNow</span>
+						<span className="hidden lg:block text-[11px] font-bold text-slate-800">FacturNow</span>
 					</div>
 
 					{navItems.map((item) => (
 						<div
 							key={item.label}
-							className={`flex items-center gap-1.5 px-2 py-1.5 rounded-lg transition-colors ${
+							className={`flex items-center justify-center lg:justify-start gap-1.5 px-0 lg:px-2 py-1.5 rounded-lg transition-colors ${
 								item.active
 									? "bg-violet-100 text-violet-700"
 									: "text-slate-400 hover:bg-slate-100"
 							}`}
 						>
-							<item.icon className="h-3 w-3 shrink-0" />
-							<span className="text-[9px] font-medium truncate">{item.label}</span>
+							<item.icon className="h-3.5 w-3.5 lg:h-3 lg:w-3 shrink-0" />
+							<span className="hidden lg:block text-[9px] font-medium truncate">{item.label}</span>
 						</div>
 					))}
 				</div>
@@ -184,7 +184,7 @@ export function HeroSection() {
 						</h1>
 
 						{/* Sous-titre */}
-						<p className="text-sm sm:text-lg text-slate-600 leading-relaxed max-w-xl">
+						<p className="text-sm xs:text-lg text-slate-600 leading-relaxed max-w-xl">
 							Créez, envoyez et suivez vos factures professionnelles en quelques
 							clics. FacturNow automatise votre facturation pour que vous
 							puissiez vous concentrer sur votre activité.
@@ -198,15 +198,15 @@ export function HeroSection() {
 							</div>
 							<div className="flex items-center space-x-2 bg-white/80 backdrop-blur-sm px-4 py-3 rounded-lg border border-slate-200 shadow-sm">
 								<CheckCircle2 className="h-5 w-5 text-green-500 shrink-0" />
-								<span className="text-xs xs:text-sm font-medium text-slate-700 font-ui">Export PDF instantané</span>
+								<span className="text-xs sm:text-sm font-medium text-slate-700 font-ui">Export PDF instantané</span>
 							</div>
 							<div className="flex items-center space-x-2 bg-white/80 backdrop-blur-sm px-4 py-3 rounded-lg border border-slate-200 shadow-sm">
 								<CheckCircle2 className="h-5 w-5 text-green-500 shrink-0" />
-								<span className="text-xs xs:text-sm font-medium text-slate-700 font-ui">Suivi des paiements</span>
+								<span className="text-xs sm:text-sm font-medium text-slate-700 font-ui">Suivi des paiements</span>
 							</div>
 							<div className="flex items-center space-x-2 bg-white/80 backdrop-blur-sm px-4 py-3 rounded-lg border border-slate-200 shadow-sm">
 								<CheckCircle2 className="h-5 w-5 text-green-500 shrink-0" />
-								<span className="text-xs xs:text-sm font-medium text-slate-700 font-ui">Facturation en 2 min</span>
+								<span className="text-xs sm:text-sm font-medium text-slate-700 font-ui">Facturation en 2 min</span>
 							</div>
 						</div>
 
@@ -241,7 +241,7 @@ export function HeroSection() {
 					</div>
 
 					{/* Dashboard mockup codé */}
-					<div className="relative lg:block hidden">
+					<div className="relative block mt-8 lg:mt-0">
 						<DashboardMockup />
 						{/* Badge flottant */}
 						<div className="absolute -bottom-4 -right-4 bg-white rounded-xl shadow-lg border border-slate-200 px-4 py-2.5 flex items-center gap-2">

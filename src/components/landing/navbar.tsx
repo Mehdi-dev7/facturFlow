@@ -44,8 +44,8 @@ export function Navbar() {
               </span>
             </Link>
 
-            {/* Navigation centrale - Desktop */}
-            <div className="hidden md:flex items-center space-x-20">
+            {/* Navigation centrale - Desktop (lg+) */}
+            <div className="hidden lg:flex items-center space-x-20">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
@@ -60,7 +60,7 @@ export function Navbar() {
             </div>
 
             {/* Desktop - Bouton connexion */}
-            <div className="hidden md:block">
+            <div className="hidden lg:block">
               <Link href="/login">
                 <Button
                   variant="outline"
@@ -75,7 +75,7 @@ export function Navbar() {
             {/* Mobile - Hamburger */}
             <button
               onClick={() => setIsOpen((prev) => !prev)}
-              className="md:hidden relative z-50 p-2 text-secondary hover:text-primary transition-colors cursor-pointer"
+              className="lg:hidden relative z-50 p-2 text-secondary hover:text-primary transition-colors cursor-pointer"
               aria-label={isOpen ? "Fermer le menu" : "Ouvrir le menu"}
             >
               <div className="relative w-6 h-6">
@@ -99,7 +99,7 @@ export function Navbar() {
 
       {/* Mobile Menu Overlay - en dehors du nav */}
       <div
-        className={`md:hidden fixed top-16 left-0 right-0 z-40 bg-linear-to-b from-violet-50 via-violet-100 to-violet-50 border-b border-slate-200 shadow-lg rounded-b-2xl transition-all duration-300 ease-out ${
+        className={`lg:hidden fixed top-16 left-0 right-0 z-40 bg-linear-to-b from-violet-50 via-violet-100 to-violet-50 border-b border-slate-200 shadow-lg rounded-b-2xl transition-all duration-300 ease-out ${
           isOpen ? "opacity-100 visible translate-y-0" : "opacity-0 invisible -translate-y-4"
         }`}
       >
