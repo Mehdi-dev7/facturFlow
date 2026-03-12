@@ -81,8 +81,8 @@ export default function PrivacyPage() {
           <DataRow label="Adresse" value="7 Allée André Malraux 93430 Villetaneuse" />
           <div className="flex items-start gap-3 py-2">
             <span className="font-medium text-slate-700 dark:text-slate-300 w-48 shrink-0 text-sm">Email DPO</span>
-            <a href="mailto:privacy@facturnow.fr" className="text-primary hover:underline text-sm">
-              privacy@facturnow.fr
+            <a href="mailto:contact@facturnow.fr" className="text-primary hover:underline text-sm">
+              contact@facturnow.fr
             </a>
           </div>
         </Section>
@@ -177,8 +177,8 @@ export default function PrivacyPage() {
           </div>
           <p className="mt-3">
             Pour exercer ces droits, écrivez à{" "}
-            <a href="mailto:privacy@facturnow.fr" className="text-primary hover:underline font-medium">
-              privacy@facturnow.fr
+            <a href="mailto:contact@facturnow.fr" className="text-primary hover:underline font-medium">
+              contact@facturnow.fr
             </a>{" "}
             — réponse sous 30 jours. Vous pouvez aussi saisir la{" "}
             <a href="https://www.cnil.fr" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
@@ -202,8 +202,8 @@ export default function PrivacyPage() {
         <Section num="09" title="Contact" icon={Mail}>
           <p>
             Pour toute question relative à cette politique ou à vos données personnelles :{" "}
-            <a href="mailto:privacy@facturnow.fr" className="text-primary hover:underline font-medium">
-              privacy@facturnow.fr
+            <a href="mailto:contact@facturnow.fr" className="text-primary hover:underline font-medium">
+              contact@facturnow.fr
             </a>
           </p>
         </Section>
@@ -212,8 +212,8 @@ export default function PrivacyPage() {
       <div className="px-8 py-5 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 rounded-b-2xl">
         <p className="text-xs text-slate-400 dark:text-slate-500 text-center">
           Questions sur vos données ?{" "}
-          <a href="mailto:privacy@facturnow.fr" className="text-primary hover:underline">
-            privacy@facturnow.fr
+          <a href="mailto:contact@facturnow.fr" className="text-primary hover:underline">
+            contact@facturnow.fr
           </a>
         </p>
       </div>

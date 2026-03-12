@@ -2,9 +2,9 @@ import Link from "next/link";
 import { ArrowLeft, FileText, Shield, ScrollText } from "lucide-react";
 
 const LEGAL_LINKS = [
-  { href: "/legal/mentions",  label: "Mentions légales",   icon: FileText },
-  { href: "/legal/privacy",   label: "Confidentialité",    icon: Shield },
-  { href: "/legal/cgv",       label: "CGU / CGV",          icon: ScrollText },
+  { href: "/public/legal/mentions",  label: "Mentions légales",   icon: FileText },
+  { href: "/public/legal/privacy",   label: "Confidentialité",    icon: Shield },
+  { href: "/public/legal/cgv",       label: "CGU / CGV",          icon: ScrollText },
 ];
 
 export default function LegalLayout({ children }: { children: React.ReactNode }) {

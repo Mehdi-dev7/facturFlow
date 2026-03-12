@@ -70,7 +70,7 @@ export default function MentionsLegalesPage() {
       {/* Sections */}
       <div className="px-8">
         <Section num="01" title="Éditeur du site" icon={Building2}>
-          <InfoRow label="Nom" value="FacturNow" />
+          <InfoRow label="Nom" value="MD Tech Digital (éditeur de FacturNow)" />
           <InfoRow label="Forme juridique" value="Entreprise individuelle" />
           <InfoRow label="SIRET" value="10107710500019" />
           <InfoRow label="SIREN" value="101077105" />
@@ -115,15 +115,15 @@ export default function MentionsLegalesPage() {
         <Section num="04" title="Données personnelles" icon={Lock}>
           <p>
             Le traitement de vos données personnelles est détaillé dans notre{" "}
-            <a href="/legal/privacy" className="text-primary hover:underline font-medium">
+            <a href="/public/legal/privacy" className="text-primary hover:underline font-medium">
               Politique de confidentialité
             </a>. Conformément au RGPD, vous disposez d&apos;un droit d&apos;accès,
             de rectification, d&apos;effacement et de portabilité.
           </p>
           <p>
             Pour exercer vos droits :{" "}
-            <a href="mailto:privacy@facturnow.fr" className="text-primary hover:underline">
-              privacy@facturnow.fr
+            <a href="mailto:contact@facturnow.fr" className="text-primary hover:underline">
+              contact@facturnow.fr
             </a>
           </p>
         </Section>
