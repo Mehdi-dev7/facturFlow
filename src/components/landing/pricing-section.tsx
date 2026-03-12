@@ -14,92 +14,97 @@ interface Feature {
 
 export function PricingSection() {
   const allFeatures: Feature[] = [
-    // LIMITES (en premier)
-    { name: "Documents par mois", free: "10", pro: "Illimités", business: "Illimités" },
-    { name: "Clients", free: "5", pro: "Illimités", business: "Illimités" },
-    { name: "Utilisateurs", free: "1 compte", pro: "1 compte", business: "3 comptes" },
-    
-    // KILLER FEATURES (ce qui fait vendre)
-    { name: "🔥 Prélèvement SEPA automatique", free: false, pro: true, business: true },
-    { name: "Factures récurrentes", free: false, pro: true, business: true },
-    { name: "Relances automatiques", free: false, pro: true, business: true },
-    { name: "Templates métiers", free: false, pro: "9 templates", business: "9 templates" },
-    { name: "Suivi des paiements", free: false, pro: true, business: true },
-    
-    // BONUS FEATURES
+    // LIMITES
+    { name: "Documents par mois",              free: "10",       pro: "Illimités",   business: "Illimités" },
+    { name: "Clients",                          free: "5",        pro: "Illimités",   business: "Illimités" },
+    { name: "Utilisateurs",                     free: "1 compte", pro: "1 compte",    business: "3 comptes" },
 
-    { name: "Paiement CB & PayPal", free: false, pro: true, business: true },
-    { name: "Bilan annuel & URSSAF", free: false, pro: true, business: true },
-    { name: "API & Webhooks", free: false, pro: false, business: true },
-    { name: "Facturation électronique", free: false, pro: false, business: "Sept. 2026" },
+    // PAIEMENTS
+    { name: "🔥 Prélèvement SEPA automatique", free: false,      pro: true,          business: true },
+    { name: "Stripe CB / Apple Pay / Google Pay",free: false,    pro: true,          business: true },
+    { name: "PayPal",                           free: false,      pro: true,          business: true },
+    { name: "Virement bancaire (IBAN affiché)", free: true,       pro: true,          business: true },
+
+    // FEATURES CLÉS
+    { name: "Factures récurrentes",             free: false,      pro: true,          business: true },
+    { name: "Relances automatiques (3 niveaux)",free: false,      pro: true,          business: true },
+    { name: "Apparence & templates métiers",    free: false,      pro: "9 templates", business: "9 templates" },
+    { name: "Statistiques & export CSV",        free: false,      pro: true,          business: true },
+
+    // COMPTABILITÉ & AVANCÉ
+    { name: "Export FEC comptable",             free: false,      pro: false,         business: true },
+    { name: "Bilan annuel & URSSAF",            free: false,      pro: false,         business: true },
+    { name: "API & Webhooks",                   free: false,      pro: false,         business: true },
+    { name: "Support prioritaire",              free: false,      pro: false,         business: true },
+
+    // E-INVOICING
+    { name: "Facturation électronique",         free: "5/mois",   pro: "Illimitée",   business: "Illimitée" },
   ]
 
   const plans = [
     {
       name: "Gratuit",
-      subtitle: "Essai 14 jours puis limité",
+      subtitle: "Pour démarrer",
       price: "0",
-      period: "Gratuit",
-      description: "14 j d'essai Pro, puis 10 factures/mois",
+      period: "/ mois",
+      description: "7 jours d'essai Pro inclus, puis 10 documents/mois",
       cta: "Commencer gratuitement",
       popular: false,
       icon: Star,
-      bgColor: "bg-gradient-to-br from-slate-50 to-slate-100",
+      bgColor: "bg-linear-to-br from-slate-50 to-slate-100",
       borderColor: "border-slate-300",
       iconBg: "bg-slate-200",
-      iconColor: "text-slate-600"
+      iconColor: "text-slate-600",
     },
     {
       name: "Pro",
-      subtitle: "Freelances • Auto-entrepreneurs • PME",
-      price: "14",
-      period: "par mois",
-      description: "Tout illimité + SEPA + récurrentes",
+      subtitle: "Freelances · Auto-entrepreneurs · PME",
+      price: "9,99",
+      period: "/ mois",
+      description: "Documents & clients illimités · SEPA · récurrentes",
       cta: "Choisir Pro",
       popular: true,
       icon: Zap,
-      bgColor: "bg-gradient-to-br from-primary/10 via-accent/5 to-primary/5",
+      bgColor: "bg-linear-to-br from-primary/10 via-violet-50/50 to-primary/5 dark:from-primary/20 dark:via-[#1e1845] dark:to-primary/10",
       borderColor: "border-primary/40",
       iconBg: "bg-primary/20",
       iconColor: "text-primary",
-      badge: "⭐ Le plus populaire"
+      badge: "⭐ Le plus populaire",
     },
     {
       name: "Business",
-      subtitle: "Entreprises B2B",
-      price: "29",
-      period: "par mois",
-      description: "Tout Pro + multi-users + API",
+      subtitle: "Entreprises B2B · Équipes",
+      price: "25",
+      period: "/ mois",
+      description: "Tout Pro + multi-users + comptabilité + API",
       cta: "Choisir Business",
       popular: false,
       icon: Building,
-      bgColor: "bg-gradient-to-br from-slate-50 to-blue-50",
-      borderColor: "border-blue-300",
-      iconBg: "bg-blue-200",
-      iconColor: "text-blue-600"
-    }
+      bgColor: "bg-linear-to-br from-amber-50 via-white to-blue-50",
+      borderColor: "border-amber-300",
+      iconBg: "bg-amber-100",
+      iconColor: "text-amber-600",
+    },
   ]
 
   const getFeatureValue = (feature: Feature, planIndex: number): FeatureValue => {
-    const planKeys: (keyof Feature)[] = ['free', 'pro', 'business']
+    const planKeys: (keyof Feature)[] = ["free", "pro", "business"]
     return feature[planKeys[planIndex]]
   }
 
-  const renderFeatureIcon = (value: FeatureValue, planIndex: number) => {
+  const renderFeatureIcon = (value: FeatureValue) => {
     if (value === false) {
       return (
-        <div className="flex items-center justify-center w-5 h-5 rounded-full bg-red-100 shrink-0 mt-0.5">
-          <X className="w-3 h-3 text-red-600" />
-        </div>
-      )
-    } else {
-      const plan = plans[planIndex]
-      return (
-        <div className={`flex items-center justify-center w-5 h-5 rounded-full shrink-0 mt-0.5 ${plan.popular ? 'bg-green-100' : 'bg-green-100'}`}>
-          <Check className="w-3 h-3 text-green-600" />
+        <div className="flex items-center justify-center w-5 h-5 rounded-full bg-slate-100 shrink-0 mt-0.5">
+          <X className="w-3 h-3 text-slate-400" />
         </div>
       )
     }
+    return (
+      <div className="flex items-center justify-center w-5 h-5 rounded-full bg-emerald-100 shrink-0 mt-0.5">
+        <Check className="w-3 h-3 text-emerald-600" />
+      </div>
+    )
   }
 
   const renderFeatureText = (value: FeatureValue): string => {
@@ -113,15 +118,13 @@ export function PricingSection() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl  text-slate-900 mb-4">
+          <h2 className="text-4xl md:text-5xl text-slate-900 mb-4">
             Tarifs <span className="text-gradient">transparents</span>
           </h2>
-          <p className="text-xl text-slate-600 max-w-2xl mx-auto mb-8 ">
-            Choisissez le plan qui correspond à vos besoins. 
+          <p className="text-xl text-slate-600 max-w-2xl mx-auto mb-8">
+            Choisissez le plan qui correspond à vos besoins.
             Changez ou annulez à tout moment.
           </p>
-          
-          
 
           {/* E-invoicing notice */}
           <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 max-w-4xl mx-auto">
@@ -150,9 +153,9 @@ export function PricingSection() {
           {plans.map((plan, planIndex) => {
             const IconComponent = plan.icon
             return (
-              <div 
-                key={planIndex} 
-                className={`relative rounded-2xl mb-14 p-8 ${plan.bgColor} border-2 ${plan.borderColor} transition-all duration-300 hover:shadow-lg ${plan.popular ? 'scale-105 shadow-xl ring-2 ring-primary/20' : ''}`}
+              <div
+                key={planIndex}
+                className={`relative rounded-2xl mb-14 p-8 ${plan.bgColor} border-2 ${plan.borderColor} transition-all duration-300 hover:shadow-lg ${plan.popular ? "scale-105 shadow-xl ring-2 ring-primary/20" : ""}`}
               >
                 {/* Popular badge */}
                 {plan.popular && (
@@ -168,23 +171,23 @@ export function PricingSection() {
                   <div className={`inline-flex items-center justify-center w-12 h-12 rounded-xl mb-4 ${plan.iconBg}`}>
                     <IconComponent className={`w-6 h-6 ${plan.iconColor}`} />
                   </div>
-                  
+
                   <h3 className="text-2xl golos-text text-slate-900 font-semibold mb-2">
                     {plan.name}
                   </h3>
                   <p className="text-sm text-slate-600 mb-6">
                     {plan.subtitle}
                   </p>
-                  
+
                   <div className="mb-4">
-                    <span className="text-4xl font-bold text-gradient">
+                    <span className={`text-4xl font-bold ${plan.popular ? "text-gradient" : "text-slate-900"}`}>
                       {plan.price}€
                     </span>
                     <span className="text-slate-600 ml-1">
                       {plan.period}
                     </span>
                   </div>
-                  
+
                   <p className="text-sm text-slate-600">
                     {plan.description}
                   </p>
@@ -196,7 +199,7 @@ export function PricingSection() {
                     const value = getFeatureValue(feature, planIndex)
                     return (
                       <div key={featureIndex} className="flex items-start space-x-3">
-                        {renderFeatureIcon(value, planIndex)}
+                        {renderFeatureIcon(value)}
                         <div className="flex-1">
                           <span className="text-sm text-slate-700 golos-text font-medium">
                             {feature.name}
@@ -220,11 +223,11 @@ export function PricingSection() {
                     {plan.cta}
                   </Button>
                 ) : (
-                  <button 
-                    className={`w-full py-3 px-6 rounded-xl font-semibold transition-all duration-300 ${
-                      planIndex === 0 
-                        ? 'border-2 border-slate-400 text-slate-700 hover:bg-slate-100 hover:border-slate-500 cursor-pointer hover:scale-105 transition-all duration-300' 
-                        : 'border-2 border-blue-400 text-blue-700 hover:bg-blue-50 hover:border-blue-600 cursor-pointer hover:scale-105 transition-all duration-300'
+                  <button
+                    className={`w-full py-3 px-6 rounded-xl font-semibold transition-all duration-300 cursor-pointer hover:scale-105 ${
+                      planIndex === 0
+                        ? "border-2 border-slate-400 text-slate-700 hover:bg-slate-100 hover:border-slate-500"
+                        : "border-2 border-amber-400 text-amber-700 hover:bg-amber-50 hover:border-amber-500"
                     }`}
                   >
                     {plan.cta}
@@ -238,10 +241,10 @@ export function PricingSection() {
         {/* Bottom info */}
         <div className="text-center mt-16">
           <p className="text-slate-600 mb-4">
-            🔒 Paiement sécurisé • Support français • 💯 Satisfait ou remboursé 30 jours
+            🔒 Paiement sécurisé · Support français · 💯 Satisfait ou remboursé 30 jours
           </p>
           <p className="text-sm text-slate-500">
-            Tous les prix sont HT. TVA applicable selon votre localisation.
+            Tous les prix sont HT · TVA applicable selon votre localisation · -20% en facturation annuelle
           </p>
         </div>
       </div>

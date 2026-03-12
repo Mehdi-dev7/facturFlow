@@ -3,19 +3,19 @@
 // src/components/onboarding/onboarding-tutorial.tsx
 // Guided tour avec spotlight — 3 étapes interactives.
 //
-// COMPORTEMENT :
-// — Mode "spotlight" (pas encore sur la page cible) :
-//     overlay sombre + sidebar surélevée z-50 + lien ciblé mis en évidence,
-//     tous les autres liens sidebar sont atténués (opacity-25 + pointer-events-none).
-//     Bouton "Faire plus tard" → passe à l'étape suivante sans visiter.
-// — Mode "page" (user a cliqué le lien et est sur la page) :
-//     overlay disparaît, sidebar normale, carte montre "Vous y êtes !"
-//     + bouton "Étape suivante" ou "Terminer".
+// DESKTOP : overlay sombre + sidebar surélevée z-50 + lien ciblé mis en évidence.
+//           Tous les autres liens sidebar sont atténués (opacity-25 + pointer-events-none).
+//           Bouton "Faire plus tard" → passe à l'étape suivante sans visiter.
+//
+// MOBILE  : pas d'overlay, pas de sidebar visible.
+//           Carte positionnée en bas de l'écran (bottom sheet).
+//           Bouton "Aller à [page]" navigue directement vers la page cible.
+//           Mode "page" identique desktop : "Vous y êtes !" + "Étape suivante".
 
 import { useState, useEffect } from "react"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
-import { Building2, CreditCard, Paintbrush, X, CheckCircle2 } from "lucide-react"
+import { Building2, CreditCard, Paintbrush, X, CheckCircle2, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { markOnboardingComplete } from "@/lib/actions/onboarding"
 import { useOnboardingStore } from "@/stores/use-onboarding-store"
@@ -27,9 +27,7 @@ const STEPS = [
     icon: Building2,
     title: "Mon entreprise",
     href: "/dashboard/company",
-    // Message en mode spotlight (pas encore sur la page)
     description: "Commencez par renseigner les informations de votre entreprise — nom, SIRET, adresse, logo. Ces données apparaîtront sur tous vos documents.",
-    // Message quand l'user est sur la page
     pageMessage: "Parfait ! Renseignez vos informations, puis cliquez sur « Étape suivante » quand c'est fait.",
     color: "text-violet-500",
     bg: "bg-violet-100 dark:bg-violet-900/30",
@@ -57,7 +55,6 @@ const STEPS = [
 // ─── Props ────────────────────────────────────────────────────────────────────
 
 interface Props {
-  /** true si l'onboarding a déjà été terminé côté serveur */
   initialCompleted: boolean
 }
 
@@ -66,32 +63,39 @@ interface Props {
 export function OnboardingTutorial({ initialCompleted }: Props) {
   const { activeStep, setActiveStep } = useOnboardingStore()
   const pathname = usePathname()
+  const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [showFinal, setShowFinal] = useState(false)
   const [mounted, setMounted] = useState(false)
+  // Détection mobile après hydratation (< 768px = md breakpoint)
+  const [isMobile, setIsMobile] = useState(false)
 
-  // Init côté client uniquement (évite le mismatch SSR)
   useEffect(() => {
     setMounted(true)
+    setIsMobile(window.innerWidth < 768)
     if (!initialCompleted) {
       setActiveStep(0)
     }
+
+    // Mettre à jour isMobile si la fenêtre est redimensionnée
+    const handleResize = () => setIsMobile(window.innerWidth < 768)
+    window.addEventListener("resize", handleResize)
+    return () => window.removeEventListener("resize", handleResize)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Ne rien rendre si pas monté, déjà terminé ou aucun step actif
   if (!mounted || activeStep === null) return null
 
   const step = STEPS[activeStep]
   const isLastStep = activeStep === STEPS.length - 1
   const StepIcon = step.icon
-
-  // L'user est actuellement sur la page cible → mode "page" (pas de spotlight)
   const isOnPage = pathname.startsWith(step.href)
 
-  // ─ Handlers ─────────────────────────────────────────────────────────────────
+  // En mode spotlight : sur desktop on affiche l'overlay, sur mobile non
+  const showOverlay = !isMobile && !isOnPage && !showFinal
 
-  // Passe à l'étape suivante (depuis le bouton de la carte — mode page ou skip)
+  // ─ Handlers ──────────────────────────────────────────────────────────────────
+
   function handleNext() {
     if (isLastStep) {
       setShowFinal(true)
@@ -100,58 +104,70 @@ export function OnboardingTutorial({ initialCompleted }: Props) {
     }
   }
 
-  // Quitter définitivement le tutoriel (croix en haut)
+  // Sur mobile, naviguer directement vers la page cible
+  function handleMobileNavigate() {
+    router.push(step.href)
+  }
+
   async function handleAbort() {
     setLoading(true)
     await markOnboardingComplete()
     setActiveStep(null)
   }
 
-  // Terminer après le message final
   async function handleFinish() {
     setLoading(true)
     await markOnboardingComplete()
     setActiveStep(null)
   }
 
-  // ─ Render ───────────────────────────────────────────────────────────────────
+  // ─ Position de la carte ───────────────────────────────────────────────────────
+  // Desktop : à droite de la sidebar (~280px), centré verticalement
+  // Mobile  : fixé en bas de l'écran, pleine largeur avec marges
+
+  const cardPositionStyle = isMobile
+    ? {} // géré par className sur mobile
+    : {
+        left: "clamp(1rem, calc(280px + 2rem), calc(100vw - 24rem))",
+        top: "50%",
+        transform: "translateY(-50%)",
+      }
+
+  const cardClassName = isMobile
+    ? "fixed bottom-4 left-4 right-4 z-50 pointer-events-auto"
+    : "fixed z-50 pointer-events-auto"
+
+  // ─ Render ─────────────────────────────────────────────────────────────────────
 
   return (
     <AnimatePresence>
-      {/* ─ Overlay sombre — visible uniquement en mode spotlight (pas sur la page cible) ─ */}
-      {!isOnPage && !showFinal && (
+      {/* Overlay sombre — desktop uniquement, mode spotlight */}
+      {showOverlay && (
         <motion.div
           key="overlay"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.25 }}
-          // pointer-events-none : l'overlay ne bloque pas les clics
-          // (c'est le dimming des NavLinks qui bloque les clics non-autorisés)
           className="fixed inset-0 z-40 bg-black/65 backdrop-blur-sm pointer-events-none"
           aria-hidden
         />
       )}
 
-      {/* ─ Carte de tutoriel ─────────────────────────────────────────────────── */}
+      {/* Carte de tutoriel */}
       <motion.div
         key={`card-${activeStep}-${String(isOnPage)}-${String(showFinal)}`}
-        initial={{ opacity: 0, x: 30 }}
-        animate={{ opacity: 1, x: 0 }}
-        exit={{ opacity: 0, x: 30 }}
+        initial={{ opacity: 0, y: isMobile ? 40 : 0, x: isMobile ? 0 : 30 }}
+        animate={{ opacity: 1, y: 0, x: 0 }}
+        exit={{ opacity: 0, y: isMobile ? 40 : 0, x: isMobile ? 0 : 30 }}
         transition={{ type: "spring", stiffness: 320, damping: 30 }}
-        className="fixed z-50 pointer-events-auto"
-        style={{
-          // Positionner la carte à droite de la sidebar (~280px)
-          left: "clamp(1rem, calc(280px + 2rem), calc(100vw - 24rem))",
-          top: "50%",
-          transform: "translateY(-50%)",
-        }}
+        className={cardClassName}
+        style={cardPositionStyle}
         role="dialog"
         aria-modal="true"
         aria-label="Tutoriel de démarrage"
       >
-        <div className="w-[min(22rem,calc(100vw-2rem))] rounded-2xl border border-violet-200 dark:border-violet-500/30 bg-white dark:bg-slate-900 shadow-2xl shadow-violet-500/20 overflow-hidden">
+        <div className="w-full rounded-2xl border border-violet-200 dark:border-violet-500/30 bg-white dark:bg-slate-900 shadow-2xl shadow-violet-500/20 overflow-hidden">
 
           {/* Header gradient */}
           <div className="bg-linear-to-r from-violet-600 to-indigo-600 px-5 py-4 flex items-center justify-between">
@@ -178,7 +194,6 @@ export function OnboardingTutorial({ initialCompleted }: Props) {
               </span>
             </div>
 
-            {/* Bouton quitter le tutoriel */}
             <button
               onClick={handleAbort}
               disabled={loading}
@@ -193,7 +208,7 @@ export function OnboardingTutorial({ initialCompleted }: Props) {
           <div className="px-5 py-5">
             <AnimatePresence mode="wait">
               {showFinal ? (
-                // ─ Message final ─────────────────────────────────────────────
+                // ─ Message final ───────────────────────────────────────────────
                 <motion.div
                   key="final"
                   initial={{ opacity: 0, y: 8 }}
@@ -213,7 +228,7 @@ export function OnboardingTutorial({ initialCompleted }: Props) {
                 </motion.div>
 
               ) : isOnPage ? (
-                // ─ Mode page (user est sur la page cible) ────────────────────
+                // ─ Mode page (user est sur la page cible) ─────────────────────
                 <motion.div
                   key={`on-page-${activeStep}`}
                   initial={{ opacity: 0, y: 8 }}
@@ -233,7 +248,7 @@ export function OnboardingTutorial({ initialCompleted }: Props) {
                 </motion.div>
 
               ) : (
-                // ─ Mode spotlight (pas encore sur la page) ───────────────────
+                // ─ Mode spotlight ──────────────────────────────────────────────
                 <motion.div
                   key={`spotlight-${activeStep}`}
                   initial={{ opacity: 0, y: 8 }}
@@ -250,15 +265,18 @@ export function OnboardingTutorial({ initialCompleted }: Props) {
                   <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
                     {step.description}
                   </p>
-                  {/* Indication visuelle : pointer vers la sidebar */}
-                  <p className="flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500">
-                    <span className="inline-block h-1.5 w-1.5 rounded-full bg-violet-400 animate-pulse shrink-0" />
-                    Cliquez sur{" "}
-                    <strong className="text-slate-700 dark:text-slate-300">
-                      {step.title}
-                    </strong>{" "}
-                    dans la sidebar
-                  </p>
+
+                  {/* Indication visuelle : desktop → sidebar | mobile → bouton direct */}
+                  {isMobile ? null : (
+                    <p className="flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500">
+                      <span className="inline-block h-1.5 w-1.5 rounded-full bg-violet-400 animate-pulse shrink-0" />
+                      Cliquez sur{" "}
+                      <strong className="text-slate-700 dark:text-slate-300">
+                        {step.title}
+                      </strong>{" "}
+                      dans la sidebar
+                    </p>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>
@@ -281,7 +299,7 @@ export function OnboardingTutorial({ initialCompleted }: Props) {
               </>
             ) : (
               <>
-                {/* "Faire plus tard" en mode spotlight, "Passer" en mode page */}
+                {/* Bouton secondaire — "Faire plus tard" (spotlight) ou "Passer" (page) */}
                 <Button
                   variant="ghost"
                   size="sm"
@@ -292,8 +310,11 @@ export function OnboardingTutorial({ initialCompleted }: Props) {
                   {isOnPage ? "Passer" : "Faire plus tard"}
                 </Button>
 
-                {/* Bouton principal — visible uniquement en mode page */}
-                {isOnPage && (
+                {/* Bouton principal :
+                    - Desktop + page cible   → "Étape suivante" / "Terminer"
+                    - Mobile + pas sur page  → "Aller à [titre]" (navigation directe)
+                    - Desktop + pas sur page → rien (l'user clique le lien en évidence) */}
+                {isOnPage ? (
                   <Button
                     size="sm"
                     onClick={handleNext}
@@ -303,13 +324,22 @@ export function OnboardingTutorial({ initialCompleted }: Props) {
                     {isLastStep ? "Terminer" : "Étape suivante"}
                     <span aria-hidden>→</span>
                   </Button>
-                )}
+                ) : isMobile ? (
+                  <Button
+                    size="sm"
+                    onClick={handleMobileNavigate}
+                    className="bg-linear-to-r from-violet-600 to-indigo-600 text-white hover:opacity-90 cursor-pointer gap-1.5"
+                  >
+                    Aller à {step.title}
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                ) : null}
               </>
             )}
           </div>
 
-          {/* Flèche pointant vers la sidebar — uniquement en mode spotlight */}
-          {!isOnPage && !showFinal && (
+          {/* Flèche vers la sidebar — desktop uniquement, mode spotlight */}
+          {!isOnPage && !showFinal && !isMobile && (
             <div
               className="absolute left-0 top-1/2 -translate-x-full -translate-y-1/2 pointer-events-none"
               aria-hidden
