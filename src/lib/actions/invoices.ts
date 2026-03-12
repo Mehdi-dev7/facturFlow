@@ -889,3 +889,109 @@ export async function getInvoice(id: string) {
     return { success: false, error: "Erreur lors de la récupération de la facture", data: null } as const;
   }
 }
+
+// ─── Action : créer une facture depuis un devis ───────────────────────────────
+
+export async function createInvoiceFromQuote(quoteId: string) {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session?.user?.id) {
+    return { success: false, error: "Non authentifié" } as const;
+  }
+
+  const userId = session.user.id;
+
+  // Vérifier la limite de documents
+  const { allowed, count: docCount, max: docMax } = await canCreateDocument(userId);
+  if (!allowed) {
+    return {
+      success: false,
+      error: `Limite de ${docMax} documents/mois atteinte (${docCount}/${docMax}). Passez au plan Pro pour continuer.`,
+    } as const;
+  }
+
+  try {
+    // Récupérer le devis avec toutes ses lignes
+    const quote = await prisma.document.findFirst({
+      where: { id: quoteId, userId, type: "QUOTE" },
+      include: { lineItems: { orderBy: { order: "asc" } } },
+    });
+
+    if (!quote) {
+      return { success: false, error: "Devis introuvable" } as const;
+    }
+
+    // Générer le numéro de facture
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: { nextInvoiceNumber: { increment: 1 } },
+      select: { nextInvoiceNumber: true, invoicePrefix: true },
+    });
+
+    const year = new Date().getFullYear();
+    const usedNumber = updatedUser.nextInvoiceNumber - 1;
+    const invoiceNumber = `${updatedUser.invoicePrefix}-${year}-${String(usedNumber).padStart(4, "0")}`;
+
+    // Date = aujourd'hui, échéance = +30 jours
+    const today = new Date();
+    const dueDate = new Date(today);
+    dueDate.setDate(dueDate.getDate() + 30);
+
+    // Reprendre les metadata du devis (vatRate, paymentLinks) + ajouter la référence devis
+    const quoteMetadata = (quote.businessMetadata ?? {}) as Record<string, unknown>;
+
+    const newDoc = await prisma.document.create({
+      data: {
+        userId,
+        clientId: quote.clientId,
+        type: "INVOICE",
+        number: invoiceNumber,
+        date: today,
+        dueDate,
+        status: "DRAFT",
+        subtotal: quote.subtotal,
+        taxTotal: quote.taxTotal,
+        total: quote.total,
+        discount: quote.discount,
+        depositAmount: quote.depositAmount,
+        discountType: quote.discountType,
+        invoiceType: quote.invoiceType,
+        notes: quote.notes,
+        businessMetadata: {
+          ...quoteMetadata,
+          // Référence au devis source
+          fromQuoteId: quote.id,
+          fromQuoteNumber: quote.number,
+        },
+        lineItems: {
+          create: quote.lineItems.map((li) => ({
+            description: li.description,
+            quantity: li.quantity,
+            unit: li.unit,
+            unitPrice: li.unitPrice,
+            vatRate: li.vatRate,
+            subtotal: li.subtotal,
+            taxAmount: li.taxAmount,
+            total: li.total,
+            category: li.category,
+            order: li.order,
+          })),
+        },
+      },
+      select: { id: true, number: true },
+    });
+
+    revalidatePath("/dashboard/invoices");
+
+    dispatchWebhook(userId, "invoice.created", {
+      id: newDoc.id,
+      number: invoiceNumber,
+      total: quote.total.toNumber(),
+      clientId: quote.clientId,
+    }).catch(() => {});
+
+    return { success: true, data: { id: newDoc.id, number: newDoc.number } } as const;
+  } catch (error) {
+    console.error("[createInvoiceFromQuote] Erreur:", error);
+    return { success: false, error: "Erreur lors de la création de la facture" } as const;
+  }
+}

@@ -21,6 +21,8 @@ function VerifyEmailContent() {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const email = searchParams.get("email") ?? "";
+	// Plan optionnel propagé depuis /signup pour déclencher le checkout après vérification
+	const plan = searchParams.get("plan");
 
 	const [otp, setOtp] = useState("");
 	const [isVerifying, setIsVerifying] = useState(false);
@@ -44,7 +46,8 @@ function VerifyEmailContent() {
 					toast.error(verifyError.message ?? "Code invalide ou expiré.");
 				} else {
 					toast.success("Email vérifié avec succès !");
-					router.push("/dashboard");
+					// Si un plan est présent, rediriger vers la page d'abonnement pour déclencher le checkout
+					router.push(plan ? `/dashboard/subscription?checkout=${plan}` : "/dashboard");
 				}
 			} catch {
 				toast.error("Erreur lors de la vérification. Veuillez réessayer.");
@@ -52,7 +55,7 @@ function VerifyEmailContent() {
 				setIsVerifying(false);
 			}
 		},
-		[email, otp, router],
+		[email, otp, plan, router],
 	);
 
 	const handleResend = useCallback(async () => {

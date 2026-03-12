@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState, useRef, useCallback } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Player } from "@lordicon/react";
 import { Eye, EyeOff, CheckCircle2, XCircle } from "lucide-react";
@@ -77,8 +77,14 @@ const MicrosoftIcon = () => (
 	</svg>
 );
 
-export default function SignUpPage() {
+// ── Contenu principal — isolé pour wrapper useSearchParams dans Suspense ──────
+
+function SignUpContent() {
 	const router = useRouter();
+	const searchParams = useSearchParams();
+	// Plan optionnel transmis depuis la landing page (?plan=pro ou ?plan=business)
+	const plan = searchParams.get("plan");
+
 	const [name, setName] = useState("");
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
@@ -96,14 +102,17 @@ export default function SignUpPage() {
 				setError("");
 				await signIn.social({
 					provider,
-					callbackURL: "/dashboard",
+					// Si un plan est présent, rediriger vers checkout après OAuth
+					callbackURL: plan
+						? `/dashboard/subscription?checkout=${plan}`
+						: "/dashboard",
 				});
 			} catch (err) {
 				toast.error("Erreur lors de l'inscription avec " + provider);
 				console.error(err);
 			}
 		},
-		[],
+		[plan],
 	);
 
 	const handleEmailSignUp = async (e: React.FormEvent) => {
@@ -148,9 +157,9 @@ export default function SignUpPage() {
 				type: "email-verification",
 			});
 
-			// Rediriger vers la page de vérification
+			// Rediriger vers verify-email en propageant le plan si présent
 			router.push(
-				`/verify-email?email=${encodeURIComponent(email)}`,
+				`/verify-email?email=${encodeURIComponent(email)}${plan ? `&plan=${plan}` : ""}`,
 			);
 		} catch (err) {
 			toast.error(
@@ -162,6 +171,168 @@ export default function SignUpPage() {
 		}
 	};
 
+	return (
+		<Card className="w-full max-w-md shadow-2xl border-slate-200/50 backdrop-blur-sm bg-white/95 relative z-10">
+			<CardHeader className="space-y-3 pb-8">
+				<Link href="/" className="flex justify-center mb-2 group  w-fit mx-auto">
+					<div className="h-14 w-14 rounded-xl bg-gradient-primary flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
+						<span className="text-2xl font-bold text-white ">F</span>
+					</div>
+				</Link>
+				<CardTitle className="text-3xl font-bold text-center text-gradient">
+					Créer un compte
+				</CardTitle>
+				<CardDescription className="text-center text-base text-slate-600">
+					Commencez à gérer vos factures gratuitement
+				</CardDescription>
+			</CardHeader>
+			<CardContent className="space-y-6">
+				{/* Section OAuth */}
+				<div className="space-y-3">
+					<Button
+						variant="outline"
+						className="w-full h-12 border-slate-300 hover:border-primary hover:bg-slate-50 transition-all shadow-sm cursor-pointer"
+						onClick={() => handleOAuthSignIn("google")}
+						onMouseEnter={() => googleRef.current?.playFromBeginning()}
+					>
+						<Player ref={googleRef} icon={GOOGLE_ICON} size={28} />
+						<span className="ml-3">Continuer avec Google</span>
+					</Button>
+					<Button
+						variant="outline"
+						className="w-full h-12 border-slate-300 hover:border-primary hover:bg-slate-50 transition-all shadow-sm cursor-pointer"
+						onClick={() => handleOAuthSignIn("github")}
+						onMouseEnter={() => githubRef.current?.playFromBeginning()}
+					>
+						<Player ref={githubRef} icon={GITHUB_ICON} size={28} />
+						<span className="ml-3">Continuer avec GitHub</span>
+					</Button>
+					<Button
+						variant="outline"
+						className="group w-full h-12 border-slate-300 hover:border-primary hover:bg-slate-50 transition-all shadow-sm cursor-pointer"
+						onClick={() => handleOAuthSignIn("microsoft")}
+					>
+						<MicrosoftIcon />
+						<span className="ml-3">Continuer avec Microsoft</span>
+					</Button>
+				</div>
+
+				{/* Séparateur */}
+				<div className="relative py-4">
+					<div className="absolute inset-0 flex items-center">
+						<span className="w-full border-t border-slate-200" />
+					</div>
+					<div className="relative flex justify-center text-sm font-medium">
+						<span className="bg-white px-6 text-slate-500">
+							Ou avec votre email
+						</span>
+					</div>
+				</div>
+
+				{/* Formulaire Email/Password */}
+				<form onSubmit={handleEmailSignUp} className="space-y-4">
+					<div className="space-y-2">
+						<Input
+							type="text"
+							placeholder="Nom complet"
+							value={name}
+							onChange={(e) => setName(e.target.value)}
+							required
+							disabled={isLoading}
+							className="h-12 border-slate-300 shadow-sm"
+						/>
+					</div>
+					<div className="space-y-2">
+						<Input
+							type="email"
+							placeholder="Adresse email"
+							value={email}
+							onChange={(e) => setEmail(e.target.value)}
+							required
+							disabled={isLoading}
+							className="h-12 border-slate-300 shadow-sm"
+						/>
+					</div>
+				<div className="space-y-1">
+					<div className="relative">
+						<Input
+							type={showPassword ? "text" : "password"}
+							placeholder="Mot de passe"
+							value={password}
+							onChange={(e) => setPassword(e.target.value)}
+							required
+							disabled={isLoading}
+							className="h-12 pr-11 border-slate-300 shadow-sm"
+						/>
+						<button
+							type="button"
+							onClick={() => setShowPassword((v) => !v)}
+							className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+						>
+							{showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+						</button>
+					</div>
+					<PasswordStrength password={password} />
+				</div>
+				<div className="space-y-1">
+					<div className="relative">
+						<Input
+							type={showConfirm ? "text" : "password"}
+							placeholder="Confirmer le mot de passe"
+							value={confirmPassword}
+							onChange={(e) => setConfirmPassword(e.target.value)}
+							required
+							disabled={isLoading}
+							className={`h-12 pr-11 border-slate-300 shadow-sm ${confirmPassword && confirmPassword !== password ? "border-red-400 focus:border-red-400" : ""}`}
+						/>
+						<button
+							type="button"
+							onClick={() => setShowConfirm((v) => !v)}
+							className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+						>
+							{showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+						</button>
+					</div>
+					{confirmPassword && confirmPassword !== password && (
+						<p className="text-red-500 text-xs pl-1">Les mots de passe ne correspondent pas</p>
+					)}
+				</div>
+
+					{error && (
+						<div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+							{error}
+						</div>
+					)}
+
+					<Button
+						type="submit"
+						variant="gradient"
+						size="lg"
+						className="w-full h-12 font-semibold cursor-pointer hover:scale-103 transition-all duration-300"
+						disabled={isLoading}
+					>
+						{isLoading ? "Création en cours..." : "Créer mon compte"}
+					</Button>
+				</form>
+
+				{/* Lien vers connexion */}
+				<div className="text-center text-sm pt-4 border-t border-slate-100">
+					<span className="text-slate-600">Déjà un compte ? </span>
+					<Link
+						href="/login"
+						className="text-primary hover:text-secondary font-semibold transition-colors underline-offset-4 hover:underline"
+					>
+						Se connecter
+					</Link>
+				</div>
+			</CardContent>
+		</Card>
+	);
+}
+
+// ── Page — useSearchParams wrappé dans Suspense (requis par Next.js SSG) ──────
+
+export default function SignUpPage() {
 	return (
 		<div className="flex min-h-screen items-center justify-center p-4 bg-linear-to-br from-slate-50 via-white to-slate-50 relative overflow-hidden">
 			{/* Effet de fond élégant */}
@@ -182,161 +353,11 @@ export default function SignUpPage() {
 				/>
 			</div>
 
-			<Card className="w-full max-w-md shadow-2xl border-slate-200/50 backdrop-blur-sm bg-white/95 relative z-10">
-				<CardHeader className="space-y-3 pb-8">
-					<Link href="/" className="flex justify-center mb-2 group  w-fit mx-auto">
-						<div className="h-14 w-14 rounded-xl bg-gradient-primary flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
-							<span className="text-2xl font-bold text-white ">F</span>
-						</div>
-					</Link>
-					<CardTitle className="text-3xl font-bold text-center text-gradient">
-						Créer un compte
-					</CardTitle>
-					<CardDescription className="text-center text-base text-slate-600">
-						Commencez à gérer vos factures gratuitement
-					</CardDescription>
-				</CardHeader>
-				<CardContent className="space-y-6">
-					{/* Section OAuth */}
-					<div className="space-y-3">
-						<Button
-							variant="outline"
-							className="w-full h-12 border-slate-300 hover:border-primary hover:bg-slate-50 transition-all shadow-sm cursor-pointer"
-							onClick={() => handleOAuthSignIn("google")}
-							onMouseEnter={() => googleRef.current?.playFromBeginning()}
-						>
-							<Player ref={googleRef} icon={GOOGLE_ICON} size={28} />
-							<span className="ml-3">Continuer avec Google</span>
-						</Button>
-						<Button
-							variant="outline"
-							className="w-full h-12 border-slate-300 hover:border-primary hover:bg-slate-50 transition-all shadow-sm cursor-pointer"
-							onClick={() => handleOAuthSignIn("github")}
-							onMouseEnter={() => githubRef.current?.playFromBeginning()}
-						>
-							<Player ref={githubRef} icon={GITHUB_ICON} size={28} />
-							<span className="ml-3">Continuer avec GitHub</span>
-						</Button>
-						<Button
-							variant="outline"
-							className="group w-full h-12 border-slate-300 hover:border-primary hover:bg-slate-50 transition-all shadow-sm cursor-pointer"
-							onClick={() => handleOAuthSignIn("microsoft")}
-						>
-							<MicrosoftIcon />
-							<span className="ml-3">Continuer avec Microsoft</span>
-						</Button>
-					</div>
-
-					{/* Séparateur */}
-					<div className="relative py-4">
-						<div className="absolute inset-0 flex items-center">
-							<span className="w-full border-t border-slate-200" />
-						</div>
-						<div className="relative flex justify-center text-sm font-medium">
-							<span className="bg-white px-6 text-slate-500">
-								Ou avec votre email
-							</span>
-						</div>
-					</div>
-
-					{/* Formulaire Email/Password */}
-					<form onSubmit={handleEmailSignUp} className="space-y-4">
-						<div className="space-y-2">
-							<Input
-								type="text"
-								placeholder="Nom complet"
-								value={name}
-								onChange={(e) => setName(e.target.value)}
-								required
-								disabled={isLoading}
-								className="h-12 border-slate-300 shadow-sm"
-							/>
-						</div>
-						<div className="space-y-2">
-							<Input
-								type="email"
-								placeholder="Adresse email"
-								value={email}
-								onChange={(e) => setEmail(e.target.value)}
-								required
-								disabled={isLoading}
-								className="h-12 border-slate-300 shadow-sm"
-							/>
-						</div>
-					<div className="space-y-1">
-						<div className="relative">
-							<Input
-								type={showPassword ? "text" : "password"}
-								placeholder="Mot de passe"
-								value={password}
-								onChange={(e) => setPassword(e.target.value)}
-								required
-								disabled={isLoading}
-								className="h-12 pr-11 border-slate-300 shadow-sm"
-							/>
-							<button
-								type="button"
-								onClick={() => setShowPassword((v) => !v)}
-								className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
-							>
-								{showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-							</button>
-						</div>
-						<PasswordStrength password={password} />
-					</div>
-					<div className="space-y-1">
-						<div className="relative">
-							<Input
-								type={showConfirm ? "text" : "password"}
-								placeholder="Confirmer le mot de passe"
-								value={confirmPassword}
-								onChange={(e) => setConfirmPassword(e.target.value)}
-								required
-								disabled={isLoading}
-								className={`h-12 pr-11 border-slate-300 shadow-sm ${confirmPassword && confirmPassword !== password ? "border-red-400 focus:border-red-400" : ""}`}
-							/>
-							<button
-								type="button"
-								onClick={() => setShowConfirm((v) => !v)}
-								className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
-							>
-								{showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-							</button>
-						</div>
-						{confirmPassword && confirmPassword !== password && (
-							<p className="text-red-500 text-xs pl-1">Les mots de passe ne correspondent pas</p>
-						)}
-					</div>
-
-						{error && (
-							<div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-								{error}
-							</div>
-						)}
-
-						<Button
-							type="submit"
-							variant="gradient"
-							size="lg"
-							className="w-full h-12 font-semibold cursor-pointer hover:scale-103 transition-all duration-300"
-							disabled={isLoading}
-						>
-							{isLoading ? "Création en cours..." : "Créer mon compte"}
-						</Button>
-					</form>
-
-					{/* Lien vers connexion */}
-					<div className="text-center text-sm pt-4 border-t border-slate-100">
-						<span className="text-slate-600">Déjà un compte ? </span>
-						<Link
-							href="/login"
-							className="text-primary hover:text-secondary font-semibold transition-colors underline-offset-4 hover:underline"
-						>
-							Se connecter
-						</Link>
-					</div>
-				</CardContent>
-			</Card>
+			<Suspense fallback={
+				<div className="w-full max-w-md h-96 rounded-2xl bg-white/80 animate-pulse" />
+			}>
+				<SignUpContent />
+			</Suspense>
 		</div>
 	);
 }

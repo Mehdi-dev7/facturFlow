@@ -13,7 +13,14 @@ export const metadata = {
   description: "Gérez votre plan FacturNow",
 };
 
-export default async function SubscriptionPage() {
+export default async function SubscriptionPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ checkout?: string }>;
+}) {
+  // checkout = plan à déclencher automatiquement (ex: "pro", "business")
+  const { checkout } = await searchParams;
+
   const result = await getCurrentSubscription();
 
   // Non authentifié → redirection login
@@ -119,6 +126,7 @@ export default async function SubscriptionPage() {
         currentPlan={plan}
         effectivePlan={effectivePlan}
         stripeSubId={stripeSubId}
+        pendingCheckout={checkout}
       />
     </div>
   );

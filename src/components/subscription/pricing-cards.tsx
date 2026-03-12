@@ -3,7 +3,7 @@
 // Section interactive de la page abonnement : toggle mensuel/annuel + boutons checkout.
 // Composant client car il gère le state du toggle et les actions Stripe.
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Check, X, Star, Zap, Building, Sparkles, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,8 @@ interface PricingCardsProps {
   currentPlan: string;
   effectivePlan: string;
   stripeSubId: string | null;
+  // Plan à checkout automatiquement à l'arrivée sur la page (depuis landing ou signup)
+  pendingCheckout?: string;
 }
 
 // ─── Config plans ─────────────────────────────────────────────────────────────
@@ -74,10 +76,19 @@ function FeatureRow({ label, included }: { label: string; included: boolean }) {
 
 // ─── Composant principal ──────────────────────────────────────────────────────
 
-export function PricingCards({ currentPlan, effectivePlan, stripeSubId }: PricingCardsProps) {
+export function PricingCards({ currentPlan, effectivePlan, stripeSubId, pendingCheckout }: PricingCardsProps) {
   const [interval, setInterval] = useState<BillingInterval>("monthly");
   const [loadingPlan, setLoadingPlan] = useState<"PRO" | "BUSINESS" | null>(null);
   const [cancelling, setCancelling] = useState(false);
+
+  // Checkout automatique si l'utilisateur arrive depuis la landing page ou après inscription
+  useEffect(() => {
+    if (!pendingCheckout) return;
+    const plan = pendingCheckout.toUpperCase() as "PRO" | "BUSINESS";
+    if (plan !== "PRO" && plan !== "BUSINESS") return;
+    const timer = setTimeout(() => handleCheckout(plan), 300);
+    return () => clearTimeout(timer);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Prix selon l'intervalle
   const proPrice = interval === "yearly" ? "7,99€" : "9,99€";

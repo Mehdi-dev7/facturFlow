@@ -9,13 +9,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Printer, Download, Send, Pencil, X, Trash2 } from "lucide-react";
+import { Printer, Download, Send, Pencil, X, Trash2, FileText } from "lucide-react";
 import { DeleteConfirmModal } from "@/components/shared/delete-confirm-modal";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useDuplicateQuote, useDeleteQuote } from "@/hooks/use-quotes";
 import type { SavedQuote } from "@/hooks/use-quotes";
 import { sendQuoteEmail } from "@/lib/actions/send-quote-email";
+import { createInvoiceFromQuote } from "@/lib/actions/invoices";
 import {
   INVOICE_TYPE_CONFIG,
   INVOICE_TYPE_LABELS,
@@ -446,6 +447,7 @@ export function QuotePreviewModal({
   const [isSending, setIsSending] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const [isCreatingInvoice, setIsCreatingInvoice] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
   // ── Handlers des boutons d'action ──────────────────────────────────────
@@ -528,6 +530,25 @@ export function QuotePreviewModal({
     setIsSending(false);
   }, [quote, isSending]);
 
+
+  const handleCreateInvoice = useCallback(async () => {
+    if (!quote || isCreatingInvoice) return;
+    setIsCreatingInvoice(true);
+    try {
+      const result = await createInvoiceFromQuote(quote.id);
+      if (result.success && result.data) {
+        toast.success(`Facture ${result.data.number} créée !`);
+        onOpenChange(false);
+        router.push(`/dashboard/invoices?preview=${result.data.id}`);
+      } else {
+        toast.error((result as { error?: string }).error ?? "Erreur lors de la création");
+      }
+    } catch {
+      toast.error("Une erreur est survenue");
+    } finally {
+      setIsCreatingInvoice(false);
+    }
+  }, [quote, isCreatingInvoice, router, onOpenChange]);
 
   const handleEdit = useCallback(() => {
     if (!quote) return;
@@ -638,6 +659,18 @@ export function QuotePreviewModal({
                   <Send size={14} />
                   {isSending ? "Envoi..." : "Envoyer"}
                 </button>
+
+                {/* Créer la facture — visible uniquement si devis accepté */}
+                {quote?.status === "ACCEPTED" && (
+                  <button
+                    onClick={handleCreateInvoice}
+                    disabled={isCreatingInvoice}
+                    className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-emerald-400 text-emerald-700 bg-emerald-50 hover:bg-emerald-100 dark:border-emerald-500 dark:text-emerald-300 dark:bg-emerald-950/40 dark:hover:bg-emerald-950/70 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  >
+                    <FileText size={14} />
+                    {isCreatingInvoice ? "Création..." : "Créer la facture"}
+                  </button>
+                )}
               </div>
             </div>
 
@@ -684,6 +717,18 @@ export function QuotePreviewModal({
                   <Send size={14} />
                   {isSending ? "Envoi..." : "Envoyer"}
                 </button>
+
+                {/* Créer la facture — visible uniquement si devis accepté */}
+                {quote?.status === "ACCEPTED" && (
+                  <button
+                    onClick={handleCreateInvoice}
+                    disabled={isCreatingInvoice}
+                    className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-emerald-400 text-emerald-700 bg-emerald-50 hover:bg-emerald-100 dark:border-emerald-500 dark:text-emerald-300 dark:bg-emerald-950/40 dark:hover:bg-emerald-950/70 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  >
+                    <FileText size={14} />
+                    {isCreatingInvoice ? "Création..." : "Créer la facture"}
+                  </button>
+                )}
               </div>
 
               {/* Supprimer isolé à droite */}

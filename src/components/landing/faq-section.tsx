@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react"
 import { Plus, Minus, ChevronDown, ChevronUp, ArrowUp } from "lucide-react"
 import { Button } from "../ui/button"
+import Link from "next/link"
 
 export function FaqSection() {
   const [openItems, setOpenItems] = useState<number[]>([])
@@ -156,9 +157,11 @@ export function FaqSection() {
             Notre équipe support française est là pour vous aider !
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button variant="gradient" size="lg" className="w-full sm:w-auto h-12 px-8 font-ui text-base transition-all duration-300 cursor-pointer">
-              Contacter le support
-            </Button>
+            <Link href="mailto:support@facturnow.fr">
+              <Button variant="gradient" size="lg" className="w-full sm:w-auto h-12 px-8 font-ui text-base transition-all duration-300 cursor-pointer">
+                Contacter le support
+              </Button>
+            </Link>
            
           </div>
         </div>

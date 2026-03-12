@@ -2,6 +2,7 @@
 
 import { FileText, Send, CreditCard } from "lucide-react"
 import { Button } from "../ui/button"
+import Link from "next/link"
 
 export function HowItWorksSection() {
   const steps = [
@@ -29,7 +30,7 @@ export function HowItWorksSection() {
   ]
 
   return (
-    <section className="w-full px-4 sm:px-[8%] xl:px-[12%] py-16 xl:py-20 bg-slate-50">
+    <section id="how" className="w-full px-4 sm:px-[8%] xl:px-[12%] py-16 xl:py-20 bg-slate-50">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-16">
@@ -96,13 +97,15 @@ export function HowItWorksSection() {
             Prêt à simplifier votre facturation ?
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button
-              size="lg"
-              variant="gradient"
-              className="w-full sm:w-auto h-12 px-8 font-ui text-base hover:scale-105 transition-all duration-300 cursor-pointer"
-            >
-              Commencer gratuitement
-            </Button>
+            <Link href="/signup">
+              <Button
+                size="lg"
+                variant="gradient"
+                className="w-full sm:w-auto h-12 px-8 font-ui text-base hover:scale-105 transition-all duration-300 cursor-pointer"
+              >
+                Commencer gratuitement
+              </Button>
+            </Link>
             <Button
               size="lg"
               variant="outline"
