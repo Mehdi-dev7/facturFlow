@@ -311,7 +311,7 @@ export function FeaturesSection() {
 
         {/* Titre */}
         <div className="text-center mb-16">
-          <p className="text-sm font-semibold text-violet-600 uppercase tracking-wider mb-3">Fonctionnalités</p>
+          
           <h2 className="text-4xl md:text-5xl mb-4">
             <span className="text-gradient">Tout ce dont vous avez besoin</span>
             <br />
