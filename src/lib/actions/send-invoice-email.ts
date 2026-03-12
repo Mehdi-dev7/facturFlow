@@ -56,6 +56,7 @@ export async function sendInvoiceEmail(
             themeColor: true,
             companyFont: true,
             companyLogo: true,
+            invoiceFooter: true,
             // Pour afficher le bloc virement dans l'email
             iban: true,
             bic: true,
@@ -122,6 +123,7 @@ export async function sendInvoiceEmail(
         themeColor: doc.user.themeColor ?? null,
         companyFont: doc.user.companyFont ?? null,
         companyLogo: doc.user.companyLogo ?? null,
+        invoiceFooter: doc.user.invoiceFooter ?? null,
         iban: doc.user.iban ?? null,
         bic: doc.user.bic ?? null,
       },

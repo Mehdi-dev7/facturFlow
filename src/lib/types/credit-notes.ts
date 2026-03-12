@@ -51,6 +51,7 @@ export interface SavedCreditNote {
     companyPhone: string | null;
     themeColor: string | null;
     companyFont: string | null;
+    invoiceFooter: string | null;
     companyLogo: string | null;
     iban: string | null;
     bic: string | null;

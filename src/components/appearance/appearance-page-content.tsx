@@ -17,10 +17,11 @@ import { saveAppearance } from "@/lib/actions/appearance";
 
 interface AppearancePageContentProps {
   initial: {
-    themeColor: string | null;
-    companyFont: string | null;
-    companyName: string | null;
-    companyLogo: string | null;
+    themeColor:    string | null;
+    companyFont:   string | null;
+    companyName:   string | null;
+    companyLogo:   string | null;
+    invoiceFooter: string | null;
   };
 }
 
@@ -28,24 +29,25 @@ interface AppearancePageContentProps {
 
 export function AppearancePageContent({ initial }: AppearancePageContentProps) {
   // État local — synchronisé avec les données DB initiales
-  const [themeColor,   setThemeColor]   = useState(initial.themeColor  ?? DEFAULT_THEME.primary);
-  const [companyFont,  setCompanyFont]  = useState(initial.companyFont  ?? DEFAULT_FONT.id);
-  const [companyName,  setCompanyName]  = useState(initial.companyName  ?? "");
-  const [logo,         setLogo]         = useState<string | null>(initial.companyLogo);
-  const [isSaving,     setIsSaving]     = useState(false);
+  const [themeColor,     setThemeColor]     = useState(initial.themeColor    ?? DEFAULT_THEME.primary);
+  const [companyFont,    setCompanyFont]    = useState(initial.companyFont    ?? DEFAULT_FONT.id);
+  const [companyName,    setCompanyName]    = useState(initial.companyName    ?? "");
+  const [logo,           setLogo]           = useState<string | null>(initial.companyLogo);
+  const [invoiceFooter,  setInvoiceFooter]  = useState(initial.invoiceFooter  ?? "");
+  const [isSaving,       setIsSaving]       = useState(false);
 
   // ── Sauvegarde ────────────────────────────────────────────────────────────
 
   const handleSave = useCallback(async () => {
     setIsSaving(true);
-    const result = await saveAppearance({ themeColor, companyFont, companyName, companyLogo: logo });
+    const result = await saveAppearance({ themeColor, companyFont, companyName, companyLogo: logo, invoiceFooter });
     if (result.success) {
       toast.success("Apparence sauvegardée !");
     } else {
       toast.error(result.error ?? "Erreur lors de la sauvegarde");
     }
     setIsSaving(false);
-  }, [themeColor, companyFont, companyName, logo]);
+  }, [themeColor, companyFont, companyName, logo, invoiceFooter]);
 
   // ── Rendu ─────────────────────────────────────────────────────────────────
 
@@ -116,6 +118,27 @@ export function AppearancePageContent({ initial }: AppearancePageContentProps) {
           {/* Police */}
           <section className="bg-white dark:bg-[#1a1438] rounded-2xl border border-slate-200 dark:border-violet-500/20 p-3 sm:p-5 shadow-sm">
             <FontPicker value={companyFont} companyName={companyName} onChange={setCompanyFont} />
+          </section>
+
+          {/* Footer PDF */}
+          <section className="bg-white dark:bg-[#1a1438] rounded-2xl border border-slate-200 dark:border-violet-500/20 p-3 sm:p-5 shadow-sm space-y-3">
+            <div>
+              <label className="text-sm font-semibold text-slate-800 dark:text-slate-200 block mb-0.5">
+                Footer de vos PDF
+              </label>
+              <p className="text-[11px] text-slate-400 dark:text-slate-500">
+                Affiché en bas de toutes vos factures, devis et documents. Idéal pour vos mentions légales, IBAN ou un message personnalisé.
+              </p>
+            </div>
+            <textarea
+              value={invoiceFooter}
+              onChange={(e) => setInvoiceFooter(e.target.value)}
+              placeholder={"Ex : TVA non applicable, art. 293 B du CGI — IBAN : FR76 3000 1234 5678 — Merci de votre confiance !"}
+              maxLength={300}
+              rows={3}
+              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-violet-500/30 bg-slate-50 dark:bg-[#2a2254]/50 text-slate-900 dark:text-slate-100 text-xs sm:text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500/40 transition resize-none"
+            />
+            <p className="text-[10px] text-slate-400 text-right">{invoiceFooter.length}/300</p>
           </section>
 
           {/* Bouton Enregistrer — pleine largeur mobile, 1/3 à partir de md */}

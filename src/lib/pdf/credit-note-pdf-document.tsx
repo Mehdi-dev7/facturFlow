@@ -311,7 +311,7 @@ export function CreditNotePdfDocument({ creditNote }: { creditNote: SavedCreditN
           <Text style={S.footerText}>
             {creditNote.number} — Avoir pour {creditNote.invoiceNumber}
           </Text>
-          <Text style={S.footerText}>Document généré par FacturNow</Text>
+          <Text style={S.footerText}>{creditNote.user.invoiceFooter ?? "Document généré par FacturNow"}</Text>
         </View>
       </Page>
     </Document>

@@ -38,6 +38,7 @@ export interface SavedDeposit {
     companyPhone: string | null;
     themeColor: string | null;
     companyFont: string | null;
+    invoiceFooter: string | null;
     companyLogo: string | null;
   };
   // Propriétés additionnelles pour la prévisualisation (calculées ou extraites de businessMetadata)

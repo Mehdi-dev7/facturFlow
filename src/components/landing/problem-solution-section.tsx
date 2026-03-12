@@ -60,10 +60,10 @@ export function ProblemSolutionSection() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-16">
-          <h2 className="text-3xl xs:text-4xl md:text-5xl text-slate-900 mb-4">
+          <h2 className="text-4xl md:text-5xl text-slate-900 mb-4">
             Fini les galères de <span className="text-gradient">facturation</span>
           </h2>
-          <p className="text-xl text-slate-600 font-ui max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-slate-600 font-ui max-w-2xl mx-auto">
             Nous avons résolu tous les problèmes que rencontrent les freelances et PME 
             avec leur facturation traditionnelle.
           </p>

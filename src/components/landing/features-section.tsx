@@ -312,12 +312,12 @@ export function FeaturesSection() {
         {/* Titre */}
         <div className="text-center mb-16">
           
-          <h2 className="text-3xl xs:text-4xl md:text-5xl mb-4">
+          <h2 className="text-4xl md:text-5xl mb-4">
             <span className="text-gradient">Tout ce dont vous avez besoin</span>
             <br />
             <span className="text-slate-900">pour gérer vos factures</span>
           </h2>
-          <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto">
             Une solution complète qui automatise votre facturation de A à Z
           </p>
         </div>
@@ -368,7 +368,7 @@ export function FeaturesSection() {
               </div>
               <h3 className="text-lg font-bold text-slate-900">Une facture en moins de 2 minutes</h3>
               <p className="text-sm text-slate-500 mt-1">
-                Client, prestation, montant — rempli en quelques clics avec l&apos;auto-complétion. PDF généré instantanément.
+                Client, prestation, montant — rempli en quelques clics avec l&apos;auto-complétion - clients et produits pré enregistrés. PDF généré instantanément.
               </p>
             </div>
             <div className="flex-1">

@@ -12,19 +12,19 @@ export function FaqSection() {
     
       {
         question: "Comment configurer le prélèvement SEPA automatique (GoCardless) ?",
-        answer: "1️⃣ Allez dans Paramètres → Paiements\n2️⃣ Cliquez sur 'Connecter GoCardless'\n3️⃣ Créez votre compte GoCardless (gratuit, 2 min) ou connectez-vous\n4️⃣ Autorisez FacturNow → Badge 'SEPA activé' apparaît\n\nEnsuite, lors de la création d'une facture, sélectionnez 'Prélèvement SEPA' comme mode de paiement. Votre client recevra un email pour signer le mandat (IBAN + autorisation). Après 3 à 5 jours d'activation, les prélèvements sont automatiques chaque mois."
+        answer: "1️⃣ Allez dans Paramètres → Paiements\n2️⃣ Cliquez sur 'Connecter GoCardless'\n3️⃣ Créez votre compte GoCardless (gratuit, 2 min) ou connectez-vous\n4️⃣ Autorisez FacturNow → Badge 'SEPA activé' apparaît\n\nEnsuite, lors de la création d'une facture, sélectionnez 'Prélèvement SEPA' comme mode de paiement. Votre client recevra un lien pour renseigner son IBAN et signer le mandat en ligne. Après 3 à 5 jours d'activation bancaire, les prélèvements sont automatiques."
       },
       {
         question: "Comment activer les paiements par carte bancaire (Stripe) ?",
-        answer: "1️⃣ Dans Paramètres → Paiements → Cliquez 'Connecter Stripe'\n2️⃣ Créez votre compte Stripe (gratuit) ou connectez-vous\n3️⃣ Renseignez vos infos entreprise (SIRET, IBAN pour recevoir les fonds)\n4️⃣ Validez votre identité (pièce d'identité, justificatif)\n5️⃣ Autorisez FacturNow → Activation instantanée\n\nVos factures incluront automatiquement un bouton 'Payer par carte'. Vos clients paient en 1 clic (CB, Apple Pay, Google Pay). Les fonds arrivent sur votre compte sous 2-7 jours. Frais : 1,5% + 0,25€ par transaction (prélevés par Stripe)."
+        answer: "1️⃣ Créez votre compte sur stripe.com et activez-le complètement (SIRET, IBAN, identité)\n2️⃣ Dans le dashboard Stripe → Développeurs → Clés API → copiez votre clé secrète (sk_live_...)\n3️⃣ Dans Développeurs → Webhooks → ajoutez l'URL : facturnow.fr/api/webhooks/stripe → copiez le Webhook Secret (whsec_...)\n4️⃣ Dans FacturNow → Paiements → collez vos deux clés\n\n💡 Un tutoriel pas-à-pas avec captures d'écran est disponible directement dans FacturNow → Paiements → 'Créez-en un en 5 min'.\n\nVos factures incluront automatiquement un bouton 'Payer par carte' (CB, Apple Pay, Google Pay). Frais : ~1,5% + 0,25€ par transaction, prélevés par Stripe."
       },
       {
         question: "Comment configurer PayPal pour recevoir des paiements ?",
-        answer: "⚠️ Vous devez avoir un compte PayPal Business (gratuit).\n\n1️⃣ Paramètres → Paiements → 'Connecter PayPal'\n2️⃣ Connectez-vous à votre compte PayPal Business\n3️⃣ Autorisez FacturNow à générer des liens de paiement\n4️⃣ Activation instantanée\n\nVos factures afficheront un bouton 'Payer avec PayPal'. Le client clique, paie via PayPal, et vous recevez l'argent instantanément sur votre compte PayPal. Frais PayPal : ~2,5-3,5% par transaction."
+        answer: "⚠️ Vous devez avoir un compte PayPal Business (gratuit).\n\n1️⃣ Allez sur developer.paypal.com → créez une application → copiez le Client ID et le Client Secret\n2️⃣ Dans Webhooks → ajoutez l'URL : facturnow.fr/api/webhooks/paypal → copiez le Webhook ID\n3️⃣ Dans FacturNow → Paiements → collez vos identifiants\n\n💡 Un tutoriel pas-à-pas avec captures d'écran est disponible dans FacturNow → Paiements → 'Créez-en un en 5 min'.\n\nVos factures afficheront un bouton 'Payer avec PayPal'. Frais : ~2,5–3,5% par transaction, prélevés par PayPal."
       },
       {
         question: "Facturation électronique : suis-je concerné et quand ?",
-        answer: "📋 La facturation électronique devient obligatoire en France :\n\n🏢 ENTREPRISES B2B (>15 salariés) : Obligatoire dès septembre 2026\n→ Plan Business requis (inclut la conformité Chorus Pro / Factur-X)\n\n👤 FREELANCES, AUTO-ENTREPRENEURS, TPE, PME B2C : Obligatoire septembre 2027\n→ Plan Pro sera mis à jour gratuitement en juin 2027\n\n✅ FacturNow est déjà en cours d'agrégation Plateforme Agréée (PA). Vous n'avez rien à faire, la mise à jour sera automatique sur votre plan."
+        answer: "📋 La facturation électronique devient obligatoire en France :\n\n🏢 ENTREPRISES B2B (>15 salariés) : Obligatoire dès septembre 2026\n→ Plan Business requis (inclut la conformité Chorus Pro / Factur-X)\n\n👤 FREELANCES, AUTO-ENTREPRENEURS, TPE, PME B2C : Obligatoire septembre 2027\n→ Plan Pro equivalent au plan business sur les factures electroniques\n\n✅ FacturNow est déjà en cours d'agrégation Plateforme Agréée (PA). Vous n'avez rien à faire, la mise à jour sera automatique sur votre plan."
       },
       {
         question: "Mes données bancaires et celles de mes clients sont-elles sécurisées ?",
@@ -32,11 +32,11 @@ export function FaqSection() {
       },
       {
         question: "Puis-je personnaliser mes factures avec mon logo et mes couleurs ?",
-        answer: "Oui ! 🎨\n\n📄 Plan Free : 1 template basique + votre logo\n\n💎 Plan Pro : Tout le Free +\n→ 9 templates métiers (Dev web, Designer, BTP, Consultant, etc.)\n→ Personnalisation couleurs (primaire, secondaire, texte)\n→ Footer personnalisé (mentions légales, coordonnées bancaires)\n→ Police custom (bientôt)\n\n🏢 Plan Business : Tout Pro + Templates sur-mesure\n\nPour personnaliser : Dashboard → Paramètres → Apparence → Uploadez votre logo + choisissez template + personnalisez couleurs."
+        answer: "Oui ! 🎨\n\nDans Dashboard → Apparence, vous pouvez :\n→ Uploader votre logo\n→ Choisir une couleur de marque (appliquée sur tous vos documents)\n→ Sélectionner une police\n→ Personnaliser le footer de vos PDF (mentions légales, coordonnées bancaires, message libre)\n\nTout se prévisualise en temps réel avant d'enregistrer."
       },
       {
         question: "Que se passe-t-il si je dépasse 10 factures/mois en plan Free ?",
-        answer: "Vous recevrez un email 2 jours avant d'atteindre la limite (8/10 factures).\n\nSi vous atteignez 10/10 :\n→ Vous ne pourrez plus créer de nouvelles factures ce mois-ci\n→ Vos factures existantes restent accessibles\n→ Vous pouvez upgrader vers Pro à tout moment (transition instantanée)\n\nLe compteur se réinitialise le 1er de chaque mois.\n\n💡 Astuce : Passez au plan Pro (14€/mois) pour factures illimitées + SEPA + relances automatiques + suivi des paiements, etc."
+        answer: "Vous recevrez un email 2 jours avant d'atteindre la limite (8/10 factures).\n\nSi vous atteignez 10/10 :\n→ Vous ne pourrez plus créer de nouvelles factures ce mois-ci\n→ Vos factures existantes restent accessibles\n→ Vous pouvez upgrader vers Pro à tout moment (transition instantanée)\n\nLe compteur se réinitialise le 1er de chaque mois.\n\n💡 Astuce : Passez au plan Pro (9,99€/mois) pour factures illimitées + SEPA + relances automatiques + suivi des paiements, etc."
       },
       {
         question: "Comment fonctionnent les factures récurrentes avec SEPA ?",
@@ -56,7 +56,7 @@ export function FaqSection() {
       },
       {
         question: "Le support client est-il inclus ? Dans quelle langue ?",
-        answer: "✅ Support inclus dans TOUS les plans :\n\n📧 Plan Free & Pro : Support email en français\n→ Réponse sous 24h (jours ouvrés)\n→ Base de connaissances complète\n\n⚡ Plan Business : Support prioritaire\n→ Réponse sous 4h (jours ouvrés)\n→ Chat direct avec l'équipe\n→ Accompagnement migration inclus\n\n🇫🇷 Équipe 100% française basée à Paris\n📩 Contact : support@facturnow.fr\n\n💡 Tutoriels vidéo + documentation complète disponibles 24/7 dans le dashboard."
+        answer: "✅ Support inclus dans TOUS les plans :\n\n📧 Plan Free & Pro : Support email en français\n→ Réponse sous 24h (jours ouvrés)\n→ Base de connaissances complète\n\n⚡ Plan Business : Support prioritaire\n→ Réponse sous 12h (jours ouvrés)\n🇫🇷 Équipe 100% française basée à Paris\n📩 Contact : support@facturnow.fr\n\n💡  documentation complète disponibles 24/7 dans le dashboard."
       }
     
   ]
@@ -78,10 +78,10 @@ export function FaqSection() {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-16">
-          <h2 className="text-3xl xs:text-4xl md:text-5xl text-slate-900 mb-4">
+          <h2 className="text-4xl md:text-5xl text-slate-900 mb-4">
             Questions <span className="text-gradient">fréquentes</span>
           </h2>
-          <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto">
             Toutes les réponses aux questions que vous vous posez sur FacturNow. 
             Une question ? Contactez notre support !
           </p>
@@ -101,7 +101,7 @@ export function FaqSection() {
                   onClick={() => toggleItem(index)}
                   className="w-full px-6 py-5 text-left flex items-center justify-between hover:bg-slate-50 rounded-xl transition-colors cursor-pointer duration-300"
                 >
-                  <span className="text-lg font-semibold text-slate-900 pr-4">
+                  <span className="text-base sm:text-lg font-semibold text-slate-900 pr-4">
                     {faq.question}
                   </span>
                   <div className={`flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}>
@@ -117,7 +117,7 @@ export function FaqSection() {
                 <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
                   <div className="px-6 pb-5">
                     <div className="pt-2 border-t border-slate-100">
-                      <p className="text-slate-600 leading-relaxed mt-3">
+                      <p className="text-slate-600 text-sm sm:text-base leading-relaxed mt-3">
                         {faq.answer}
                       </p>
                     </div>

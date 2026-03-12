@@ -31,6 +31,7 @@ import {
 import { toast } from "sonner";
 import { ClientSearch } from "./client-search";
 import { CompanyInfoModal } from "./company-info-modal";
+import { ProductCombobox } from "@/components/shared/product-combobox";
 import {
 	VAT_RATES,
 	INVOICE_TYPES,
@@ -515,12 +516,17 @@ export function InvoiceForm({
 														name={`lines.${index}.description`}
 														control={control}
 														render={({ field: f }) => (
-															<Input
-																placeholder={typeConfig.descriptionLabel}
+															<ProductCombobox
 																value={f.value ?? ""}
-																onChange={(e) => f.onChange(e.target.value)}
-																onBlur={f.onBlur}
-																ref={f.ref}
+																onChange={f.onChange}
+																onProductSelect={({ description, unitPrice }) => {
+																	f.onChange(description);
+																	setValue(`lines.${index}.unitPrice`, unitPrice, {
+																		shouldValidate: false,
+																	});
+																	// vatRate est global dans ce form, on ne le change pas à la ligne
+																}}
+																placeholder={typeConfig.descriptionLabel}
 																className={inputClass}
 																aria-invalid={!!lineErrors?.description}
 															/>

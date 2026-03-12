@@ -177,14 +177,14 @@ export function HeroSection() {
 						</div>
 
 						{/* Titre principal */}
-						<h1 className="text-3xl xs:text-4xl  md:text-5xl xl:text-6xl 2xl:text-7xl leading-tight">
+						<h1 className="text-4xl  md:text-5xl xl:text-6xl 2xl:text-7xl leading-tight">
 							<span className="text-gradient">Gérez vos factures</span>
 							<br />
 							<span className="text-slate-900">en toute simplicité</span>
 						</h1>
 
 						{/* Sous-titre */}
-						<p className="text-sm xs:text-lg text-slate-600 leading-relaxed max-w-xl">
+						<p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-xl">
 							Créez, envoyez et suivez vos factures professionnelles en quelques
 							clics. FacturNow automatise votre facturation pour que vous
 							puissiez vous concentrer sur votre activité.

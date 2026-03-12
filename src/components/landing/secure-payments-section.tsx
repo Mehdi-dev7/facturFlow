@@ -26,12 +26,12 @@ export function SecurePaymentsSection() {
               <Shield className="h-8 w-8 text-green-600" />
             </div>
           </div>
-          <h2 className="text-3xl xs:text-4xl md:text-5xl text-slate-900 mb-4">
+          <h2 className="text-4xl  md:text-5xl text-slate-900 mb-4">
             <span className="text-gradient">Paiements instantanés</span>
             <br />
             <span className="text-slate-900">et ultra-sécurisés</span>
           </h2>
-          <p className="text-lg xs:text-xl text-slate-600 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto">
             Recevez vos paiements plus rapidement grâce aux leaders mondiaux de la sécurité
           </p>
         </div>
@@ -39,9 +39,9 @@ export function SecurePaymentsSection() {
         {/* 3 colonnes principales */}
         <div className="grid lg:grid-cols-3 gap-8 mb-16">
           {/* 1. Sécurité maximale */}
-          <div 
-            className="border border-slate-200 rounded-2xl p-4 xs:p-6 sm:p-8 space-y-6"
-            style={{ background: "linear-gradient(135deg, #ecfeff 0%, white 50%)" }}
+          <div
+            className="border border-cyan-200 rounded-2xl p-4 xs:p-6 sm:p-8 space-y-6"
+            style={{ background: "linear-gradient(145deg, #cffafe 0%, #ecfeff 40%, #ffffff 100%)" }}
           >
             <div className="inline-flex p-3 rounded-xl" style={{ backgroundColor: "#ecfeff" }}>
               <div className="p-3 rounded-lg" style={{ backgroundColor: "#06b6d4" }}>
@@ -53,7 +53,7 @@ export function SecurePaymentsSection() {
               <h3 className="text-2xl font-bold font-heading text-slate-900 mb-3">
                 Sécurité maximale
               </h3>
-              <p className="text-slate-600 text-sm xs:text-base leading-relaxed mb-6">
+              <p className="text-slate-600 text-sm  leading-relaxed mb-6">
                 Vos paiements sont protégés par les leaders mondiaux. Conformité PCI-DSS, chiffrement SSL, et 3D Secure.
               </p>
             </div>
@@ -68,7 +68,7 @@ export function SecurePaymentsSection() {
                     className="flex items-center space-x-2 px-4 py-2 bg-slate-50 rounded-lg border border-slate-200"
                   >
                     <span className="text-xl">{provider.logo}</span>
-                    <span className="text-sm font-semibold text-slate-700 font-ui">
+                    <span className="text-xs sm:text-sm font-semibold text-slate-700 font-ui">
                       {provider.name}
                     </span>
                   </div>
@@ -93,9 +93,9 @@ export function SecurePaymentsSection() {
           </div>
 
           {/* 2. Simplicité extrême */}
-          <div 
-            className="border border-slate-200 rounded-2xl p-4 xs:p-6 sm:p-8 space-y-6"
-            style={{ background: "linear-gradient(135deg, #fef3c7 0%, white 50%)" }}
+          <div
+            className="border border-amber-200 rounded-2xl p-4 xs:p-6 sm:p-8 space-y-6"
+            style={{ background: "linear-gradient(145deg, #fde68a 0%, #fef3c7 40%, #ffffff 100%)" }}
           >
             <div className="inline-flex p-3 rounded-xl" style={{ backgroundColor: "#fef3c7" }}>
               <div className="p-3 rounded-lg" style={{ backgroundColor: "#f59e0b" }}>
@@ -107,7 +107,7 @@ export function SecurePaymentsSection() {
               <h3 className="text-2xl font-bold font-heading text-slate-900 mb-3">
                 Configuration en 5 minutes
               </h3>
-              <p className="text-slate-600 text-sm xs:text-base leading-relaxed mb-6">
+              <p className="text-slate-600 text-sm  leading-relaxed mb-6">
                 Connectez vos comptes Stripe, PayPal et GoCardless en quelques clics. Pas de code, pas de complexité.
               </p>
             </div>
@@ -123,13 +123,13 @@ export function SecurePaymentsSection() {
               <div className="flex items-start space-x-3">
                 <CheckCircle2 className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
                 <span className="text-sm text-slate-700">
-                  Guide pas à pas avec captures d&apos;écran
+                  Tutoriels détaillés avec captures d&apos;écran
                 </span>
               </div>
               <div className="flex items-start space-x-3">
                 <CheckCircle2 className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
                 <span className="text-sm text-slate-700">
-                  Tutoriel vidéo disponible
+                  Aucune compétence technique requise
                 </span>
               </div>
               <div className="flex items-start space-x-3">
@@ -142,16 +142,16 @@ export function SecurePaymentsSection() {
 
             {/* CTA */}
             <div className="pt-4">
-              <Link href="/guide-paiements" className="text-primary hover:text-secondary font-semibold text-sm font-ui inline-flex items-center">
-                Voir le tutoriel complet →
+              <Link href="/register" className="text-primary hover:text-secondary font-semibold text-xs font-ui inline-flex items-center">
+                Créer un compte pour accéder aux tutoriels →
               </Link>
             </div>
           </div>
 
           {/* 3. Tous les moyens de paiement */}
-          <div 
-            className="border border-slate-200 rounded-2xl p-4 xs:p-6 sm:p-8 space-y-6"
-            style={{ background: "linear-gradient(135deg, #eef2ff 0%, white 50%)" }}
+          <div
+            className="border border-indigo-200 rounded-2xl p-4 xs:p-6 sm:p-8 space-y-6"
+            style={{ background: "linear-gradient(145deg, #c7d2fe 0%, #eef2ff 40%, #ffffff 100%)" }}
           >
             <div className="inline-flex p-3 rounded-xl" style={{ backgroundColor: "#eef2ff" }}>
               <div className="p-3 rounded-lg" style={{ backgroundColor: "#4f46e5" }}>
@@ -163,7 +163,7 @@ export function SecurePaymentsSection() {
               <h3 className="text-2xl font-bold font-heading text-slate-900 mb-3">
                 Tous les moyens de paiement
               </h3>
-              <p className="text-slate-600 text-sm xs:text-base leading-relaxed mb-6">
+              <p className="text-slate-600 text-sm leading-relaxed mb-6">
                 Offrez le maximum de flexibilité à vos clients pour être payé plus rapidement.
               </p>
             </div>
@@ -201,7 +201,7 @@ export function SecurePaymentsSection() {
             <div className="pt-4 border-t border-slate-200">
               <p className="text-xs text-slate-500 leading-relaxed">
                 <span className="font-semibold text-slate-700">PayPal :</span> Compte Business requis pour synchronisation automatique{" "}
-                <Link href="/guide-paypal" className="text-primary hover:underline font-medium">
+                <Link href="/register" className="text-primary hover:underline font-medium">
                   (créer gratuitement →)
                 </Link>
               </p>
@@ -219,7 +219,7 @@ export function SecurePaymentsSection() {
               <h3 className="text-xl font-bold font-heading text-slate-900 mb-2">
                 Vous gardez 100% de vos revenus
               </h3>
-              <p className="text-slate-600 text-sm xs:text-base">
+              <p className="text-slate-600 text-sm">
                 FacturNow ne prend <span className="font-semibold text-slate-900">aucune commission</span> sur vos transactions. 
                 Vous payez uniquement les frais standards de vos prestataires de paiement.
               </p>

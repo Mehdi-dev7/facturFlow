@@ -311,7 +311,7 @@ export function DeliveryNotePdfDocument({ deliveryNote }: { deliveryNote: SavedD
           <Text style={S.footerText}>
             {deliveryNote.number} — Bon de livraison pour {deliveryNote.invoiceNumber}
           </Text>
-          <Text style={S.footerText}>Document généré par FacturNow</Text>
+          <Text style={S.footerText}>{deliveryNote.user.invoiceFooter ?? "Document généré par FacturNow"}</Text>
         </View>
       </Page>
     </Document>

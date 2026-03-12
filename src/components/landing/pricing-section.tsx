@@ -28,7 +28,7 @@ export function PricingSection() {
     // FEATURES CLÉS
     { name: "Factures récurrentes",             free: false,      pro: true,          business: true },
     { name: "Relances automatiques (3 niveaux)",free: false,      pro: true,          business: true },
-    { name: "Apparence & templates métiers",    free: false,      pro: "9 templates", business: "9 templates" },
+    { name: "Apparence & templates métiers",    free: false,      pro: "5 templates", business: "5 templates" },
     { name: "Statistiques & export CSV",        free: false,      pro: true,          business: true },
 
     // COMPTABILITÉ & AVANCÉ
@@ -92,55 +92,47 @@ export function PricingSection() {
     return feature[planKeys[planIndex]]
   }
 
-  const renderFeatureIcon = (value: FeatureValue) => {
-    if (value === false) {
-      return (
-        <div className="flex items-center justify-center w-5 h-5 rounded-full bg-slate-100 shrink-0 mt-0.5">
-          <X className="w-3 h-3 text-slate-400" />
-        </div>
-      )
-    }
+  const renderFeatureRow = (feature: Feature, planIndex: number) => {
+    const value = getFeatureValue(feature, planIndex)
+    const isString = typeof value === "string"
+
+    const icon = value === false
+      ? <div className="flex items-center justify-center w-4 h-4 rounded-full bg-slate-100 shrink-0"><X className="w-2.5 h-2.5 text-slate-400" /></div>
+      : <div className="flex items-center justify-center w-4 h-4 rounded-full bg-emerald-100 shrink-0"><Check className="w-2.5 h-2.5 text-emerald-600" /></div>
+
     return (
-      <div className="flex items-center justify-center w-5 h-5 rounded-full bg-emerald-100 shrink-0 mt-0.5">
-        <Check className="w-3 h-3 text-emerald-600" />
+      <div key={feature.name} className="flex items-center gap-2 py-1.5 border-b border-slate-100/60 last:border-0">
+        {icon}
+        <span className={`text-sm flex-1 leading-tight ${value === false ? "text-slate-400" : "text-slate-700"}`}>
+          {feature.name}
+        </span>
+        {isString && (
+          <span className="text-sm font-semibold text-primary shrink-0">{value}</span>
+        )}
       </div>
     )
-  }
-
-  const renderFeatureText = (value: FeatureValue): string => {
-    if (value === false) return "Non inclus"
-    if (value === true) return "Inclus"
-    return value as string
   }
 
   return (
     <section id="pricing" className="w-full px-4 sm:px-[8%] xl:px-[12%] py-16 xl:py-20 bg-slate-50">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-16">
-          <h2 className="text-3xl xs:text-4xl md:text-5xl text-slate-900 mb-4">
+        <div className="text-center mb-14">
+          <h2 className="text-4xl md:text-5xl text-slate-900 mb-4">
             Tarifs <span className="text-gradient">transparents</span>
           </h2>
-          <p className="text-xl text-slate-600 max-w-2xl mx-auto mb-8">
+          <p className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto mb-4">
             Choisissez le plan qui correspond à vos besoins.
             Changez ou annulez à tout moment.
           </p>
 
           {/* E-invoicing notice */}
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 max-w-4xl mx-auto">
-            <div className="flex items-start space-x-3">
-              <div className="flex items-center justify-center w-6 h-6 rounded-full bg-amber-100 shrink-0 mt-0.5">
-                <span className="text-amber-600 text-sm font-bold">📋</span>
-              </div>
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 max-w-3xl mx-auto">
+            <div className="flex items-start gap-3">
+              <span className="text-base shrink-0 mt-0.5">📋</span>
               <div className="text-left">
-                <h3 className="font-semibold text-sm sm:text-base text-amber-800 mb-2">
-                  Facturation électronique obligatoire
-                </h3>
-                <div className="text-xs  text-amber-700 space-y-1">
-                  <p><strong>Entreprises B2B :</strong> Obligatoire septembre 2026 (inclus dans Business)</p>
-                  <p><strong>Freelances, auto-entrepreneurs et PME B2C :</strong> Obligatoire septembre 2027</p>
-                  
-                </div>
+                <p className="font-semibold text-xs sm:text-sm text-amber-800 mb-1">Facturation électronique obligatoire</p>
+                <p className="text-xs text-amber-700"><strong>B2B :</strong> Obligatoire sept. 2026 · <strong>Freelances & PME B2C :</strong> Obligatoire sept. 2027</p>
               </div>
             </div>
           </div>
@@ -153,62 +145,50 @@ export function PricingSection() {
             return (
               <div
                 key={planIndex}
-                className={`relative rounded-2xl mb-14 p-8 ${plan.bgColor} border-2 ${plan.borderColor} transition-all duration-300 hover:shadow-lg ${plan.popular ? "scale-105 shadow-xl ring-2 ring-primary/20" : ""}`}
+                className={`relative rounded-2xl mb-14 p-5 sm:p-6 ${plan.bgColor} border-2 ${plan.borderColor} transition-all duration-300 hover:shadow-lg ${plan.popular ? "scale-105 shadow-xl ring-2 ring-primary/20" : ""}`}
               >
                 {/* Popular badge */}
                 {plan.popular && (
                   <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                    <div className="bg-primary text-white px-4 py-2 rounded-full text-xs xs:text-sm font-semibold">
+                    <div className="bg-primary text-white px-4 py-1.5 rounded-full text-xs xs:text-sm font-semibold">
                       {plan.badge}
                     </div>
                   </div>
                 )}
 
                 {/* Plan header */}
-                <div className="text-center mb-8">
-                  <div className={`inline-flex items-center justify-center w-12 h-12 rounded-xl mb-4 ${plan.iconBg}`}>
-                    <IconComponent className={`w-6 h-6 ${plan.iconColor}`} />
+                <div className="text-center mb-5">
+                  <div className={`inline-flex items-center justify-center w-10 h-10 rounded-xl mb-3 ${plan.iconBg}`}>
+                    <IconComponent className={`w-5 h-5 ${plan.iconColor}`} />
                   </div>
 
-                  <h3 className="text-2xl golos-text text-slate-900 font-semibold mb-2">
+                  <h3 className="text-xl golos-text text-slate-900 font-semibold mb-1">
                     {plan.name}
                   </h3>
-                  <p className="text-sm text-slate-600 mb-6">
+                  <p className="text-xs text-slate-500 mb-4">
                     {plan.subtitle}
                   </p>
 
-                  <div className="mb-4">
-                    <span className={`text-4xl font-bold ${plan.popular ? "text-gradient" : "text-slate-900"}`}>
+                  <div className="mb-1">
+                    <span className={`text-3xl font-bold ${plan.popular ? "text-gradient" : "text-slate-900"}`}>
                       {plan.price}€
                     </span>
-                    <span className="text-slate-600 ml-1">
+                    <span className="text-slate-500 text-sm ml-1">
                       {plan.period}
                     </span>
                   </div>
+                  {plan.price !== "0" && (
+                    <p className="text-xs text-slate-400">TTC · -20% annuel</p>
+                  )}
 
-                  <p className="text-sm text-slate-600">
+                  <p className="text-xs text-slate-500 mt-2">
                     {plan.description}
                   </p>
                 </div>
 
                 {/* Features */}
-                <div className="space-y-3 mb-8">
-                  {allFeatures.map((feature, featureIndex) => {
-                    const value = getFeatureValue(feature, planIndex)
-                    return (
-                      <div key={featureIndex} className="flex items-start space-x-3">
-                        {renderFeatureIcon(value)}
-                        <div className="flex-1">
-                          <span className="text-sm text-slate-700 golos-text font-medium">
-                            {feature.name}
-                          </span>
-                          <div className="text-xs text-slate-500 mt-0.5 golos-text">
-                            {renderFeatureText(value)}
-                          </div>
-                        </div>
-                      </div>
-                    )
-                  })}
+                <div className="mb-5">
+                  {allFeatures.map((feature) => renderFeatureRow(feature, planIndex))}
                 </div>
 
                 {/* CTA */}
@@ -216,13 +196,13 @@ export function PricingSection() {
                   <Button
                     variant="gradient"
                     size="lg"
-                    className="w-full h-12 px-8 text-base transition-all hover:scale-105 duration-300 cursor-pointer"
+                    className="w-full h-10 px-6 text-sm transition-all hover:scale-105 duration-300 cursor-pointer"
                   >
                     {plan.cta}
                   </Button>
                 ) : (
                   <button
-                    className={`w-full py-3 px-6 rounded-xl font-semibold transition-all duration-300 cursor-pointer hover:scale-105 ${
+                    className={`w-full py-2.5 px-5 rounded-xl text-sm font-semibold transition-all duration-300 cursor-pointer hover:scale-105 ${
                       planIndex === 0
                         ? "border-2 border-slate-400 text-slate-700 hover:bg-slate-100 hover:border-slate-500"
                         : "border-2 border-amber-400 text-amber-700 hover:bg-amber-50 hover:border-amber-500"
@@ -242,7 +222,7 @@ export function PricingSection() {
             🔒 Paiement sécurisé · Support français · 💯 Satisfait ou remboursé 30 jours
           </p>
           <p className="text-sm text-slate-500">
-            Tous les prix sont HT · TVA applicable selon votre localisation · -20% en facturation annuelle
+            Tous les prix sont TTC · TVA 20% incluse · -20% en facturation annuelle
           </p>
         </div>
       </div>

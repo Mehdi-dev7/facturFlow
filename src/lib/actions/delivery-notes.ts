@@ -49,6 +49,7 @@ const deliveryNoteInclude = {
       companyPhone: true,
       themeColor: true,
       companyFont: true,
+      invoiceFooter: true,
       companyLogo: true,
     },
   },

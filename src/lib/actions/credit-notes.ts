@@ -51,6 +51,7 @@ const creditNoteInclude = {
       companyPhone: true,
       themeColor: true,
       companyFont: true,
+      invoiceFooter: true,
       companyLogo: true,
       iban: true,
       bic: true,

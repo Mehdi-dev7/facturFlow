@@ -35,10 +35,11 @@ export default async function AppearancePage() {
       >
         <AppearancePageContent
           initial={{
-            themeColor:  settings.themeColor,
-            companyFont: settings.companyFont,
-            companyName: settings.companyName,
-            companyLogo: settings.companyLogo,
+            themeColor:    settings.themeColor,
+            companyFont:   settings.companyFont,
+            companyName:   settings.companyName,
+            companyLogo:   settings.companyLogo,
+            invoiceFooter: settings.invoiceFooter,
           }}
         />
       </FeatureGate>

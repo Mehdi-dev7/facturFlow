@@ -69,6 +69,7 @@ export interface SavedInvoice {
     // Informations bancaires pour le bloc virement
     iban: string | null;
     bic: string | null;
+    invoiceFooter: string | null;
   };
 }
 
@@ -258,6 +259,7 @@ type PrismaDocumentWithRelations = {
     companyLogo: string | null;
     iban: string | null;
     bic: string | null;
+    invoiceFooter: string | null;
   };
 };
 
@@ -335,6 +337,7 @@ const documentInclude = {
       // Informations bancaires pour affichage sur les factures
       iban: true,
       bic: true,
+      invoiceFooter: true,
     },
   },
 } as const;

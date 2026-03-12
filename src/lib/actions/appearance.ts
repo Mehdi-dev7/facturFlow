@@ -12,6 +12,7 @@ export interface AppearanceData {
   companyFont: string;
   companyName: string;
   companyLogo: string | null;
+  invoiceFooter: string;
 }
 
 // ─── Sauvegarder les réglages d'apparence ────────────────────────────────────
@@ -28,6 +29,7 @@ export async function saveAppearance(data: AppearanceData) {
         companyFont: data.companyFont,
         companyName: data.companyName,
         companyLogo: data.companyLogo,
+        invoiceFooter: data.invoiceFooter || null,
       },
     });
 
@@ -51,6 +53,7 @@ export async function getAppearanceSettings() {
       companyFont: true,
       companyName: true,
       companyLogo: true,
+      invoiceFooter: true,
     },
   });
 }

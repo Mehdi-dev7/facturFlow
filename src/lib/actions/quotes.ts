@@ -64,6 +64,7 @@ export interface SavedQuote {
 		themeColor: string | null;
 		companyFont: string | null;
 		companyLogo: string | null;
+		invoiceFooter: string | null;
 	};
 }
 
@@ -95,6 +96,7 @@ const quoteInclude = {
 			themeColor: true,
 			companyFont: true,
 			companyLogo: true,
+			invoiceFooter: true,
 		},
 	},
 } as const;

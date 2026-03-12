@@ -531,7 +531,11 @@ export default function InvoicePdfDocument({
         )}
 
         {/* ── Footer ── */}
-        <Text style={S.footer}>Document généré par FacturNow</Text>
+        <Text style={S.footer}>
+          {invoice.user.invoiceFooter
+            ? invoice.user.invoiceFooter
+            : "Document généré par FacturNow"}
+        </Text>
       </Page>
     </Document>
   );

@@ -38,6 +38,7 @@ import {
 	DialogFooter,
 } from "@/components/ui/dialog";
 import { ClientSearch } from "@/components/factures/client-search";
+import { ProductCombobox } from "@/components/shared/product-combobox";
 import { CompanyInfoModal } from "@/components/factures/company-info-modal";
 import {
 	VAT_RATES,
@@ -509,12 +510,16 @@ export function QuoteForm({
 														name={`lines.${index}.description`}
 														control={control}
 														render={({ field: f }) => (
-															<Input
-																placeholder={typeConfig.descriptionLabel}
+															<ProductCombobox
 																value={f.value ?? ""}
-																onChange={(e) => f.onChange(e.target.value)}
-																onBlur={f.onBlur}
-																ref={f.ref}
+																onChange={f.onChange}
+																onProductSelect={({ description, unitPrice }) => {
+																	f.onChange(description);
+																	setValue(`lines.${index}.unitPrice`, unitPrice, {
+																		shouldValidate: false,
+																	});
+																}}
+																placeholder={typeConfig.descriptionLabel}
 																className={inputClass}
 																aria-invalid={!!lineErrors?.description}
 															/>

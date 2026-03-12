@@ -24,6 +24,7 @@ import {
 import { SiStripe, SiPaypal } from "react-icons/si";
 import { toast } from "sonner";
 import { ClientSearch } from "@/components/factures/client-search";
+import { ProductCombobox } from "@/components/shared/product-combobox";
 import { CompanyInfoModal } from "@/components/factures/company-info-modal";
 import type { CompanyInfo } from "@/lib/validations/invoice";
 
@@ -292,9 +293,14 @@ export function DepositForm({
 										name="description"
 										control={control}
 										render={({ field }) => (
-											<Input
-												id="description"
-												{...field}
+											<ProductCombobox
+												value={field.value ?? ""}
+												onChange={field.onChange}
+												onProductSelect={({ description, unitPrice }) => {
+													field.onChange(description);
+													// Préremplir le montant HT si le produit en a un
+													if (unitPrice > 0) setValue("amount", unitPrice, { shouldValidate: false });
+												}}
 												placeholder="Acompte 30% - Projet X"
 												className={inputClass}
 											/>
