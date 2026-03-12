@@ -324,6 +324,7 @@ export function PaymentsPageContent({
 
         {/* ── STRIPE ───────────────────────────────────────────────────── */}
         <FeatureGate feature="payment_stripe" plan={plan} effectivePlan={effectivePlan}>
+        <div className="space-y-2">
         <ProviderCard
           accent="#635BFF"
           logo={<SiStripe className="h-4 w-4 xl:h-5 xl:w-5 text-[#635BFF]" />}
@@ -362,6 +363,17 @@ export function PaymentsPageContent({
             {stripeLoading ? "Vérification..." : "Connecter"}
           </button>
         </ProviderCard>
+
+        {/* Lien tuto — visible uniquement si Stripe non connecté */}
+        {!stripeConnected && (
+          <Link
+            href="/dashboard/tutorials/stripe"
+            className="block text-center text-xs text-[#635BFF] dark:text-[#7B73FF] hover:underline"
+          >
+            Pas encore de compte ? Créez-en un en 5 min →
+          </Link>
+        )}
+        </div>
         </FeatureGate>
 
         {/* ── PAYPAL ───────────────────────────────────────────────────── */}
@@ -442,6 +454,7 @@ export function PaymentsPageContent({
 
         {/* ── GOCARDLESS ───────────────────────────────────────────────── */}
         <FeatureGate feature="payment_gocardless" plan={plan} effectivePlan={effectivePlan}>
+        <div className="space-y-2">
         <ProviderCard
           accent="#00A27B"
           logo={<GoCardlessLogo size={16} />}
@@ -482,6 +495,16 @@ export function PaymentsPageContent({
             {gcLoading ? "Sauvegarde..." : "Connecter"}
           </button>
         </ProviderCard>
+
+        {!gcConnected && (
+          <Link
+            href="/dashboard/tutorials/gocardless"
+            className="block text-center text-xs text-[#00A27B] dark:text-[#00C49A] hover:underline"
+          >
+            Pas encore de compte ? Créez-en un en 5 min →
+          </Link>
+        )}
+        </div>
         </FeatureGate>
 
       </div>

@@ -16,6 +16,14 @@ export function Navbar() {
 
   const close = useCallback(() => setIsOpen(false), [])
 
+  const scrollTo = useCallback((e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault()
+    close()
+    const id = href.replace("#", "")
+    const el = document.getElementById(id)
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" })
+  }, [close])
+
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : ""
     return () => { document.body.style.overflow = "" }
@@ -42,6 +50,7 @@ export function Navbar() {
                 <Link
                   key={link.href}
                   href={link.href}
+                  onClick={(e) => scrollTo(e, link.href)}
                   className="relative kanit text-xl text-secondary hover:text-primary transition-colors font-heading group"
                 >
                   {link.label}
@@ -99,7 +108,7 @@ export function Navbar() {
             <Link
               key={link.href}
               href={link.href}
-              onClick={close}
+              onClick={(e) => scrollTo(e, link.href)}
               className={`kanit text-2xl text-secondary hover:text-primary transition-all duration-300 font-heading ${
                 isOpen ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
               }`}

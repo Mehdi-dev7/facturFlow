@@ -114,7 +114,7 @@ export function PricingSection() {
   }
 
   return (
-    <section className="w-full px-4 sm:px-[8%] xl:px-[12%] py-16 xl:py-20 bg-slate-50">
+    <section id="pricing" className="w-full px-4 sm:px-[8%] xl:px-[12%] py-16 xl:py-20 bg-slate-50">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-16">
@@ -139,9 +139,7 @@ export function PricingSection() {
                 <div className="text-sm text-amber-700 space-y-1">
                   <p><strong>Entreprises B2B :</strong> Obligatoire septembre 2026 (inclus dans Business)</p>
                   <p><strong>Freelances, auto-entrepreneurs et PME B2C :</strong> Obligatoire septembre 2027</p>
-                  <p className="text-xs mt-2 text-amber-600">
-                    Mise à jour prévue pour le plan Pro en juin 2027
-                  </p>
+                  
                 </div>
               </div>
             </div>

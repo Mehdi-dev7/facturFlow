@@ -135,7 +135,7 @@ export function OnboardingTutorial({ initialCompleted }: Props) {
 
   const cardClassName = isMobile
     ? "fixed bottom-4 left-4 right-4 z-50 pointer-events-auto"
-    : "fixed z-50 pointer-events-auto"
+    : "fixed z-50 pointer-events-auto w-96 lg:w-112 "
 
   // ─ Render ─────────────────────────────────────────────────────────────────────
 
@@ -205,7 +205,7 @@ export function OnboardingTutorial({ initialCompleted }: Props) {
           </div>
 
           {/* Corps de la carte */}
-          <div className="px-5 py-5">
+          <div className="px-3 sm:px-5 py-5">
             <AnimatePresence mode="wait">
               {showFinal ? (
                 // ─ Message final ───────────────────────────────────────────────
@@ -283,7 +283,7 @@ export function OnboardingTutorial({ initialCompleted }: Props) {
           </div>
 
           {/* Footer — actions */}
-          <div className="px-5 pb-5 flex items-center justify-between gap-3">
+          <div className="px-5 pb-5 flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-2">
             {showFinal ? (
               <>
                 <span />
@@ -328,7 +328,7 @@ export function OnboardingTutorial({ initialCompleted }: Props) {
                   <Button
                     size="sm"
                     onClick={handleMobileNavigate}
-                    className="bg-linear-to-r from-violet-600 to-indigo-600 text-white hover:opacity-90 cursor-pointer gap-1.5"
+                    className="w-full sm:w-auto bg-linear-to-r from-violet-600 to-indigo-600 text-white hover:opacity-90 cursor-pointer gap-1.5"
                   >
                     Aller à {step.title}
                     <ArrowRight className="h-4 w-4" />

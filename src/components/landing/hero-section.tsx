@@ -1,15 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import {
-	CheckCircle2,
-	ArrowRight,
-	FileText,
-	CreditCard,
-	TrendingUp,
-	Zap,
-} from "lucide-react";
+import { CheckCircle2, ArrowRight } from "lucide-react";
 
 export function HeroSection() {
 	return (
@@ -106,118 +100,41 @@ export function HeroSection() {
 
 						{/* Sous-texte */}
 						<p className="text-sm text-slate-500">
-							Sans carte bancaire • Essai gratuit 14 jours • Annulation à tout
+							Sans carte bancaire • Essai gratuit de 7 jours • Annulation à tout
 							moment
 						</p>
 					</div>
 
-					{/* Mockup/Illustration droite */}
-					<div className="relative lg:block hidden">
-						<div className="relative">
-							{/* Carte principale - Dashboard */}
-							<div className="bg-white rounded-2xl shadow-2xl border border-slate-200 p-6 space-y-4">
-								<div className="flex items-center justify-between">
-									<h3 className="text-lg font-bold font-heading text-slate-900">
-										Tableau de bord
-									</h3>
-									<div className="flex items-center space-x-2">
-										<div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-										<span className="text-xs text-slate-500 font-ui">
-											En direct
-										</span>
-									</div>
-								</div>
-
-								{/* Stats */}
-								<div className="grid grid-cols-3 gap-4">
-									<div
-										className="p-4 rounded-xl"
-										style={{
-											background:
-												"linear-gradient(to bottom right, rgba(79, 70, 229, 0.1), rgba(99, 102, 241, 0.1))",
-										}}
-									>
-										<FileText
-											className="h-6 w-6 mb-2"
-											style={{ color: "rgb(79, 70, 229)" }}
-										/>
-										<p className="text-2xl font-bold font-heading text-slate-900">
-											24
-										</p>
-										<p className="text-xs text-slate-600 font-ui">Factures</p>
-									</div>
-									<div
-										className="p-4 rounded-xl"
-										style={{
-											background:
-												"linear-gradient(to bottom right, rgb(240, 253, 244), rgb(209, 250, 229))",
-										}}
-									>
-										<TrendingUp className="h-6 w-6 text-green-600 mb-2" />
-										<p className="text-2xl font-bold font-heading text-slate-900">
-											18
-										</p>
-										<p className="text-xs text-slate-600 font-ui">Payées</p>
-									</div>
-									<div
-										className="p-4 rounded-xl"
-										style={{
-											background:
-												"linear-gradient(to bottom right, rgb(255, 247, 237), rgb(254, 243, 199))",
-										}}
-									>
-										<CreditCard className="h-6 w-6 text-orange-600 mb-2" />
-										<p className="text-2xl font-bold font-heading text-slate-900">
-											6
-										</p>
-										<p className="text-xs text-slate-600 font-ui">En attente</p>
-									</div>
-								</div>
-
-								{/* Facture récente */}
-								<div className="border border-slate-200 rounded-lg p-4 space-y-2">
-									<div className="flex items-center justify-between">
-										<span className="text-sm font-semibold text-slate-900 font-ui">
-											Facture #INV-2025-042
-										</span>
-										<span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full font-ui">
-											Payée
-										</span>
-									</div>
-									<p className="text-xs text-slate-500">
-										Client: Entreprise ABC
-									</p>
-									<p className="text-lg font-bold text-slate-900 font-heading">
-										2 450,00 €
-									</p>
-								</div>
+					{/* Screenshot dashboard réel */}
+				<div className="relative lg:block hidden">
+					<div className="relative rounded-2xl overflow-hidden shadow-2xl border border-slate-200/80 ring-1 ring-black/5">
+						{/* Barre navigateur factice */}
+						<div className="bg-slate-100 border-b border-slate-200 px-4 py-2.5 flex items-center gap-2">
+							<div className="flex gap-1.5">
+								<div className="h-3 w-3 rounded-full bg-red-400" />
+								<div className="h-3 w-3 rounded-full bg-amber-400" />
+								<div className="h-3 w-3 rounded-full bg-green-400" />
 							</div>
-
-							{/* Flèche + Badge "Paiement sécurisé" */}
-							<div className="absolute -right-8 top-1/2 -translate-y-1/2">
-								<div className="relative">
-									<div
-										className="text-white px-4 py-2 rounded-lg shadow-lg font-ui font-semibold text-sm whitespace-nowrap animate-bounce"
-										style={{ backgroundColor: "rgb(6, 182, 212)" }}
-									>
-										💳 Paiement sécurisé
-									</div>
-								</div>
-							</div>
-
-							{/* Icône Zap en haut à gauche */}
-							<div
-								className="absolute -left-6 -top-6 p-3 rounded-full shadow-lg animate-pulse"
-								style={{
-									background:
-										"linear-gradient(to bottom right, rgb(250, 204, 21), rgb(249, 115, 22))",
-								}}
-							>
-								<Zap className="h-6 w-6 text-white" />
+							<div className="flex-1 mx-4 bg-white rounded-md px-3 py-1 text-[11px] text-slate-400 border border-slate-200">
+								app.facturnow.fr/dashboard
 							</div>
 						</div>
+						<Image
+							src="/screenshots/dashboard.png"
+							alt="Dashboard FacturNow"
+							width={720}
+							height={480}
+							className="w-full h-auto object-cover object-top"
+							priority
+						/>
+					</div>
+					{/* Badge flottant */}
+					<div className="absolute -bottom-4 -right-4 bg-white rounded-xl shadow-lg border border-slate-200 px-4 py-2.5 flex items-center gap-2">
+						<div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+						<span className="text-xs font-semibold text-slate-700">Paiement reçu ✓</span>
 					</div>
 				</div>
+				</div>{/* end grid */}
 			</div>
 		</section>
 	);

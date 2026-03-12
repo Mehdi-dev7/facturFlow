@@ -89,10 +89,10 @@ const STEPS: TutorialStep[] = [
 		title: "Accéder aux Webhooks",
 		description:
 			'Tout en bas du menu latéral gauche, cliquez sur "Développeurs". Un sous-menu s\'ouvre : cliquez sur "Webhooks" pour accéder à la page de gestion des webhooks.',
-		image: "/tutos/stripe/step-05.webp",
+		image: "/tutos/stripe/step-05b.webp",
 		annotations: [
-			{ type: "rect", x: 8, y: 17, w: 30, h: 5, color: "#16a34a" },
-			{ type: "mask", x: 63, y: 97, w: 35, h: 4, bg: "#1e293b" },
+			{ type: "rect", x: 0, y: 15, w: 11, h: 7, color: "#16a34a" },
+			
 			
 		],
 	},

@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { Plus, Minus, ChevronDown, ChevronUp } from "lucide-react"
+import { useState, useCallback } from "react"
+import { Plus, Minus, ChevronDown, ChevronUp, ArrowUp } from "lucide-react"
 import { Button } from "../ui/button"
 
 export function FaqSection() {
@@ -69,10 +69,12 @@ export function FaqSection() {
     )
   }
 
+  const scrollTop = useCallback(() => window.scrollTo({ top: 0, behavior: "smooth" }), [])
+
   const visibleFaqs = showAll ? faqs : faqs.slice(0, 5)
 
   return (
-    <section className="w-full px-4 sm:px-[8%] xl:px-[12%] py-16 xl:py-20">
+    <section id="faq" className="w-full px-4 sm:px-[8%] xl:px-[12%] py-16 xl:py-20">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-16">
@@ -159,6 +161,19 @@ export function FaqSection() {
             </Button>
            
           </div>
+        </div>
+
+        {/* Retour en haut */}
+        <div className="flex justify-center mt-12">
+          <button
+            onClick={scrollTop}
+            className="group flex items-center gap-2 text-sm text-slate-400 hover:text-primary transition-colors duration-300 cursor-pointer"
+          >
+            <span>Retour en haut</span>
+            <div className="flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 group-hover:border-primary group-hover:bg-primary/5 transition-all duration-300">
+              <ArrowUp className="h-3.5 w-3.5 group-hover:-translate-y-0.5 transition-transform duration-300" />
+            </div>
+          </button>
         </div>
       </div>
     </section>

@@ -19,9 +19,15 @@ self.addEventListener("activate", (event) => {
 // Fetch : stratégie "network first" — toujours chercher sur le réseau
 // En cas d'offline, on laisse le navigateur gérer (pas de fallback offline ici)
 self.addEventListener("fetch", (event) => {
-  // Ne pas intercepter les requêtes non-GET ni les API calls
+  // Ne pas intercepter les requêtes non-GET, les API calls ni les navigations de page
+  // (données financières = toujours fraîches, pas de cache sur les pages)
   if (event.request.method !== "GET") return
   if (event.request.url.includes("/api/")) return
+  if (event.request.mode === "navigate") return
 
-  event.respondWith(fetch(event.request).catch(() => caches.match(event.request)))
+  event.respondWith(
+    fetch(event.request).catch(() =>
+      caches.match(event.request).then((cached) => cached ?? new Response("Offline", { status: 503 }))
+    )
+  )
 })
