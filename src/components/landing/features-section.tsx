@@ -1,5 +1,5 @@
 // Server Component — pas de hooks React ni event handlers
-import { Bell, PieChart, Palette, FileStack, Zap, CreditCard, CheckCircle2, Send } from "lucide-react"
+import { Bell, PieChart, Palette, FileStack, Zap, CreditCard, CheckCircle2, Send, Workflow, ArrowRight } from "lucide-react"
 
 // ─── Petites feature cards ─────────────────────────────────────────────────────
 
@@ -395,6 +395,44 @@ export function FeaturesSection() {
               </div>
             )
           })}
+
+          {/* Carte Automatisations — col-span-2 */}
+          <div className="lg:col-span-2 rounded-2xl border border-orange-200 bg-linear-to-br from-orange-50 to-white shadow-sm p-6 hover:shadow-md hover:border-orange-300 transition-all duration-300">
+            <div className="flex items-start gap-4">
+              <div className="inline-flex p-2.5 rounded-xl bg-orange-500 shrink-0">
+                <Workflow className="h-5 w-5 text-white" strokeWidth={2} />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-base font-bold text-slate-900 mb-1">Automatisations intelligentes</h3>
+                <p className="text-sm text-slate-500 mb-4">
+                  FacturNow travaille pour vous — les tâches répétitives sont déclenchées automatiquement.
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="flex items-start gap-2.5 p-3 rounded-xl bg-white border border-orange-100 shadow-sm">
+                    <ArrowRight className="h-4 w-4 text-orange-500 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-xs font-semibold text-slate-800">Devis accepté</p>
+                      <p className="text-xs text-slate-500 mt-0.5">Acompte envoyé automatiquement au client dès l&apos;acceptation</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2.5 p-3 rounded-xl bg-white border border-orange-100 shadow-sm">
+                    <ArrowRight className="h-4 w-4 text-orange-500 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-xs font-semibold text-slate-800">Devis → Facture</p>
+                      <p className="text-xs text-slate-500 mt-0.5">Convertissez un devis en facture définitive en 1 clic</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2.5 p-3 rounded-xl bg-white border border-orange-100 shadow-sm">
+                    <ArrowRight className="h-4 w-4 text-orange-500 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-xs font-semibold text-slate-800">API & Webhooks</p>
+                      <p className="text-xs text-slate-500 mt-0.5">Connectez n8n, Zapier ou votre CRM via nos webhooks temps réel</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
       </div>

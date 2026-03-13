@@ -120,20 +120,18 @@ export default function LoginContent() {
 					<div className="space-y-3">
 						<Button
 							variant="outline"
-							className="w-full h-12 border-slate-300 hover:border-primary hover:bg-slate-50 transition-all shadow-sm cursor-pointer"
+							className="group w-full h-12 border-slate-300 hover:border-primary hover:bg-slate-50 transition-all shadow-sm cursor-pointer"
 							onClick={() => handleOAuthSignIn("google")}
-							onMouseEnter={() => googleRef.current?.playFromBeginning()}
 						>
-							<Player ref={googleRef} icon={GOOGLE_ICON} size={28} />
+							<GoogleIcon />
 							<span className="ml-3">Continuer avec Google</span>
 						</Button>
 						<Button
 							variant="outline"
-							className="w-full h-12 border-slate-300 hover:border-primary hover:bg-slate-50 transition-all shadow-sm cursor-pointer"
+							className="group w-full h-12 border-slate-300 hover:border-primary hover:bg-slate-50 transition-all shadow-sm cursor-pointer"
 							onClick={() => handleOAuthSignIn("github")}
-							onMouseEnter={() => githubRef.current?.playFromBeginning()}
 						>
-							<Player ref={githubRef} icon={GITHUB_ICON} size={28} />
+							<GitHubIcon />
 							<span className="ml-3">Continuer avec GitHub</span>
 						</Button>
 						<Button
