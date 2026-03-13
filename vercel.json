@@ -4,5 +4,13 @@
       "path": "/api/cron/nightly",
       "schedule": "0 1 * * *"
     }
+  ],
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "www.facturnow.fr" }],
+      "destination": "https://facturnow.fr/:path*",
+      "permanent": true
+    }
   ]
 }
