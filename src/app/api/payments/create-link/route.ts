@@ -10,12 +10,19 @@ import { decrypt } from "@/lib/encrypt";
 import { getStripeClient } from "@/lib/stripe";
 import { getPaypalAccessToken, createPaypalOrder } from "@/lib/paypal";
 import type { StripeCredential, PaypalCredential } from "@/lib/actions/payments";
+import { paymentRateLimit } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 
 // ─── POST /api/payments/create-link ──────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
+  // Rate limiting : 20 req/min par IP (anti-abus)
+  const { limited } = paymentRateLimit(req);
+  if (limited) {
+    return NextResponse.json({ error: "Trop de requêtes" }, { status: 429 });
+  }
+
   // Auth
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) {

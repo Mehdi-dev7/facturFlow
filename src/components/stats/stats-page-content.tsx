@@ -22,8 +22,19 @@ import {
 import { Button } from "@/components/ui/button";
 import { KpiCard } from "@/components/dashboard";
 import type { KpiData } from "@/components/dashboard";
-import { StatsBarChart } from "@/components/stats/stats-bar-chart";
-import { StatsDonutChart } from "@/components/stats/stats-donut-chart";
+// Lazy load des composants recharts — évite d'inclure recharts dans le bundle initial
+import dynamic from "next/dynamic";
+
+const StatsBarChart = dynamic(
+  () => import("@/components/stats/stats-bar-chart").then((m) => ({ default: m.StatsBarChart })),
+  { ssr: false, loading: () => <div className="h-[220px] animate-pulse rounded-xl bg-slate-100 dark:bg-violet-950/30" /> }
+);
+
+const StatsDonutChart = dynamic(
+  () => import("@/components/stats/stats-donut-chart").then((m) => ({ default: m.StatsDonutChart })),
+  { ssr: false, loading: () => <div className="h-[220px] animate-pulse rounded-xl bg-slate-100 dark:bg-violet-950/30" /> }
+);
+
 import { StatsTopClients } from "@/components/stats/stats-top-clients";
 import { StatsMonthlyTable } from "@/components/stats/stats-monthly-table";
 import { FeatureGate } from "@/components/subscription/feature-gate";

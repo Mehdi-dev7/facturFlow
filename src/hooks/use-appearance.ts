@@ -2,27 +2,24 @@
 
 // Hook qui charge les réglages d'apparence (themeColor + companyFont) depuis la DB
 // Les polices sont pré-chargées via @font-face dans globals.css
+// Utilise TanStack Query pour mettre en cache les données (évite un fetch à chaque montage)
 
-import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { getAppearanceSettings } from "@/lib/actions/appearance";
 import { DEFAULT_THEME, DEFAULT_FONT } from "@/components/appearance/theme-config";
 
 export function useAppearance() {
-  const [themeColor, setThemeColor] = useState(DEFAULT_THEME.primary);
-  const [companyFont, setCompanyFont] = useState(DEFAULT_FONT.id);
-  const [companyLogo, setCompanyLogo] = useState<string | null>(null);
-  const [companyName, setCompanyName] = useState<string>("");
+  const { data } = useQuery({
+    queryKey: ["appearance"],
+    queryFn: () => getAppearanceSettings(),
+    // Les paramètres d'apparence changent rarement — cache 10 minutes
+    staleTime: 10 * 60 * 1000,
+  });
 
-  useEffect(() => {
-    getAppearanceSettings().then((settings) => {
-      if (!settings) return;
-
-      if (settings.themeColor) setThemeColor(settings.themeColor);
-      if (settings.companyFont) setCompanyFont(settings.companyFont);
-      if (settings.companyLogo) setCompanyLogo(settings.companyLogo);
-      if (settings.companyName) setCompanyName(settings.companyName);
-    });
-  }, []);
-
-  return { themeColor, companyFont, companyLogo, companyName };
+  return {
+    themeColor:  data?.themeColor  ?? DEFAULT_THEME.primary,
+    companyFont: data?.companyFont ?? DEFAULT_FONT.id,
+    companyLogo: data?.companyLogo ?? null,
+    companyName: data?.companyName ?? "",
+  };
 }

@@ -2,8 +2,9 @@ import { Metadata } from "next";
 import { Zap, Mail, Clock } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Bientôt disponible | FacturNow",
+  title: "Bientôt disponible",
   description: "La facturation intelligente, bientôt disponible.",
+  robots: { index: false, follow: false },
 };
 
 export default function ComingSoonPage() {

@@ -11,6 +11,8 @@ import { Shield, LayoutDashboard, MessageSquare } from "lucide-react";
 
 export const metadata = {
   title: "Admin — FacturNow",
+  // Backoffice admin — jamais indexé
+  robots: { index: false, follow: false },
 };
 
 export default async function AdminLayout({

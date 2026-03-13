@@ -3,24 +3,34 @@
 // Usage conversion  : GET /api/test-einvoice?number=FAC-2026-0019
 // Usage envoi Peppol: GET /api/test-einvoice?send=true
 //   → Récupère une facture test sandbox SuperPDP et l'envoie directement
+//
+// SÉCURITÉ : protégée par le même CRON_SECRET que les routes cron.
+// Accessible uniquement en développement ou avec le header Authorization.
 
+import { NextRequest } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { testEInvoiceConversion } from "@/lib/actions/send-einvoice"
 import { getTestInvoice, sendInvoiceXml, convertInvoiceToXml } from "@/lib/superpdp"
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
+  // ── Protection : dev uniquement OU clé secrète ────────────────────────────
+  const isDev = process.env.NODE_ENV === "development"
+  const authHeader = request.headers.get("authorization")
+  const validSecret = process.env.CRON_SECRET && authHeader === `Bearer ${process.env.CRON_SECRET}`
+
+  if (!isDev && !validSecret) {
+    return Response.json({ error: "Route de test non disponible en production sans autorisation" }, { status: 403 })
+  }
+
   const { searchParams } = new URL(request.url)
   const id     = searchParams.get("id")
   const number = searchParams.get("number")
   const send   = searchParams.get("send") === "true"
 
   // ─ Mode envoi sandbox : utilise generate_test_invoice de SuperPDP ─
-  // Bypasse notre buildEN16931, utilise directement la facture test sandbox
-  // (seller = entreprise sandbox 000000002, buyer = acheteur sandbox aléatoire)
   if (send) {
     try {
       const testInvoice = await getTestInvoice()
-      // getTestInvoice retourne un objet EN16931 → on convertit puis envoie
       const xml = await convertInvoiceToXml(testInvoice)
       const result = await sendInvoiceXml(xml)
       return Response.json({ success: true, superpdp_id: result.id, events: result.events })

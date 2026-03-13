@@ -14,10 +14,18 @@ import {
 } from "@/components/dashboard";
 import type { KpiData, Column } from "@/components/dashboard";
 import type { QuoteStatus } from "@/components/dashboard/status-badge";
-import { DeleteConfirmModal } from "@/components/shared/delete-confirm-modal";
+import dynamic from "next/dynamic";
+// Lazy load des modals — chargées seulement quand l'utilisateur clique
+const DeleteConfirmModal = dynamic(
+  () => import("@/components/shared/delete-confirm-modal").then((m) => ({ default: m.DeleteConfirmModal })),
+  { ssr: false }
+);
+const QuotePreviewModal = dynamic(
+  () => import("@/components/devis/quote-preview-modal").then((m) => ({ default: m.QuotePreviewModal })),
+  { ssr: false }
+);
 import { useQuotes, useDeleteQuote, type SavedQuote } from "@/hooks/use-quotes";
 import { StatusDropdownQuote } from "@/components/dashboard/status-dropdown-quote";
-import { QuotePreviewModal } from "@/components/devis/quote-preview-modal";
 
 // ─── Types & helpers ──────────────────────────────────────────────────────────
 

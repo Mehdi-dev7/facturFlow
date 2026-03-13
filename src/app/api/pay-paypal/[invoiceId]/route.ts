@@ -17,6 +17,7 @@ import {
   capturePaypalOrder,
 } from "@/lib/paypal";
 import type { PaypalCredential } from "@/lib/actions/payments";
+import { paymentRateLimit } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 
@@ -24,6 +25,12 @@ export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ invoiceId: string }> },
 ) {
+  // Rate limiting : 20 req/min par IP
+  const { limited } = paymentRateLimit(req);
+  if (limited) {
+    return NextResponse.json({ error: "Trop de requêtes" }, { status: 429 });
+  }
+
   const { invoiceId } = await params;
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://facturnow.fr";
   const { searchParams } = new URL(req.url);

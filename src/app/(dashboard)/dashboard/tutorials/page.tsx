@@ -27,9 +27,9 @@ const tutorialCategories = [
 		color: "text-accent",
 		bgColor: "bg-accent/10",
 		tutorials: [
-			{ title: "Créer votre première facture", duration: "2 min", href: null },
-			{ title: "Envoyer un devis et le convertir en facture", duration: "3 min", href: null },
-			{ title: "Gérer les factures récurrentes", duration: "4 min", href: null },
+			{ title: "Créer votre première facture", duration: "2 min", href: "/dashboard/tutorials/invoice" },
+			{ title: "Envoyer un devis et le convertir en facture", duration: "3 min", href: "/dashboard/tutorials/quote-to-invoice" },
+			{ title: "Gérer les factures récurrentes", duration: "4 min", href: "/dashboard/tutorials/recurring" },
 		],
 	},
 	{
@@ -38,8 +38,8 @@ const tutorialCategories = [
 		color: "text-tertiary",
 		bgColor: "bg-tertiary/10",
 		tutorials: [
-			{ title: "Personnaliser l'apparence de vos documents", duration: "2 min", href: null },
-			{ title: "Ajouter votre logo et vos couleurs", duration: "2 min", href: null },
+			{ title: "Personnaliser l'apparence de vos documents", duration: "2 min", href: "/dashboard/tutorials/appearance" },
+			{ title: "Ajouter votre logo et vos couleurs", duration: "2 min", href: "/dashboard/tutorials/logo" },
 		],
 	},
 ];

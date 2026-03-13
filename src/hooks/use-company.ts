@@ -15,7 +15,7 @@ export function useCompanyInfo() {
       if (!result.success) throw new Error(result.error);
       return result.data;
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 15 * 60 * 1000, // 15 minutes — les infos company changent rarement
   });
 }
 

@@ -25,7 +25,7 @@ export function useClients(filters?: { search?: string }) {
       if (!result.success) throw new Error(result.error);
       return result.data as SavedClient[];
     },
-    staleTime: 30_000,
+    staleTime: 2 * 60 * 1000, // 2 minutes — les clients ne changent pas souvent
   });
 }
 
@@ -40,7 +40,7 @@ export function useClient(id: string | null) {
       return result.data;
     },
     enabled: !!id,
-    staleTime: 30_000,
+    staleTime: 2 * 60 * 1000, // 2 minutes — les clients ne changent pas souvent
   });
 }
 

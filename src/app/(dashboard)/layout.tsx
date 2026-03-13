@@ -1,8 +1,20 @@
 // src/app/(dashboard)/layout.tsx
 // Layout Server Component — récupère les données d'abonnement côté serveur
 // et les passe au DashboardShell (client) via props.
+// Le dashboard est une application authentifiée : noindex sur tout le groupe.
 
+import type { Metadata } from "next";
 import { getCurrentSubscription } from "@/lib/actions/subscription";
+
+// Aucune page du dashboard ne doit être indexée par les moteurs de recherche
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+    googleBot: { index: false, follow: false },
+  },
+}
+
 import { canCreateDocument } from "@/lib/feature-gate";
 import { getNotificationCounts } from "@/lib/actions/notifications";
 import type { NotificationCounts } from "@/lib/actions/notifications";

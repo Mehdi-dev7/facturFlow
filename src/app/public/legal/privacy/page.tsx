@@ -4,8 +4,16 @@ import {
 } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Politique de confidentialité | FacturNow",
-  description: "Comment FacturNow collecte, utilise et protège vos données personnelles — RGPD",
+  title: "Politique de confidentialité",
+  description: "Comment FacturNow collecte, utilise et protège vos données personnelles. Conformité RGPD — Règlement UE 2016/679.",
+  alternates: {
+    canonical: "https://facturnow.fr/public/legal/privacy",
+  },
+  openGraph: {
+    title: "Politique de confidentialité | FacturNow",
+    description: "Comment FacturNow collecte, utilise et protège vos données personnelles. Conformité RGPD.",
+    url: "https://facturnow.fr/public/legal/privacy",
+  },
 };
 
 // ─── Composants partagés ─────────────────────────────────────────────────────

@@ -5,6 +5,7 @@
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { authenticateApiRequest, apiError } from "@/lib/api-auth";
+import { apiV1RateLimit } from "@/lib/rate-limit";
 
 // ─── Schéma création ──────────────────────────────────────────────────────────
 
@@ -64,6 +65,9 @@ function formatClient(c: {
 // ─── GET /api/v1/clients ──────────────────────────────────────────────────────
 
 export async function GET(request: Request) {
+  const { limited } = apiV1RateLimit(request);
+  if (limited) return apiError("RATE_LIMITED", "Trop de requêtes, réessayez dans une minute", 429);
+
   const authResult = await authenticateApiRequest(request);
   if (!authResult) return apiError("UNAUTHORIZED", "Clé API invalide ou manquante", 401);
 
@@ -106,6 +110,9 @@ export async function GET(request: Request) {
 // ─── POST /api/v1/clients ─────────────────────────────────────────────────────
 
 export async function POST(request: Request) {
+  const { limited } = apiV1RateLimit(request);
+  if (limited) return apiError("RATE_LIMITED", "Trop de requêtes, réessayez dans une minute", 429);
+
   const authResult = await authenticateApiRequest(request);
   if (!authResult) return apiError("UNAUTHORIZED", "Clé API invalide ou manquante", 401);
 

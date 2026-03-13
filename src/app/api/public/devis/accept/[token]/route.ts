@@ -1,11 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { dispatchWebhook } from "@/lib/webhook-dispatcher";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function GET(
 	_req: NextRequest,
 	{ params }: { params: Promise<{ token: string }> },
 ) {
+	// Rate limiting : 10 tentatives/minute par IP (anti-bruteforce de tokens)
+	const ip = getClientIp(_req);
+	const { limited } = rateLimit(ip, { max: 10, windowMs: 60_000, prefix: "quote_accept" });
+	if (limited) {
+		return NextResponse.redirect(new URL("/public/devis/erreur?raison=trop_de_requetes", _req.url));
+	}
+
 	const { token } = await params;
 
 	if (!token) {

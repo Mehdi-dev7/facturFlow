@@ -22,13 +22,21 @@ import {
 import type { KpiData, Column } from "@/components/dashboard";
 import { StatusBadge } from "@/components/dashboard/status-badge";
 import type { AllStatus } from "@/components/dashboard/status-badge";
-import { DeleteConfirmModal } from "@/components/shared/delete-confirm-modal";
+import dynamic from "next/dynamic";
+// Lazy load des modals — chargées seulement quand l'utilisateur clique
+const DeleteConfirmModal = dynamic(
+	() => import("@/components/shared/delete-confirm-modal").then((m) => ({ default: m.DeleteConfirmModal })),
+	{ ssr: false }
+);
+const ProformaPreviewModal = dynamic(
+	() => import("@/components/proformas/proforma-preview-modal").then((m) => ({ default: m.ProformaPreviewModal })),
+	{ ssr: false }
+);
 import {
 	useProformas,
 	useDeleteProforma,
 	type SavedProforma,
 } from "@/hooks/use-proformas";
-import { ProformaPreviewModal } from "@/components/proformas/proforma-preview-modal";
 
 // ─── Types & helpers ──────────────────────────────────────────────────────────
 

@@ -11,9 +11,20 @@ import {
 } from "@/components/dashboard";
 import type { KpiData, Column } from "@/components/dashboard";
 import { useClients, useDeleteClient, type SavedClient } from "@/hooks/use-clients";
-import { ClientModal } from "@/components/clients/client-modal";
-import { ClientPreviewModal } from "@/components/clients/client-preview-modal";
-import { DeleteClientConfirmModal } from "@/components/clients/delete-client-confirm-modal";
+import dynamic from "next/dynamic";
+// Lazy load des modals — chargées seulement quand l'utilisateur ouvre/clique
+const ClientModal = dynamic(
+  () => import("@/components/clients/client-modal").then((m) => ({ default: m.ClientModal })),
+  { ssr: false }
+);
+const ClientPreviewModal = dynamic(
+  () => import("@/components/clients/client-preview-modal").then((m) => ({ default: m.ClientPreviewModal })),
+  { ssr: false }
+);
+const DeleteClientConfirmModal = dynamic(
+  () => import("@/components/clients/delete-client-confirm-modal").then((m) => ({ default: m.DeleteClientConfirmModal })),
+  { ssr: false }
+);
 
 // ─── Formater un montant en euros ────────────────────────────────────────────
 

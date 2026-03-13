@@ -5,8 +5,16 @@ import {
 } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "CGU / CGV | FacturNow",
-  description: "Conditions générales d'utilisation et de vente de FacturNow",
+  title: "CGU / CGV",
+  description: "Conditions générales d'utilisation et de vente de FacturNow. Abonnements, facturation, résiliation et droit applicable.",
+  alternates: {
+    canonical: "https://facturnow.fr/public/legal/cgv",
+  },
+  openGraph: {
+    title: "CGU / CGV | FacturNow",
+    description: "Conditions générales d'utilisation et de vente de FacturNow.",
+    url: "https://facturnow.fr/public/legal/cgv",
+  },
 };
 
 // ─── Composants partagés ─────────────────────────────────────────────────────

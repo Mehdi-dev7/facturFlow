@@ -16,7 +16,12 @@ import type { KpiData, Column } from "@/components/dashboard";
 import type { InvoiceStatus } from "@/components/dashboard/status-badge";
 import { StatusDropdown } from "@/components/dashboard/status-dropdown";
 import { useInvoices, type SavedInvoice } from "@/hooks/use-invoices";
-import { InvoicePreviewModal } from "@/components/factures/invoice-preview-modal";
+// Lazy load : chargé seulement au premier clic sur une ligne de facture
+import dynamic from "next/dynamic";
+const InvoicePreviewModal = dynamic(
+  () => import("@/components/factures/invoice-preview-modal").then((m) => ({ default: m.InvoicePreviewModal })),
+  { ssr: false }
+);
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 

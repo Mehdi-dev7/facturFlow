@@ -15,10 +15,18 @@ import {
 } from "@/components/dashboard";
 import type { KpiData, Column } from "@/components/dashboard";
 import type { InvoiceStatus } from "@/components/dashboard/status-badge";
-import { DeleteConfirmModal } from "@/components/shared/delete-confirm-modal";
+import dynamic from "next/dynamic";
+// Lazy load des modals — chargées seulement quand l'utilisateur clique
+const DeleteConfirmModal = dynamic(
+  () => import("@/components/shared/delete-confirm-modal").then((m) => ({ default: m.DeleteConfirmModal })),
+  { ssr: false }
+);
+const InvoicePreviewModal = dynamic(
+  () => import("@/components/factures/invoice-preview-modal").then((m) => ({ default: m.InvoicePreviewModal })),
+  { ssr: false }
+);
 import { useInvoices, useDeleteInvoice, type SavedInvoice } from "@/hooks/use-invoices";
 import { StatusDropdown } from "@/components/dashboard/status-dropdown";
-import { InvoicePreviewModal } from "@/components/factures/invoice-preview-modal";
 
 // ─── Types & helpers ──────────────────────────────────────────────────────────
 

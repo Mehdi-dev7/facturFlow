@@ -37,12 +37,41 @@ const merriweather = Merriweather({
 
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://facturnow.com"),
+  // Base URL utilisée pour résoudre toutes les URLs relatives (og:image, canonical, etc.)
+  metadataBase: new URL("https://facturnow.fr"),
   title: {
-    default: "FacturNow — Gestion de factures intelligente",
+    default: "FacturNow — Logiciel de facturation en ligne",
     template: "%s | FacturNow",
   },
-  description: "Créez, gérez et suivez vos factures en toute simplicité. Facturation intelligente avec prélèvement SEPA pour freelances et PME.",
+  description: "Créez, gérez et encaissez vos factures en ligne. Facturation intelligente avec prélèvement SEPA automatique pour freelances, auto-entrepreneurs et PME françaises.",
+  keywords: ["logiciel facturation", "facturation en ligne", "devis en ligne", "prélèvement SEPA", "GoCardless", "auto-entrepreneur", "freelance", "PME"],
+  authors: [{ name: "FacturNow", url: "https://facturnow.fr" }],
+  creator: "FacturNow",
+  publisher: "FacturNow",
+  // Robots par défaut — les layouts/pages peuvent surcharger
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  // Open Graph global — l'image est générée par /app/opengraph-image.tsx (Next.js ImageResponse)
+  // Next.js la résout automatiquement, pas besoin de la déclarer ici
+  openGraph: {
+    type: "website",
+    locale: "fr_FR",
+    siteName: "FacturNow",
+  },
+  // Twitter Card global
+  twitter: {
+    card: "summary_large_image",
+    site: "@facturnow",
+  },
 };
 
 export default function RootLayout({

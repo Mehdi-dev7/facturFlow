@@ -1,5 +1,4 @@
-"use client"
-
+// Server Component — pas de hooks React ni event handlers
 import { FileText, Send, CreditCard } from "lucide-react"
 import { Button } from "../ui/button"
 import Link from "next/link"

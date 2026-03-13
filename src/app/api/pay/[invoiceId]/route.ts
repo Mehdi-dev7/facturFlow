@@ -8,6 +8,7 @@ import { prisma } from "@/lib/prisma";
 import { decrypt } from "@/lib/encrypt";
 import { getStripeClient } from "@/lib/stripe";
 import type { StripeCredential } from "@/lib/actions/payments";
+import { paymentRateLimit } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 
@@ -15,6 +16,12 @@ export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ invoiceId: string }> }
 ) {
+  // Rate limiting : 20 req/min par IP (anti-abus sur les liens de paiement publics)
+  const { limited } = paymentRateLimit(_req);
+  if (limited) {
+    return NextResponse.json({ error: "Trop de requêtes" }, { status: 429 });
+  }
+
   const { invoiceId } = await params;
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 

@@ -2,8 +2,16 @@ import { Metadata } from "next";
 import { Building2, Server, Copyright, Lock, Cookie, AlertTriangle, Globe } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Mentions légales | FacturNow",
-  description: "Mentions légales de FacturNow — éditeur, hébergeur, propriété intellectuelle",
+  title: "Mentions légales",
+  description: "Mentions légales de FacturNow — éditeur, hébergeur, propriété intellectuelle et droit applicable.",
+  alternates: {
+    canonical: "https://facturnow.fr/public/legal/mentions",
+  },
+  openGraph: {
+    title: "Mentions légales | FacturNow",
+    description: "Mentions légales de FacturNow — éditeur, hébergeur, propriété intellectuelle.",
+    url: "https://facturnow.fr/public/legal/mentions",
+  },
 };
 
 // ─── Composant section réutilisable ──────────────────────────────────────────

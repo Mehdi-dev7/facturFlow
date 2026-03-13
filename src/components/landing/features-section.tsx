@@ -1,5 +1,4 @@
-"use client"
-
+// Server Component — pas de hooks React ni event handlers
 import { Bell, PieChart, Palette, FileStack, Zap, CreditCard, CheckCircle2, Send } from "lucide-react"
 
 // ─── Petites feature cards ─────────────────────────────────────────────────────

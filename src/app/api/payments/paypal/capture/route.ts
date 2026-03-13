@@ -12,10 +12,17 @@ import { prisma } from "@/lib/prisma";
 import { decrypt } from "@/lib/encrypt";
 import { getPaypalAccessToken, capturePaypalOrder } from "@/lib/paypal";
 import type { PaypalCredential } from "@/lib/actions/payments";
+import { paymentRateLimit } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 
 export async function GET(req: NextRequest) {
+  // Rate limiting : 20 req/min par IP
+  const { limited } = paymentRateLimit(req);
+  if (limited) {
+    return NextResponse.json({ error: "Trop de requêtes" }, { status: 429 });
+  }
+
   const { searchParams } = req.nextUrl;
   const orderId   = searchParams.get("token");      // PayPal injecte "token"
   const invoiceId = searchParams.get("invoiceId");

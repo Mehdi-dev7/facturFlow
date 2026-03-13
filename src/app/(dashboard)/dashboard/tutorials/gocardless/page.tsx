@@ -167,6 +167,34 @@ const STEPS: TutorialStep[] = [
 	},
 ];
 
+// ─── Helper : rendu des descriptions avec <strong> sans dangerouslySetInnerHTML ─
+//
+// On parse manuellement les balises <strong>...</strong> pour éviter XSS.
+// Le contenu est hardcodé ici, mais on préfère le pattern React natif.
+
+function renderDescription(text: string) {
+	// Découpe la chaîne autour des balises <strong>...</strong>
+	const parts = text.split(/(<strong>.*?<\/strong>)/g);
+	return (
+		<>
+			{parts.map((part, i) => {
+				const match = part.match(/^<strong>(.*)<\/strong>$/);
+				if (match) {
+					return <strong key={i}>{match[1]}</strong>;
+				}
+				// Décoder les entités HTML de base utilisées dans les descriptions
+				const decoded = part
+					.replace(/&apos;/g, "'")
+					.replace(/&quot;/g, '"')
+					.replace(/&amp;/g, "&")
+					.replace(/&lt;/g, "<")
+					.replace(/&gt;/g, ">");
+				return <span key={i}>{decoded}</span>;
+			})}
+		</>
+	);
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function GoCardlessTutorialPage() {
@@ -252,10 +280,9 @@ export default function GoCardlessTutorialPage() {
 								<h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">
 									{step.title}
 								</h2>
-								<p
-									className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed"
-									dangerouslySetInnerHTML={{ __html: step.description }}
-								/>
+								<p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+									{renderDescription(step.description)}
+								</p>
 
 								{/* Code snippet */}
 								{step.code && (

@@ -3,11 +3,15 @@
 
 import { prisma } from "@/lib/prisma";
 import { authenticateApiRequest, apiError } from "@/lib/api-auth";
+import { apiV1RateLimit } from "@/lib/rate-limit";
 
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const { limited } = apiV1RateLimit(request);
+  if (limited) return apiError("RATE_LIMITED", "Trop de requêtes, réessayez dans une minute", 429);
+
   const authResult = await authenticateApiRequest(request);
   if (!authResult) return apiError("UNAUTHORIZED", "Clé API invalide ou manquante", 401);
 
