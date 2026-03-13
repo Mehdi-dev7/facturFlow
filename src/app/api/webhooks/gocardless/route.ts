@@ -219,6 +219,19 @@ async function processMandate(
     return;
   }
 
+  // Guard idempotence : si le paiement a déjà été déclenché, ne pas créer un doublon
+  if (invoice.status === "SEPA_PENDING" || invoice.status === "PAID") {
+    console.log(`[GC webhook] Facture ${invoiceId} déjà en ${invoice.status} — paiement ignoré`);
+    // On met quand même à jour le mandat sur le client si nécessaire
+    if (mandateId && invoice.client.gcMandateId !== mandateId) {
+      await prisma.client.update({
+        where: { id: invoice.client.id },
+        data: { gcMandateId: mandateId, gcMandateStatus: "active" },
+      });
+    }
+    return;
+  }
+
   // Stocker le mandate_id sur le Client
   await prisma.client.update({
     where: { id: invoice.client.id },
@@ -283,8 +296,9 @@ async function processMandate(
 // dans createSepaPayment). Mais par sécurité, on fetch aussi via l'API.
 
 async function handlePaymentConfirmed(event: GcWebhookEvent, cred?: GocardlessCredential) {
-  // D'abord essayer metadata de l'event
-  let invoiceId: string | undefined = event.metadata?.invoiceId;
+  // GC met l'invoiceId dans resource_metadata (metadata est toujours vide côté event)
+  let invoiceId: string | undefined =
+    event.resource_metadata?.invoiceId ?? event.metadata?.invoiceId;
 
   // Sinon fetch les metadata du payment via l'API
   if (!invoiceId && event.links.payment && cred?.accessToken) {

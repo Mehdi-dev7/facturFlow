@@ -58,16 +58,21 @@ export async function saveProduct(data: {
   if (!session?.user?.id) return { success: false, error: "Non autorisé" };
 
   try {
-    await prisma.product.create({
-      data: {
+    // Upsert par (userId + name) : crée ou met à jour le prix si le produit existe déjà
+    await prisma.product.upsert({
+      where: { userId_name: { userId: session.user.id, name: data.name } },
+      update: {
+        unitPrice: data.unitPrice,
+        vatRate: data.vatRate,
+        unit: data.unit ?? "unité",
+      },
+      create: {
         userId: session.user.id,
-        // Le nom est la description de la ligne (ex: "Développement frontend")
         name: data.name,
         description: data.description ?? null,
         unitPrice: data.unitPrice,
         vatRate: data.vatRate,
         unit: data.unit ?? "unité",
-        // SERVICE par défaut — champ required en Prisma
         type: "SERVICE",
       },
     });

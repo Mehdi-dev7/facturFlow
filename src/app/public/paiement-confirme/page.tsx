@@ -98,7 +98,7 @@ export default async function PaiementConfirmePage({
             )}
 
             <p className="text-sm text-slate-600 dark:text-slate-400 text-center leading-relaxed">
-              Un reçu vous sera envoyé par email. Vous pouvez fermer cette page.
+              Vous pouvez fermer cette page.
             </p>
           </div>
         </div>

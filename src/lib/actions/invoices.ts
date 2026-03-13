@@ -807,11 +807,12 @@ export async function getInvoices(filters?: { month?: string }) {
 
 // Transitions autorisées (statut actuel → statuts possibles)
 const ALLOWED_TRANSITIONS: Record<string, string[]> = {
-  DRAFT:    ["SENT", "PAID"],
-  SENT:     ["PAID", "OVERDUE"],
-  OVERDUE:  ["PAID", "REMINDED"],
-  REMINDED: ["PAID"],
-  PAID:     ["SENT", "OVERDUE"], // Retour arrière en cas d'erreur
+  DRAFT:        ["SENT", "PAID"],
+  SENT:         ["PAID", "OVERDUE"],
+  OVERDUE:      ["PAID", "REMINDED"],
+  REMINDED:     ["PAID"],
+  SEPA_PENDING: ["PAID", "SENT"], // Paiement SEPA en cours → PAID (webhook) ou annulation → SENT
+  PAID:         ["SENT", "OVERDUE"], // Retour arrière en cas d'erreur
 };
 
 export async function updateInvoiceStatus(id: string, newStatus: string) {

@@ -321,6 +321,7 @@ model Product {
   updatedAt DateTime @updatedAt
 
   @@index([userId])
+  @@unique([userId, name]) // Upsert par nom de produit par user
 }
 
 model Document {

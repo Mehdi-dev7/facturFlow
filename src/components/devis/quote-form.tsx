@@ -519,6 +519,7 @@ export function QuoteForm({
 																		shouldValidate: false,
 																	});
 																}}
+																currentUnitPrice={Number(lines[index]?.unitPrice ?? 0)}
 																placeholder={typeConfig.descriptionLabel}
 																className={inputClass}
 																aria-invalid={!!lineErrors?.description}

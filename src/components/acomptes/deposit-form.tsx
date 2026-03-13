@@ -298,9 +298,9 @@ export function DepositForm({
 												onChange={field.onChange}
 												onProductSelect={({ description, unitPrice }) => {
 													field.onChange(description);
-													// Préremplir le montant HT si le produit en a un
 													if (unitPrice > 0) setValue("amount", unitPrice, { shouldValidate: false });
 												}}
+												currentUnitPrice={Number(amount ?? 0)}
 												placeholder="Acompte 30% - Projet X"
 												className={inputClass}
 											/>

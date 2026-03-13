@@ -14,14 +14,14 @@ interface ProductComboboxProps {
     unitPrice: number;
     vatRate: number;
   }) => void;
+  currentUnitPrice?: number; // Prix actuel de la ligne — pour sauvegarde et comparaison
   placeholder?: string;
   className?: string;
   "aria-invalid"?: boolean;
 }
 
-// ─── Styles partagés avec les autres forms ────────────────────────────────────
+// ─── Styles ───────────────────────────────────────────────────────────────────
 
-// Même style que dans invoice-form / quote-form
 const dropdownClass =
   "absolute top-full left-0 right-0 z-50 mt-1 overflow-hidden rounded-xl border border-violet-200 dark:border-violet-400/30 bg-white dark:bg-[#1e1845] shadow-lg";
 
@@ -34,26 +34,19 @@ export function ProductCombobox({
   value,
   onChange,
   onProductSelect,
+  currentUnitPrice = 0,
   placeholder = "Description",
   className = "",
   "aria-invalid": ariaInvalid,
 }: ProductComboboxProps) {
-  // Liste complète chargée une seule fois au montage
   const [products, setProducts] = useState<SavedProduct[]>([]);
-  // Contrôle l'ouverture du dropdown
   const [isOpen, setIsOpen] = useState(false);
-  // Checkbox "Sauvegarder ce produit"
-  const [wantSave, setWantSave] = useState(false);
-  // Évite de sauvegarder deux fois la même valeur
-  const lastSavedRef = useRef<string>("");
-
+  const [isSaving, setIsSaving] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // ── Chargement initial des produits ────────────────────────────────────────
+  // ── Chargement initial ─────────────────────────────────────────────────────
   useEffect(() => {
-    getProducts().then(setProducts).catch(() => {
-      // Silencieux — le catalogue produit est une feature bonus
-    });
+    getProducts().then(setProducts).catch(() => {});
   }, []);
 
   // ── Fermer le dropdown au clic en dehors ───────────────────────────────────
@@ -67,20 +60,31 @@ export function ProductCombobox({
     return () => document.removeEventListener("mousedown", handleMouseDown);
   }, []);
 
-  // ── Filtrage des produits selon la saisie ──────────────────────────────────
+  // ── Logique d'affichage de la case "Sauvegarder" ──────────────────────────
+  // Produit du catalogue qui correspond exactement au nom tapé
+  const matchingProduct = products.find(
+    (p) => p.name.toLowerCase() === value.trim().toLowerCase()
+  );
+  // Vrai si le nom ET le prix correspondent au catalogue → rien à sauvegarder
+  const isUnchanged =
+    matchingProduct && Number(matchingProduct.unitPrice) === currentUnitPrice;
+
+  // Montrer la case si : nom ≥ 2 chars + prix > 0 + pas identique au catalogue
+  const showSaveCheckbox =
+    value.trim().length >= 2 && currentUnitPrice > 0 && !isUnchanged;
+
+  // Label adapté : "Mettre à jour" si le produit existe déjà avec un autre prix
+  const saveLabel = matchingProduct
+    ? `Mettre à jour "${value.trim()}" (${currentUnitPrice.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €)`
+    : `Sauvegarder "${value.trim()}" dans mon catalogue`;
+
+  // ── Filtrage dropdown ──────────────────────────────────────────────────────
   const filtered = products.filter((p) =>
     p.name.toLowerCase().includes(value.toLowerCase())
   );
+  const showDropdown = isOpen && value.trim().length > 0 && filtered.length > 0;
 
-  // Afficher le dropdown seulement si l'input est non vide ET le champ est actif
-  const showDropdown = isOpen && value.trim().length > 0;
-  // Afficher le bouton "Sauvegarder" si aucun produit ne correspond exactement
-  const showSaveRow =
-    showDropdown &&
-    value.trim().length >= 2 &&
-    !products.some((p) => p.name.toLowerCase() === value.toLowerCase());
-
-  // ── Sélection d'un produit dans la liste ───────────────────────────────────
+  // ── Sélection d'un produit depuis la liste ─────────────────────────────────
   const handleSelect = useCallback(
     (product: SavedProduct) => {
       onProductSelect({
@@ -90,45 +94,43 @@ export function ProductCombobox({
       });
       onChange(product.name);
       setIsOpen(false);
-      setWantSave(false);
     },
     [onProductSelect, onChange]
   );
 
-  // ── Sauvegarde en background au blur si checkbox cochée ────────────────────
-  const handleBlur = useCallback(async () => {
-    if (!wantSave || !value.trim() || value.trim() === lastSavedRef.current) return;
-
-    lastSavedRef.current = value.trim();
-    setWantSave(false);
+  // ── Sauvegarde immédiate au clic sur la case ───────────────────────────────
+  const handleSave = useCallback(async () => {
+    if (isSaving || !value.trim() || currentUnitPrice <= 0) return;
+    setIsSaving(true);
 
     const result = await saveProduct({
       name: value.trim(),
-      unitPrice: 0, // Pas de prix connu depuis la description seule
-      vatRate: 20,  // TVA par défaut
+      unitPrice: currentUnitPrice,
+      vatRate: 20,
     });
 
     if (result.success) {
-      toast.success("Produit sauvegardé", {
-        description: `"${value.trim()}" ajouté à votre catalogue`,
+      toast.success(matchingProduct ? "Catalogue mis à jour" : "Produit sauvegardé", {
+        description: `"${value.trim()}" — ${currentUnitPrice.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €`,
         duration: 3000,
       });
-      // Rafraîchir la liste locale
       const updated = await getProducts();
       setProducts(updated);
     } else {
       toast.error("Impossible de sauvegarder le produit");
     }
-  }, [wantSave, value]);
+
+    setIsSaving(false);
+  }, [isSaving, value, currentUnitPrice, matchingProduct]);
 
   return (
     <div ref={containerRef} className="relative">
+      {/* ── Input description ───────────────────────────────────────────── */}
       <input
         type="text"
         value={value}
         placeholder={placeholder}
         aria-invalid={ariaInvalid}
-        // Même style que les <Input> du projet (inputClass)
         className={[
           "flex h-9 w-full rounded-xl border px-3 py-1 shadow-sm transition-colors",
           "bg-white/90 dark:bg-[#2a2254]",
@@ -145,13 +147,14 @@ export function ProductCombobox({
         onChange={(e) => {
           onChange(e.target.value);
           setIsOpen(true);
-          setWantSave(false);
         }}
-        onBlur={handleBlur}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") e.preventDefault();
+        }}
       />
 
-      {/* ── Dropdown ────────────────────────────────────────────────────── */}
-      {showDropdown && (filtered.length > 0 || showSaveRow) && (
+      {/* ── Dropdown catalogue ──────────────────────────────────────────── */}
+      {showDropdown && (
         <div className={dropdownClass}>
           <ul className="p-1 max-h-52 overflow-y-auto">
             {filtered.map((product) => (
@@ -159,9 +162,8 @@ export function ProductCombobox({
                 <button
                   type="button"
                   className={`w-full ${itemClass}`}
-                  // onMouseDown plutôt que onClick pour déclencher avant le onBlur de l'input
                   onMouseDown={(e) => {
-                    e.preventDefault(); // Empêche le blur de l'input
+                    e.preventDefault();
                     handleSelect(product);
                   }}
                 >
@@ -176,27 +178,27 @@ export function ProductCombobox({
               </li>
             ))}
           </ul>
+        </div>
+      )}
 
-          {/* ── Ligne "Sauvegarder ce produit" ─────────────────────────── */}
-          {showSaveRow && (
-            <div className="flex items-center gap-2 px-3 py-2 border-t border-slate-100 dark:border-violet-400/20 text-xs text-slate-500 dark:text-slate-400">
-              <input
-                type="checkbox"
-                id="product-save-checkbox"
-                checked={wantSave}
-                // onMouseDown pour ne pas déclencher le blur de l'input parent
-                onMouseDown={(e) => e.preventDefault()}
-                onChange={(e) => setWantSave(e.target.checked)}
-                className="size-3.5 rounded accent-violet-600 cursor-pointer"
-              />
-              <label
-                htmlFor="product-save-checkbox"
-                className="cursor-pointer select-none"
-              >
-                Sauvegarder &quot;{value.trim()}&quot; dans mon catalogue
-              </label>
-            </div>
-          )}
+      {/* ── Case "Sauvegarder" sous le champ — visible si nom + prix remplis ── */}
+      {showSaveCheckbox && (
+        <div className="flex items-center gap-1.5 mt-1">
+          <input
+            type="checkbox"
+            id={`save-${value.trim().replace(/\s+/g, "-")}`}
+            checked={false}
+            onMouseDown={(e) => e.preventDefault()}
+            onChange={handleSave}
+            disabled={isSaving}
+            className="size-3 rounded accent-violet-600 cursor-pointer"
+          />
+          <label
+            htmlFor={`save-${value.trim().replace(/\s+/g, "-")}`}
+            className="text-[10px] xs:text-xs text-slate-400 dark:text-violet-300/60 cursor-pointer select-none leading-tight"
+          >
+            {isSaving ? "Sauvegarde..." : saveLabel}
+          </label>
         </div>
       )}
     </div>

@@ -217,6 +217,7 @@ export interface GcWebhookEvent {
   action: string;
   links: Record<string, string | undefined>;
   metadata: Record<string, string>;
+  resource_metadata: Record<string, string>; // contient invoiceId (≠ metadata qui est toujours vide)
   details: {
     cause: string;
     description: string;

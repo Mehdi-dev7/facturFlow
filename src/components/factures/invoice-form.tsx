@@ -524,8 +524,8 @@ export function InvoiceForm({
 																	setValue(`lines.${index}.unitPrice`, unitPrice, {
 																		shouldValidate: false,
 																	});
-																	// vatRate est global dans ce form, on ne le change pas à la ligne
 																}}
+																currentUnitPrice={Number(lines[index]?.unitPrice ?? 0)}
 																placeholder={typeConfig.descriptionLabel}
 																className={inputClass}
 																aria-invalid={!!lineErrors?.description}
