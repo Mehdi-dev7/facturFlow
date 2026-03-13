@@ -101,7 +101,9 @@ export default async function Image() {
           {/* Tagline principale */}
           <div
             style={{
-              color: "white",
+              display: "flex",
+              flexWrap: "wrap",
+              justifyContent: "center",
               fontSize: 38,
               fontWeight: 700,
               textAlign: "center",
@@ -109,7 +111,7 @@ export default async function Image() {
               maxWidth: 900,
             }}
           >
-            Facturation intelligente avec{" "}
+            <span style={{ color: "white" }}>Facturation intelligente avec&nbsp;</span>
             <span style={{ color: "#a78bfa" }}>prélèvement SEPA</span>
           </div>
 

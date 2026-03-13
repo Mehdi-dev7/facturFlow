@@ -1,4 +1,4 @@
-// Server Component — animation CSS pure, pas de hooks React
+"use client"
 // src/components/landing/reviews-carousel.tsx
 // Carousel infini d'avis — avis réels DB + avis fictifs pour remplir le track.
 
