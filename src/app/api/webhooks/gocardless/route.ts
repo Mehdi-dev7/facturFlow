@@ -279,14 +279,12 @@ async function processMandate(
     },
   );
 
-  // Passer la facture en SEPA_PENDING
-  if (invoice.status !== "PAID") {
-    await prisma.document.update({
-      where: { id: invoice.id },
-      data: { status: "SEPA_PENDING" },
-    });
-    revalidatePath("/dashboard/invoices");
-  }
+  // Passer la facture en SEPA_PENDING (le guard ci-dessus garantit qu'on n'est ni PAID ni SEPA_PENDING)
+  await prisma.document.update({
+    where: { id: invoice.id },
+    data: { status: "SEPA_PENDING" },
+  });
+  revalidatePath("/dashboard/invoices");
 
   console.log(`[GC webhook] Paiement SEPA créé: ${paymentId} pour facture ${invoice.number}`);
 }
