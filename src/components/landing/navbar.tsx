@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { LogIn, Menu, X } from "lucide-react"
+import Logo from "@/components/Logo"
 
 const navLinks = [
   { href: "#features", label: "Fonctionnalités" },
@@ -36,9 +37,7 @@ export function Navbar() {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link href="/" className="flex items-center space-x-2">
-              <div className="h-8 w-8 rounded-lg bg-gradient-primary flex items-center justify-center">
-                <span className="text-lg font-bold text-white font-heading">F</span>
-              </div>
+              <Logo variant="icon" width={32} height={32} className="rounded-lg" />
               <span className="text-xl lg:text-2xl font-semibold golos-text font-heading text-gradient">
                 FacturNow
               </span>

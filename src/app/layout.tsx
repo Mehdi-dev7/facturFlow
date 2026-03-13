@@ -67,6 +67,14 @@ export const metadata: Metadata = {
     locale: "fr_FR",
     siteName: "FacturNow",
   },
+  // Favicon & icônes
+  icons: {
+    icon: [
+      { url: "/logo/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "any" },
+    ],
+    apple: "/logo/icon.svg",
+  },
   // Twitter Card global
   twitter: {
     card: "summary_large_image",

@@ -13,6 +13,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import Logo from "@/components/Logo";
 
 export default function ForgotPasswordPage() {
 	const [email, setEmail] = useState("");
@@ -65,9 +66,7 @@ export default function ForgotPasswordPage() {
 			<Card className="w-full max-w-md shadow-2xl border-slate-200/50 backdrop-blur-sm bg-white/95 relative z-10">
 				<CardHeader className="space-y-3 pb-6">
 					<Link href="/" className="flex justify-center mb-2 group w-fit mx-auto">
-						<div className="h-14 w-14 rounded-xl bg-gradient-primary flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
-							<span className="text-2xl font-bold text-white">F</span>
-						</div>
+						<Logo variant="icon" width={56} height={56} className="shadow-lg group-hover:scale-105 transition-transform rounded-xl" />
 					</Link>
 
 					{!sent ? (

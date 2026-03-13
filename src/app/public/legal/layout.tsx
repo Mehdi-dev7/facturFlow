@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowLeft, FileText, Shield, ScrollText } from "lucide-react";
+import Logo from "@/components/Logo";
 
 const LEGAL_LINKS = [
   { href: "/public/legal/mentions",  label: "Mentions légales",   icon: FileText },
@@ -16,9 +17,7 @@ export default function LegalLayout({ children }: { children: React.ReactNode })
           {/* Logo + retour */}
           <div className="flex items-center justify-between mb-6">
             <Link href="/" className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-primary">
-                <span className="text-white font-bold text-sm">F</span>
-              </div>
+              <Logo variant="icon" width={32} height={32} className="rounded-lg" />
               <span className="font-bold text-slate-900 dark:text-white text-lg">FacturNow</span>
             </Link>
 

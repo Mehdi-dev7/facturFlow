@@ -1,6 +1,7 @@
 import Link from "next/link"
 import type { Metadata } from "next"
 import { Button } from "@/components/ui/button"
+import Logo from "@/components/Logo"
 
 export const metadata: Metadata = {
   title: "Page introuvable",
@@ -25,9 +26,7 @@ export default function NotFound() {
       <div className="relative z-10 text-center space-y-6 max-w-md">
         {/* Logo */}
         <Link href="/" className="flex justify-center mb-6 group">
-          <div className="h-14 w-14 rounded-xl bg-gradient-primary flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
-            <span className="text-2xl font-bold text-white">F</span>
-          </div>
+          <Logo variant="icon" width={56} height={56} className="shadow-lg group-hover:scale-105 transition-transform rounded-xl" />
         </Link>
 
         {/* 404 */}
