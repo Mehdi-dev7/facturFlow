@@ -64,11 +64,11 @@ function ReviewCard({ review }: { review: ReviewItem }) {
   const color = getColor(review.displayName)
 
   return (
-    <div className="flex-shrink-0 w-96 mx-3 rounded-2xl border border-slate-200/80 bg-white shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden">
+    <div className="flex-shrink-0 w-72 mx-2.5 rounded-2xl border border-slate-200/80 bg-white shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden">
       {/* Bandeau coloré */}
       <div className={`h-1 w-full bg-linear-to-r ${color.bg}`} />
 
-      <div className="p-6 flex flex-col gap-4">
+      <div className="p-4 flex flex-col gap-3">
         {/* Quote + étoiles */}
         <div className="flex items-start justify-between">
           <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${color.light}`}>
@@ -92,7 +92,7 @@ function ReviewCard({ review }: { review: ReviewItem }) {
         </p>
 
         {/* Auteur */}
-        <div className="flex items-center gap-3 pt-3 border-t border-slate-100">
+        <div className="flex items-center gap-3 pt-2 border-t border-slate-100">
           <div className={`flex h-9 w-9 items-center justify-center rounded-full bg-linear-to-br ${color.bg} text-white text-xs font-bold shrink-0 shadow-sm`}>
             {getInitials(review.displayName)}
           </div>
@@ -136,9 +136,6 @@ export function ReviewsCarousel({ reviews }: ReviewsCarouselProps) {
       {/* ── Carousel ── */}
       <div className="w-full px-4 sm:px-[8%] xl:px-[12%]">
         <div className="relative overflow-hidden rounded-2xl">
-          {/* Masques de fondu */}
-          <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-24 z-10 bg-linear-to-r from-slate-50 to-transparent" />
-          <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-24 z-10 bg-linear-to-l from-slate-50 to-transparent" />
 
           {/* Track animé — pause au survol */}
           <div

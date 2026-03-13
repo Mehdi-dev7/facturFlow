@@ -95,7 +95,7 @@ export function FaqSection() {
             return (
               <div 
                 key={index}
-                className="border border-slate-200 rounded-xl bg-white hover:border-slate-300 transition-colors"
+                className="border border-primary rounded-xl bg-white hover:border-tertiary transition-colors"
               >
                 {/* Question */}
                 <button
