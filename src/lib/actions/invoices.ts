@@ -940,6 +940,25 @@ export async function createInvoiceFromQuote(quoteId: string) {
     // Reprendre les metadata du devis + écraser paymentLinks avec les providers actifs
     const quoteMetadata = (quote.businessMetadata ?? {}) as Record<string, unknown>;
 
+    // Calculer l'acompte en TTC pour la facture finale.
+    // quote.depositAmount est en HT ; la facture finale doit déduire le TTC réellement encaissé.
+    // On cherche d'abord la facture d'acompte liée (créée automatiquement lors de l'acceptation),
+    // dont le `total` est le TTC exact. Si elle n'existe pas encore, on calcule le TTC à partir du HT.
+    let depositAmountTTC = 0;
+    if (quote.depositAmount && Number(quote.depositAmount) > 0) {
+      const linkedDeposit = await prisma.document.findFirst({
+        where: { relatedDocumentId: quoteId, type: "DEPOSIT" },
+        select: { total: true },
+      });
+      if (linkedDeposit) {
+        depositAmountTTC = linkedDeposit.total.toNumber();
+      } else {
+        const vatRate = (quoteMetadata.vatRate as number) ?? 20;
+        const depositHT = Number(quote.depositAmount);
+        depositAmountTTC = Math.round(depositHT * (1 + vatRate / 100) * 100) / 100;
+      }
+    }
+
     // Providers actifs au moment de la conversion → boutons de paiement à jour dans l'email
     const paymentAccounts = await prisma.paymentAccount.findMany({
       where: { userId, isActive: true },
@@ -965,7 +984,7 @@ export async function createInvoiceFromQuote(quoteId: string) {
         taxTotal: quote.taxTotal,
         total: quote.total,
         discount: quote.discount,
-        depositAmount: quote.depositAmount,
+        depositAmount: depositAmountTTC > 0 ? depositAmountTTC : null,
         discountType: quote.discountType,
         invoiceType: quote.invoiceType,
         notes: quote.notes,

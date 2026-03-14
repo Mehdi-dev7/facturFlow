@@ -52,6 +52,16 @@ export async function sendDepositEmail(depositId: string, userId?: string) {
       return { success: false, error: "Acompte introuvable" };
     }
 
+    // Récupérer le numéro du devis source (si acompte lié à un devis)
+    let relatedQuoteNumber: string | null = null;
+    if (doc.relatedDocumentId) {
+      const relatedDoc = await prisma.document.findFirst({
+        where: { id: doc.relatedDocumentId, type: "QUOTE" },
+        select: { number: true },
+      });
+      relatedQuoteNumber = relatedDoc?.number ?? null;
+    }
+
     // 3. Construire les données de base
     const clientName =
       doc.client.companyName ??
@@ -134,11 +144,19 @@ export async function sendDepositEmail(depositId: string, userId?: string) {
 
       <p style="color:#334155;font-size:15px;line-height:1.6;">Bonjour ${clientName},</p>
       <p style="color:#334155;font-size:15px;line-height:1.6;">
-        ${emitterName} vous adresse une demande d'acompte d'un montant de <strong>${amount}</strong>.
+        ${emitterName} vous adresse une demande d'acompte d'un montant de <strong>${amount}</strong>${relatedQuoteNumber ? `, suite à l'acceptation du devis <strong>${relatedQuoteNumber}</strong>` : ""}.
       </p>
 
       <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin:20px 0;">
         <table style="width:100%;font-size:14px;color:#475569;">
+          <tr>
+            <td style="padding:4px 0;">Référence acompte</td>
+            <td style="padding:4px 0;text-align:right;font-weight:600;">${doc.number}</td>
+          </tr>
+          ${relatedQuoteNumber ? `<tr>
+            <td style="padding:4px 0;">Devis associé</td>
+            <td style="padding:4px 0;text-align:right;font-weight:600;">${relatedQuoteNumber}</td>
+          </tr>` : ""}
           <tr>
             <td style="padding:4px 0;">Montant TTC</td>
             <td style="padding:4px 0;text-align:right;font-weight:600;color:#7c3aed;">${amount}</td>

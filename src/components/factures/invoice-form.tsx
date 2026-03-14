@@ -787,7 +787,7 @@ export function InvoiceForm({
 							{/* Acompte versé */}
 							<div className="flex items-center justify-between text-sm pt-1">
 								<div className="flex items-center gap-2">
-									<span className="text-slate-500 text-xs xs:text-sm dark:text-violet-200">Acompte versé</span>
+									<span className="text-slate-500 text-xs xs:text-sm dark:text-violet-200">Acompte versé <span className="text-[10px] xs:text-xs opacity-60">(TTC)</span></span>
 									<Controller
 										name="depositAmount"
 										control={control}
