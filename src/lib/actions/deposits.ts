@@ -419,6 +419,9 @@ export async function createDepositFromQuote(quoteId: string, userId: string) {
     const depositNumber = `DEP-${year}-${String(usedNumber).padStart(4, "0")}`;
 
     // Créer le document DEPOSIT en SENT (puisque le devis vient d'être accepté)
+    // Échéance : J+15 par défaut (indépendante de la date du devis)
+    const depositDueDate = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
+
     const doc = await prisma.document.create({
       data: {
         userId,
@@ -426,7 +429,7 @@ export async function createDepositFromQuote(quoteId: string, userId: string) {
         type: "DEPOSIT",
         number: depositNumber,
         date: new Date(),
-        dueDate: quote.dueDate,
+        dueDate: depositDueDate,
         status: "SENT",
         subtotal,
         taxTotal,
@@ -445,10 +448,9 @@ export async function createDepositFromQuote(quoteId: string, userId: string) {
 
     revalidatePath("/dashboard/acomptes");
 
-    // Envoyer l'email automatiquement avec userId (pas de session disponible ici)
-    sendDepositEmail(doc.id, userId).catch((err) =>
-      console.error("[createDepositFromQuote] Erreur envoi email:", err)
-    );
+    // Envoyer l'email automatiquement avec userId — DOIT être awaité
+    // (Vercel coupe l'exécution dès que la fonction retourne, pas de fire-and-forget ici)
+    await sendDepositEmail(doc.id, userId);
 
     // Webhook deposit.created
     dispatchWebhook(userId, "deposit.created", {

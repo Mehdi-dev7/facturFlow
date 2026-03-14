@@ -18,6 +18,20 @@ const STORAGE_KEY_SNOOZED     = "facturnow_pwa_snoozed"     // temporaire (× = 
 const DAYS_BEFORE_PROMPT      = 3
 const DAYS_SNOOZE             = 7
 
+// ─── Helpers localStorage (safe — évite les exceptions Safari ITP / privé) ────
+
+function lsGet(key: string): string | null {
+  try { return localStorage.getItem(key) } catch { return null }
+}
+function lsSet(key: string, value: string): void {
+  try { localStorage.setItem(key, value) } catch { /* ignore */ }
+}
+
+// ─── Flag de session : persiste tant que le module JS est chargé ──────────────
+// Évite que le banner réapparaisse si le composant remonte suite à un re-render
+// du layout (Next.js App Router), même si localStorage échoue.
+let sessionDismissed = false
+
 // ─── Composant ────────────────────────────────────────────────────────────────
 
 export function PwaInstallBanner() {
@@ -27,12 +41,15 @@ export function PwaInstallBanner() {
   const [showIosTip, setShowIosTip] = useState(false)
 
   useEffect(() => {
+    // Ne pas afficher si l'utilisateur a déjà fermé ce banner dans cette session
+    if (sessionDismissed) return
+
     // Ne pas afficher si installée ou dismissée définitivement
-    if (localStorage.getItem(STORAGE_KEY_DISMISSED)) return
+    if (lsGet(STORAGE_KEY_DISMISSED)) return
     if (window.matchMedia("(display-mode: standalone)").matches) return
 
     // Ne pas afficher si snoozé récemment
-    const snoozedAt = parseInt(localStorage.getItem(STORAGE_KEY_SNOOZED) ?? "0", 10)
+    const snoozedAt = parseInt(lsGet(STORAGE_KEY_SNOOZED) ?? "0", 10)
     if (snoozedAt && (Date.now() - snoozedAt) / (1000 * 60 * 60 * 24) < DAYS_SNOOZE) return
 
     // Détecter iOS (pas de beforeinstallprompt sur Safari)
@@ -40,12 +57,12 @@ export function PwaInstallBanner() {
     setIsIos(ios)
 
     // Enregistrer la première visite
-    if (!localStorage.getItem(STORAGE_KEY_FIRST_VISIT)) {
-      localStorage.setItem(STORAGE_KEY_FIRST_VISIT, Date.now().toString())
+    if (!lsGet(STORAGE_KEY_FIRST_VISIT)) {
+      lsSet(STORAGE_KEY_FIRST_VISIT, Date.now().toString())
     }
 
     // Vérifier les 3 jours
-    const firstVisit = parseInt(localStorage.getItem(STORAGE_KEY_FIRST_VISIT) ?? "0", 10)
+    const firstVisit = parseInt(lsGet(STORAGE_KEY_FIRST_VISIT) ?? "0", 10)
     const daysSince  = (Date.now() - firstVisit) / (1000 * 60 * 60 * 24)
     if (daysSince < DAYS_BEFORE_PROMPT) return
 
@@ -70,17 +87,20 @@ export function PwaInstallBanner() {
     await deferredPrompt.prompt()
     const { outcome } = await deferredPrompt.userChoice
     if (outcome === "accepted") {
+      sessionDismissed = true
       setShow(false)
-      localStorage.setItem(STORAGE_KEY_DISMISSED, "true")
+      lsSet(STORAGE_KEY_DISMISSED, "true")
     }
     setDeferredPrompt(null)
   }
 
   const handleDismiss = () => {
+    // Marquer la session pour éviter tout re-render du layout qui remonte le composant
+    sessionDismissed = true
     setShow(false)
     setShowIosTip(false)
     // × = snooze 7 jours (pas définitif)
-    localStorage.setItem(STORAGE_KEY_SNOOZED, Date.now().toString())
+    lsSet(STORAGE_KEY_SNOOZED, Date.now().toString())
   }
 
   if (!show) return null
