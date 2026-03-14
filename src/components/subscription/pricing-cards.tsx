@@ -5,8 +5,15 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Check, X, Star, Zap, Building, Sparkles, CheckCircle } from "lucide-react";
+import { Check, X, Star, Zap, Building, Sparkles, CheckCircle, AlertTriangle, ShieldOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { createStripeCheckoutSession, cancelSubscription } from "@/lib/actions/subscription";
 
@@ -80,6 +87,7 @@ export function PricingCards({ currentPlan, effectivePlan, stripeSubId, pendingC
   const [interval, setInterval] = useState<BillingInterval>("monthly");
   const [loadingPlan, setLoadingPlan] = useState<"PRO" | "BUSINESS" | null>(null);
   const [cancelling, setCancelling] = useState(false);
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
 
   // Checkout automatique si l'utilisateur arrive depuis la landing page ou après inscription
   useEffect(() => {
@@ -113,7 +121,7 @@ export function PricingCards({ currentPlan, effectivePlan, stripeSubId, pendingC
   }, [interval]);
 
   const handleCancel = useCallback(async () => {
-    if (!confirm("Êtes-vous sûr de vouloir annuler votre abonnement ? Il restera actif jusqu'à la fin de la période en cours.")) return;
+    setShowCancelDialog(false);
     setCancelling(true);
     try {
       const result = await cancelSubscription();
@@ -134,6 +142,67 @@ export function PricingCards({ currentPlan, effectivePlan, stripeSubId, pendingC
   const isBusiness = effectivePlan === "BUSINESS";
 
   return (
+    <>
+    {/* ─── Dialog confirmation annulation ─────────────────────────────────── */}
+    <Dialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
+      <DialogContent
+        onOpenAutoFocus={(e) => e.preventDefault()}
+        className="max-w-md bg-linear-to-b from-red-50 via-white to-white dark:from-[#2d1212] dark:via-[#1e1212] dark:to-[#1a1010] border border-red-300 dark:border-red-900/60 shadow-xl dark:shadow-red-950/50 rounded-2xl"
+      >
+        <DialogHeader>
+          <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-red-100 dark:bg-red-900/40 mx-auto mb-2">
+            <ShieldOff className="h-7 w-7 text-red-600 dark:text-red-400" />
+          </div>
+          <DialogTitle className="text-center text-xl font-bold text-red-700 dark:text-red-400">
+            Annuler votre abonnement ?
+          </DialogTitle>
+          <DialogDescription className="text-center text-slate-500 dark:text-slate-400 text-sm">
+            Cette action est irréversible. Lisez attentivement avant de continuer.
+          </DialogDescription>
+        </DialogHeader>
+
+        {/* Avertissements */}
+        <div className="space-y-3 my-2">
+          <div className="flex items-start gap-3 rounded-xl bg-red-100/80 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 p-3">
+            <AlertTriangle className="h-4 w-4 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
+            <p className="text-sm text-red-800 dark:text-red-300">
+              <span className="font-semibold">Accès limité immédiatement</span> — vous repasserez au plan Free à la fin de votre période en cours.
+            </p>
+          </div>
+          <div className="flex items-start gap-3 rounded-xl bg-red-100/80 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 p-3">
+            <AlertTriangle className="h-4 w-4 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
+            <p className="text-sm text-red-800 dark:text-red-300">
+              <span className="font-semibold">Aucun remboursement automatique</span> — pour toute demande de remboursement, contactez notre support.
+            </p>
+          </div>
+          <div className="flex items-start gap-3 rounded-xl bg-red-100/80 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 p-3">
+            <AlertTriangle className="h-4 w-4 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
+            <p className="text-sm text-red-800 dark:text-red-300">
+              <span className="font-semibold">Fonctionnalités Pro désactivées</span> — paiements en ligne, relances auto, factures récurrentes…
+            </p>
+          </div>
+        </div>
+
+        {/* Boutons */}
+        <div className="flex flex-col-reverse sm:flex-row gap-3 pt-2">
+          <Button
+            variant="outline"
+            className="flex-1 cursor-pointer border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800"
+            onClick={() => setShowCancelDialog(false)}
+          >
+            Non, garder mon abonnement
+          </Button>
+          <Button
+            className="flex-1 cursor-pointer bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800 text-white font-semibold"
+            onClick={handleCancel}
+            disabled={cancelling}
+          >
+            {cancelling ? "Annulation..." : "Oui, annuler quand même"}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+
     <div className="space-y-8">
       {/* Toggle mensuel / annuel */}
       <div className="flex items-center justify-center gap-3">
@@ -353,7 +422,7 @@ export function PricingCards({ currentPlan, effectivePlan, stripeSubId, pendingC
           <Button
             variant="outline"
             size="sm"
-            className="cursor-pointer"
+            className="cursor-pointer border-violet-300 dark:border-violet-500/40 text-violet-700 dark:text-violet-300 hover:bg-violet-50 dark:hover:bg-violet-900/20 hover:border-violet-400 dark:hover:border-violet-400/60 hover:text-violet-800 dark:hover:text-violet-200"
             onClick={async () => {
               const { getStripePortalUrl } = await import("@/lib/actions/subscription");
               const result = await getStripePortalUrl();
@@ -370,7 +439,7 @@ export function PricingCards({ currentPlan, effectivePlan, stripeSubId, pendingC
             variant="ghost"
             size="sm"
             disabled={cancelling}
-            onClick={handleCancel}
+            onClick={() => setShowCancelDialog(true)}
             className="cursor-pointer text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
           >
             {cancelling ? "Annulation..." : "Annuler l'abonnement"}
@@ -388,5 +457,6 @@ export function PricingCards({ currentPlan, effectivePlan, stripeSubId, pendingC
         </p>
       </div>
     </div>
+    </>
   );
 }
