@@ -56,6 +56,9 @@ export async function sendQuoteEmail(
 			},
 		});
 
+		// Montant de l'acompte si défini sur le devis
+		const depositAmount = doc?.depositAmount ? Number(doc.depositAmount) : 0;
+
 		if (!doc) {
 			return { success: false, error: "Devis introuvable" };
 		}
@@ -127,6 +130,10 @@ export async function sendQuoteEmail(
 							<td style="padding:4px 0;">Montant TTC</td>
 							<td style="padding:4px 0;text-align:right;font-weight:600;color:#7c3aed;">${amount} €</td>
 						</tr>
+						${depositAmount > 0 ? `<tr>
+							<td style="padding:4px 0;">Acompte demandé</td>
+							<td style="padding:4px 0;text-align:right;font-weight:600;color:#d97706;">${depositAmount.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</td>
+						</tr>` : ""}
 						<tr>
 							<td style="padding:4px 0;">Valide jusqu'au</td>
 							<td style="padding:4px 0;text-align:right;font-weight:600;">${validUntil}</td>

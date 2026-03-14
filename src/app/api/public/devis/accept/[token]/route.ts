@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { dispatchWebhook } from "@/lib/webhook-dispatcher";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { createDepositFromQuote } from "@/lib/actions/deposits";
 
 export async function GET(
 	_req: NextRequest,
@@ -28,6 +29,7 @@ export async function GET(
 				status: true,
 				respondedAt: true,
 				userId: true,
+				depositAmount: true,
 			},
 		});
 
@@ -59,6 +61,16 @@ export async function GET(
 		});
 
 		dispatchWebhook(document.userId, "quote.accepted", { id: document.id }).catch(() => {});
+
+		// Si le devis a un acompte défini → créer + envoyer email (awaité avant le redirect)
+		// Ne pas mettre en fire-and-forget : Vercel coupe l'exécution dès que la réponse est envoyée
+		if (document.depositAmount && Number(document.depositAmount) > 0) {
+			try {
+				await createDepositFromQuote(document.id, document.userId);
+			} catch (err) {
+				console.error("[accept-token] Erreur création acompte auto:", err);
+			}
+		}
 
 		return NextResponse.redirect(
 			new URL(`/public/devis/accepte?ref=${document.id}`, _req.url),

@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
   getReceipts,
@@ -31,6 +32,7 @@ export function useReceipts() {
 
 export function useCreateReceipt() {
   const queryClient = useQueryClient();
+  const router = useRouter();
   const openUpgradeModal = useUpgradeStore((s) => s.openUpgradeModal);
 
   return useMutation({
@@ -38,6 +40,7 @@ export function useCreateReceipt() {
     onSuccess: (result) => {
       if (result.success) {
         queryClient.invalidateQueries({ queryKey: ["receipts"] });
+        router.refresh();
         toast.success("Reçu créé !");
       } else {
         if (result.error?.includes("Limite") || result.error?.includes("plan Pro")) {
@@ -55,12 +58,14 @@ export function useCreateReceipt() {
 
 export function useDeleteReceipt() {
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   return useMutation({
     mutationFn: (id: string) => deleteReceipt(id),
     onSuccess: (result) => {
       if (result.success) {
         queryClient.invalidateQueries({ queryKey: ["receipts"] });
+        router.refresh();
         toast.success("Reçu supprimé");
       } else {
         toast.error(result.error ?? "Erreur lors de la suppression");

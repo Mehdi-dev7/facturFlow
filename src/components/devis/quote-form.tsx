@@ -685,7 +685,7 @@ export function QuoteForm({
 									setDepositInput("");
 									setShowDepositDialog(true);
 								}}
-								className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-slate-300 dark:border-violet-400/20 text-sm text-slate-400 dark:text-violet-400/50 hover:border-emerald-400 hover:text-emerald-600 dark:hover:border-emerald-400/40 dark:hover:text-emerald-400 transition-colors cursor-pointer"
+								className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-slate-300 dark:border-violet-400/70 text-sm text-slate-400 dark:text-violet-300/80 hover:border-emerald-400 hover:text-emerald-600 dark:hover:border-emerald-400/40 dark:hover:text-emerald-400 transition-colors cursor-pointer"
 							>
 								<Banknote className="size-4" />
 								Ajouter un acompte à verser

@@ -4,6 +4,7 @@
 // Pattern identique à use-receipts.ts
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
   getCreditNotes,
@@ -32,12 +33,14 @@ export function useCreditNotes() {
 
 export function useDeleteCreditNote() {
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   return useMutation({
     mutationFn: (id: string) => deleteCreditNote(id),
     onSuccess: (result) => {
       if (result.success) {
         queryClient.invalidateQueries({ queryKey: ["credit-notes"] });
+        router.refresh();
         toast.success("Avoir supprimé");
       } else {
         toast.error(result.error ?? "Erreur lors de la suppression");

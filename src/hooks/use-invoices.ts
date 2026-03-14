@@ -108,6 +108,7 @@ export function useCreateInvoice() {
  */
 export function useUpdateInvoice() {
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   return useMutation({
     mutationFn: ({
@@ -121,6 +122,7 @@ export function useUpdateInvoice() {
       if (result.success) {
         queryClient.invalidateQueries({ queryKey: ["invoices"] });
         queryClient.invalidateQueries({ queryKey: ["invoices", id] });
+        router.refresh();
         toast.success("Facture mise à jour !");
       } else {
         toast.error(result.error ?? "Erreur lors de la mise à jour");
@@ -137,6 +139,7 @@ export function useUpdateInvoice() {
  */
 export function useUpdateInvoiceStatus() {
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   return useMutation({
     mutationFn: ({ id, status }: { id: string; status: string }) =>
@@ -144,6 +147,7 @@ export function useUpdateInvoiceStatus() {
     onSuccess: (result) => {
       if (result.success) {
         queryClient.invalidateQueries({ queryKey: ["invoices"] });
+        router.refresh();
       } else {
         toast.error(result.error ?? "Erreur lors du changement de statut");
       }
@@ -159,12 +163,14 @@ export function useUpdateInvoiceStatus() {
  */
 export function useDeleteInvoice() {
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   return useMutation({
     mutationFn: (id: string) => deleteInvoice(id),
     onSuccess: (result) => {
       if (result.success) {
         queryClient.invalidateQueries({ queryKey: ["invoices"] });
+        router.refresh();
         toast.success("Facture supprimée");
       } else {
         toast.error(result.error ?? "Erreur lors de la suppression");

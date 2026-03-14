@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
   getDeposits,
@@ -53,14 +54,16 @@ export function useDeposits(filters?: { month?: string }) {
  */
 export function useCreateDeposit() {
   const queryClient = useQueryClient();
+  const router = useRouter();
   const openUpgradeModal = useUpgradeStore((s) => s.openUpgradeModal);
 
   return useMutation({
-    mutationFn: ({ data, draftId }: { data: DepositFormData; draftId?: string }) => 
+    mutationFn: ({ data, draftId }: { data: DepositFormData; draftId?: string }) =>
       createDeposit(data, draftId),
     onSuccess: (result) => {
       if (result.success) {
         queryClient.invalidateQueries({ queryKey: ["deposits"] });
+        router.refresh();
         toast.success("Acompte créé !");
       } else {
         if (result.error?.includes("Limite") || result.error?.includes("plan Pro")) {
@@ -81,6 +84,7 @@ export function useCreateDeposit() {
  */
 export function useUpdateDepositStatus() {
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   return useMutation({
     mutationFn: ({ id, status }: { id: string; status: string }) =>
@@ -88,6 +92,7 @@ export function useUpdateDepositStatus() {
     onSuccess: (result) => {
       if (result.success) {
         queryClient.invalidateQueries({ queryKey: ["deposits"] });
+        router.refresh();
       } else {
         toast.error(result.error ?? "Erreur lors du changement de statut");
       }
@@ -116,6 +121,7 @@ export function useSaveDraftDeposit() {
  */
 export function useUpdateDeposit() {
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   return useMutation({
     mutationFn: ({ id, ...data }: { id: string } & DepositFormData) =>
@@ -123,6 +129,7 @@ export function useUpdateDeposit() {
     onSuccess: (result) => {
       if (result.success) {
         queryClient.invalidateQueries({ queryKey: ["deposits"] });
+        router.refresh();
         toast.success("Acompte mis à jour !");
       } else {
         toast.error(result.error ?? "Erreur lors de la mise à jour");
@@ -139,12 +146,14 @@ export function useUpdateDeposit() {
  */
 export function useDeleteDeposit() {
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   return useMutation({
     mutationFn: (id: string) => deleteDeposit(id),
     onSuccess: (result) => {
       if (result.success) {
         queryClient.invalidateQueries({ queryKey: ["deposits"] });
+        router.refresh();
         toast.success("Acompte supprimé");
       } else {
         toast.error(result.error ?? "Erreur lors de la suppression");

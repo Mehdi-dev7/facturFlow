@@ -11,17 +11,23 @@ import { prisma } from "@/lib/prisma";
 import { wrapEmail, emailHeader, EMAIL_FOOTER } from "@/lib/email/email-base";
 import { getStripeCredential } from "@/lib/actions/payments";
 
-export async function sendDepositEmail(depositId: string) {
-  // 1. Vérifier la session
-  const session = await auth.api.getSession({ headers: await headers() });
-  if (!session?.user?.id) {
-    return { success: false, error: "Non authentifié" };
+// sendDepositEmail accepte un userId optionnel pour les appels internes (route token publique)
+// Si userId n'est pas fourni, on vérifie la session (appel depuis le dashboard)
+export async function sendDepositEmail(depositId: string, userId?: string) {
+  // 1. Résoudre l'userId — session OU paramètre direct (appels internes)
+  let resolvedUserId = userId;
+  if (!resolvedUserId) {
+    const session = await auth.api.getSession({ headers: await headers() });
+    if (!session?.user?.id) {
+      return { success: false, error: "Non authentifié" };
+    }
+    resolvedUserId = session.user.id;
   }
 
   try {
     // 2. Récupérer l'acompte depuis la DB avec client + user + infos bancaires
     const doc = await prisma.document.findFirst({
-      where: { id: depositId, userId: session.user.id, type: "DEPOSIT" },
+      where: { id: depositId, userId: resolvedUserId, type: "DEPOSIT" },
       include: {
         client: {
           select: {
@@ -86,7 +92,7 @@ export async function sendDepositEmail(depositId: string) {
     if (!isLocalhost) {
       if (savedPaymentLinks.stripe === true) {
         try {
-          const stripeCred = await getStripeCredential(session.user.id);
+          const stripeCred = await getStripeCredential(resolvedUserId);
           if (stripeCred) {
             stripePaymentUrl = `${appUrl}/api/pay/${depositId}`;
           }
@@ -98,7 +104,7 @@ export async function sendDepositEmail(depositId: string) {
       if (savedPaymentLinks.paypal === true) {
         try {
           const { getPaypalCredential } = await import("@/lib/actions/payments");
-          const paypalCred = await getPaypalCredential(session.user.id);
+          const paypalCred = await getPaypalCredential(resolvedUserId);
           if (paypalCred) {
             paypalPaymentUrl = `${appUrl}/api/pay-paypal/${depositId}`;
           }
@@ -110,7 +116,7 @@ export async function sendDepositEmail(depositId: string) {
       if (savedPaymentLinks.gocardless === true) {
         try {
           const gcAccount = await prisma.paymentAccount.findUnique({
-            where: { userId_provider: { userId: session.user.id, provider: "GOCARDLESS" } },
+            where: { userId_provider: { userId: resolvedUserId, provider: "GOCARDLESS" } },
             select: { isActive: true },
           });
           if (gcAccount?.isActive) {

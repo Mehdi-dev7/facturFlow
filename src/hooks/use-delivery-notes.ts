@@ -4,6 +4,7 @@
 // Pattern identique à use-credit-notes.ts
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
   getDeliveryNotes,
@@ -32,12 +33,14 @@ export function useDeliveryNotes() {
 
 export function useDeleteDeliveryNote() {
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   return useMutation({
     mutationFn: (id: string) => deleteDeliveryNote(id),
     onSuccess: (result) => {
       if (result.success) {
         queryClient.invalidateQueries({ queryKey: ["delivery-notes"] });
+        router.refresh();
         toast.success("Bon de livraison supprimé");
       } else {
         toast.error(result.error ?? "Erreur lors de la suppression");

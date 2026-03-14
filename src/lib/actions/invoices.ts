@@ -937,8 +937,20 @@ export async function createInvoiceFromQuote(quoteId: string) {
     const dueDate = new Date(today);
     dueDate.setDate(dueDate.getDate() + 30);
 
-    // Reprendre les metadata du devis (vatRate, paymentLinks) + ajouter la référence devis
+    // Reprendre les metadata du devis + écraser paymentLinks avec les providers actifs
     const quoteMetadata = (quote.businessMetadata ?? {}) as Record<string, unknown>;
+
+    // Providers actifs au moment de la conversion → boutons de paiement à jour dans l'email
+    const paymentAccounts = await prisma.paymentAccount.findMany({
+      where: { userId, isActive: true },
+      select: { provider: true },
+    });
+    const activeProviders = new Set(paymentAccounts.map((a) => a.provider));
+    const paymentLinks = {
+      stripe: activeProviders.has("STRIPE"),
+      paypal: activeProviders.has("PAYPAL"),
+      gocardless: activeProviders.has("GOCARDLESS"),
+    };
 
     const newDoc = await prisma.document.create({
       data: {
@@ -962,6 +974,8 @@ export async function createInvoiceFromQuote(quoteId: string) {
           // Référence au devis source
           fromQuoteId: quote.id,
           fromQuoteNumber: quote.number,
+          // Providers connectés au moment de la conversion (écrase ceux du devis)
+          paymentLinks,
         },
         lineItems: {
           create: quote.lineItems.map((li) => ({

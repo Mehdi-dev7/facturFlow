@@ -104,6 +104,7 @@ export function useCreateProforma() {
 
 export function useUpdateProforma() {
 	const queryClient = useQueryClient();
+	const router = useRouter();
 
 	return useMutation({
 		mutationFn: ({
@@ -117,6 +118,7 @@ export function useUpdateProforma() {
 			if (result.success) {
 				queryClient.invalidateQueries({ queryKey: ["proformas"] });
 				queryClient.invalidateQueries({ queryKey: ["proforma", id] });
+				router.refresh();
 				toast.success("Proforma mise à jour !");
 			} else {
 				toast.error(result.error ?? "Erreur lors de la mise à jour");
@@ -130,6 +132,7 @@ export function useUpdateProforma() {
 
 export function useUpdateProformaStatus() {
 	const queryClient = useQueryClient();
+	const router = useRouter();
 
 	return useMutation({
 		mutationFn: ({
@@ -142,6 +145,7 @@ export function useUpdateProformaStatus() {
 		onSuccess: (result) => {
 			if (result.success) {
 				queryClient.invalidateQueries({ queryKey: ["proformas"] });
+				router.refresh();
 			} else {
 				toast.error(result.error ?? "Erreur lors du changement de statut");
 			}
@@ -154,12 +158,14 @@ export function useUpdateProformaStatus() {
 
 export function useDeleteProforma() {
 	const queryClient = useQueryClient();
+	const router = useRouter();
 
 	return useMutation({
 		mutationFn: (id: string) => deleteProforma(id),
 		onSuccess: (result) => {
 			if (result.success) {
 				queryClient.invalidateQueries({ queryKey: ["proformas"] });
+				router.refresh();
 				toast.success("Proforma supprimée");
 			} else {
 				toast.error(result.error ?? "Erreur lors de la suppression");
@@ -194,12 +200,14 @@ export function useDuplicateProforma() {
 
 export function useSendProforma() {
 	const queryClient = useQueryClient();
+	const router = useRouter();
 
 	return useMutation({
 		mutationFn: (id: string) => sendProforma(id),
 		onSuccess: (result) => {
 			if (result.success) {
 				queryClient.invalidateQueries({ queryKey: ["proformas"] });
+				router.refresh();
 				toast.success("Proforma envoyée !");
 			} else {
 				toast.error(result.error ?? "Erreur lors de l'envoi");
@@ -213,6 +221,7 @@ export function useSendProforma() {
 
 export function useConvertProformaToInvoice() {
 	const queryClient = useQueryClient();
+	const router = useRouter();
 
 	return useMutation({
 		mutationFn: (proformaId: string) =>
@@ -221,6 +230,7 @@ export function useConvertProformaToInvoice() {
 			if (result.success && result.data) {
 				queryClient.invalidateQueries({ queryKey: ["proformas"] });
 				queryClient.invalidateQueries({ queryKey: ["invoices"] });
+				router.refresh();
 				toast.success(
 					`Facture ${result.data.invoiceNumber} créée avec succès !`,
 				);

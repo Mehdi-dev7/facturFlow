@@ -1,6 +1,7 @@
 "use client"
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import {
   getRecurrings,
@@ -38,12 +39,14 @@ export function useRecurrings() {
  */
 export function useCreateRecurring() {
   const qc = useQueryClient()
+  const router = useRouter()
 
   return useMutation({
     mutationFn: (data: RecurringFormData) => createRecurring(data),
     onSuccess: (result) => {
       if (result.success) {
         qc.invalidateQueries({ queryKey: ["recurrings"] })
+        router.refresh()
         toast.success("Récurrence créée !")
       } else {
         toast.error(result.error ?? "Erreur lors de la création")
@@ -60,12 +63,14 @@ export function useCreateRecurring() {
  */
 export function useToggleRecurring() {
   const qc = useQueryClient()
+  const router = useRouter()
 
   return useMutation({
     mutationFn: (id: string) => toggleRecurring(id),
     onSuccess: (result) => {
       if (result.success) {
         qc.invalidateQueries({ queryKey: ["recurrings"] })
+        router.refresh()
         toast.success("Récurrence mise à jour")
       } else {
         toast.error(result.error ?? "Erreur")
@@ -82,12 +87,14 @@ export function useToggleRecurring() {
  */
 export function useDeleteRecurring() {
   const qc = useQueryClient()
+  const router = useRouter()
 
   return useMutation({
     mutationFn: (id: string) => deleteRecurring(id),
     onSuccess: (result) => {
       if (result.success) {
         qc.invalidateQueries({ queryKey: ["recurrings"] })
+        router.refresh()
         toast.success("Récurrence supprimée")
       } else {
         toast.error(result.error ?? "Erreur lors de la suppression")

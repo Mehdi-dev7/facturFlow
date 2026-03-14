@@ -30,7 +30,7 @@ const EMAIL_STYLES = `
  */
 export function wrapEmail(content: string): string {
   return `${EMAIL_STYLES}
-<div class="ew" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:600px;margin:0 auto;padding:16px;">
+<div class="ew" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:680px;margin:0 auto;padding:16px;">
   ${content}
 </div>`
 }

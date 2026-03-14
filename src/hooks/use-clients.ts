@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
   getClients,
@@ -48,12 +49,14 @@ export function useClient(id: string | null) {
 
 export function useCreateClient() {
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   return useMutation({
     mutationFn: (data: ClientFormData) => createClient(data),
     onSuccess: (result) => {
       if (result.success && result.data) {
         queryClient.invalidateQueries({ queryKey: ["clients"] });
+        router.refresh();
         toast.success("Client créé !");
       } else if (!result.success) {
         const details = (result as { details?: { message: string }[] }).details;
@@ -71,6 +74,7 @@ export function useCreateClient() {
 
 export function useUpdateClient() {
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: ClientFormData }) => updateClient(id, data),
@@ -78,6 +82,7 @@ export function useUpdateClient() {
       if (result.success) {
         queryClient.invalidateQueries({ queryKey: ["clients"] });
         queryClient.invalidateQueries({ queryKey: ["clients", id] });
+        router.refresh();
         toast.success("Client mis à jour !");
       } else {
         toast.error(result.error ?? "Erreur lors de la mise à jour");
@@ -91,12 +96,14 @@ export function useUpdateClient() {
 
 export function useDeleteClient() {
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   return useMutation({
     mutationFn: (id: string) => deleteClient(id),
     onSuccess: (result) => {
       if (result.success) {
         queryClient.invalidateQueries({ queryKey: ["clients"] });
+        router.refresh();
         toast.success("Client supprimé");
       } else {
         toast.error(result.error ?? "Erreur lors de la suppression");

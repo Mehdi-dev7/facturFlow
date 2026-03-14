@@ -100,6 +100,7 @@ export function useCreateQuote() {
 
 export function useUpdateQuote() {
 	const queryClient = useQueryClient();
+	const router = useRouter();
 
 	return useMutation({
 		mutationFn: ({ id, data }: { id: string; data: QuoteFormData }) =>
@@ -108,6 +109,7 @@ export function useUpdateQuote() {
 			if (result.success) {
 				queryClient.invalidateQueries({ queryKey: ["quotes"] });
 				queryClient.invalidateQueries({ queryKey: ["quotes", id] });
+				router.refresh();
 				toast.success("Devis mis à jour !");
 			} else {
 				toast.error(result.error ?? "Erreur lors de la mise à jour");
@@ -124,6 +126,7 @@ export function useUpdateQuote() {
  */
 export function useUpdateQuoteStatus() {
 	const queryClient = useQueryClient();
+	const router = useRouter();
 
 	return useMutation({
 		mutationFn: ({ id, status }: { id: string; status: string }) =>
@@ -131,6 +134,7 @@ export function useUpdateQuoteStatus() {
 		onSuccess: (result) => {
 			if (result.success) {
 				queryClient.invalidateQueries({ queryKey: ["quotes"] });
+				router.refresh();
 			} else {
 				toast.error(result.error ?? "Erreur lors du changement de statut");
 			}
@@ -146,12 +150,14 @@ export function useUpdateQuoteStatus() {
  */
 export function useDeleteQuote() {
 	const queryClient = useQueryClient();
+	const router = useRouter();
 
 	return useMutation({
 		mutationFn: (id: string) => deleteQuote(id),
 		onSuccess: (result) => {
 			if (result.success) {
 				queryClient.invalidateQueries({ queryKey: ["quotes"] });
+				router.refresh();
 				toast.success("Devis supprimé");
 			} else {
 				toast.error(result.error ?? "Erreur lors de la suppression");
