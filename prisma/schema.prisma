@@ -406,6 +406,12 @@ model Document {
   @@index([number])
   @@index([status])
   @@index([type])
+  // Index composites pour les queries fréquentes (liste par user + type + status)
+  @@index([userId, type])
+  @@index([userId, type, status])
+  // Cron OVERDUE + lien acompte → devis
+  @@index([dueDate])
+  @@index([relatedDocumentId])
 }
 
 model DocumentLineItem {
@@ -635,4 +641,6 @@ model Reminder {
   @@index([documentId])
   @@index([sent])
   @@index([scheduledFor])
+  // Cron relances : sent=false AND scheduledFor <= now()
+  @@index([sent, scheduledFor])
 }
