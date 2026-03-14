@@ -3,7 +3,7 @@
 // Charge les données d'abonnement et rend les cards de pricing (composant client).
 
 import { redirect } from "next/navigation";
-import { Crown, Sparkles, CheckCircle, Clock } from "lucide-react";
+import { Crown, Sparkles, CheckCircle, Clock, AlertTriangle } from "lucide-react";
 import { getCurrentSubscription } from "@/lib/actions/subscription";
 import { PlanBadge } from "@/components/subscription/plan-badge";
 import { PricingCards } from "@/components/subscription/pricing-cards";
@@ -88,8 +88,8 @@ export default async function SubscriptionPage({
         </div>
       )}
 
-      {/* ── Plan actuel détaillé ── */}
-      {hasActiveSub && (
+      {/* ── Plan actuel — actif et renouvelable ── */}
+      {hasActiveSub && !planExpiresAt && (
         <div className="flex items-start gap-4 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-300 dark:border-emerald-700 rounded-2xl p-5">
           <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/40 shrink-0">
             <CheckCircle className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
@@ -98,16 +98,33 @@ export default async function SubscriptionPage({
             <p className="font-semibold text-emerald-800 dark:text-emerald-200">
               Abonnement {plan === "PRO" ? "Pro" : "Business"} actif
             </p>
-            {planExpiresAt && (
-              <p className="text-sm text-emerald-600 dark:text-emerald-300">
-                Prochain renouvellement le{" "}
+            <p className="text-sm text-emerald-600 dark:text-emerald-300">
+              Votre abonnement se renouvelle automatiquement chaque mois.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* ── Plan actuel — annulé, actif jusqu'à l'échéance ── */}
+      {hasActiveSub && planExpiresAt && (
+        <div className="flex items-start gap-4 bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-700 rounded-2xl p-5">
+          <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/40 shrink-0">
+            <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+          </div>
+          <div className="flex-1 space-y-1">
+            <p className="font-semibold text-amber-800 dark:text-amber-200">
+              Abonnement {plan === "PRO" ? "Pro" : "Business"} actif — annulation programmée
+            </p>
+            <p className="text-sm text-amber-700 dark:text-amber-300">
+              Vous conservez l'accès à toutes les fonctionnalités jusqu'au{" "}
+              <span className="font-bold">
                 {new Date(planExpiresAt).toLocaleDateString("fr-FR", {
                   day: "2-digit",
                   month: "long",
                   year: "numeric",
                 })}
-              </p>
-            )}
+              </span>. Aucun renouvellement ne sera effectué.
+            </p>
           </div>
         </div>
       )}

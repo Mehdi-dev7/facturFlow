@@ -174,11 +174,18 @@ export async function cancelSubscription() {
     }
 
     // cancel_at_period_end : l'abonnement reste actif jusqu'à la fin de la période
-    await stripe.subscriptions.update(user.stripeSubId, {
+    const updatedSub = await stripe.subscriptions.update(user.stripeSubId, {
       cancel_at_period_end: true,
     });
 
-    return { success: true } as const;
+    // Stocker la date de fin de période en DB pour afficher l'échéance dans le dashboard
+    const periodEnd = new Date(updatedSub.current_period_end * 1000);
+    await prisma.user.update({
+      where: { id: session.user.id },
+      data: { planExpiresAt: periodEnd },
+    });
+
+    return { success: true, data: { expiresAt: periodEnd.toISOString() } } as const;
   } catch (error) {
     console.error("[cancelSubscription] Erreur:", error);
     return { success: false, error: "Erreur lors de l'annulation de l'abonnement" } as const;
