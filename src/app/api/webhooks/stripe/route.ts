@@ -177,17 +177,25 @@ export async function POST(req: NextRequest) {
 
         if (!plan || typeof sub.customer !== "string") break;
 
+        // Si cancel_at_period_end = true → annulation programmée, on stocke la date de fin
+        let planExpiresAt: Date | null = null;
+        if (sub.cancel_at_period_end) {
+          const item = sub.items.data[0] as unknown as { current_period_end?: number };
+          const periodEnd = item?.current_period_end ?? (sub as unknown as { current_period_end?: number }).current_period_end;
+          if (periodEnd) planExpiresAt = new Date(periodEnd * 1000);
+        }
+
         // updateMany : stripeCustomerId n'est pas @unique dans le schema
         await prisma.user.updateMany({
           where: { stripeCustomerId: sub.customer },
           data: {
             plan,
-            planExpiresAt: null, // Plan actif → pas de date d'expiration
+            planExpiresAt,
             stripeSubId: sub.id,
           },
         });
 
-        console.log(`[Stripe webhook] Plan ${plan} activé pour customer ${sub.customer}`);
+        console.log(`[Stripe webhook] Plan ${plan} activé pour customer ${sub.customer}${planExpiresAt ? ` (annulation prévue le ${planExpiresAt.toISOString()})` : ""}`);
         break;
       }
 
