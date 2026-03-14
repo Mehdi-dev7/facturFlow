@@ -176,7 +176,7 @@ export async function cancelSubscription() {
     // cancel_at_period_end : l'abonnement reste actif jusqu'à la fin de la période
     const updatedSub = await stripe.subscriptions.update(user.stripeSubId, {
       cancel_at_period_end: true,
-    });
+    }) as unknown as Stripe.Subscription;
 
     // Stocker la date de fin de période en DB pour afficher l'échéance dans le dashboard
     const periodEnd = new Date(updatedSub.current_period_end * 1000);
