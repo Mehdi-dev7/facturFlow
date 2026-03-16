@@ -12,11 +12,12 @@ interface BeforeInstallPromptEvent extends Event {
 
 // ─── Constantes ───────────────────────────────────────────────────────────────
 
-const STORAGE_KEY_FIRST_VISIT = "facturnow_first_visit"
-const STORAGE_KEY_DISMISSED   = "facturnow_pwa_dismissed"   // permanent (après install)
-const STORAGE_KEY_SNOOZED     = "facturnow_pwa_snoozed"     // temporaire (× = snooze 7j)
-const DAYS_BEFORE_PROMPT      = 3
-const DAYS_SNOOZE             = 7
+const STORAGE_KEY_FIRST_VISIT  = "facturnow_first_visit"
+const STORAGE_KEY_DISMISSED    = "facturnow_pwa_dismissed"    // permanent (après install)
+const STORAGE_KEY_SNOOZED      = "facturnow_pwa_snoozed"      // temporaire (× = snooze 7j)
+const SESSION_KEY_DISMISSED    = "facturnow_pwa_sess_dismissed" // sessionStorage — survit au refresh mobile
+const DAYS_BEFORE_PROMPT       = 3
+const DAYS_SNOOZE              = 7
 
 // ─── Helpers localStorage (safe — évite les exceptions Safari ITP / privé) ────
 
@@ -27,9 +28,18 @@ function lsSet(key: string, value: string): void {
   try { localStorage.setItem(key, value) } catch { /* ignore */ }
 }
 
+// ─── Helpers sessionStorage (survit aux refreshs dans le même onglet) ─────────
+// Sur mobile, le module JS peut être réinitialisé au refresh → sessionDismissed
+// repasse à false. sessionStorage compense ce cas sans bloquer les nouvelles sessions.
+function ssGet(key: string): string | null {
+  try { return sessionStorage.getItem(key) } catch { return null }
+}
+function ssSet(key: string, value: string): void {
+  try { sessionStorage.setItem(key, value) } catch { /* ignore */ }
+}
+
 // ─── Flag de session : persiste tant que le module JS est chargé ──────────────
-// Évite que le banner réapparaisse si le composant remonte suite à un re-render
-// du layout (Next.js App Router), même si localStorage échoue.
+// 1ère ligne de défense — invalide si le module est réinitialisé (refresh mobile)
 let sessionDismissed = false
 
 // ─── Composant ────────────────────────────────────────────────────────────────
@@ -41,8 +51,10 @@ export function PwaInstallBanner() {
   const [showIosTip, setShowIosTip] = useState(false)
 
   useEffect(() => {
-    // Ne pas afficher si l'utilisateur a déjà fermé ce banner dans cette session
+    // Ne pas afficher si déjà fermé dans cette session
+    // — module-level (soft nav) OU sessionStorage (refresh mobile)
     if (sessionDismissed) return
+    if (ssGet(SESSION_KEY_DISMISSED)) return
 
     // Ne pas afficher si installée ou dismissée définitivement
     if (lsGet(STORAGE_KEY_DISMISSED)) return
@@ -95,12 +107,12 @@ export function PwaInstallBanner() {
   }
 
   const handleDismiss = () => {
-    // Marquer la session pour éviter tout re-render du layout qui remonte le composant
+    // Triple garde : module-level + sessionStorage + localStorage
     sessionDismissed = true
+    ssSet(SESSION_KEY_DISMISSED, "1")   // survit aux refreshs mobile dans l'onglet
+    lsSet(STORAGE_KEY_SNOOZED, Date.now().toString()) // snooze 7j cross-sessions
     setShow(false)
     setShowIosTip(false)
-    // × = snooze 7 jours (pas définitif)
-    lsSet(STORAGE_KEY_SNOOZED, Date.now().toString())
   }
 
   if (!show) return null
