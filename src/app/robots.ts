@@ -16,6 +16,7 @@ export default function robots(): MetadataRoute.Robots {
           "/public/devis/",  // pages de réponse aux devis (tokens privés)
           "/public/paiement-confirme/",
           "/public/proforma/",
+          "/coming-soon",     // page temporaire sans valeur SEO
         ],
       },
       // ─── Bloquer les crawlers IA pour protéger le contenu ────────────────────

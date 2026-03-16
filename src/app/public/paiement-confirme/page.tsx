@@ -10,6 +10,8 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Paiement confirmé | FacturNow",
   description: "Votre paiement a bien été reçu.",
+  // Page transactionnelle publique — pas d'intérêt à indexer
+  robots: { index: false, follow: false },
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────

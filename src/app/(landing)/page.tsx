@@ -92,7 +92,8 @@ const softwareApplicationSchema = {
     "Facturation récurrente",
     "E-invoicing obligatoire (Factur-X / SuperPDP)",
   ],
-  screenshot: "https://facturnow.fr/og-image.png",
+  // L'og:image est générée dynamiquement par Next.js — son URL publique est /opengraph-image
+  screenshot: "https://facturnow.fr/opengraph-image",
   author: {
     "@type": "Organization",
     name: "FacturNow",
@@ -113,7 +114,11 @@ const organizationSchema = {
     contactType: "customer support",
     availableLanguage: "French",
   },
-  sameAs: [],
+  // sameAs : profils officiels sur les annuaires et réseaux — renforce l'autorité de domaine
+  // Ajouter les liens LinkedIn, Twitter/X, Product Hunt etc. quand ils existent
+  sameAs: [
+    "https://www.linkedin.com/company/facturnow",
+  ],
 }
 
 // FAQPage : booste les featured snippets dans les SERP (extrait enrichi)

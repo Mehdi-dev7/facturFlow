@@ -61,11 +61,15 @@ export const metadata: Metadata = {
     },
   },
   // Open Graph global — l'image est générée par /app/opengraph-image.tsx (Next.js ImageResponse)
-  // Next.js la résout automatiquement, pas besoin de la déclarer ici
+  // Next.js la résout automatiquement. Les pages individuelles peuvent surcharger ces valeurs.
   openGraph: {
     type: "website",
     locale: "fr_FR",
+    url: "https://facturnow.fr",
     siteName: "FacturNow",
+    // Titre et description OG de fallback (utilisés si une page ne définit pas les siens)
+    title: "FacturNow — Logiciel de facturation en ligne",
+    description: "Facturation intelligente avec paiement en 1 clic Stripe, PayPal ou SEPA. Pour freelances, auto-entrepreneurs, PME, ETI et GE françaises.",
   },
   // Favicon & icônes — icon.svg dans app/ est auto-détecté par Next.js
   icons: {
@@ -74,10 +78,11 @@ export const metadata: Metadata = {
     ],
     apple: "/logo/icon.svg",
   },
-  // Twitter Card global
+  // Twitter Card global — fallback pour toutes les pages sans twitter metadata propres
   twitter: {
     card: "summary_large_image",
     site: "@facturnow",
+    title: "FacturNow — Logiciel de facturation en ligne",
     description: "Facturation intelligente avec paiement en 1 clic Stripe, PayPal ou SEPA. Pour freelances, auto-entrepreneurs, PME, ETI et GE françaises.",
   },
 };
