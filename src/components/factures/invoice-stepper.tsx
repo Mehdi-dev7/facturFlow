@@ -4,6 +4,7 @@ import { useState, useCallback } from "react";
 import type { UseFormReturn } from "react-hook-form";
 import { ChevronRight, Check, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { CreateButton } from "@/components/shared/create-button";
 import {
 	Sheet,
 	SheetContent,
@@ -183,16 +184,11 @@ export function InvoiceStepper({
 							<ChevronRight className="size-4" />
 						</Button>
 					) : (
-						<Button
-							type="button"
-							variant="gradient"
+						<CreateButton
+							label="Créer"
 							size="sm"
 							onClick={form.handleSubmit(onSubmit)}
-							className="cursor-pointer transition-all duration-300 hover:scale-105"
-						>
-							Créer
-							<Check className="size-4" />
-						</Button>
+						/>
 					)}
 				</div>
 

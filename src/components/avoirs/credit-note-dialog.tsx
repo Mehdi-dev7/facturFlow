@@ -15,6 +15,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { CreateButton } from "@/components/shared/create-button";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -23,7 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, FileMinus } from "lucide-react";
+import { FileMinus } from "lucide-react";
 import { toast } from "sonner";
 import { createCreditNote } from "@/lib/actions/credit-notes";
 import { sendCreditNoteEmail } from "@/lib/actions/send-credit-note-email";
@@ -319,20 +320,13 @@ export function CreditNoteDialog({
           </div>
 
           {/* Bouton de soumission */}
-          <Button
+          <CreateButton
             type="submit"
+            label="Émettre l'avoir + Envoyer par email"
             disabled={isSubmitting}
-            className="w-full text-xs xs:text-sm bg-linear-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700 text-white font-semibold cursor-pointer transition-all duration-300 hover:scale-[1.02] disabled:opacity-60 disabled:cursor-not-allowed"
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="size-4 animate-spin mr-2" />
-                Création en cours...
-              </>
-            ) : (
-              "Émettre l'avoir + Envoyer par email"
-            )}
-          </Button>
+            variant="default"
+            className="w-full text-xs xs:text-sm bg-linear-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700 text-white font-semibold"
+          />
         </form>
       </DialogContent>
     </Dialog>

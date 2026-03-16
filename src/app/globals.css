@@ -361,3 +361,9 @@ body {
 		filter: invert(1) opacity(1);
 	}
 }
+
+/* Animation anneau bouton créer — se remplit en 2s (strokeDashoffset : CIRC → 0) */
+@keyframes create-btn-ring {
+	from { stroke-dashoffset: 43.98; }
+	to   { stroke-dashoffset: 0; }
+}

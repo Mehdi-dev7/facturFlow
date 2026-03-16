@@ -119,8 +119,8 @@ export function ClientSearch({
 					)}
 				</div>
 				<div className="flex-1 min-w-0">
-					<p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate inline-flex items-center gap-1.5">
-						{selectedClient.name}
+					<p className="text-sm font-medium text-slate-900 dark:text-slate-100 flex items-center gap-1.5 overflow-hidden">
+						<span className="truncate">{selectedClient.name}</span>
 						{selectedClient.gcMandateStatus === "active" && (
 							<span className="inline-flex items-center gap-0.5 rounded-full px-1.5 py-px text-[9px] font-bold uppercase tracking-wide bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-500/40 shrink-0">
 								SEPA

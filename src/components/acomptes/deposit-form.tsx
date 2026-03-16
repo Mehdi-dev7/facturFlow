@@ -8,10 +8,10 @@ import {
 	Calendar,
 	Euro,
 	FileText,
-	Save,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { CreateButton } from "@/components/shared/create-button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -496,24 +496,12 @@ export function DepositForm({
 				{/* ── Bouton submit (masqué si hideSubmit = stepper) ─── */}
 				{!hideSubmit && (
 					<section className="lg:ml-auto lg:w-1/3">
-						<Button
+						<CreateButton
 							type="submit"
-							variant="gradient"
+							label={submitLabel ?? "Créer l'acompte"}
 							disabled={isSubmitting}
-							className="w-full h-11 cursor-pointer transition-all duration-300 hover:scale-[1.01] disabled:opacity-70 disabled:cursor-not-allowed"
-						>
-							{isSubmitting ? (
-								<>
-									<div className="animate-spin rounded-full size-4 border-2 border-white/30 border-t-white" />
-									Création...
-								</>
-							) : (
-								<>
-									<Save className="size-4" />
-									{submitLabel ?? "Créer l'acompte"}
-								</>
-							)}
-						</Button>
+							className="w-full h-11"
+						/>
 					</section>
 				)}
 			</form>

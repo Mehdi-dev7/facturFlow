@@ -6,7 +6,7 @@ import { readFile } from "node:fs/promises"
 import { join } from "node:path"
 
 export const runtime = "nodejs"
-export const alt = "FacturNow — Logiciel de facturation en ligne avec prélèvement SEPA"
+export const alt = "FacturNow — Facturation intelligente avec paiement en 1 clic Stripe, PayPal ou SEPA"
 export const size = { width: 1200, height: 630 }
 export const contentType = "image/png"
 
@@ -112,7 +112,7 @@ export default async function Image() {
             }}
           >
             <span style={{ color: "white" }}>Facturation intelligente avec&nbsp;</span>
-            <span style={{ color: "#a78bfa" }}>prélèvement SEPA</span>
+            <span style={{ color: "#a78bfa" }}>paiement en 1 clic Stripe, PayPal ou SEPA</span>
           </div>
 
           {/* Sous-titre */}
@@ -124,7 +124,7 @@ export default async function Image() {
               maxWidth: 700,
             }}
           >
-            Pour freelances, auto-entrepreneurs et PME françaises
+            Pour freelances, auto-entrepreneurs, PME, ETI et GE françaises
           </div>
 
           {/* Badges features */}

@@ -43,8 +43,8 @@ export const metadata: Metadata = {
     default: "FacturNow — Logiciel de facturation en ligne",
     template: "%s | FacturNow",
   },
-  description: "Créez, gérez et encaissez vos factures en ligne. Facturation intelligente avec prélèvement SEPA automatique pour freelances, auto-entrepreneurs et PME françaises.",
-  keywords: ["logiciel facturation", "facturation en ligne", "devis en ligne", "prélèvement SEPA", "GoCardless", "auto-entrepreneur", "freelance", "PME"],
+  description: "Facturation intelligente avec paiement en 1 clic Stripe, PayPal ou SEPA. Pour freelances, auto-entrepreneurs, PME, ETI et GE françaises.",
+  keywords: ["logiciel facturation", "facturation en ligne", "devis en ligne", "prélèvement SEPA", "GoCardless", "Stripe", "PayPal", "paiement en 1 clic", "auto-entrepreneur", "freelance", "PME", "ETI"],
   authors: [{ name: "FacturNow", url: "https://facturnow.fr" }],
   creator: "FacturNow",
   publisher: "FacturNow",
@@ -67,11 +67,10 @@ export const metadata: Metadata = {
     locale: "fr_FR",
     siteName: "FacturNow",
   },
-  // Favicon & icônes
+  // Favicon & icônes — icon.svg dans app/ est auto-détecté par Next.js
   icons: {
     icon: [
-      { url: "/logo/favicon.svg", type: "image/svg+xml" },
-      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.svg", type: "image/svg+xml" },
     ],
     apple: "/logo/icon.svg",
   },
@@ -79,6 +78,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     site: "@facturnow",
+    description: "Facturation intelligente avec paiement en 1 clic Stripe, PayPal ou SEPA. Pour freelances, auto-entrepreneurs, PME, ETI et GE françaises.",
   },
 };
 

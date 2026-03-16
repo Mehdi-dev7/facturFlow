@@ -194,7 +194,7 @@ export function HeroSection() {
 						<div className="grid grid-cols-2 gap-3 max-w-xl">
 							<div className="flex items-center space-x-2 bg-white/80 backdrop-blur-sm px-4 py-3 rounded-lg border border-slate-200 shadow-sm">
 								<CheckCircle2 className="h-5 w-5 text-green-500 shrink-0" />
-								<span className="text-xs sm:text-sm font-medium text-slate-700 font-ui">Templates professionnels</span>
+								<span className="text-xs sm:text-sm font-medium text-slate-700 font-ui">Votre client paye en 1 clic</span>
 							</div>
 							<div className="flex items-center space-x-2 bg-white/80 backdrop-blur-sm px-4 py-3 rounded-lg border border-slate-200 shadow-sm">
 								<CheckCircle2 className="h-5 w-5 text-green-500 shrink-0" />

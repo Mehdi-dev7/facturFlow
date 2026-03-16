@@ -14,6 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { CreateButton } from "@/components/shared/create-button";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -469,15 +470,12 @@ export function RecurringModal({ open, onOpenChange }: RecurringModalProps) {
                 <ChevronRight className="size-4" />
               </Button>
             ) : (
-              <Button
+              <CreateButton
                 type="submit"
-                variant="gradient"
+                label="Créer"
                 disabled={createMutation.isPending}
-                className="cursor-pointer rounded-xl"
-              >
-                {createMutation.isPending ? "Création..." : "Créer"}
-                {!createMutation.isPending && <Check className="size-4" />}
-              </Button>
+                size="sm"
+              />
             )}
           </div>
 
@@ -491,15 +489,12 @@ export function RecurringModal({ open, onOpenChange }: RecurringModalProps) {
             >
               Annuler
             </Button>
-            <Button
+            <CreateButton
               type="submit"
-              variant="gradient"
+              label="Créer la récurrence"
               disabled={createMutation.isPending}
-              className="cursor-pointer rounded-xl"
-            >
-              {createMutation.isPending ? "Création..." : "Créer la récurrence"}
-              {!createMutation.isPending && <Check className="size-4" />}
-            </Button>
+              className="w-full"
+            />
           </div>
         </form>
       </DialogContent>
