@@ -82,7 +82,7 @@ const faqSchema = {
       name: "Mon client doit-il faire quelque chose à chaque facture ?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Non. Le mandat SEPA est signé une seule fois. Ensuite, toutes vos factures (y compris récurrentes) sont prélevées automatiquement sans action de votre client.",
+        text: "Le mandat SEPA est signé une seule fois. Pour les factures récurrentes, tout est automatique : aucune action de votre client. Pour une facture ponctuelle, votre client clique simplement sur le bouton GoCardless dans l'email — le prélèvement est initié et vous recevez le paiement sous 3 à 5 jours ouvrés.",
       },
     },
     {
@@ -189,7 +189,7 @@ const faqs = [
   {
     question: "Mon client doit-il faire quelque chose à chaque facture ?",
     answer:
-      "Non. Le mandat SEPA est signé une seule fois. Ensuite, toutes vos factures (y compris récurrentes) sont prélevées automatiquement sans action de votre client.",
+      "Le mandat SEPA est signé une seule fois. Pour les factures récurrentes, tout est automatique : aucune action de votre client. Pour une facture ponctuelle, votre client clique simplement sur le bouton GoCardless dans l'email — le prélèvement est initié et vous recevez le paiement sous 3 à 5 jours ouvrés.",
   },
   {
     question: "Quels sont les frais GoCardless SEPA ?",

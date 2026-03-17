@@ -24,6 +24,43 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly",
       priority: 1.0,
     },
+    // ─── Pages SEO longue traîne — priorité haute ────────────────────────────
+    {
+      url: `${BASE_URL}/logiciel-facturation-freelance`,
+      lastModified: new Date("2026-03-17"),
+      changeFrequency: "monthly",
+      priority: 0.9,
+    },
+    {
+      url: `${BASE_URL}/facturation-auto-entrepreneur`,
+      lastModified: new Date("2026-03-17"),
+      changeFrequency: "monthly",
+      priority: 0.9,
+    },
+    {
+      url: `${BASE_URL}/facture-sepa-prelevement`,
+      lastModified: new Date("2026-03-17"),
+      changeFrequency: "monthly",
+      priority: 0.9,
+    },
+    {
+      url: `${BASE_URL}/facture-pdf-gratuite`,
+      lastModified: new Date("2026-03-17"),
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+    {
+      url: `${BASE_URL}/devis-facture-freelance`,
+      lastModified: new Date("2026-03-17"),
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+    {
+      url: `${BASE_URL}/encaissement-facture-en-ligne`,
+      lastModified: new Date("2026-03-17"),
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
     // ─── Pages légales — indexées pour la confiance et la conformité RGPD ─────
     // Leur présence dans le sitemap rassure Google sur la légitimité du site
     {

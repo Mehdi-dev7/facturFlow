@@ -103,7 +103,7 @@ const faqSchema = {
       name: "Puis-je relancer un client qui n'a pas répondu à mon devis ?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Oui. Depuis la liste des devis, vous pouvez renvoyer le devis par email en 1 clic. FacturNow suit les ouvertures d'emails pour vous indiquer si le client a vu votre devis.",
+        text: "Oui. Depuis la liste des devis, vous pouvez renvoyer le devis par email en 1 clic. Votre client reçoit un email avec deux boutons pour accepter ou refuser directement, sans avoir besoin de créer un compte.",
       },
     },
   ],
@@ -201,7 +201,7 @@ const faqs = [
   {
     question: "Puis-je relancer un client qui n'a pas répondu à mon devis ?",
     answer:
-      "Oui. Depuis la liste des devis, vous pouvez renvoyer le devis par email en 1 clic. FacturNow suit les ouvertures d'emails pour vous indiquer si le client a vu votre devis.",
+      "Oui. Depuis la liste des devis, vous pouvez renvoyer le devis par email en 1 clic. Votre client reçoit un email avec deux boutons pour accepter ou refuser directement, sans avoir besoin de créer un compte.",
   },
 ]
 

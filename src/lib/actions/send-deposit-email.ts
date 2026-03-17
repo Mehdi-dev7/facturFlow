@@ -5,11 +5,14 @@
 
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { renderToBuffer } from "@react-pdf/renderer";
 import { auth } from "@/lib/auth";
 import { resend } from "@/lib/email/resend";
 import { prisma } from "@/lib/prisma";
 import { wrapEmail, emailHeader, EMAIL_FOOTER } from "@/lib/email/email-base";
 import { getStripeCredential } from "@/lib/actions/payments";
+import DepositPdfDocument from "@/lib/pdf/deposit-pdf-document";
+import type { SavedDeposit } from "@/lib/types/deposits";
 
 // sendDepositEmail accepte un userId optionnel pour les appels internes (route token publique)
 // Si userId n'est pas fourni, on vérifie la session (appel depuis le dashboard)
@@ -40,7 +43,16 @@ export async function sendDepositEmail(depositId: string, userId?: string) {
         user: {
           select: {
             companyName: true,
+            companySiret: true,
+            companyAddress: true,
+            companyPostalCode: true,
+            companyCity: true,
             companyEmail: true,
+            companyPhone: true,
+            themeColor: true,
+            companyFont: true,
+            companyLogo: true,
+            invoiceFooter: true,
             iban: true,
             bic: true,
           },
@@ -138,7 +150,51 @@ export async function sendDepositEmail(depositId: string, userId?: string) {
       }
     }
 
-    // 5. Construire et envoyer l'email
+    // 5. Générer le PDF de l'acompte en buffer pour pièce jointe
+    const metadata2 = doc.businessMetadata as Record<string, unknown> | null;
+    const depositForPdf: SavedDeposit = {
+      id: doc.id,
+      number: doc.number,
+      status: doc.status,
+      date: doc.date.toISOString(),
+      dueDate: doc.dueDate?.toISOString() ?? null,
+      total: Number(doc.total),
+      subtotal: Number(doc.subtotal),
+      taxTotal: Number(doc.taxTotal),
+      notes: doc.notes,
+      relatedDocumentId: doc.relatedDocumentId,
+      businessMetadata: metadata2,
+      amount: Number(metadata2?.amount ?? doc.total),
+      vatRate: Number(metadata2?.vatRate ?? 0),
+      description: String(metadata2?.description ?? ""),
+      clientId: doc.client.id,
+      client: {
+        id: doc.client.id,
+        companyName: doc.client.companyName,
+        firstName: doc.client.firstName,
+        lastName: doc.client.lastName,
+        email: doc.client.email,
+        city: null,
+        address: null,
+        postalCode: null,
+      },
+      user: {
+        companyName: doc.user.companyName ?? null,
+        companySiret: doc.user.companySiret ?? null,
+        companyAddress: doc.user.companyAddress ?? null,
+        companyPostalCode: doc.user.companyPostalCode ?? null,
+        companyCity: doc.user.companyCity ?? null,
+        companyEmail: doc.user.companyEmail ?? null,
+        companyPhone: doc.user.companyPhone ?? null,
+        themeColor: doc.user.themeColor ?? null,
+        companyFont: doc.user.companyFont ?? null,
+        companyLogo: doc.user.companyLogo ?? null,
+        invoiceFooter: doc.user.invoiceFooter ?? null,
+      },
+    };
+    const pdfBuffer = await renderToBuffer(DepositPdfDocument({ deposit: depositForPdf }));
+
+    // 6. Construire et envoyer l'email
     const html = wrapEmail(`
       ${emailHeader("linear-gradient(135deg, #7c3aed, #4f46e5)", "", `Demande d'acompte ${doc.number}`)}
 
@@ -226,6 +282,12 @@ export async function sendDepositEmail(depositId: string, userId?: string) {
       to: [doc.client.email],
       subject: `Demande d'acompte ${doc.number} - ${amount}`,
       html,
+      attachments: [
+        {
+          filename: `Acompte-${doc.number}.pdf`,
+          content: pdfBuffer,
+        },
+      ],
     });
 
     if (error) {

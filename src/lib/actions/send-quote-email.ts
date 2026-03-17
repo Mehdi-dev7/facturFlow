@@ -4,10 +4,13 @@
 
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { renderToBuffer } from "@react-pdf/renderer";
 import { auth } from "@/lib/auth";
 import { resend } from "@/lib/email/resend";
 import { prisma } from "@/lib/prisma";
 import { wrapEmail, emailHeader, EMAIL_FOOTER } from "@/lib/email/email-base";
+import QuotePdfDocument from "@/lib/pdf/quote-pdf-document";
+import type { SavedQuote } from "@/lib/actions/quotes";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -51,6 +54,7 @@ export async function sendQuoteEmail(
 						themeColor: true,
 						companyFont: true,
 						companyLogo: true,
+						invoiceFooter: true,
 					},
 				},
 			},
@@ -111,7 +115,64 @@ export async function sendQuoteEmail(
 			)
 			.join("");
 
-		// 6. Envoyer l'email via Resend
+		// 6. Générer le PDF du devis en buffer pour pièce jointe
+		const quote: SavedQuote = {
+			id: doc.id,
+			number: doc.number,
+			status: doc.status,
+			updatedAt: doc.updatedAt.toISOString(),
+			date: doc.date.toISOString(),
+			validUntil: doc.validUntil?.toISOString() ?? null,
+			invoiceType: doc.invoiceType,
+			discountType: doc.discountType,
+			subtotal: doc.subtotal.toNumber(),
+			taxTotal: doc.taxTotal.toNumber(),
+			total: doc.total.toNumber(),
+			discount: doc.discount?.toNumber() ?? null,
+			depositAmount: doc.depositAmount?.toNumber() ?? null,
+			notes: doc.notes,
+			acceptToken: doc.acceptToken,
+			refuseToken: doc.refuseToken,
+			businessMetadata: doc.businessMetadata as Record<string, unknown> | null,
+			lineItems: doc.lineItems.map((li) => ({
+				id: li.id,
+				description: li.description,
+				quantity: li.quantity.toNumber(),
+				unitPrice: li.unitPrice.toNumber(),
+				vatRate: li.vatRate.toNumber(),
+				subtotal: li.subtotal.toNumber(),
+				taxAmount: li.taxAmount.toNumber(),
+				total: li.total.toNumber(),
+				category: li.category,
+				order: li.order,
+			})),
+			client: {
+				id: doc.client.id,
+				companyName: doc.client.companyName,
+				firstName: doc.client.firstName,
+				lastName: doc.client.lastName,
+				email: doc.client.email,
+				city: doc.client.city,
+				address: doc.client.address,
+				postalCode: doc.client.postalCode,
+			},
+			user: {
+				companyName: doc.user.companyName || emitterFallback?.companyName || null,
+				companySiret: doc.user.companySiret || emitterFallback?.companySiret || null,
+				companyAddress: doc.user.companyAddress || emitterFallback?.companyAddress || null,
+				companyPostalCode: doc.user.companyPostalCode || emitterFallback?.companyPostalCode || null,
+				companyCity: doc.user.companyCity || emitterFallback?.companyCity || null,
+				companyEmail: doc.user.companyEmail || emitterFallback?.companyEmail || null,
+				companyPhone: doc.user.companyPhone ?? null,
+				themeColor: doc.user.themeColor ?? null,
+				companyFont: doc.user.companyFont ?? null,
+				companyLogo: doc.user.companyLogo ?? null,
+				invoiceFooter: doc.user.invoiceFooter ?? null,
+			},
+		};
+		const pdfBuffer = await renderToBuffer(QuotePdfDocument({ quote }));
+
+		// 7. Envoyer l'email via Resend
 		const { error } = await resend.emails.send({
 			from: process.env.RESEND_FROM_EMAIL ?? `${emitterName} <noreply@facturnow.fr>`,
 			to: [doc.client.email],
@@ -173,6 +234,12 @@ export async function sendQuoteEmail(
 
 				${EMAIL_FOOTER}
 			`),
+			attachments: [
+				{
+					filename: `Devis-${doc.number}.pdf`,
+					content: pdfBuffer,
+				},
+			],
 		});
 
 		if (error) {
