@@ -56,6 +56,7 @@ export function Footer() {
             <Link href="/facture-pdf-gratuite"             className="text-slate-300 text-sm lg:text-base transition-all duration-300 hover:text-secondary hover:ml-2">Facture PDF gratuite</Link>
             <Link href="/devis-facture-freelance"          className="text-slate-300 text-sm lg:text-base transition-all duration-300 hover:text-secondary hover:ml-2">Devis et facture freelance</Link>
             <Link href="/encaissement-facture-en-ligne"    className="text-slate-300 text-sm lg:text-base transition-all duration-300 hover:text-secondary hover:ml-2">Encaissement en ligne</Link>
+            <Link href="/blog"                             className="text-slate-300 text-sm lg:text-base transition-all duration-300 hover:text-secondary hover:ml-2">Blog & Guides</Link>
           </ul>
         </div>
 

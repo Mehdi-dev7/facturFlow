@@ -66,7 +66,7 @@ const personas = [
 export function ForWhoSection() {
   return (
     <section id="pour-qui" className=" bg-slate-50">
-      <div className="mw-full px-4 sm:px-[8%] xl:px-[12%] py-16 xl:py-20">
+      <div className="w-full px-4 sm:px-[8%] xl:px-[12%] py-16 xl:py-20">
 
         {/* Header */}
         <div className="text-center mb-12">

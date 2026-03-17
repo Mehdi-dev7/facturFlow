@@ -56,6 +56,14 @@ export function Navbar() {
                   <span className="absolute left-1/2 -bottom-1 w-0 h-px bg-primary transition-all duration-300 group-hover:w-full group-hover:left-0" />
                 </Link>
               ))}
+              {/* Lien Blog — route réelle, hors scrollTo */}
+              <Link
+                href="/blog"
+                className="relative kanit text-xl text-secondary hover:text-primary transition-colors font-heading group"
+              >
+                Blog
+                <span className="absolute left-1/2 -bottom-1 w-0 h-px bg-primary transition-all duration-300 group-hover:w-full group-hover:left-0" />
+              </Link>
             </div>
 
             {/* Desktop - Bouton connexion */}
@@ -116,6 +124,17 @@ export function Navbar() {
               {link.label}
             </Link>
           ))}
+          {/* Lien Blog mobile */}
+          <Link
+            href="/blog"
+            onClick={close}
+            className={`kanit text-2xl text-secondary hover:text-primary transition-all duration-300 font-heading ${
+              isOpen ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
+            }`}
+            style={{ transitionDelay: isOpen ? `${(navLinks.length + 1) * 75}ms` : "0ms" }}
+          >
+            Blog
+          </Link>
 
           <div className="w-106 h-px bg-linear-to-r from-transparent via-primary/30 to-transparent" />
 

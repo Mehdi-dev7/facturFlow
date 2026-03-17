@@ -61,6 +61,43 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.8,
     },
+    // ─── Blog SEO — articles longue traîne ──────────────────────────────────
+    {
+      url: `${BASE_URL}/blog`,
+      lastModified: new Date("2026-03-17"),
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
+    {
+      url: `${BASE_URL}/blog/facture-electronique-obligatoire-2026`,
+      lastModified: new Date("2026-03-17"),
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+    {
+      url: `${BASE_URL}/blog/comment-facturer-auto-entrepreneur-2026`,
+      lastModified: new Date("2026-03-17"),
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+    {
+      url: `${BASE_URL}/blog/reduire-impayes-relances-automatiques`,
+      lastModified: new Date("2026-03-17"),
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+    {
+      url: `${BASE_URL}/blog/prelevement-sepa-guide-freelance`,
+      lastModified: new Date("2026-03-17"),
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+    {
+      url: `${BASE_URL}/blog/devis-vs-facture-difference`,
+      lastModified: new Date("2026-03-17"),
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
     // ─── Pages légales — indexées pour la confiance et la conformité RGPD ─────
     // Leur présence dans le sitemap rassure Google sur la légitimité du site
     {
