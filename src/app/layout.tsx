@@ -43,8 +43,8 @@ export const metadata: Metadata = {
     default: "FacturNow — Logiciel de facturation en ligne",
     template: "%s | FacturNow",
   },
-  description: "Facturation intelligente avec paiement en 1 clic Stripe, PayPal ou SEPA. Pour freelances, auto-entrepreneurs, PME, ETI et GE françaises.",
-  keywords: ["logiciel facturation", "facturation en ligne", "devis en ligne", "prélèvement SEPA", "GoCardless", "Stripe", "PayPal", "paiement en 1 clic", "auto-entrepreneur", "freelance", "PME", "ETI"],
+  description: "Facturation intelligente avec paiement en 1 clic Stripe, PayPal ou SEPA. Pour freelances, auto-entrepreneurs, PMEfrançaises.",
+  keywords: ["logiciel facturation", "facturation en ligne", "devis en ligne", "prélèvement SEPA", "GoCardless", "Stripe", "PayPal", "paiement en 1 clic", "auto-entrepreneur", "freelance", "PME"],
   authors: [{ name: "FacturNow", url: "https://facturnow.fr" }],
   creator: "FacturNow",
   publisher: "FacturNow",
@@ -69,7 +69,7 @@ export const metadata: Metadata = {
     siteName: "FacturNow",
     // Titre et description OG de fallback (utilisés si une page ne définit pas les siens)
     title: "FacturNow — Logiciel de facturation en ligne",
-    description: "Facturation intelligente avec paiement en 1 clic Stripe, PayPal ou SEPA. Pour freelances, auto-entrepreneurs, PME, ETI et GE françaises.",
+    description: "Facturation intelligente avec paiement en 1 clic Stripe, PayPal ou SEPA. Pour freelances, auto-entrepreneurs, PME françaises.",
   },
   // Favicon & icônes — icon.svg dans app/ est auto-détecté par Next.js
   icons: {
@@ -83,7 +83,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     site: "@facturnow",
     title: "FacturNow — Logiciel de facturation en ligne",
-    description: "Facturation intelligente avec paiement en 1 clic Stripe, PayPal ou SEPA. Pour freelances, auto-entrepreneurs, PME, ETI et GE françaises.",
+    description: "Facturation intelligente avec paiement en 1 clic Stripe, PayPal ou SEPA. Pour freelances, auto-entrepreneurs, PME françaises.",
   },
 };
 

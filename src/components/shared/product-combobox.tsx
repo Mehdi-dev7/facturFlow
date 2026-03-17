@@ -78,9 +78,9 @@ export function ProductCombobox({
     ? `Mettre à jour "${value.trim()}" (${currentUnitPrice.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €)`
     : `Sauvegarder "${value.trim()}" dans mon catalogue`;
 
-  // ── Filtrage dropdown ──────────────────────────────────────────────────────
+  // ── Filtrage dropdown — commence par la saisie (startsWith) ───────────────
   const filtered = products.filter((p) =>
-    p.name.toLowerCase().includes(value.toLowerCase())
+    p.name.toLowerCase().startsWith(value.toLowerCase())
   );
   const showDropdown = isOpen && value.trim().length > 0 && filtered.length > 0;
 

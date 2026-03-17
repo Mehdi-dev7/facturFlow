@@ -176,18 +176,18 @@ export function HeroSection() {
 							</span>
 						</div>
 
-						{/* Titre principal */}
+						{/* Titre principal — mots-clés : logiciel facturation freelance PME France */}
 						<h1 className="text-4xl  md:text-5xl xl:text-6xl 2xl:text-7xl leading-tight">
-							<span className="text-gradient">Gérez vos factures</span>
+							<span className="text-gradient">Logiciel de facturation</span>
 							<br />
-							<span className="text-slate-900">en toute simplicité</span>
+							<span className="text-slate-900">pour freelances & PME françaises</span>
 						</h1>
 
-						{/* Sous-titre */}
+						{/* Sous-titre — riche en mots-clés secondaires */}
 						<p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-xl">
-							Créez, envoyez et suivez vos factures professionnelles en quelques
-							clics. FacturNow automatise votre facturation pour que vous
-							puissiez vous concentrer sur votre activité.
+							Créez vos factures et devis en 2 minutes, encaissez en 1 clic via
+							Stripe, PayPal ou SEPA. Relances automatiques, facturation
+							récurrente et conformité électronique 2026 incluse.
 						</p>
 
 						{/* Features badges */}

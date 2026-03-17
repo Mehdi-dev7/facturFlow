@@ -3,7 +3,7 @@ import Link from "next/link"
 export function Footer() {
   return (
     <div className="px-4 sm:px-[8%] xl:px-[12%] py-12 sm:py-13 pb-0 bg-slate-900 relative">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 pb-12 sm:pb-10">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 pb-12 sm:pb-10">
         {/* Colonne 1 - Brand */}
         <div>
           <Link
@@ -44,7 +44,22 @@ export function Footer() {
           </ul>
         </div>
 
-        {/* Colonne 4 - Légal */}
+        {/* Colonne 4 - Ressources SEO — liens vers les pages longue traîne */}
+        <div>
+          <h3 className="text-base sm:text-lg lg:text-xl text-white font-semibold mb-3 sm:mb-4">
+            Ressources
+          </h3>
+          <ul className="flex flex-col space-y-2">
+            <Link href="/logiciel-facturation-freelance"   className="text-slate-300 text-sm lg:text-base transition-all duration-300 hover:text-secondary hover:ml-2">Facturation freelance</Link>
+            <Link href="/facturation-auto-entrepreneur"    className="text-slate-300 text-sm lg:text-base transition-all duration-300 hover:text-secondary hover:ml-2">Facturation auto-entrepreneur</Link>
+            <Link href="/facture-sepa-prelevement"         className="text-slate-300 text-sm lg:text-base transition-all duration-300 hover:text-secondary hover:ml-2">Prélèvement SEPA automatique</Link>
+            <Link href="/facture-pdf-gratuite"             className="text-slate-300 text-sm lg:text-base transition-all duration-300 hover:text-secondary hover:ml-2">Facture PDF gratuite</Link>
+            <Link href="/devis-facture-freelance"          className="text-slate-300 text-sm lg:text-base transition-all duration-300 hover:text-secondary hover:ml-2">Devis et facture freelance</Link>
+            <Link href="/encaissement-facture-en-ligne"    className="text-slate-300 text-sm lg:text-base transition-all duration-300 hover:text-secondary hover:ml-2">Encaissement en ligne</Link>
+          </ul>
+        </div>
+
+        {/* Colonne 5 - Légal */}
         <div>
           <h3 className="text-base sm:text-lg lg:text-xl text-white font-semibold mb-3 sm:mb-4">
             Légal

@@ -5,7 +5,7 @@
 
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
-import { Save, Palette } from "lucide-react";
+import { Save, Palette, Plus } from "lucide-react";
 import { InvoicePreview } from "./invoice-preview";
 import { ThemePicker } from "./theme-picker";
 import { FontPicker } from "./font-picker";
@@ -130,6 +130,30 @@ export function AppearancePageContent({ initial }: AppearancePageContentProps) {
                 Affiché en bas de toutes vos factures, devis et documents. Idéal pour vos mentions légales, IBAN ou un message personnalisé.
               </p>
             </div>
+
+            {/* Chips d'insertion rapide */}
+            <div className="flex flex-wrap gap-2">
+              {[
+                { label: "Franchise TVA", snippet: "TVA non applicable, art. 293 B du CGI" },
+                { label: "IBAN",          snippet: "[Votre IBAN]" },
+                { label: "Merci de votre confiance", snippet: "Merci de votre confiance !" },
+              ].map(({ label, snippet }) => (
+                <button
+                  key={label}
+                  type="button"
+                  onClick={() =>
+                    setInvoiceFooter((prev) =>
+                      prev ? `${prev} — ${snippet}` : snippet
+                    )
+                  }
+                  className="inline-flex items-center gap-1 text-[11px] font-medium px-2.5 py-1 rounded-full border border-violet-300 text-violet-600 hover:bg-violet-50 dark:border-violet-500/40 dark:text-violet-400 dark:hover:bg-violet-500/10 transition-colors cursor-pointer"
+                >
+                  <Plus className="h-3 w-3" />
+                  {label}
+                </button>
+              ))}
+            </div>
+
             <textarea
               value={invoiceFooter}
               onChange={(e) => setInvoiceFooter(e.target.value)}

@@ -92,7 +92,7 @@ export default async function Image() {
             }}
           >
             <span style={{ color: "white" }}>Facturation intelligente avec&nbsp;</span>
-            <span style={{ color: "#a78bfa" }}>prélèvement SEPA</span>
+            <span style={{ color: "#a78bfa" }}>paiement en 1 clic Stripe, PayPal ou SEPA</span>
           </div>
           <div
             style={{

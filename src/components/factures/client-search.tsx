@@ -42,15 +42,15 @@ export function ClientSearch({
 		[clients, selectedClientId],
 	);
 
-	// Filtrer par recherche
+	// Filtrer par recherche — commence par la saisie (startsWith)
 	const filtered = useMemo(() => {
 		if (!query.trim()) return clients;
 		const q = query.toLowerCase();
 		return clients.filter(
 			(c) =>
-				c.name.toLowerCase().includes(q) ||
-				c.email.toLowerCase().includes(q) ||
-				(c.city?.toLowerCase().includes(q) ?? false),
+				c.name.toLowerCase().startsWith(q) ||
+				c.email.toLowerCase().startsWith(q) ||
+				(c.city?.toLowerCase().startsWith(q) ?? false),
 		);
 	}, [query, clients]);
 

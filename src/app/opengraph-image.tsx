@@ -124,7 +124,7 @@ export default async function Image() {
               maxWidth: 700,
             }}
           >
-            Pour freelances, auto-entrepreneurs, PME, ETI et GE françaises
+            Pour freelances, auto-entrepreneurs, PME françaises
           </div>
 
           {/* Badges features */}

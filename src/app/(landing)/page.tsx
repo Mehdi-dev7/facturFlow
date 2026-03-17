@@ -3,9 +3,11 @@ import {
   Navbar,
   HeroSection,
   FeaturesSection,
+  ForWhoSection,
   SecurePaymentsSection,
   HowItWorksSection,
   ProblemSolutionSection,
+  EInvoicingSection,
   PricingSection,
   FaqSection,
   Footer,
@@ -191,9 +193,13 @@ export default async function Home() {
       <Navbar />
       <HeroSection />
       <FeaturesSection />
+      {/* Section "Pour qui ?" — SEO personas : freelance, auto-entrepreneur, PME */}
+      <ForWhoSection />
       <SecurePaymentsSection />
       <HowItWorksSection />
       <ProblemSolutionSection />
+      {/* Section facturation électronique 2026 — mot-clé chaud, conformité Factur-X */}
+      <EInvoicingSection />
       {/* Carousel d'avis — affiché uniquement si au moins un avis est approuvé */}
       {reviews.length > 0 && <ReviewsCarousel reviews={reviews} />}
       <PricingSection />
