@@ -34,6 +34,7 @@ export async function sendDepositEmail(depositId: string, userId?: string) {
       include: {
         client: {
           select: {
+            id: true,
             email: true,
             firstName: true,
             lastName: true,
