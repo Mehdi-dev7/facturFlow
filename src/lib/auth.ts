@@ -95,8 +95,61 @@ export const auth = betterAuth({
       otpLength: 6,
       expiresIn: 300, // 5 minutes
       sendVerificationOTP: async ({ email, otp }) => {
-        // TODO: Remplacer par Resend en production
-        console.log(`[OTP] Code de vérification pour ${email}: ${otp}`)
+        const from = process.env.RESEND_FROM_EMAIL ?? "FacturNow <onboarding@resend.dev>";
+        // En dev avec onboarding@resend.dev, Resend n'autorise que l'adresse du compte Resend
+        const to = process.env.RESEND_DEV_TO ?? email;
+        if (process.env.RESEND_DEV_TO) {
+          console.log(`[OTP DEV] Code redirigé : ${email} → ${to} | code: ${otp}`);
+        }
+        try {
+          const { error } = await resend.emails.send({
+            from,
+            to,
+            subject: "Votre code de vérification FacturNow",
+            html: `
+              <!DOCTYPE html>
+              <html lang="fr">
+              <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+              <body style="margin:0;padding:0;background:#f8fafc;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+                <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;padding:40px 16px;">
+                  <tr><td align="center">
+                    <table width="100%" style="max-width:560px;background:#ffffff;border-radius:16px;border:1px solid #e2e8f0;overflow:hidden;">
+                      <!-- Header -->
+                      <tr><td style="background:linear-gradient(135deg,#7c3aed,#a855f7);padding:32px;text-align:center;">
+                        <div style="width:52px;height:52px;background:rgba(255,255,255,0.2);border-radius:12px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:12px;">
+                          <span style="font-size:24px;font-weight:700;color:#fff;">F</span>
+                        </div>
+                        <h1 style="margin:0;font-size:22px;font-weight:700;color:#fff;">Vérifiez votre email</h1>
+                      </td></tr>
+                      <!-- Body -->
+                      <tr><td style="padding:32px;text-align:center;">
+                        <p style="margin:0 0 24px;font-size:15px;color:#64748b;line-height:1.6;">
+                          Utilisez le code ci-dessous pour confirmer votre adresse email.<br>Il expire dans <strong>5 minutes</strong>.
+                        </p>
+                        <div style="display:inline-block;background:#f1f5f9;border-radius:12px;padding:20px 40px;margin:8px 0 24px;">
+                          <span style="font-size:36px;font-weight:700;color:#7c3aed;letter-spacing:8px;">${otp}</span>
+                        </div>
+                        <p style="margin:0;font-size:12px;color:#94a3b8;">
+                          Si vous n'avez pas créé de compte FacturNow, ignorez cet email.
+                        </p>
+                      </td></tr>
+                      <!-- Footer -->
+                      <tr><td style="padding:16px 32px;background:#f8fafc;border-top:1px solid #e2e8f0;text-align:center;">
+                        <p style="margin:0;font-size:11px;color:#94a3b8;">© ${new Date().getFullYear()} FacturNow — Tous droits réservés</p>
+                      </td></tr>
+                    </table>
+                  </td></tr>
+                </table>
+              </body>
+              </html>
+            `,
+          });
+          if (error) console.error("[OTP] Resend error:", error);
+        } catch (err) {
+          console.error("[OTP] Exception:", err);
+        }
+        // Toujours logger le code en fallback (utile en dev si Resend échoue)
+        console.log(`[OTP] Code pour ${email}: ${otp}`);
       },
     }),
   ],
