@@ -147,7 +147,7 @@ const STEPS: TutorialStep[] = [
 			{ type: "rect", x: 0, y: 35, w: 100, h: 32, color: GC_COLOR },
 			// Masquer l'identifiant webhook
 			{ type: "mask", x: 62, y: 42, w: 16, h: 16, bg: "#0f172a" },
-			{ type: "badge", x: 8, y: 31, text: "Activé ✓", color: GC_COLOR },
+			{ type: "badge", x: 8, y: 31, text: "Active", color: GC_COLOR },
 		],
 	},
 	{

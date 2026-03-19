@@ -110,7 +110,7 @@ export function SiretLookupInput({ onFound }: SiretLookupInputProps) {
 						Entreprise trouvée — champs pré-remplis automatiquement
 					</p>
 					<p className="text-xs text-emerald-600 dark:text-emerald-400">
-						✓ Nom, SIREN, SIRET, adresse et numéro de TVA récupérés
+						Nom, SIREN, SIRET, adresse et numéro de TVA récupérés
 					</p>
 				</div>
 			)}

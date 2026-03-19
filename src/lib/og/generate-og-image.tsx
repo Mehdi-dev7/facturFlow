@@ -132,7 +132,7 @@ export async function generateLandingOgImage(options: OgImageOptions) {
                     fontWeight: 600,
                   }}
                 >
-                  {`✓ ${f}`}
+                  {`• ${f}`}
                 </div>
               ))}
             </div>
