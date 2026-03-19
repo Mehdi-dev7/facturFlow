@@ -611,6 +611,11 @@ export default function DashboardShell({
 													/>
 												))}
 
+												{/* Bouton install PWA mobile */}
+												{(subscription?.effectivePlan === "PRO" || subscription?.effectivePlan === "BUSINESS") && (
+													<PwaInstallSidebarButton collapsed={false} />
+												)}
+
 												{/* Admin link mobile */}
 												{isAdmin && (
 													<NavLink
