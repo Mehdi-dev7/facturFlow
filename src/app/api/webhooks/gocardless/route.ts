@@ -81,10 +81,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "invalid json" }, { status: 400 });
   }
 
-  // GoCardless attend un 200 rapide — on traite en arrière-plan (fire & forget)
-  handleEvents(events, matchedCred).catch((err) =>
-    console.error("[GC webhook] handleEvents:", err),
-  );
+  // Traitement synchrone avant de répondre — GoCardless attend 5s, Prisma << 1s
+  try {
+    await handleEvents(events, matchedCred);
+  } catch (err) {
+    console.error("[GC webhook] handleEvents:", err);
+  }
 
   return NextResponse.json({ ok: true }, { status: 200 });
 }
