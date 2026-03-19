@@ -38,9 +38,10 @@ function ssSet(key: string, value: string): void {
   try { sessionStorage.setItem(key, value) } catch { /* ignore */ }
 }
 
-// ─── Flag de session : persiste tant que le module JS est chargé ──────────────
-// 1ère ligne de défense — invalide si le module est réinitialisé (refresh mobile)
+// ─── Flags module-level : persistent tant que le module JS est chargé ────────
+// Survivent aux soft-nav Next.js, resets uniquement sur full reload
 let sessionDismissed = false
+let inMemorySnoozedAt = 0 // timestamp dismissal in-memory (fallback si localStorage KO)
 
 // ─── Composant ────────────────────────────────────────────────────────────────
 
@@ -51,18 +52,27 @@ export function PwaInstallBanner() {
   const [showIosTip, setShowIosTip] = useState(false)
 
   useEffect(() => {
-    // Ne pas afficher si déjà fermé dans cette session
-    // — module-level (soft nav) OU sessionStorage (refresh mobile)
+    // 1. Déjà dismissé dans cette session JS (soft nav)
     if (sessionDismissed) return
-    if (ssGet(SESSION_KEY_DISMISSED)) return
 
-    // Ne pas afficher si installée ou dismissée définitivement
-    if (lsGet(STORAGE_KEY_DISMISSED)) return
+    // 2. App déjà installée
     if (window.matchMedia("(display-mode: standalone)").matches) return
 
-    // Ne pas afficher si snoozé récemment
+    // 3. Dismissé définitivement (après install acceptée)
+    if (lsGet(STORAGE_KEY_DISMISSED)) return
+
+    // 4. Snooze : vérifier in-memory D'ABORD (fonctionne même si localStorage KO)
+    //    puis localStorage comme source de persistance cross-sessions
+    const inMemorySnoozeActive =
+      inMemorySnoozedAt > 0 &&
+      (Date.now() - inMemorySnoozedAt) / (1000 * 60 * 60 * 24) < DAYS_SNOOZE
+    if (inMemorySnoozeActive) return
+
     const snoozedAt = parseInt(lsGet(STORAGE_KEY_SNOOZED) ?? "0", 10)
     if (snoozedAt && (Date.now() - snoozedAt) / (1000 * 60 * 60 * 24) < DAYS_SNOOZE) return
+
+    // 5. sessionStorage — backup pour refresh mobile dans le même onglet
+    if (ssGet(SESSION_KEY_DISMISSED)) return
 
     // Détecter iOS (pas de beforeinstallprompt sur Safari)
     const ios = /iphone|ipad|ipod/i.test(navigator.userAgent)
@@ -107,10 +117,11 @@ export function PwaInstallBanner() {
   }
 
   const handleDismiss = () => {
-    // Triple garde : module-level + sessionStorage + localStorage
-    sessionDismissed = true
-    ssSet(SESSION_KEY_DISMISSED, "1")   // survit aux refreshs mobile dans l'onglet
-    lsSet(STORAGE_KEY_SNOOZED, Date.now().toString()) // snooze 7j cross-sessions
+    const now = Date.now()
+    sessionDismissed = true                        // soft nav
+    inMemorySnoozedAt = now                        // fallback si localStorage KO
+    ssSet(SESSION_KEY_DISMISSED, "1")              // refresh mobile même onglet
+    lsSet(STORAGE_KEY_SNOOZED, now.toString())    // snooze 7j cross-sessions
     setShow(false)
     setShowIosTip(false)
   }

@@ -92,6 +92,9 @@ function VerifyEmailContent() {
 				<CardDescription className="text-center text-base text-slate-600">
 					Un code à 6 chiffres a été envoyé à{" "}
 					<span className="font-semibold text-slate-800">{email}</span>
+					<span className="block mt-2 text-sm text-slate-400">
+						Pensez à vérifier vos spams si vous ne le voyez pas.
+					</span>
 				</CardDescription>
 			</CardHeader>
 			<CardContent className="space-y-6">

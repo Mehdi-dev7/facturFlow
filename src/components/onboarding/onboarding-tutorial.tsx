@@ -305,7 +305,7 @@ export function OnboardingTutorial({ initialCompleted }: Props) {
                   size="sm"
                   onClick={handleNext}
                   disabled={loading}
-                  className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer text-xs"
+                  className="text-slate-400 hover:text-violet-500 hover:bg-violet-50 dark:hover:text-violet-300 dark:hover:bg-violet-950/40 cursor-pointer text-xs"
                 >
                   {isOnPage ? "Passer" : "Faire plus tard"}
                 </Button>
