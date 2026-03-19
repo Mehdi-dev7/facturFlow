@@ -71,12 +71,16 @@ export const metadata: Metadata = {
     title: "FacturNow — Logiciel de facturation en ligne",
     description: "Facturation intelligente avec paiement en 1 clic Stripe, PayPal ou SEPA. Pour freelances, auto-entrepreneurs, PME françaises.",
   },
-  // Favicon & icônes — icon.svg dans app/ est auto-détecté par Next.js
+  // Favicon & icônes
+  // /icon → PNG 512x512 généré par icon.tsx (Google ne supporte pas SVG)
+  // /icon.svg → fallback SVG pour les navigateurs modernes
   icons: {
     icon: [
+      { url: "/icon", type: "image/png", sizes: "512x512" },
       { url: "/icon.svg", type: "image/svg+xml" },
     ],
-    apple: "/logo/icon.svg",
+    shortcut: "/icon",
+    apple: [{ url: "/icon", sizes: "512x512", type: "image/png" }],
   },
   // Twitter Card global — fallback pour toutes les pages sans twitter metadata propres
   twitter: {
