@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useSession, signOut } from "@/lib/auth-client";
-import { PwaInstallBanner } from "@/components/pwa/pwa-install-banner";
+import { PwaInstallBanner, PwaInstallSidebarButton } from "@/components/pwa/pwa-install-banner";
 
 import {
 	Sheet,
@@ -533,7 +533,12 @@ export default function DashboardShell({
 								/>
 							))}
 
-							{/* Lien Admin — visible uniquement pour l'admin */}
+							{/* Bouton install PWA — Pro/Business, caché si déjà installé */}
+						{(subscription?.effectivePlan === "PRO" || subscription?.effectivePlan === "BUSINESS") && (
+							<PwaInstallSidebarButton collapsed={collapsed} />
+						)}
+
+						{/* Lien Admin — visible uniquement pour l'admin */}
 							{isAdmin && (
 								<NavLink
 									item={{ label: "Admin", href: "/admin", icon: Shield, dot: pendingReviewsCount > 0 }}

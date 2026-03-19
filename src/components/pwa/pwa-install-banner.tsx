@@ -1,7 +1,9 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { Smartphone, X, Share } from "lucide-react"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { toast } from "sonner"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -12,14 +14,14 @@ interface BeforeInstallPromptEvent extends Event {
 
 // ─── Constantes ───────────────────────────────────────────────────────────────
 
-const STORAGE_KEY_FIRST_VISIT  = "facturnow_first_visit"
-const STORAGE_KEY_DISMISSED    = "facturnow_pwa_dismissed"    // permanent (après install)
-const STORAGE_KEY_SNOOZED      = "facturnow_pwa_snoozed"      // temporaire (× = snooze 7j)
-const SESSION_KEY_DISMISSED    = "facturnow_pwa_sess_dismissed" // sessionStorage — survit au refresh mobile
-const DAYS_BEFORE_PROMPT       = 3
-const DAYS_SNOOZE              = 7
+const STORAGE_KEY_DISMISSED = "facturnow_pwa_dismissed" // permanent après close ou install
+const STORAGE_KEY_FIRST_VISIT = "facturnow_first_visit"
+const DAYS_BEFORE_PROMPT = 3
 
-// ─── Helpers localStorage (safe — évite les exceptions Safari ITP / privé) ────
+// ─── Flag module-level : évite le re-show sur soft navigation Next.js ─────────
+let hasBeenDismissedThisSession = false
+
+// ─── Helpers localStorage ─────────────────────────────────────────────────────
 
 function lsGet(key: string): string | null {
   try { return localStorage.getItem(key) } catch { return null }
@@ -28,72 +30,41 @@ function lsSet(key: string, value: string): void {
   try { localStorage.setItem(key, value) } catch { /* ignore */ }
 }
 
-// ─── Helpers sessionStorage (survit aux refreshs dans le même onglet) ─────────
-// Sur mobile, le module JS peut être réinitialisé au refresh → sessionDismissed
-// repasse à false. sessionStorage compense ce cas sans bloquer les nouvelles sessions.
-function ssGet(key: string): string | null {
-  try { return sessionStorage.getItem(key) } catch { return null }
-}
-function ssSet(key: string, value: string): void {
-  try { sessionStorage.setItem(key, value) } catch { /* ignore */ }
-}
-
-// ─── Flags module-level : persistent tant que le module JS est chargé ────────
-// Survivent aux soft-nav Next.js, resets uniquement sur full reload
-let sessionDismissed = false
-let inMemorySnoozedAt = 0 // timestamp dismissal in-memory (fallback si localStorage KO)
-
 // ─── Composant ────────────────────────────────────────────────────────────────
 
 export function PwaInstallBanner() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
-  const [show, setShow]         = useState(false)
-  const [isIos, setIsIos]       = useState(false)
+  const [show, setShow] = useState(false)
+  const [isIos, setIsIos] = useState(false)
   const [showIosTip, setShowIosTip] = useState(false)
 
   useEffect(() => {
-    // 1. Déjà dismissé dans cette session JS (soft nav)
-    if (sessionDismissed) return
-
-    // 2. App déjà installée
-    if (window.matchMedia("(display-mode: standalone)").matches) return
-
-    // 3. Dismissé définitivement (après install acceptée)
+    // Déjà dismissé dans cette session (soft nav) ou en localStorage
+    if (hasBeenDismissedThisSession) return
     if (lsGet(STORAGE_KEY_DISMISSED)) return
 
-    // 4. Snooze : vérifier in-memory D'ABORD (fonctionne même si localStorage KO)
-    //    puis localStorage comme source de persistance cross-sessions
-    const inMemorySnoozeActive =
-      inMemorySnoozedAt > 0 &&
-      (Date.now() - inMemorySnoozedAt) / (1000 * 60 * 60 * 24) < DAYS_SNOOZE
-    if (inMemorySnoozeActive) return
-
-    const snoozedAt = parseInt(lsGet(STORAGE_KEY_SNOOZED) ?? "0", 10)
-    if (snoozedAt && (Date.now() - snoozedAt) / (1000 * 60 * 60 * 24) < DAYS_SNOOZE) return
-
-    // 5. sessionStorage — backup pour refresh mobile dans le même onglet
-    if (ssGet(SESSION_KEY_DISMISSED)) return
-
-    // Détecter iOS (pas de beforeinstallprompt sur Safari)
-    const ios = /iphone|ipad|ipod/i.test(navigator.userAgent)
-    setIsIos(ios)
+    // App déjà installée en standalone
+    if (window.matchMedia("(display-mode: standalone)").matches) return
 
     // Enregistrer la première visite
     if (!lsGet(STORAGE_KEY_FIRST_VISIT)) {
       lsSet(STORAGE_KEY_FIRST_VISIT, Date.now().toString())
     }
 
-    // Vérifier les 3 jours
+    // Attendre 3 jours avant d'afficher
     const firstVisit = parseInt(lsGet(STORAGE_KEY_FIRST_VISIT) ?? "0", 10)
-    const daysSince  = (Date.now() - firstVisit) / (1000 * 60 * 60 * 24)
+    const daysSince = (Date.now() - firstVisit) / (1000 * 60 * 60 * 24)
     if (daysSince < DAYS_BEFORE_PROMPT) return
+
+    const ios = /iphone|ipad|ipod/i.test(navigator.userAgent)
+    setIsIos(ios)
 
     if (ios) {
       setShow(true)
       return
     }
 
-    // Chrome/Android → attendre l'event d'installation
+    // Chrome/Android → attendre l'event natif d'installation
     const handler = (e: Event) => {
       e.preventDefault()
       setDeferredPrompt(e as BeforeInstallPromptEvent)
@@ -108,22 +79,20 @@ export function PwaInstallBanner() {
     if (!deferredPrompt) return
     await deferredPrompt.prompt()
     const { outcome } = await deferredPrompt.userChoice
-    if (outcome === "accepted") {
-      sessionDismissed = true
-      setShow(false)
-      lsSet(STORAGE_KEY_DISMISSED, "true")
-    }
     setDeferredPrompt(null)
+    dismiss()
   }
 
-  const handleDismiss = () => {
-    const now = Date.now()
-    sessionDismissed = true                        // soft nav
-    inMemorySnoozedAt = now                        // fallback si localStorage KO
-    ssSet(SESSION_KEY_DISMISSED, "1")              // refresh mobile même onglet
-    lsSet(STORAGE_KEY_SNOOZED, now.toString())    // snooze 7j cross-sessions
+  // Fermeture = permanent — on ne redemande plus jamais via la bannière
+  const dismiss = () => {
+    hasBeenDismissedThisSession = true
+    lsSet(STORAGE_KEY_DISMISSED, "true")
     setShow(false)
     setShowIosTip(false)
+    toast("Vous pouvez installer l'app à tout moment depuis le bas de la barre de navigation.", {
+      icon: <Smartphone className="size-4 text-violet-500" />,
+      duration: 6000,
+    })
   }
 
   if (!show) return null
@@ -133,10 +102,10 @@ export function PwaInstallBanner() {
       {/* Overlay semi-transparent sur mobile uniquement */}
       <div
         className="fixed inset-0 z-40 bg-black/30 sm:hidden"
-        onClick={handleDismiss}
+        onClick={dismiss}
       />
 
-      {/* Card — centré sur mobile, bas-droite sur md+ */}
+      {/* Card — centré mobile, bas-droite desktop */}
       <div className={`
         fixed z-50 w-[calc(100%-2rem)] max-w-sm
         left-1/2 -translate-x-1/2 bottom-6
@@ -163,7 +132,7 @@ export function PwaInstallBanner() {
             </div>
           </div>
           <button
-            onClick={handleDismiss}
+            onClick={dismiss}
             className="shrink-0 mt-0.5 cursor-pointer text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
             aria-label="Plus tard"
           >
@@ -187,11 +156,91 @@ export function PwaInstallBanner() {
           </button>
         )}
 
-        {/* Sous-texte */}
         <p className="mt-2 text-center text-[11px] text-slate-400 dark:text-slate-500">
-          Gratuit · Aucune app store requise
+          Retrouvez l&apos;option dans le menu si vous changez d&apos;avis.
         </p>
       </div>
     </>
+  )
+}
+
+// ─── Bouton sidebar — toujours visible après fermeture de la bannière ─────────
+// Permet à l'user d'installer l'app quand il veut, sans bannière intrusive.
+
+export function PwaInstallSidebarButton({ collapsed = false }: { collapsed?: boolean }) {
+  const [visible, setVisible] = useState(false)
+  const [isIos, setIsIos] = useState(false)
+  const [showTip, setShowTip] = useState(false)
+  const promptRef = useRef<BeforeInstallPromptEvent | null>(null)
+
+  useEffect(() => {
+    // Cacher si déjà installé en standalone
+    if (window.matchMedia("(display-mode: standalone)").matches) return
+    // Cacher si installé et accepté
+    if (lsGet(STORAGE_KEY_DISMISSED) === "installed") return
+
+    const ios = /iphone|ipad|ipod/i.test(navigator.userAgent)
+    setIsIos(ios)
+    setVisible(true)
+
+    const handler = (e: Event) => {
+      e.preventDefault()
+      promptRef.current = e as BeforeInstallPromptEvent
+    }
+    window.addEventListener("beforeinstallprompt", handler)
+    return () => window.removeEventListener("beforeinstallprompt", handler)
+  }, [])
+
+  const handleClick = async () => {
+    if (isIos) { setShowTip((v) => !v); return }
+    if (promptRef.current) {
+      await promptRef.current.prompt()
+      const { outcome } = await promptRef.current.userChoice
+      if (outcome === "accepted") {
+        lsSet(STORAGE_KEY_DISMISSED, "installed")
+        setVisible(false)
+      }
+      promptRef.current = null
+    } else {
+      setShowTip((v) => !v)
+    }
+  }
+
+  if (!visible) return null
+
+  const btn = (
+    <button
+      onClick={handleClick}
+      className={`
+        flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm
+        text-slate-500 dark:text-slate-400
+        hover:bg-violet-50 hover:text-violet-600
+        dark:hover:bg-violet-950/40 dark:hover:text-violet-300
+        transition-colors
+        ${collapsed ? "justify-center" : ""}
+      `}
+      aria-label="Installer l'application"
+    >
+      <Smartphone className="size-4 shrink-0" />
+      {!collapsed && <span className="truncate">Installer l&apos;app</span>}
+    </button>
+  )
+
+  return (
+    <div>
+      {collapsed ? (
+        <Tooltip>
+          <TooltipTrigger asChild>{btn}</TooltipTrigger>
+          <TooltipContent side="right">Installer l&apos;app</TooltipContent>
+        </Tooltip>
+      ) : btn}
+
+      {showTip && !collapsed && (
+        <div className="mx-3 mt-1 flex items-center gap-1.5 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-400/30 px-3 py-2 text-xs text-slate-700 dark:text-slate-300">
+          <Share className="size-3 shrink-0 text-blue-500" />
+          <span>Appuyez sur <strong>Partager</strong> puis <strong>Sur l&apos;écran d&apos;accueil</strong></span>
+        </div>
+      )}
+    </div>
   )
 }
