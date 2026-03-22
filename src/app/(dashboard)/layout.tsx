@@ -23,7 +23,6 @@ import { prisma } from "@/lib/prisma";
 import { headers } from "next/headers";
 import DashboardShell from "@/components/layouts/dashboard-shell";
 import { PwaServiceWorker } from "@/components/pwa/pwa-service-worker";
-import { PwaInstallBanner } from "@/components/pwa/pwa-install-banner";
 import { OnboardingTutorial } from "@/components/onboarding/onboarding-tutorial";
 import { getPendingReviewsCount } from "@/lib/actions/reviews";
 
@@ -89,10 +88,6 @@ export default async function DashboardLayout({
       </DashboardShell>
       {/* Overlay d'onboarding — affiché uniquement pour les nouveaux utilisateurs */}
       <OnboardingTutorial initialCompleted={onboardingCompleted} />
-      {/* Bannière d'install PWA — Pro/Business uniquement, après 3 jours d'utilisation */}
-      {(subscription?.effectivePlan === "PRO" || subscription?.effectivePlan === "BUSINESS") && (
-        <PwaInstallBanner />
-      )}
     </>
   );
 }

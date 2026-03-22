@@ -778,6 +778,11 @@ export default function DashboardShell({
 				feature={upgradeFeature}
 				plan="PRO"
 			/>
+
+			{/* Bannière install PWA — Pro/Business, après 3 jours, une seule fois */}
+			{(subscription?.effectivePlan === "PRO" || subscription?.effectivePlan === "BUSINESS") && (
+				<PwaInstallBanner />
+			)}
 		</div>
 	);
 }

@@ -14,14 +14,12 @@ interface BeforeInstallPromptEvent extends Event {
 
 // ─── Constantes ───────────────────────────────────────────────────────────────
 
-const STORAGE_KEY_DISMISSED = "facturnow_pwa_dismissed" // permanent après close ou install
-const STORAGE_KEY_FIRST_VISIT = "facturnow_first_visit"
+const LS_DISMISSED = "facturnow_pwa_dismissed"       // permanent (localStorage)
+const LS_FIRST_VISIT = "facturnow_first_visit"       // date première visite
+const SS_DISMISSED = "facturnow_pwa_dismissed_session" // session uniquement (sessionStorage)
 const DAYS_BEFORE_PROMPT = 3
 
-// ─── Flag module-level : évite le re-show sur soft navigation Next.js ─────────
-let hasBeenDismissedThisSession = false
-
-// ─── Helpers localStorage ─────────────────────────────────────────────────────
+// ─── Helpers storage ────────────────────────────────────────────────────────
 
 function lsGet(key: string): string | null {
   try { return localStorage.getItem(key) } catch { return null }
@@ -29,8 +27,17 @@ function lsGet(key: string): string | null {
 function lsSet(key: string, value: string): void {
   try { localStorage.setItem(key, value) } catch { /* ignore */ }
 }
+function ssGet(key: string): string | null {
+  try { return sessionStorage.getItem(key) } catch { return null }
+}
+function ssSet(key: string, value: string): void {
+  try { sessionStorage.setItem(key, value) } catch { /* ignore */ }
+}
 
-// ─── Composant ────────────────────────────────────────────────────────────────
+// ─── Bannière modale ────────────────────────────────────────────────────────
+// S'affiche une seule fois après 3 jours d'utilisation.
+// Une fois fermée (dismiss ou install), ne réapparaît plus jamais (localStorage)
+// ni pendant la session en cours (sessionStorage — survit aux soft navigations).
 
 export function PwaInstallBanner() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
@@ -39,23 +46,25 @@ export function PwaInstallBanner() {
   const [showIosTip, setShowIosTip] = useState(false)
 
   useEffect(() => {
-    // Déjà dismissé dans cette session (soft nav) ou en localStorage
-    if (hasBeenDismissedThisSession) return
-    if (lsGet(STORAGE_KEY_DISMISSED)) return
-
-    // App déjà installée en standalone
+    // ── Vérifications bloquantes ──
+    // Déjà fermé cette session ? (sessionStorage persiste entre soft navs)
+    if (ssGet(SS_DISMISSED)) return
+    // Déjà fermé définitivement ?
+    if (lsGet(LS_DISMISSED)) return
+    // App déjà installée en standalone ?
     if (window.matchMedia("(display-mode: standalone)").matches) return
 
-    // Enregistrer la première visite
-    if (!lsGet(STORAGE_KEY_FIRST_VISIT)) {
-      lsSet(STORAGE_KEY_FIRST_VISIT, Date.now().toString())
+    // ── Première visite : enregistrer la date ──
+    if (!lsGet(LS_FIRST_VISIT)) {
+      lsSet(LS_FIRST_VISIT, Date.now().toString())
     }
 
-    // Attendre 3 jours avant d'afficher
-    const firstVisit = parseInt(lsGet(STORAGE_KEY_FIRST_VISIT) ?? "0", 10)
+    // ── Attendre 3 jours avant d'afficher ──
+    const firstVisit = parseInt(lsGet(LS_FIRST_VISIT) ?? "0", 10)
     const daysSince = (Date.now() - firstVisit) / (1000 * 60 * 60 * 24)
     if (daysSince < DAYS_BEFORE_PROMPT) return
 
+    // ── iOS : afficher directement ──
     const ios = /iphone|ipad|ipod/i.test(navigator.userAgent)
     setIsIos(ios)
 
@@ -64,7 +73,7 @@ export function PwaInstallBanner() {
       return
     }
 
-    // Chrome/Android → attendre l'event natif d'installation
+    // ── Chrome/Android : attendre l'event natif ──
     const handler = (e: Event) => {
       e.preventDefault()
       setDeferredPrompt(e as BeforeInstallPromptEvent)
@@ -72,21 +81,22 @@ export function PwaInstallBanner() {
     }
     window.addEventListener("beforeinstallprompt", handler)
     return () => window.removeEventListener("beforeinstallprompt", handler)
-  }, [])
+  }, []) // [] = un seul run au montage
 
+  // ── Installation ──
   const handleInstall = async () => {
     if (isIos) { setShowIosTip(true); return }
     if (!deferredPrompt) return
     await deferredPrompt.prompt()
-    const { outcome } = await deferredPrompt.userChoice
+    await deferredPrompt.userChoice
     setDeferredPrompt(null)
     dismiss()
   }
 
-  // Fermeture = permanent — on ne redemande plus jamais via la bannière
+  // ── Fermeture — permanent + session ──
   const dismiss = () => {
-    hasBeenDismissedThisSession = true
-    lsSet(STORAGE_KEY_DISMISSED, "true")
+    lsSet(LS_DISMISSED, "true")
+    ssSet(SS_DISMISSED, "true")
     setShow(false)
     setShowIosTip(false)
     toast("Vous pouvez installer l'app à tout moment depuis le bas de la barre de navigation.", {
@@ -99,7 +109,7 @@ export function PwaInstallBanner() {
 
   return (
     <>
-      {/* Overlay semi-transparent sur mobile uniquement */}
+      {/* Overlay semi-transparent sur mobile */}
       <div
         className="fixed inset-0 z-40 bg-black/30 sm:hidden"
         onClick={dismiss}
@@ -165,7 +175,6 @@ export function PwaInstallBanner() {
 }
 
 // ─── Bouton sidebar — toujours visible après fermeture de la bannière ─────────
-// Permet à l'user d'installer l'app quand il veut, sans bannière intrusive.
 
 export function PwaInstallSidebarButton({ collapsed = false }: { collapsed?: boolean }) {
   const [visible, setVisible] = useState(false)
@@ -174,10 +183,8 @@ export function PwaInstallSidebarButton({ collapsed = false }: { collapsed?: boo
   const promptRef = useRef<BeforeInstallPromptEvent | null>(null)
 
   useEffect(() => {
-    // Cacher si déjà installé en standalone
     if (window.matchMedia("(display-mode: standalone)").matches) return
-    // Cacher si installé et accepté
-    if (lsGet(STORAGE_KEY_DISMISSED) === "installed") return
+    if (lsGet(LS_DISMISSED) === "installed") return
 
     const ios = /iphone|ipad|ipod/i.test(navigator.userAgent)
     setIsIos(ios)
@@ -197,7 +204,7 @@ export function PwaInstallSidebarButton({ collapsed = false }: { collapsed?: boo
       await promptRef.current.prompt()
       const { outcome } = await promptRef.current.userChoice
       if (outcome === "accepted") {
-        lsSet(STORAGE_KEY_DISMISSED, "installed")
+        lsSet(LS_DISMISSED, "installed")
         setVisible(false)
       }
       promptRef.current = null
