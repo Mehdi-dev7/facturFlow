@@ -13,7 +13,7 @@ import {
   Plus,
   Minus,
 } from "lucide-react"
-import { Navbar, Footer } from "@/components/landing"
+import { Navbar, Footer, RelatedPages } from "@/components/landing"
 import { Button } from "@/components/ui/button"
 import { FaqSepa } from "./faq-sepa"
 
@@ -496,6 +496,12 @@ export default function FactureSepaPrelevementPage() {
           </div>
         </div>
       </section>
+
+      {/* Maillage interne — liens vers les autres landing pages et articles */}
+      <RelatedPages
+        pages={["encaissement-facture-en-ligne", "logiciel-facturation-freelance", "facturation-auto-entrepreneur"]}
+        articles={["sepa", "impayes"]}
+      />
 
       <Footer />
     </>

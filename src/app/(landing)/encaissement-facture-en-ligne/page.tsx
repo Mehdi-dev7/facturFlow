@@ -11,7 +11,7 @@ import {
   Send,
   BadgeCheck,
 } from "lucide-react"
-import { Navbar, Footer } from "@/components/landing"
+import { Navbar, Footer, RelatedPages } from "@/components/landing"
 import { Button } from "@/components/ui/button"
 import { FaqLanding } from "@/components/landing/faq-landing"
 
@@ -497,6 +497,12 @@ export default function EncaissementFactureEnLignePage() {
           </div>
         </div>
       </section>
+
+      {/* Maillage interne — liens vers les autres landing pages et articles */}
+      <RelatedPages
+        pages={["facture-sepa-prelevement", "logiciel-facturation-freelance", "facturation-auto-entrepreneur"]}
+        articles={["impayes", "sepa"]}
+      />
 
       <Footer />
     </>

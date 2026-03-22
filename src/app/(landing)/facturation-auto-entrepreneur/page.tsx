@@ -13,7 +13,7 @@ import {
   Plus,
   Minus,
 } from "lucide-react"
-import { Navbar, Footer } from "@/components/landing"
+import { Navbar, Footer, RelatedPages } from "@/components/landing"
 import { Button } from "@/components/ui/button"
 
 // ─── Metadata SEO ─────────────────────────────────────────────────────────────
@@ -494,6 +494,12 @@ export default function FacturationAutoEntrepreneurPage() {
           </div>
         </div>
       </section>
+
+      {/* Maillage interne — liens vers les autres landing pages et articles */}
+      <RelatedPages
+        pages={["facture-pdf-gratuite", "logiciel-facturation-freelance", "devis-facture-freelance"]}
+        articles={["auto-entrepreneur", "facture-electronique"]}
+      />
 
       <Footer />
     </>

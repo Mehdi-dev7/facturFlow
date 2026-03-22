@@ -1,5 +1,6 @@
 // Génère dynamiquement l'icône PWA via ImageResponse (Next.js App Router)
 // Accessible à /icon → utilisée par le manifest et les navigateurs
+// Design : éclair (lightning bolt) sur fond dégradé indigo→cyan
 
 import { ImageResponse } from "next/og"
 
@@ -16,21 +17,35 @@ export default function Icon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "linear-gradient(135deg, #7c3aed, #4f46e5)",
+          background: "linear-gradient(135deg, #4F46E5, #06B6D4)",
           borderRadius: "112px",
         }}
       >
-        <span
-          style={{
-            color: "white",
-            fontSize: 220,
-            fontWeight: 700,
-            fontFamily: "sans-serif",
-            letterSpacing: "-8px",
-          }}
+        {/* Ombre de l'éclair */}
+        <svg
+          viewBox="0 0 32 32"
+          width="380"
+          height="380"
+          style={{ position: "absolute" }}
         >
-          FN
-        </span>
+          <polygon
+            points="20,4 13,16 17,16 11,28 23,15 18,15"
+            fill="#3330B8"
+            opacity="0.4"
+          />
+        </svg>
+        {/* Éclair principal blanc */}
+        <svg
+          viewBox="0 0 32 32"
+          width="380"
+          height="380"
+          style={{ position: "absolute" }}
+        >
+          <polygon
+            points="21,4 13,17 18,17 11,28 23,15 18,15"
+            fill="white"
+          />
+        </svg>
       </div>
     ),
     { ...size }

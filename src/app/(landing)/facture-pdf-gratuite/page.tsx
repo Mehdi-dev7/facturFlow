@@ -11,7 +11,7 @@ import {
   Eye,
   Download,
 } from "lucide-react"
-import { Navbar, Footer } from "@/components/landing"
+import { Navbar, Footer, RelatedPages } from "@/components/landing"
 import { Button } from "@/components/ui/button"
 import { FaqLanding } from "@/components/landing/faq-landing"
 
@@ -495,6 +495,12 @@ export default function FacturePdfGratuitePage() {
           </div>
         </div>
       </section>
+
+      {/* Maillage interne — liens vers les autres landing pages et articles */}
+      <RelatedPages
+        pages={["facturation-auto-entrepreneur", "devis-facture-freelance", "encaissement-facture-en-ligne"]}
+        articles={["devis-facture", "facture-electronique"]}
+      />
 
       <Footer />
     </>

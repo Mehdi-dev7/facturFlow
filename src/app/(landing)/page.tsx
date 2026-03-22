@@ -1,4 +1,6 @@
 import type { Metadata } from "next"
+import Link from "next/link"
+import { ArrowRight, FileText, BookOpen } from "lucide-react"
 import {
   Navbar,
   HeroSection,
@@ -202,6 +204,63 @@ export default async function Home() {
       <EInvoicingSection />
       {/* Carousel d'avis — affiché uniquement si au moins un avis est approuvé */}
       {reviews.length > 0 && <ReviewsCarousel reviews={reviews} />}
+
+      {/* ── Guides & Ressources — maillage interne vers landing pages + blog ── */}
+      <section className="bg-slate-50">
+        <div className="w-full px-4 sm:px-[8%] xl:px-[12%] py-16 xl:py-20">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl md:text-5xl text-slate-900 mb-4">
+              Guides &{" "}
+              <span className="text-gradient">Ressources</span>
+            </h2>
+            <p className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto">
+              Tout savoir sur la facturation, les paiements et la conformité pour les indépendants.
+            </p>
+          </div>
+
+          {/* Landing pages */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+            {[
+              { href: "/logiciel-facturation-freelance", title: "Facturation Freelance", desc: "Le meilleur logiciel de facturation pour freelances et indépendants.", color: "#4f46e5", bg: "#eef2ff" },
+              { href: "/facturation-auto-entrepreneur", title: "Facturation Auto-Entrepreneur", desc: "Factures conformes avec mentions légales automatiques.", color: "#0891b2", bg: "#ecfeff" },
+              { href: "/facture-sepa-prelevement", title: "Prélèvement SEPA", desc: "Encaissez automatiquement par prélèvement SEPA GoCardless.", color: "#059669", bg: "#ecfdf5" },
+              { href: "/facture-pdf-gratuite", title: "Facture PDF Gratuite", desc: "Créez et téléchargez des factures PDF professionnelles.", color: "#7c3aed", bg: "#f5f3ff" },
+              { href: "/devis-facture-freelance", title: "Devis & Factures", desc: "Devis professionnels convertis en factures en 1 clic.", color: "#d97706", bg: "#fffbeb" },
+              { href: "/encaissement-facture-en-ligne", title: "Encaissement en Ligne", desc: "Recevez vos paiements via Stripe, PayPal ou SEPA.", color: "#dc2626", bg: "#fef2f2" },
+            ].map((page) => (
+              <Link
+                key={page.href}
+                href={page.href}
+                className="group rounded-xl border border-slate-200 bg-white p-5 hover:shadow-md hover:border-primary/30 transition-all duration-300"
+              >
+                <div className="inline-flex p-2 rounded-lg mb-3" style={{ backgroundColor: page.bg }}>
+                  <FileText className="h-5 w-5" style={{ color: page.color }} />
+                </div>
+                <h3 className="text-sm font-bold text-slate-900 mb-1 group-hover:text-primary transition-colors">
+                  {page.title}
+                </h3>
+                <p className="text-xs text-slate-500 leading-relaxed">{page.desc}</p>
+                <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary mt-3 group-hover:gap-2 transition-all">
+                  En savoir plus <ArrowRight className="h-3 w-3" />
+                </span>
+              </Link>
+            ))}
+          </div>
+
+          {/* Blog */}
+          <div className="text-center">
+            <Link
+              href="/blog"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-colors bg-white border border-primary/20 rounded-full px-6 py-2.5 hover:shadow-md"
+            >
+              <BookOpen className="h-4 w-4" />
+              Lire nos articles de blog
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
       <PricingSection />
       <FaqSection />
       <Footer />

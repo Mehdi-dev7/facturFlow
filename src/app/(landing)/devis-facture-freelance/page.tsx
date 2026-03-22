@@ -10,7 +10,7 @@ import {
   Plus,
   Minus,
 } from "lucide-react"
-import { Navbar, Footer } from "@/components/landing"
+import { Navbar, Footer, RelatedPages } from "@/components/landing"
 import { Button } from "@/components/ui/button"
 import { FaqFreelance } from "./faq-freelance"
 
@@ -494,6 +494,12 @@ export default function DevisFactureFreelancePage() {
           </div>
         </div>
       </section>
+
+      {/* Maillage interne — liens vers les autres landing pages et articles */}
+      <RelatedPages
+        pages={["logiciel-facturation-freelance", "encaissement-facture-en-ligne", "facture-pdf-gratuite"]}
+        articles={["devis-facture", "impayes"]}
+      />
 
       <Footer />
     </>

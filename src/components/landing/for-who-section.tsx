@@ -15,6 +15,8 @@ const personas = [
     color: "#4f46e5",
     bgColor: "#eef2ff",
     borderColor: "#c7d2fe",
+    // Lien contextuel vers la landing page dédiée (maillage interne SEO)
+    landingHref: "/logiciel-facturation-freelance",
     features: [
       "Factures et devis illimités en quelques clics",
       "Templates adaptés à votre métier (web, design, conseil...)",
@@ -33,6 +35,7 @@ const personas = [
     color: "#0891b2",
     bgColor: "#ecfeff",
     borderColor: "#a5f3fc",
+    landingHref: "/facturation-auto-entrepreneur",
     features: [
       "Mention franchise TVA insertable en 1 clic",
       "Numérotation automatique et continue",
@@ -51,6 +54,7 @@ const personas = [
     color: "#059669",
     bgColor: "#ecfdf5",
     borderColor: "#a7f3d0",
+    landingHref: "/encaissement-facture-en-ligne",
     features: [
       "Multi-utilisateurs (jusqu'à 3 comptes)",
       "API & Webhooks pour connecter votre CRM ou ERP",
@@ -115,13 +119,13 @@ export function ForWhoSection() {
                 ))}
               </ul>
 
-              {/* CTA */}
+              {/* CTA — lien vers la landing dédiée (maillage interne SEO) */}
               <Link
-                href="/signup"
+                href={persona.landingHref}
                 className="inline-flex items-center gap-1.5 text-sm font-semibold mt-2 hover:gap-2.5 transition-all duration-200"
                 style={{ color: persona.color }}
               >
-                Commencer gratuitement
+                En savoir plus
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </div>

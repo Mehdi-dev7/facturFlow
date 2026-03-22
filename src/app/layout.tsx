@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     default: "FacturNow — Logiciel de facturation en ligne",
     template: "%s | FacturNow",
   },
-  description: "Facturation intelligente avec paiement en 1 clic Stripe, PayPal ou SEPA. Pour freelances, auto-entrepreneurs, PMEfrançaises.",
+  description: "Facturation intelligente avec paiement en 1 clic Stripe, PayPal ou SEPA. Pour freelances, auto-entrepreneurs, PME françaises.",
   keywords: ["logiciel facturation", "facturation en ligne", "devis en ligne", "prélèvement SEPA", "GoCardless", "Stripe", "PayPal", "paiement en 1 clic", "auto-entrepreneur", "freelance", "PME"],
   authors: [{ name: "FacturNow", url: "https://facturnow.fr" }],
   creator: "FacturNow",

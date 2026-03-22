@@ -12,7 +12,7 @@ import {
   CreditCard,
   ShieldCheck,
 } from "lucide-react"
-import { Navbar, Footer } from "@/components/landing"
+import { Navbar, Footer, RelatedPages } from "@/components/landing"
 import { Button } from "@/components/ui/button"
 import { FaqLanding } from "@/components/landing/faq-landing"
 
@@ -494,6 +494,12 @@ export default function LogicielFacturationFreelancePage() {
           </div>
         </div>
       </section>
+
+      {/* Maillage interne — liens vers les autres landing pages et articles */}
+      <RelatedPages
+        pages={["facturation-auto-entrepreneur", "encaissement-facture-en-ligne", "devis-facture-freelance"]}
+        articles={["impayes", "sepa"]}
+      />
 
       <Footer />
     </>
