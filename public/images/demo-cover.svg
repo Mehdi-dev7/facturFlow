@@ -1,0 +1,132 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <!-- Import Golos Text depuis Google Fonts -->
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700;900&amp;display=swap');
+  </style>
+  <defs>
+    <!-- Dégradé text-gradient : indigo → cyan -->
+    <linearGradient id="textGrad" x1="0%" y1="0%" x2="100%" y2="0%"
+                    gradientUnits="userSpaceOnUse"
+                    spreadMethod="pad">
+      <stop offset="0%"   stop-color="rgb(79,70,229)"/>
+      <stop offset="100%" stop-color="rgb(6,182,212)"/>
+    </linearGradient>
+
+    <!-- Shimmer : lumière blanche qui glisse sur le texte -->
+    <linearGradient id="shimmer" x1="0" y1="0" x2="1920" y2="0"
+                    gradientUnits="userSpaceOnUse">
+      <stop offset="0%"   stop-color="white" stop-opacity="0"/>
+      <stop offset="45%"  stop-color="white" stop-opacity="0"/>
+      <stop offset="50%"  stop-color="white" stop-opacity="0.45"/>
+      <stop offset="55%"  stop-color="white" stop-opacity="0"/>
+      <stop offset="100%" stop-color="white" stop-opacity="0"/>
+      <animateTransform attributeName="gradientTransform" type="translate"
+                        from="-1920 0" to="1920 0" dur="3.5s"
+                        repeatCount="indefinite"/>
+    </linearGradient>
+
+    <!-- Masque texte pour le shine -->
+    <mask id="titleMask">
+      <text x="960" y="560" text-anchor="middle" dominant-baseline="central"
+            font-family="'Golos Text', sans-serif"
+            font-weight="900" font-size="150" letter-spacing="-3"
+            fill="white">
+        FacturNow
+      </text>
+    </mask>
+
+    <!-- Glow flou derrière le texte -->
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="25" result="blur"/>
+    </filter>
+
+    <!-- Logo éclair glow -->
+    <filter id="iconGlow" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur stdDeviation="8"/>
+    </filter>
+  </defs>
+
+  <!-- ── Fond noir profond ─────────────────────────────────── -->
+  <rect width="1920" height="1080" fill="#0a1628"/>
+
+  <!-- ── Orbes lumineuses (identiques à la page coming-soon) ─ -->
+  <!-- Orbe centrale violet -->
+  <circle cx="960" cy="540" r="300" fill="none">
+    <animate attributeName="r" values="280;310;280" dur="4s" repeatCount="indefinite"/>
+  </circle>
+  <ellipse cx="960" cy="540" rx="300" ry="300" fill="#7c3aed" opacity="0.22">
+    <animate attributeName="opacity" values="0.18;0.26;0.18" dur="4s" repeatCount="indefinite"/>
+    <animate attributeName="rx" values="280;310;280" dur="4s" repeatCount="indefinite"/>
+    <animate attributeName="ry" values="280;310;280" dur="4s" repeatCount="indefinite"/>
+  </ellipse>
+
+  <!-- Orbe droite -->
+  <circle cx="1380" cy="360" r="160" fill="#a855f7" opacity="0.12"/>
+
+  <!-- Orbe gauche -->
+  <circle cx="480" cy="700" r="120" fill="#4F46E5" opacity="0.10"/>
+
+  <!-- ── Noise subtil (grille de points) ──────────────────── -->
+  <pattern id="dots" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+    <circle cx="1" cy="1" r="0.5" fill="white" opacity="0.04"/>
+  </pattern>
+  <rect width="1920" height="1080" fill="url(#dots)"/>
+
+  <!-- ── Logo éclair (carré arrondi violet + zap blanc) ──── -->
+  <g transform="translate(880, 300)">
+    <!-- Glow derrière l'icône -->
+    <rect x="20" y="20" width="120" height="120" rx="28"
+          fill="#7c3aed" opacity="0.5" filter="url(#iconGlow)"/>
+    <!-- Carré arrondi gradient -->
+    <defs>
+      <linearGradient id="iconBg" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="rgb(79,70,229)"/>
+        <stop offset="100%" stop-color="rgb(6,182,212)"/>
+      </linearGradient>
+    </defs>
+    <rect x="20" y="20" width="120" height="120" rx="28" fill="url(#iconBg)"/>
+    <!-- Éclair blanc -->
+    <g transform="translate(40, 35) scale(3.5)">
+      <polygon points="16,2 10,14 14,14 8,26 20,12 15,12"
+               fill="white" stroke="white" stroke-width="0.5" stroke-linejoin="round"/>
+    </g>
+  </g>
+
+  <!-- ── Glow derrière le titre ────────────────────────────── -->
+  <text x="960" y="560" text-anchor="middle" dominant-baseline="central"
+        font-family="'Golos Text', sans-serif"
+        font-weight="900" font-size="150" letter-spacing="-3"
+        fill="rgb(79,70,229)" opacity="0.35" filter="url(#glow)">
+    FacturNow
+  </text>
+
+  <!-- ── Titre principal : dégradé indigo → cyan ─────────── -->
+  <text x="960" y="560" text-anchor="middle" dominant-baseline="central"
+        font-family="'Golos Text', sans-serif"
+        font-weight="900" font-size="150" letter-spacing="-3"
+        fill="url(#textGrad)">
+    FacturNow
+  </text>
+
+  <!-- ── Lumière qui glisse sur le titre ─────────────────── -->
+  <rect width="1920" height="1080" fill="url(#shimmer)" mask="url(#titleMask)"/>
+
+  <!-- ── Ligne séparatrice violet ─────────────────────────── -->
+  <line x1="928" y1="625" x2="992" y2="625" stroke="#7c3aed" stroke-width="2" opacity="0.6"/>
+
+  <!-- ── Tagline ──────────────────────────────────────────── -->
+  <text x="960" y="680" text-anchor="middle" dominant-baseline="central"
+        font-family="'Golos Text', sans-serif"
+        font-weight="500" font-size="32" letter-spacing="1">
+    <tspan fill="#c4b5fd">La facturation intelligente</tspan>
+  </text>
+
+  <!-- ── Gradient bas de page ─────────────────────────────── -->
+  <defs>
+    <linearGradient id="bottomFade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7c3aed" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#7c3aed" stop-opacity="0.06"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="948" width="1920" height="132" fill="url(#bottomFade)"/>
+</svg>
