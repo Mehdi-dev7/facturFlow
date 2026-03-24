@@ -12,20 +12,9 @@ export default function manifest(): MetadataRoute.Manifest {
     orientation: "portrait",
     id: "/dashboard",
     icons: [
-      {
-        // Icône standard — requis par Chrome pour l'installation (purpose "any")
-        src: "/icon",
-        sizes: "512x512",
-        type: "image/png",
-        purpose: "any",
-      },
-      {
-        // Icône maskable — pour les launchers Android (bords arrondis adaptés)
-        src: "/icon",
-        sizes: "512x512",
-        type: "image/png",
-        purpose: "maskable",
-      },
+      { src: "/icon-192x192.png", sizes: "192x192", type: "image/png", purpose: "any" },
+      { src: "/icon-512x512.png", sizes: "512x512", type: "image/png", purpose: "any" },
+      { src: "/icon-512x512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
     ],
     categories: ["finance", "business", "productivity"],
   }

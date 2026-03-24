@@ -71,16 +71,20 @@ export const metadata: Metadata = {
     title: "FacturNow — Logiciel de facturation en ligne",
     description: "Facturation intelligente avec paiement en 1 clic Stripe, PayPal ou SEPA. Pour freelances, auto-entrepreneurs, PME françaises.",
   },
-  // Favicon & icônes
-  // /icon → PNG 512x512 généré par icon.tsx (Google ne supporte pas SVG)
-  // /icon.svg → fallback SVG pour les navigateurs modernes
+  // Favicon & icônes statiques (PNG générés par scripts/generate-icons.mjs)
+  // Google utilise le 32×32 / 48×48 pour les résultats de recherche
+  // favicon.ico = fallback universel (tous navigateurs/robots)
   icons: {
     icon: [
-      { url: "/icon", type: "image/png", sizes: "512x512" },
-      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico",       sizes: "32x32",  type: "image/x-icon" },
+      { url: "/favicon-16x16.png", sizes: "16x16",  type: "image/png" },
+      { url: "/favicon-32x32.png", sizes: "32x32",  type: "image/png" },
+      { url: "/favicon-48x48.png", sizes: "48x48",  type: "image/png" },
+      { url: "/icon-192x192.png",  sizes: "192x192", type: "image/png" },
+      { url: "/icon-512x512.png",  sizes: "512x512", type: "image/png" },
     ],
-    shortcut: "/icon",
-    apple: [{ url: "/icon", sizes: "512x512", type: "image/png" }],
+    shortcut: "/favicon.ico",
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
   },
   // Twitter Card global — fallback pour toutes les pages sans twitter metadata propres
   twitter: {
