@@ -2,6 +2,8 @@
 // src/app/checkout/success/page.tsx
 // Page de confirmation après souscription réussie.
 // Affiche le bon plan (Pro ou Business) selon le query param `plan`.
+// force-dynamic : cette page lit les searchParams et ne doit jamais être pré-rendue.
+export const dynamic = "force-dynamic";
 
 import { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
