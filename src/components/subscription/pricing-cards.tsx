@@ -100,9 +100,9 @@ export function PricingCards({ currentPlan, effectivePlan, stripeSubId, pendingC
 
   // Prix selon l'intervalle
   const proPrice = interval === "yearly" ? "7,99€" : "9,99€";
-  const businessPrice = interval === "yearly" ? "19,99€" : "25€";
+  const businessPrice = interval === "yearly" ? "16€" : "20€";
   const proAnnualNote = interval === "yearly" ? "facturé 95,88€/an" : null;
-  const businessAnnualNote = interval === "yearly" ? "facturé 239,88€/an" : null;
+  const businessAnnualNote = interval === "yearly" ? "facturé 192€/an" : null;
 
   const handleCheckout = useCallback(async (plan: "PRO" | "BUSINESS") => {
     setLoadingPlan(plan);
@@ -187,7 +187,7 @@ export function PricingCards({ currentPlan, effectivePlan, stripeSubId, pendingC
         <div className="flex flex-col-reverse sm:flex-row gap-3 pt-2">
           <Button
             variant="outline"
-            className="flex-1 cursor-pointer border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800"
+            className="flex-1 cursor-pointer border-slate-300 dark:border-slate-500 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800"
             onClick={() => setShowCancelDialog(false)}
           >
             Non, garder mon abonnement
@@ -280,7 +280,7 @@ export function PricingCards({ currentPlan, effectivePlan, stripeSubId, pendingC
               </div>
 
               {/* CTA — toujours en bas grâce à mt-auto */}
-              <Button variant="outline" className="w-full mt-auto cursor-not-allowed dark:text-slate-200" disabled>
+              <Button variant="outline" disabled className="w-full mt-auto cursor-not-allowed opacity-100 text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-500 bg-slate-100 dark:bg-slate-700/60">
                 {isFree ? "Plan actuel" : "Non disponible"}
               </Button>
             </div>
@@ -337,7 +337,7 @@ export function PricingCards({ currentPlan, effectivePlan, stripeSubId, pendingC
 
               {/* CTA */}
               {isPro ? (
-                <Button variant="outline" className="w-full mt-auto cursor-not-allowed" disabled>
+                <Button variant="outline" disabled className="w-full mt-auto cursor-not-allowed opacity-100 text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-500 bg-slate-100 dark:bg-slate-700/60">
                   Plan actuel
                 </Button>
               ) : (
@@ -397,7 +397,7 @@ export function PricingCards({ currentPlan, effectivePlan, stripeSubId, pendingC
 
               {/* CTA */}
               {isBusiness ? (
-                <Button variant="outline" className="w-full mt-auto cursor-not-allowed" disabled>
+                <Button variant="outline" disabled className="w-full mt-auto cursor-not-allowed opacity-100 text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-500 bg-slate-100 dark:bg-slate-700/60">
                   Plan actuel
                 </Button>
               ) : (

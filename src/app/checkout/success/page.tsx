@@ -1,15 +1,15 @@
 "use client";
 // src/app/checkout/success/page.tsx
-// Page de confirmation de paiement après souscription réussie.
-// Affiche une animation de succès et redirige vers le dashboard.
+// Page de confirmation après souscription réussie.
+// Affiche le bon plan (Pro ou Business) selon le query param `plan`.
 
 import { useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { motion, type Variants } from "framer-motion";
 import { CheckCircle, ArrowRight, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
-// Animation checkmark
 const circleVariants: Variants = {
   hidden: { pathLength: 0, opacity: 0 },
   visible: {
@@ -28,11 +28,38 @@ const checkVariants: Variants = {
   },
 };
 
+// Contenu selon le plan souscrit
+const PLAN_CONTENT = {
+  pro: {
+    title: "Bienvenue dans FacturNow Pro !",
+    description: "Votre abonnement Pro est maintenant actif. Toutes les fonctionnalités sont disponibles immédiatement.",
+    features: [
+      "Documents & clients illimités",
+      "Paiements Stripe, PayPal et SEPA",
+      "Relances automatiques activées",
+      "Factures récurrentes disponibles",
+    ],
+  },
+  business: {
+    title: "Bienvenue dans FacturNow Business !",
+    description: "Votre abonnement Business est maintenant actif. Toutes les fonctionnalités avancées sont disponibles immédiatement.",
+    features: [
+      "Multi-utilisateurs (3 comptes)",
+      "Export comptable FEC & URSSAF",
+      "E-invoicing illimité (SuperPDP)",
+      "API & Webhooks activés",
+    ],
+  },
+};
+
 export default function CheckoutSuccessPage() {
-  // Confettis CSS légers via une animation au montage
+  const searchParams = useSearchParams();
+  const plan = searchParams.get("plan") === "business" ? "business" : "pro";
+  const content = PLAN_CONTENT[plan];
+
   useEffect(() => {
-    document.title = "Bienvenue dans FacturNow Pro !";
-  }, []);
+    document.title = content.title;
+  }, [content.title]);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-linear-to-b from-violet-50 via-white to-white dark:from-[#1e1b4b] dark:via-slate-950 dark:to-slate-950 px-4">
@@ -47,10 +74,7 @@ export default function CheckoutSuccessPage() {
         <div className="flex justify-center">
           <div className="relative w-24 h-24">
             <svg viewBox="0 0 100 100" className="w-full h-full">
-              {/* Cercle de fond */}
               <circle cx="50" cy="50" r="46" fill="#f0fdf4" stroke="#bbf7d0" strokeWidth="2" />
-
-              {/* Cercle animé */}
               <motion.circle
                 cx="50"
                 cy="50"
@@ -64,8 +88,6 @@ export default function CheckoutSuccessPage() {
                 animate="visible"
                 style={{ rotate: -90, originX: "50%", originY: "50%" }}
               />
-
-              {/* Check animé */}
               <motion.path
                 d="M28 52 L44 68 L72 36"
                 fill="none"
@@ -81,7 +103,7 @@ export default function CheckoutSuccessPage() {
           </div>
         </div>
 
-        {/* Textes */}
+        {/* Titre & description */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -90,31 +112,22 @@ export default function CheckoutSuccessPage() {
         >
           <div className="flex items-center justify-center gap-2">
             <Sparkles className="h-5 w-5 text-violet-500 animate-pulse" />
-            <h1 className="text-2xl font-bold text-gradient">
-              Bienvenue dans FacturNow Pro !
-            </h1>
+            <h1 className="text-2xl font-bold text-gradient">{content.title}</h1>
             <Sparkles className="h-5 w-5 text-violet-500 animate-pulse" />
           </div>
-
           <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
-            Votre abonnement est maintenant actif. Toutes les fonctionnalités Pro
-            sont disponibles immédiatement.
+            {content.description}
           </p>
         </motion.div>
 
-        {/* Points clés débloqués */}
+        {/* Features débloquées */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1, duration: 0.4 }}
           className="bg-violet-50 dark:bg-violet-950/40 rounded-2xl p-4 space-y-2 text-left"
         >
-          {[
-            "Documents & clients illimités",
-            "Paiements Stripe, PayPal et SEPA",
-            "Relances automatiques activées",
-            "Statistiques & exports disponibles",
-          ].map((item) => (
+          {content.features.map((item) => (
             <div key={item} className="flex items-center gap-2 text-sm text-violet-700 dark:text-violet-300">
               <CheckCircle className="h-4 w-4 text-violet-500 shrink-0" />
               {item}

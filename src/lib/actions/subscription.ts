@@ -138,7 +138,7 @@ export async function createStripeCheckoutSession(
       customer: customerId,
       line_items: [{ price: priceId, quantity: 1 }],
       metadata: { userId: session.user.id, plan },
-      success_url: `${appUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${appUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}&plan=${plan.toLowerCase()}`,
       cancel_url: `${appUrl}/checkout/cancel`,
       // Pré-remplir l'email du client
       customer_email: customerId ? undefined : user.email,

@@ -93,7 +93,7 @@ export function UpgradeModal({ open, onClose, feature }: UpgradeModalProps) {
   const requiredPlan = FEATURE_REQUIRED_PLAN[feature] ?? "PRO";
   const isPro = requiredPlan === "PRO";
 
-  const price = isPro ? "9,99€/mois" : "25€/mois";
+  const price = isPro ? "9,99€/mois" : "20€/mois";
   const highlights = isPro ? PRO_HIGHLIGHTS : BUSINESS_HIGHLIGHTS;
   const featureLabel = FEATURE_LABELS[feature] ?? feature;
 
