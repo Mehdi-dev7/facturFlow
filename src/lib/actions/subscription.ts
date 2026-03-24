@@ -142,6 +142,12 @@ export async function createStripeCheckoutSession(
       cancel_url: `${appUrl}/checkout/cancel`,
       // Pré-remplir l'email du client
       customer_email: customerId ? undefined : user.email,
+      // Message de réassurance affiché sous le bouton de paiement
+      custom_text: {
+        submit: {
+          message: "Paiement 100% sécurisé par Stripe · Chiffrement SSL · Sans engagement · Annulable à tout moment depuis FacturNow",
+        },
+      },
     });
 
     return { success: true, data: { url: checkoutSession.url! } } as const;

@@ -3,7 +3,8 @@
 // Charge les données d'abonnement et rend les cards de pricing (composant client).
 
 import { redirect } from "next/navigation";
-import { Crown, Sparkles, CheckCircle, Clock, AlertTriangle } from "lucide-react";
+import { Crown, Sparkles, CheckCircle, Clock, AlertTriangle, ShieldCheck, Lock, RefreshCcw } from "lucide-react";
+import Image from "next/image";
 import { getCurrentSubscription } from "@/lib/actions/subscription";
 import { PlanBadge } from "@/components/subscription/plan-badge";
 import { PricingCards } from "@/components/subscription/pricing-cards";
@@ -136,6 +137,35 @@ export default async function SubscriptionPage({
           Choisir un plan
         </span>
         <div className="flex-1 h-px bg-slate-200 dark:bg-slate-800" />
+      </div>
+
+      {/* ── Bandeau sécurité + branding FacturNow ── */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/60 rounded-2xl px-5 py-4">
+        {/* Logo FacturNow */}
+        <div className="flex items-center gap-2 shrink-0">
+          <Image src="/logo/icon.svg" alt="FacturNow" width={28} height={28} />
+          <span className="font-bold text-slate-700 dark:text-slate-200 text-sm">FacturNow</span>
+          <span className="text-[10px] text-slate-400 dark:text-slate-500 ml-1">© 2026</span>
+        </div>
+
+        {/* Séparateur vertical */}
+        <div className="hidden sm:block h-6 w-px bg-slate-200 dark:bg-slate-700" />
+
+        {/* Badges sécurité */}
+        <div className="flex flex-wrap items-center justify-center gap-4">
+          <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+            <Lock className="h-3.5 w-3.5 text-emerald-500" />
+            Paiement SSL chiffré
+          </div>
+          <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+            <ShieldCheck className="h-3.5 w-3.5 text-emerald-500" />
+            Sécurisé par Stripe
+          </div>
+          <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+            <RefreshCcw className="h-3.5 w-3.5 text-emerald-500" />
+            Sans engagement
+          </div>
+        </div>
       </div>
 
       {/* ── Cards pricing (client) ── */}
