@@ -81,7 +81,9 @@ export function PricingSection() {
 
     // COMPTABILITÉ & AVANCÉ
     { name: "Export FEC comptable",             free: false,      pro: false,         business: true },
+    { name: "Rapport mensuel comptable (PDF)", free: false,      pro: false,         business: true },
     { name: "Bilan annuel & URSSAF",            free: false,      pro: false,         business: true },
+    { name: "Archivage légal 10 ans",           free: false,      pro: false,         business: true },
     { name: "API & Webhooks",                   free: false,      pro: false,         business: true },
     { name: "Support prioritaire",              free: false,      pro: false,         business: true },
 
@@ -124,7 +126,7 @@ export function PricingSection() {
     {
       name: "Business",
       subtitle: "Entreprises B2B · Équipes",
-      price: "25",
+      price: "20",
       period: "/ mois",
       description: "Tout Pro + multi-users + comptabilité + API",
       cta: "Choisir Business",

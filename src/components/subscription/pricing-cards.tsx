@@ -101,7 +101,7 @@ export function PricingCards({ currentPlan, effectivePlan, stripeSubId, pendingC
   // Prix selon l'intervalle
   const proPrice = interval === "yearly" ? "7,99€" : "9,99€";
   const businessPrice = interval === "yearly" ? "16€" : "20€";
-  const proAnnualNote = interval === "yearly" ? "facturé 95,88€/an" : null;
+  const proAnnualNote = interval === "yearly" ? "facturé 95€/an" : null;
   const businessAnnualNote = interval === "yearly" ? "facturé 192€/an" : null;
 
   const handleCheckout = useCallback(async (plan: "PRO" | "BUSINESS") => {
