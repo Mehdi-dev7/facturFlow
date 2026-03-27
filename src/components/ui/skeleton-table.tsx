@@ -74,8 +74,8 @@ function SkeletonRows({ rows }: { rows: number }) {
     <div className="rounded-2xl border border-slate-200 dark:border-violet-500/20 bg-white/75 dark:bg-[#1a1438] overflow-hidden mb-8">
       {/* En-tête colonnes */}
       <div className="flex gap-4 px-5 py-3 border-b border-slate-100 dark:border-slate-700/40">
-        {[80, 120, 70, 70, 80, 90].map((w, i) => (
-          <Pulse key={i} className={`h-3`} style={{ width: w }} />
+        {["w-20", "w-28", "w-16", "w-16", "w-20", "w-24"].map((w, i) => (
+          <Pulse key={i} className={`h-3 ${w}`} />
         ))}
       </div>
       {/* Lignes */}
