@@ -37,6 +37,7 @@ import {
 	useDeleteProforma,
 	type SavedProforma,
 } from "@/hooks/use-proformas";
+import { SkeletonTable } from "@/components/ui/skeleton-table";
 
 // ─── Types & helpers ──────────────────────────────────────────────────────────
 
@@ -471,6 +472,9 @@ function ProformasPageContent() {
 		deleteMutation.mutate(deleteTargetId);
 		setDeleteTargetId(null);
 	}, [deleteTargetId, deleteMutation]);
+
+	// Skeleton — affiché tant que les données ne sont pas chargées (après tous les hooks)
+	if (isLoading) return <SkeletonTable variant="table" rows={6} cardCount={4} />;
 
 	return (
 		<div>

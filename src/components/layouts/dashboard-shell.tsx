@@ -27,6 +27,7 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { PlanBadge } from "@/components/subscription/plan-badge";
+import { TopProgressBar, useRouteLoader } from "@/components/ui/page-loader";
 import { UpgradeBanner } from "@/components/subscription/upgrade-banner";
 import { UpgradeModal } from "@/components/subscription/upgrade-modal";
 import { useUpgradeStore } from "@/stores/use-upgrade-store";
@@ -468,8 +469,13 @@ export default function DashboardShell({
 	// Store global pour l'UpgradeModal (déclenché depuis les hooks)
 	const { open: upgradeOpen, feature: upgradeFeature, closeUpgradeModal } = useUpgradeStore();
 
+	// Loader barre de progression lors des navigations entre pages
+	const routeLoading = useRouteLoader();
+
 	return (
 		<div className="flex h-screen overflow-hidden bg-slate-50 dark:bg-slate-950">
+			{/* Barre de progression violette en haut lors des navigations */}
+			<TopProgressBar loading={routeLoading} />
 			{/* Desktop Sidebar */}
 			<aside
 				className={`hidden shrink-0 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 md:flex transition-all duration-300 ${

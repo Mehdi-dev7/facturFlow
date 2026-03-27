@@ -17,6 +17,7 @@ import type { KpiData, Column } from "@/components/dashboard";
 import type { InvoiceStatus } from "@/components/dashboard/status-badge";
 import { DeleteConfirmModal } from "@/components/shared/delete-confirm-modal";
 import { useDeposits, useDeleteDeposit, type SavedDeposit } from "@/hooks/use-deposits";
+import { SkeletonTable } from "@/components/ui/skeleton-table";
 import { DepositPreviewModal } from "@/components/acomptes/deposit-preview-modal";
 
 // ─── Types & helpers ──────────────────────────────────────────────────────────
@@ -172,7 +173,7 @@ export function DepositsPageContent() {
   // }, [selectedMonth]);
 
   // ─── Hooks pour les données réelles ─────────────────────────────────────────
-  const { data: deposits = [] } = useDeposits();
+  const { data: deposits = [], isLoading } = useDeposits();
 
   // IDs des acomptes récemment modifiés (PAID/OVERDUE depuis <7j) → highlight 3.5s une seule fois
   const [highlightedIds, setHighlightedIds] = useState<Set<string>>(new Set());
@@ -401,6 +402,9 @@ export function DepositsPageContent() {
       router.replace("/dashboard/deposits", { scroll: false });
     }
   }, [previewId, router]);
+
+  // Skeleton — affiché tant que les données ne sont pas chargées (après tous les hooks)
+  if (isLoading) return <SkeletonTable variant="table" rows={6} cardCount={4} />;
 
   return (
     <div className="space-y-6">

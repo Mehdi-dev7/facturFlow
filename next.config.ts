@@ -84,6 +84,11 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   // ── Tree-shaking optimisé pour ces librairies (réduit le bundle initial) ──
   experimental: {
+    // Cache les pages dynamiques (auth/cookies) dans le router client pendant 30s
+    // Sans ça, Next.js 15+ re-fetch à chaque navigation (staleTime: 0 par défaut)
+    staleTimes: {
+      dynamic: 30,
+    },
     optimizePackageImports: [
       "lucide-react",
       "recharts",

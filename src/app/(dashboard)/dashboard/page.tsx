@@ -16,6 +16,7 @@ import type { KpiData, Column } from "@/components/dashboard";
 import type { InvoiceStatus } from "@/components/dashboard/status-badge";
 import { StatusDropdown } from "@/components/dashboard/status-dropdown";
 import { useInvoices, type SavedInvoice } from "@/hooks/use-invoices";
+import { SkeletonTable } from "@/components/ui/skeleton-table";
 // Lazy load : chargé seulement au premier clic sur une ligne de facture
 import dynamic from "next/dynamic";
 const InvoicePreviewModal = dynamic(
@@ -226,6 +227,9 @@ export default function DashboardPage() {
   }, [allInvoices, currentYear]);
 
   const firstName = session?.user?.name?.split(" ")[0] ?? "Utilisateur";
+
+  // Skeleton — affiché tant que les données ne sont pas chargées (après tous les hooks)
+  if (isLoading) return <SkeletonTable variant="table" rows={5} cardCount={4} />;
 
   return (
     <div>

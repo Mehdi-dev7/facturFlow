@@ -26,6 +26,7 @@ const QuotePreviewModal = dynamic(
 );
 import { useQuotes, useDeleteQuote, type SavedQuote } from "@/hooks/use-quotes";
 import { StatusDropdownQuote } from "@/components/dashboard/status-dropdown-quote";
+import { SkeletonTable } from "@/components/ui/skeleton-table";
 
 // ─── Types & helpers ──────────────────────────────────────────────────────────
 
@@ -358,6 +359,9 @@ function QuotesPageContent() {
       .filter((y) => y.months.length > 0)
       .sort((a, b) => b.year - a.year);
   }, [allQuotes, selectedMonth]);
+
+  // Skeleton — affiché tant que les données ne sont pas chargées (après tous les hooks)
+  if (isLoading) return <SkeletonTable variant="table" rows={6} cardCount={4} />;
 
   const handleArchiveSelect = useCallback((year: number, monthName: string) => {
     const monthNames = [

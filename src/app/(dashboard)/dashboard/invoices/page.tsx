@@ -26,6 +26,7 @@ const InvoicePreviewModal = dynamic(
   { ssr: false }
 );
 import { useInvoices, useDeleteInvoice, type SavedInvoice } from "@/hooks/use-invoices";
+import { SkeletonTable } from "@/components/ui/skeleton-table";
 import { StatusDropdown } from "@/components/dashboard/status-dropdown";
 
 // ─── Types & helpers ──────────────────────────────────────────────────────────
@@ -430,6 +431,9 @@ function InvoicesPageContent() {
     deleteMutation.mutate(deleteTargetId);
     setDeleteTargetId(null);
   }, [deleteTargetId, deleteMutation]);
+
+  // Skeleton pendant le premier chargement (tous les hooks sont déjà déclarés)
+  if (isLoading) return <SkeletonTable variant="table" rows={6} cardCount={4} />;
 
   return (
     <div>

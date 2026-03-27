@@ -11,6 +11,7 @@ import {
 } from "@/components/dashboard";
 import type { KpiData, Column } from "@/components/dashboard";
 import { useClients, useDeleteClient, type SavedClient } from "@/hooks/use-clients";
+import { SkeletonTable } from "@/components/ui/skeleton-table";
 import dynamic from "next/dynamic";
 // Lazy load des modals — chargées seulement quand l'utilisateur ouvre/clique
 const ClientModal = dynamic(
@@ -258,6 +259,9 @@ export default function ClientsPage() {
     setEditClient(null);
     setModalOpen(true);
   }, []);
+
+  // Skeleton — affiché tant que les données ne sont pas chargées (après tous les hooks)
+  if (isLoading) return <SkeletonTable variant="table" rows={6} cardCount={4} />;
 
   return (
     <div>

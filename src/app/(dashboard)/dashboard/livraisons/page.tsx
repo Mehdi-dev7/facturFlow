@@ -18,6 +18,7 @@ import { DeleteConfirmModal } from "@/components/shared/delete-confirm-modal";
 import { Button } from "@/components/ui/button";
 import { InvoiceSearchCombobox } from "@/components/shared/invoice-search-combobox";
 import { useDeliveryNotes, useDeleteDeliveryNote } from "@/hooks/use-delivery-notes";
+import { SkeletonTable } from "@/components/ui/skeleton-table";
 import type { SavedDeliveryNote } from "@/lib/types/delivery-notes";
 import { DeliveryNotePdfDocument } from "@/lib/pdf/delivery-note-pdf-document";
 import { useInvoices } from "@/hooks/use-invoices";
@@ -370,6 +371,9 @@ function LivraisonsPageContent() {
     deleteMutation.mutate(deleteTargetId);
     setDeleteTargetId(null);
   }, [deleteTargetId, deleteMutation]);
+
+  // Skeleton — affiché tant que les données ne sont pas chargées (après tous les hooks)
+  if (isLoading) return <SkeletonTable variant="table" rows={6} cardCount={4} />;
 
   return (
     <div>

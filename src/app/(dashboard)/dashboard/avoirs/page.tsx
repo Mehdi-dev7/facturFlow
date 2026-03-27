@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { useCreditNotes, useDeleteCreditNote } from "@/hooks/use-credit-notes";
+import { SkeletonTable } from "@/components/ui/skeleton-table";
 import type { SavedCreditNote } from "@/lib/types/credit-notes";
 import { CREDIT_NOTE_REASONS } from "@/lib/types/credit-notes";
 import { CreditNotePdfDocument } from "@/lib/pdf/credit-note-pdf-document";
@@ -440,6 +441,9 @@ function AvoirsPageContent() {
     deleteMutation.mutate(deleteTargetId);
     setDeleteTargetId(null);
   }, [deleteTargetId, deleteMutation]);
+
+  // Skeleton — affiché tant que les données ne sont pas chargées (après tous les hooks)
+  if (isLoading) return <SkeletonTable variant="table" rows={6} cardCount={4} />;
 
   return (
     <div>
