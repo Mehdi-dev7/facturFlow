@@ -196,6 +196,29 @@ export async function POST(req: NextRequest) {
         });
 
         console.log(`[Stripe webhook] Plan ${plan} activé pour customer ${sub.customer}${planExpiresAt ? ` (annulation prévue le ${planExpiresAt.toISOString()})` : ""}`);
+
+        // ── Détecter le coupon Fondateur et envoyer l'email de bienvenue ──────
+        // On n'envoie l'email que sur "created" pour éviter les doublons lors des mises à jour
+        if (eventType === "customer.subscription.created") {
+          const discount = (sub as unknown as { discount?: { promotion_code?: string } }).discount;
+          const isFounder = discount?.promotion_code === process.env.STRIPE_FOUNDER_PROMO_CODE_ID;
+
+          if (isFounder) {
+            const user = await prisma.user.findFirst({
+              where: { stripeCustomerId: sub.customer as string },
+              select: { email: true, name: true },
+            });
+
+            if (user) {
+              const { sendFounderEmail } = await import("@/lib/email/send-founder-email");
+              sendFounderEmail({
+                to: user.email,
+                name: user.name ?? user.email,
+              }).catch((err: unknown) => console.error("[Founder email] Erreur:", err));
+            }
+          }
+        }
+
         break;
       }
 

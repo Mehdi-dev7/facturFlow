@@ -187,6 +187,7 @@ export function PricingSection() {
               <div className="text-left">
                 <p className="font-semibold text-xs sm:text-sm text-amber-800 mb-1">Facturation électronique obligatoire</p>
                 <p className="text-xs text-amber-700"><strong>B2B :</strong> Obligatoire sept. 2026 · <strong>Freelances & PME B2C :</strong> Obligatoire sept. 2027</p>
+                <p className="text-xs text-amber-700 mt-1.5">✨ <strong>Facture électronique intégrée</strong> — disponible très prochainement sur FacturNow.</p>
               </div>
             </div>
           </div>

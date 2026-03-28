@@ -27,6 +27,8 @@ interface PricingCardsProps {
   stripeSubId: string | null;
   // Plan à checkout automatiquement à l'arrivée sur la page (depuis landing ou signup)
   pendingCheckout?: string;
+  // Code promo à appliquer automatiquement lors du checkout (ex: "FONDATEUR")
+  pendingPromo?: string;
 }
 
 // ─── Config plans ─────────────────────────────────────────────────────────────
@@ -36,7 +38,7 @@ const PLAN_FEATURES = {
     { label: "10 documents par mois", included: true },
     { label: "5 clients maximum", included: true },
     { label: "Virement bancaire uniquement", included: true },
-    { label: "5 factures électroniques/mois", included: true },
+    { label: "5 factures électroniques/mois", included: true, soon: true },
     { label: "Essai Pro 7 jours inclus", included: true },
     { label: "Paiements en ligne (Stripe/PayPal)", included: false },
     { label: "Relances automatiques", included: false },
@@ -59,13 +61,13 @@ const PLAN_FEATURES = {
     { label: "Archivage légal 10 ans", included: true },
     { label: "API & Webhooks", included: true },
     { label: "Support prioritaire", included: true },
-    { label: "Factures électroniques illimitées", included: true },
+    { label: "Factures électroniques illimitées", included: true, soon: true },
   ],
 };
 
 // ─── Sous-composant : FeatureRow ──────────────────────────────────────────────
 
-function FeatureRow({ label, included }: { label: string; included: boolean }) {
+function FeatureRow({ label, included, soon }: { label: string; included: boolean; soon?: boolean }) {
   return (
     <div className="flex items-start gap-2.5">
       <div className={`flex items-center justify-center w-5 h-5 rounded-full shrink-0 mt-0.5 ${included ? "bg-emerald-100 dark:bg-emerald-900/30" : "bg-slate-100 dark:bg-slate-800"}`}>
@@ -74,16 +76,21 @@ function FeatureRow({ label, included }: { label: string; included: boolean }) {
           : <X className="h-3 w-3 text-slate-400" />
         }
       </div>
-      <span className={`text-sm ${included ? "text-slate-700 dark:text-slate-300" : "text-slate-400 dark:text-slate-500"}`}>
+      <span className={`text-sm flex-1 ${included ? "text-slate-700 dark:text-slate-300" : "text-slate-400 dark:text-slate-500"}`}>
         {label}
       </span>
+      {soon && (
+        <span className="shrink-0 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-violet-100 text-violet-600 dark:bg-violet-900/40 dark:text-violet-400">
+          Bientôt
+        </span>
+      )}
     </div>
   );
 }
 
 // ─── Composant principal ──────────────────────────────────────────────────────
 
-export function PricingCards({ currentPlan, effectivePlan, stripeSubId, pendingCheckout }: PricingCardsProps) {
+export function PricingCards({ currentPlan, effectivePlan, stripeSubId, pendingCheckout, pendingPromo }: PricingCardsProps) {
   const [interval, setInterval] = useState<BillingInterval>("monthly");
   const [loadingPlan, setLoadingPlan] = useState<"PRO" | "BUSINESS" | null>(null);
   const [cancelling, setCancelling] = useState(false);
@@ -107,7 +114,8 @@ export function PricingCards({ currentPlan, effectivePlan, stripeSubId, pendingC
   const handleCheckout = useCallback(async (plan: "PRO" | "BUSINESS") => {
     setLoadingPlan(plan);
     try {
-      const result = await createStripeCheckoutSession(plan, interval);
+      // pendingPromo transmis si l'utilisateur arrive avec un code promo (ex: FONDATEUR)
+      const result = await createStripeCheckoutSession(plan, interval, pendingPromo);
       if (result.success && result.data?.url) {
         window.location.href = result.data.url;
       } else {
@@ -118,7 +126,7 @@ export function PricingCards({ currentPlan, effectivePlan, stripeSubId, pendingC
     } finally {
       setLoadingPlan(null);
     }
-  }, [interval]);
+  }, [interval, pendingPromo]);
 
   const handleCancel = useCallback(async () => {
     setShowCancelDialog(false);

@@ -101,6 +101,8 @@ function SignUpForm() {
 	const searchParams = useSearchParams();
 	// Plan optionnel transmis depuis la landing page (?plan=pro ou ?plan=business)
 	const plan = searchParams.get("plan");
+	// Code promo optionnel (ex: ?promo=FONDATEUR)
+	const promo = searchParams.get("promo");
 
 	const [name, setName] = useState("");
 	const [email, setEmail] = useState("");
@@ -116,9 +118,9 @@ function SignUpForm() {
 				setError("");
 				await signIn.social({
 					provider,
-					// Si un plan est présent, rediriger vers checkout après OAuth
+					// Si un plan est présent, rediriger vers checkout après OAuth (+ promo si présente)
 					callbackURL: plan
-						? `/dashboard/subscription?checkout=${plan}`
+						? `/dashboard/subscription?checkout=${plan}${promo ? `&promo=${promo}` : ""}`
 						: "/dashboard",
 				});
 			} catch (err) {
@@ -126,7 +128,7 @@ function SignUpForm() {
 				console.error(err);
 			}
 		},
-		[plan],
+		[plan, promo],
 	);
 
 	const handleEmailSignUp = async (e: React.FormEvent) => {
@@ -171,9 +173,9 @@ function SignUpForm() {
 				type: "email-verification",
 			});
 
-			// Rediriger vers verify-email en propageant le plan si présent
+			// Rediriger vers verify-email en propageant le plan et le promo si présents
 			router.push(
-				`/verify-email?email=${encodeURIComponent(email)}${plan ? `&plan=${plan}` : ""}`,
+				`/verify-email?email=${encodeURIComponent(email)}${plan ? `&plan=${plan}` : ""}${promo ? `&promo=${promo}` : ""}`,
 			);
 		} catch (err) {
 			toast.error(

@@ -15,6 +15,7 @@ import {
   Footer,
   ReviewsCarousel,
 } from "@/components/landing"
+import { FounderBannerLanding } from "@/components/landing/founder-banner"
 import { getApprovedReviews } from "@/lib/actions/reviews"
 
 export const metadata: Metadata = {
@@ -261,6 +262,8 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* Bannière Fondateur — disparaît automatiquement quand les 50 places sont épuisées */}
+      <FounderBannerLanding />
       <PricingSection />
       <FaqSection />
       <Footer />

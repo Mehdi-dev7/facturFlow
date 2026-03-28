@@ -760,15 +760,17 @@ export function InvoicePreviewModal({
                   {isSending ? "Envoi..." : "Envoyer"}
                 </button>
 
-                {/* Envoyer électroniquement */}
+                {/* Envoyer électroniquement — désactivé (disponible très prochainement) */}
                 <button
-                  onClick={handleSendEInvoice}
-                  disabled={!invoice || isSendingEInvoice || !!invoice?.einvoiceRef}
-                  className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-indigo-300 text-indigo-600 hover:bg-indigo-50 dark:border-indigo-500 dark:text-indigo-400 dark:hover:bg-indigo-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                  title={invoice?.einvoiceRef ? "Déjà envoyée électroniquement" : "Envoyer via le réseau Peppol (certifié DGFiP)"}
+                  disabled
+                  className="rounded-lg border px-3 py-2 text-sm font-medium gap-2 flex items-center border-indigo-200 text-indigo-400 dark:border-indigo-800 dark:text-indigo-600 opacity-60 cursor-not-allowed"
+                  title="Disponible très prochainement"
                 >
                   <FileCheck2 size={14} />
-                  {isSendingEInvoice ? "Envoi élec..." : invoice?.einvoiceRef ? "Envoyée élec." : "Envoyer élec."}
+                  Envoyer élec.
+                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-violet-100 text-violet-500 dark:bg-violet-900/40 dark:text-violet-400 leading-none">
+                    Bientôt
+                  </span>
                 </button>
 
               </div>
@@ -818,15 +820,17 @@ export function InvoicePreviewModal({
                   {isSending ? "Envoi..." : "Envoyer"}
                 </button>
 
-                {/* Envoyer électroniquement */}
+                {/* Envoyer électroniquement — désactivé (disponible très prochainement) */}
                 <button
-                  onClick={handleSendEInvoice}
-                  disabled={!invoice || isSendingEInvoice || !!invoice?.einvoiceRef}
-                  className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-2 flex items-center border-indigo-300 text-indigo-600 hover:bg-indigo-50 dark:border-indigo-500 dark:text-indigo-400 dark:hover:bg-indigo-950 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                  title={invoice?.einvoiceRef ? "Déjà envoyée électroniquement" : "Envoyer via le réseau Peppol (certifié DGFiP)"}
+                  disabled
+                  className="rounded-lg border px-3 py-2 text-sm font-medium gap-2 flex items-center border-indigo-200 text-indigo-400 dark:border-indigo-800 dark:text-indigo-600 opacity-60 cursor-not-allowed"
+                  title="Disponible très prochainement"
                 >
                   <FileCheck2 size={14} />
-                  {isSendingEInvoice ? "Envoi élec..." : invoice?.einvoiceRef ? "Envoyée élec." : "Envoyer élec."}
+                  Envoyer élec.
+                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-violet-100 text-violet-500 dark:bg-violet-900/40 dark:text-violet-400 leading-none">
+                    Bientôt
+                  </span>
                 </button>
 
               </div>

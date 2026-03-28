@@ -8,6 +8,7 @@ import Image from "next/image";
 import { getCurrentSubscription } from "@/lib/actions/subscription";
 import { PlanBadge } from "@/components/subscription/plan-badge";
 import { PricingCards } from "@/components/subscription/pricing-cards";
+import { FounderBannerDashboard } from "@/components/dashboard/founder-banner";
 
 export const metadata = {
   title: "Abonnement | FacturNow",
@@ -17,10 +18,11 @@ export const metadata = {
 export default async function SubscriptionPage({
   searchParams,
 }: {
-  searchParams: Promise<{ checkout?: string }>;
+  searchParams: Promise<{ checkout?: string; promo?: string }>;
 }) {
   // checkout = plan à déclencher automatiquement (ex: "pro", "business")
-  const { checkout } = await searchParams;
+  // promo = code promo à appliquer (ex: "FONDATEUR")
+  const { checkout, promo } = await searchParams;
 
   const result = await getCurrentSubscription();
 
@@ -55,6 +57,9 @@ export default async function SubscriptionPage({
           />
         </div>
       </div>
+
+      {/* ── Bannière Fondateur — visible si FREE/trial ── */}
+      <FounderBannerDashboard effectivePlan={effectivePlan} />
 
       {/* ── Card Trial actif ── */}
       {isTrial && trialDaysLeft != null && (
@@ -174,6 +179,7 @@ export default async function SubscriptionPage({
         effectivePlan={effectivePlan}
         stripeSubId={stripeSubId}
         pendingCheckout={checkout}
+        pendingPromo={promo}
       />
     </div>
   );

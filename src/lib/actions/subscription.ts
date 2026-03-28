@@ -89,10 +89,12 @@ export async function getCurrentSubscription() {
 /**
  * Crée une Checkout Session Stripe pour souscrire à un plan.
  * Retourne l'URL de redirection vers la page de paiement Stripe.
+ * @param promoCode  Code promo optionnel (ex: "FONDATEUR") — appliqué directement si valide
  */
 export async function createStripeCheckoutSession(
   plan: "PRO" | "BUSINESS",
-  interval: "monthly" | "yearly"
+  interval: "monthly" | "yearly",
+  promoCode?: string
 ) {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session?.user?.id) {
@@ -132,6 +134,12 @@ export async function createStripeCheckoutSession(
       });
     }
 
+    // Appliquer le code promo fondateur directement si présent, sinon laisser le champ libre
+    const discounts =
+      promoCode === "FONDATEUR" && process.env.STRIPE_FOUNDER_PROMO_CODE_ID
+        ? [{ promotion_code: process.env.STRIPE_FOUNDER_PROMO_CODE_ID }]
+        : undefined;
+
     // Créer la Checkout Session en mode subscription
     const checkoutSession = await stripe.checkout.sessions.create({
       mode: "subscription",
@@ -148,6 +156,8 @@ export async function createStripeCheckoutSession(
           message: "Paiement 100% sécurisé par Stripe · Chiffrement SSL · Sans engagement · Annulable à tout moment depuis FacturNow",
         },
       },
+      // Code promo fondateur appliqué directement, sinon champ libre pour tout code
+      ...(discounts ? { discounts } : { allow_promotion_codes: true }),
     });
 
     return { success: true, data: { url: checkoutSession.url! } } as const;
