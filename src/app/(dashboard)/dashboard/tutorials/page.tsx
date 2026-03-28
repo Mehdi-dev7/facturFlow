@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, ImageIcon, FileText, ExternalLink, ChevronRight } from "lucide-react";
+import { BookOpen, ImageIcon, FileText, ExternalLink, ChevronRight, Play } from "lucide-react";
 
 export const metadata: Metadata = {
 	title: "Tutoriels | FacturNow",
@@ -117,6 +117,46 @@ export default function TutorialsPage() {
 					</Card>
 				))}
 			</div>
+
+			{/* Démo vidéo — présentation complète de l'app */}
+			<div className="max-w-[1200px] mx-auto">
+			<Card className="shadow-lg border-primary/30 bg-linear-to-br from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#1e1845] dark:to-[#1a1438]">
+				<CardContent className="p-4 sm:p-6">
+					<div className="flex items-center gap-3 mb-4">
+						<div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 shrink-0">
+							<Play className="h-5 w-5 text-primary fill-primary/50" />
+						</div>
+						<div>
+							<h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-100">
+								Démo complète — Découvrez FacturNow en 3 min
+							</h2>
+							<p className="text-xs text-slate-500 dark:text-slate-400">
+								Factures, paiements, relances, statistiques — tout en une vidéo
+							</p>
+						</div>
+					</div>
+
+					{/* Lecteur vidéo */}
+					<div className="max-w-[1200px] mx-auto">
+					<div
+						className="relative rounded-xl overflow-hidden bg-black border border-primary/20 shadow-lg"
+						style={{ aspectRatio: "16/9" }}
+					>
+						<video
+							className="w-full h-full object-cover"
+							controls
+							preload="metadata"
+						>
+							<source src="/videos/0322.mov" type="video/quicktime" />
+							<source src="/videos/0322.mov" type="video/mp4" />
+							Votre navigateur ne supporte pas la lecture vidéo.
+						</video>
+					</div>
+					</div>
+				</CardContent>
+			</Card>
+			</div>
+
 
 			{/* Info */}
 			<Card className="border-primary/20">

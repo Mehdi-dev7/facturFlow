@@ -106,12 +106,33 @@ function ReviewCard({ review }: { review: ReviewItem }) {
   )
 }
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+// Réorganise le tableau pour éviter que 2 prénoms identiques se suivent
+function spreadSameNames(items: ReviewItem[]): ReviewItem[] {
+  const result: ReviewItem[] = []
+  const remaining = [...items]
+
+  while (remaining.length > 0) {
+    const lastFirstName = result.length > 0 ? getFirstName(result[result.length - 1].displayName) : null
+    // Cherche le premier item dont le prénom diffère du précédent
+    const idx = remaining.findIndex((r) => getFirstName(r.displayName) !== lastFirstName)
+    if (idx === -1) {
+      // Plus moyen d'éviter le doublon → on prend le premier disponible
+      result.push(...remaining.splice(0))
+    } else {
+      result.push(...remaining.splice(idx, 1))
+    }
+  }
+  return result
+}
+
 // ─── Composant principal ──────────────────────────────────────────────────────
 
 export function ReviewsCarousel({ reviews }: ReviewsCarouselProps) {
   // Avis réels d'abord, puis placeholders pour compléter jusqu'à ~8 cartes
   const placeholdersNeeded = Math.max(0, 8 - reviews.length)
-  const allReviews = [...reviews, ...PLACEHOLDER_REVIEWS.slice(0, placeholdersNeeded)]
+  const allReviews = spreadSameNames([...reviews, ...PLACEHOLDER_REVIEWS.slice(0, placeholdersNeeded)])
 
   if (allReviews.length === 0) return null
 

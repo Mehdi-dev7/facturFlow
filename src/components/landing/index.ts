@@ -1,5 +1,6 @@
 export { Navbar } from "./navbar"
 export { HeroSection } from "./hero-section"
+export { DemoSection } from "./demo-section"
 export { FeaturesSection } from "./features-section"
 export { ForWhoSection } from "./for-who-section"
 export { SecurePaymentsSection } from "./secure-payments-section"

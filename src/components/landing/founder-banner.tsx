@@ -47,9 +47,13 @@ export async function FounderBannerLanding() {
               <p className="font-bold text-slate-800 dark:text-slate-100 text-base sm:text-lg leading-tight">
                 Fondateur — Pro à{" "}
                 <span className="text-amber-600 dark:text-amber-400">6,99€/mois à vie</span>
+                {" "}· Business à{" "}
+                <span className="text-amber-600 dark:text-amber-400">17€/mois à vie</span>
               </p>
               <p className="text-sm text-slate-600 dark:text-slate-400 mt-0.5">
-                Pour les {total} premiers · Au lieu de 9,99€/mois · 7 jours d&apos;essai inclus
+                Pour les {total} premiers · Code{" "}
+                <span className="font-mono font-bold text-amber-700 dark:text-amber-400">FONDATEUR</span>
+                {" "}· 7 jours d&apos;essai inclus
               </p>
             </div>
 

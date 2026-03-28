@@ -49,13 +49,16 @@ export function FounderBannerDashboard({ effectivePlan }: FounderBannerDashboard
         <div className="flex-1 min-w-0">
           <p className="font-semibold text-sm text-slate-800 dark:text-slate-100">
             Offre Fondateur —{" "}
-            <span className="text-amber-600 dark:text-amber-400">6,99€/mois à vie</span>
+            <span className="text-amber-600 dark:text-amber-400">Pro 6,99€/mois à vie</span>
+            {" "}·{" "}
+            <span className="text-amber-600 dark:text-amber-400">Business 17€/mois à vie</span>
           </p>
           <p className="text-xs text-slate-500 dark:text-slate-400">
             {remaining !== null
               ? `${remaining} place${remaining > 1 ? "s" : ""} restante${remaining > 1 ? "s" : ""}`
               : "Places limitées"}{" "}
-            · Au lieu de 9,99€/mois
+            · Code{" "}
+            <span className="font-mono font-bold text-amber-700 dark:text-amber-400">FONDATEUR</span>
           </p>
         </div>
         <button

@@ -445,7 +445,7 @@ einvoiceSentAt DateTime? // Date d'envoi électronique
 - Export CSV
 - E-invoicing SuperPDP inclus (limité)
 
-### Business - 25€/mois (ou annuel -20%)
+### Business - 20€/mois (ou annuel -20%)
 - Tout Pro +
 - Multi-users (3 comptes)
 - Export comptable FEC + URSSAF
@@ -671,7 +671,7 @@ Utilise les agents quand :
 - [x] Paiements PayPal — create order, capture, webhook, email bouton ✅ testé en live
 - [x] Paiements GoCardless — mandats SEPA, webhook PAID, email bouton ⚡ à tester sandbox
 - [x] Relances auto — 3 niveaux (FRIENDLY/FIRM/FORMAL), cron nightly J+2/J+7/J+15
-- [x] Système abonnements — Free/Pro 9,99€/Business 25€, trial 7j anti-cheat IP, feature-gate, guards, UpgradeBanner/FeatureGate, webhook Stripe subscription, page /dashboard/subscription
+- [x] Système abonnements — Free/Pro 9,99€/Business 20€, trial 7j anti-cheat IP, feature-gate, guards, UpgradeBanner/FeatureGate, webhook Stripe subscription, page /dashboard/subscription
 - [x] IBAN/BIC — Mon Entreprise + PDF facture + email Resend
 - [x] Notification dots sidebar — rouge animate-ping, disparition au clic, row highlight 3.5s
 - [x] Pages légales (mentions, RGPD, CGU/CGV) + Formulaire contact/support
@@ -683,7 +683,7 @@ Utilise les agents quand :
 
 **FREE** : 10 docs/mois, 5 clients, virement bancaire uniquement, 5 e-invoices SuperPDP
 **PRO — 9,99€/mois** (ou annuel -20%) : illimité, Stripe/PayPal/GoCardless, relances auto, templates, SEPA
-**BUSINESS — 25€/mois** : tout Pro + multi-users (3), export CSV comptable, e-invoicing illimité, API/webhooks
+**BUSINESS — 20€/mois** : tout Pro + multi-users (3), export CSV comptable, e-invoicing illimité, API/webhooks
 
 ### Reste à faire — App (11/03/2026)
 
@@ -697,6 +697,8 @@ Utilise les agents quand :
 - [x] **Mon Compte** : page profil (email, téléphone, avatar) ✅
 - [x] **Tutoriels intégrés** : optimisés (images WebP, steps fusionnés) ✅
 - [x] **API & Webhooks** (Business) : clés API `fnk_xxx`, routes `/api/v1/`, dispatcher HMAC, page `/dashboard/api`, logs livraisons ✅ (11/03/2026)
+- [x] **Démo vidéo** : section `#demo` sur la landing (boutons Hero + "Comment ça marche"), vidéo intégrée dans tutoriels dashboard ✅ (28/03/2026)
+- [x] **Offre Fondateur** : réduction à vie pour les 50 premiers users — Pro à vie au tarif réduit + Business -3€/mois à vie (17€ au lieu de 20€), banner landing + dashboard, email envoyé avec code promo `FONDATEUR` (pré-rempli mais modifiable) ✅ (28/03/2026)
 - [ ] **Style email paiement** : responsive mobile des emails avec boutons Stripe/PayPal/SEPA
 - [ ] **Documents complémentaires** : avoirs, bons de commande, bons de livraison, proforma
 - [ ] **PWA mobile** : manifest + service worker, encadré sidebar "Installer l'app" + prompt après X jours d'utilisation (Pro/Business uniquement)

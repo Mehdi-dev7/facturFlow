@@ -4,6 +4,7 @@ import { ArrowRight, FileText, BookOpen } from "lucide-react"
 import {
   Navbar,
   HeroSection,
+  DemoSection,
   FeaturesSection,
   ForWhoSection,
   SecurePaymentsSection,
@@ -13,10 +14,10 @@ import {
   PricingSection,
   FaqSection,
   Footer,
-  ReviewsCarousel,
+  // ReviewsCarousel, // masqué au lancement
 } from "@/components/landing"
 import { FounderBannerLanding } from "@/components/landing/founder-banner"
-import { getApprovedReviews } from "@/lib/actions/reviews"
+// import { getApprovedReviews } from "@/lib/actions/reviews" // masqué au lancement
 
 export const metadata: Metadata = {
   title: "FacturNow — Facturation intelligente avec prélèvement SEPA",
@@ -174,9 +175,8 @@ const faqSchema = {
   ],
 }
 
-export default async function Home() {
-  // Récupérer les avis approuvés (Server Component — zéro JS client)
-  const reviews = await getApprovedReviews()
+export default function Home() {
+  // const reviews = await getApprovedReviews() // masqué au lancement — réactiver quand les avis sont collectés
 
   return (
     <>
@@ -195,6 +195,7 @@ export default async function Home() {
       />
       <Navbar />
       <HeroSection />
+      <DemoSection />
       <FeaturesSection />
       {/* Section "Pour qui ?" — SEO personas : freelance, auto-entrepreneur, PME */}
       <ForWhoSection />
@@ -203,8 +204,8 @@ export default async function Home() {
       <ProblemSolutionSection />
       {/* Section facturation électronique 2026 — mot-clé chaud, conformité Factur-X */}
       <EInvoicingSection />
-      {/* Carousel d'avis — affiché uniquement si au moins un avis est approuvé */}
-      {reviews.length > 0 && <ReviewsCarousel reviews={reviews} />}
+      {/* Carousel d'avis — masqué au lancement, à réactiver quand les avis sont collectés */}
+      {/* {reviews.length > 0 && <ReviewsCarousel reviews={reviews} />} */}
 
       {/* ── Guides & Ressources — maillage interne vers landing pages + blog ── */}
       <section className="bg-slate-50">
