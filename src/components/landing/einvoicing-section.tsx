@@ -1,5 +1,5 @@
 // Server Component — pas de hooks ni event handlers
-import { ShieldCheck, Calendar, AlertCircle, ArrowRight, CheckCircle2 } from "lucide-react"
+import { Calendar, AlertCircle, ArrowRight, CheckCircle2, Clock } from "lucide-react"
 import Link from "next/link"
 
 // ─── Section Facturation Électronique 2026 ────────────────────────────────────
@@ -17,36 +17,41 @@ export function EInvoicingSection() {
             {/* ── Colonne gauche — explication ──────────────────────────────── */}
             <div className="px-4 sm:px-[8%] xl:px-[12%] py-10 xl:py-20">
 
-              {/* Badge urgence */}
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-100 border border-red-200 mb-6">
-                <AlertCircle className="h-4 w-4 text-red-600 shrink-0" />
-                <span className="text-xs font-bold text-red-700 uppercase tracking-wide">Obligation légale — sept. 2026</span>
+              {/* Badge "bientôt dispo" */}
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-100 border border-violet-200 mb-6">
+                <Clock className="h-4 w-4 text-violet-600 shrink-0" />
+                <span className="text-xs font-bold text-violet-700 uppercase tracking-wide">Disponible très prochainement</span>
               </div>
 
               {/* H2 optimisé SEO */}
               <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
                 Facturation électronique :{" "}
-                <span className="text-gradient">FacturNow est déjà conforme</span>
+                <span className="text-gradient">FacturNow vous prépare dès maintenant</span>
               </h2>
 
               <p className="text-slate-600 mb-8 leading-relaxed">
                 À partir de <strong>septembre 2026</strong>, toutes les entreprises françaises B2B
                 devront émettre et recevoir des <strong>factures électroniques conformes Factur-X</strong> via
-                une plateforme agréée. FacturNow intègre déjà cette obligation
-                via <strong>SuperPDP</strong>, partenaire certifié par la DGFiP.
+                une plateforme agréée. Cette fonctionnalité est en cours de finalisation — elle sera
+                intégrée via <strong>SuperPDP</strong>, partenaire certifié par la DGFiP, bien avant la date limite.
               </p>
 
               {/* Checklist conformité */}
               <ul className="space-y-3 mb-8">
                 {[
-                  "Format Factur-X / EN 16931 conforme DGFiP",
-                  "Transmission via réseau Peppol (SuperPDP certifié)",
-                  "Inclus dès le plan Pro — sans surcoût",
-                  "Illimité avec le plan Business",
+                  { label: "Format Factur-X / EN 16931 conforme DGFiP", done: true },
+                  { label: "Transmission via réseau Peppol (SuperPDP certifié)", done: true },
+                  { label: "Inclus dès le plan Pro — sans surcoût", done: true },
+                  { label: "Déploiement en cours — disponible avant l'été 2026", done: false },
                 ].map((item, i) => (
                   <li key={i} className="flex items-center gap-2.5">
-                    <CheckCircle2 className="h-5 w-5 text-violet-600 shrink-0" />
-                    <span className="text-sm text-slate-700">{item}</span>
+                    {item.done
+                      ? <CheckCircle2 className="h-5 w-5 text-violet-600 shrink-0" />
+                      : <Clock className="h-5 w-5 text-amber-500 shrink-0" />
+                    }
+                    <span className={`text-sm ${item.done ? "text-slate-700" : "text-amber-700 font-medium"}`}>
+                      {item.label}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -55,7 +60,7 @@ export function EInvoicingSection() {
                 href="/signup"
                 className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition-colors cursor-pointer"
               >
-                Mettre mon activité en conformité
+                Être notifié à la sortie
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
@@ -110,13 +115,13 @@ export function EInvoicingSection() {
                   </div>
                 </div>
 
-                {/* Badge conforme */}
-                <div className="p-4 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center gap-3">
-                  <ShieldCheck className="h-8 w-8 text-violet-400 shrink-0" />
+                {/* Badge transition en cours */}
+                <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center gap-3">
+                  <Clock className="h-8 w-8 text-amber-400 shrink-0" />
                   <div>
-                    <p className="text-white font-semibold text-sm">FacturNow est déjà prêt</p>
+                    <p className="text-white font-semibold text-sm">Transition en douceur — bientôt disponible</p>
                     <p className="text-slate-400 text-xs mt-0.5">
-                      Intégration SuperPDP (partenaire agréé DGFiP) déjà active
+                      Intégration SuperPDP en cours de finalisation, bien avant l&apos;échéance légale
                     </p>
                   </div>
                 </div>

@@ -54,8 +54,8 @@ export function FounderBannerDashboard({ effectivePlan }: FounderBannerDashboard
             <span className="text-amber-600 dark:text-amber-400">Business 17€/mois à vie</span>
           </p>
           <p className="text-xs text-slate-500 dark:text-slate-400">
-            {remaining !== null
-              ? `${remaining} place${remaining > 1 ? "s" : ""} restante${remaining > 1 ? "s" : ""}`
+            {remaining !== null && remaining < 15
+              ? `⚠️ Plus que ${remaining} place${remaining > 1 ? "s" : ""} !`
               : "Places limitées"}{" "}
             · Code{" "}
             <span className="font-mono font-bold text-amber-700 dark:text-amber-400">FONDATEUR</span>

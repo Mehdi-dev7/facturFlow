@@ -41,7 +41,9 @@ export async function FounderBannerLanding() {
                   Offre de lancement
                 </span>
                 <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-200 dark:bg-amber-800/60 text-amber-800 dark:text-amber-200">
-                  {remaining}/{total} places restantes
+                  {remaining < 15
+                    ? `⚠️ Plus que ${remaining} place${remaining > 1 ? "s" : ""} !`
+                    : "Places limitées"}
                 </span>
               </div>
               <p className="font-bold text-slate-800 dark:text-slate-100 text-base sm:text-lg leading-tight">

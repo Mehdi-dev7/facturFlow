@@ -68,8 +68,8 @@ export function DemoSection() {
 							onPlay={() => setPlaying(true)}
 							onPause={() => setPlaying(false)}
 						>
-							<source src="/videos/0322.mov" type="video/quicktime" />
-							<source src="/videos/0322.mov" type="video/mp4" />
+							<source src="/videos/video_final.mov" type="video/quicktime" />
+							<source src="/videos/video_final.mov" type="video/mp4" />
 							Votre navigateur ne supporte pas la lecture vidéo.
 						</video>
 
