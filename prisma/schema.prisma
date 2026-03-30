@@ -631,6 +631,7 @@ model Partner {
   commissionYearly  Float             @default(15)  // % sur abonnements yearly (15% par défaut)
   iban              String?           // Pour les virements manuels de commission
   status            String            @default("ACTIVE")  // ACTIVE | PAUSED
+  isFounder         Boolean           @default(false)     // Si true : promo fondateur appliquée au checkout + referral tracké
   referrals         PartnerReferral[]
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt

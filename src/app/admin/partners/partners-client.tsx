@@ -17,7 +17,7 @@ import {
 import type { PartnerWithStats, PartnerStatsData, PartnerCommissionDetail } from "@/lib/actions/partners";
 import {
   Plus, Copy, Eye, Pause, Play, Trash2, CheckCircle2,
-  ExternalLink, Loader2, Euro, Users2, Clock, X,
+  ExternalLink, Loader2, Euro, Users2, Clock, X, Star,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -88,6 +88,7 @@ function CreatePartnerDialog({ open, onClose, onSuccess }: CreatePartnerDialogPr
     commissionMonthly: 10,
     commissionYearly: 15,
     iban: "",
+    isFounder: false,
   });
 
   const handleSubmit = useCallback(
@@ -105,10 +106,11 @@ function CreatePartnerDialog({ open, onClose, onSuccess }: CreatePartnerDialogPr
           commissionMonthly: form.commissionMonthly,
           commissionYearly: form.commissionYearly,
           iban: form.iban || undefined,
+          isFounder: form.isFounder,
         });
         if (result.success) {
           toast.success("Partenaire créé avec succès !");
-          setForm({ name: "", email: "", code: "", commissionMonthly: 10, commissionYearly: 15, iban: "" });
+          setForm({ name: "", email: "", code: "", commissionMonthly: 10, commissionYearly: 15, iban: "", isFounder: false });
           onSuccess();
           onClose();
         } else {
@@ -203,6 +205,32 @@ function CreatePartnerDialog({ open, onClose, onSuccess }: CreatePartnerDialogPr
               className="bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-500"
             />
           </div>
+
+          {/* Mode fondateur */}
+          <button
+            type="button"
+            onClick={() => setForm((f) => ({ ...f, isFounder: !f.isFounder }))}
+            className={`w-full flex items-center gap-3 rounded-lg border px-3 py-2.5 text-left transition-colors cursor-pointer ${
+              form.isFounder
+                ? "border-amber-600/50 bg-amber-950/30"
+                : "border-slate-700 bg-slate-800/50 hover:border-slate-600"
+            }`}
+          >
+            <Star className={`h-4 w-4 shrink-0 ${form.isFounder ? "text-amber-400 fill-amber-400" : "text-slate-500"}`} />
+            <div className="flex-1 min-w-0">
+              <p className={`text-xs font-medium ${form.isFounder ? "text-amber-300" : "text-slate-400"}`}>
+                Partenaire fondateur
+              </p>
+              <p className="text-[11px] text-slate-500">
+                La promo fondateur Stripe est appliquée automatiquement au checkout
+              </p>
+            </div>
+            <span className={`text-[10px] font-bold rounded-full px-2 py-0.5 ${
+              form.isFounder ? "bg-amber-500 text-black" : "bg-slate-700 text-slate-500"
+            }`}>
+              {form.isFounder ? "ON" : "OFF"}
+            </span>
+          </button>
 
           <div className="flex gap-2 pt-2">
             <Button
@@ -523,6 +551,22 @@ export default function PartnersClient({ initialPartners }: Props) {
     startTransition(() => router.refresh());
   }, [router]);
 
+  // Toggle fondateur ON/OFF
+  const handleToggleFounder = useCallback(
+    async (partner: PartnerWithStats) => {
+      setLoadingId(partner.id);
+      const result = await updatePartner(partner.id, { isFounder: !partner.isFounder });
+      setLoadingId(null);
+      if (result.success) {
+        toast.success(partner.isFounder ? "Mode fondateur désactivé" : "Mode fondateur activé");
+        refresh();
+      } else {
+        toast.error(result.error ?? "Erreur");
+      }
+    },
+    [refresh]
+  );
+
   // Toggle statut ACTIVE/PAUSED
   const handleToggleStatus = useCallback(
     async (partner: PartnerWithStats) => {
@@ -569,9 +613,33 @@ export default function PartnersClient({ initialPartners }: Props) {
       <div className="rounded-xl border border-slate-800 bg-slate-900 overflow-hidden">
         {/* Toolbar */}
         <div className="flex items-center justify-between p-4 border-b border-slate-800">
-          <span className="text-sm text-slate-400">
-            {initialPartners.length} partenaire{initialPartners.length > 1 ? "s" : ""}
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-slate-400">
+              {initialPartners.length} partenaire{initialPartners.length > 1 ? "s" : ""}
+            </span>
+            {/* Compteur fondateurs X/50 */}
+            {(() => {
+              const founderReferrals = initialPartners
+                .filter((p) => p.isFounder)
+                .reduce((sum, p) => sum + p.referralsCount, 0);
+              if (founderReferrals === 0 && !initialPartners.some((p) => p.isFounder)) return null;
+              const pct = Math.min((founderReferrals / 50) * 100, 100);
+              return (
+                <div className="flex items-center gap-2">
+                  <Star className="h-3.5 w-3.5 text-amber-400 fill-amber-400" />
+                  <span className="text-xs text-amber-300 font-medium">
+                    Fondateurs : {founderReferrals}/50
+                  </span>
+                  <div className="w-20 h-1.5 rounded-full bg-slate-700 overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-amber-400 transition-all"
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
           <Button
             onClick={() => setShowCreate(true)}
             className="bg-violet-600 hover:bg-violet-700 text-white cursor-pointer"
@@ -622,9 +690,16 @@ export default function PartnersClient({ initialPartners }: Props) {
 
                       {/* Code */}
                       <TableCell>
-                        <span className="font-mono text-sm text-violet-300 bg-violet-900/30 border border-violet-700/40 rounded px-2 py-0.5">
-                          {partner.code}
-                        </span>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="font-mono text-sm text-violet-300 bg-violet-900/30 border border-violet-700/40 rounded px-2 py-0.5">
+                            {partner.code}
+                          </span>
+                          {partner.isFounder && (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-amber-950/50 border border-amber-700/50 px-1.5 py-0.5 text-[10px] font-bold text-amber-300">
+                              <Star className="h-2.5 w-2.5 fill-amber-300" /> Fondateur
+                            </span>
+                          )}
+                        </div>
                       </TableCell>
 
                       {/* Taux commissions */}
@@ -675,6 +750,21 @@ export default function PartnersClient({ initialPartners }: Props) {
                               title="Copier le lien portail"
                             >
                               <Copy className="h-3.5 w-3.5" />
+                            </Button>
+
+                            {/* Toggle fondateur */}
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleToggleFounder(partner)}
+                              className={`h-7 px-2 cursor-pointer ${
+                                partner.isFounder
+                                  ? "text-amber-400 hover:text-amber-300 hover:bg-amber-950/30"
+                                  : "text-slate-600 hover:text-amber-400 hover:bg-amber-950/20"
+                              }`}
+                              title={partner.isFounder ? "Désactiver mode fondateur" : "Activer mode fondateur"}
+                            >
+                              <Star className={`h-3.5 w-3.5 ${partner.isFounder ? "fill-amber-400" : ""}`} />
                             </Button>
 
                             {/* Voir le détail */}

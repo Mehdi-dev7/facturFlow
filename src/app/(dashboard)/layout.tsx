@@ -25,6 +25,7 @@ import DashboardShell from "@/components/layouts/dashboard-shell";
 import { PwaServiceWorker } from "@/components/pwa/pwa-service-worker";
 import { OnboardingTutorial } from "@/components/onboarding/onboarding-tutorial";
 import { getPendingReviewsCount } from "@/lib/actions/reviews";
+import { getNewUsersCount } from "@/lib/actions/admin";
 
 export default async function DashboardLayout({
   children,
@@ -77,13 +78,16 @@ export default async function DashboardLayout({
     !!process.env.ADMIN_EMAIL &&
     session.user.email === process.env.ADMIN_EMAIL;
 
-  // Compte des avis en attente (admin uniquement, pour le badge rouge)
-  const pendingReviewsCount = isAdmin ? await getPendingReviewsCount() : 0;
+  // Dot admin : avis en attente + nouveaux inscrits 48h (admin uniquement)
+  const [pendingReviewsCount, newUsersCount] = isAdmin
+    ? await Promise.all([getPendingReviewsCount(), getNewUsersCount()])
+    : [0, 0];
+  const adminDotCount = pendingReviewsCount + newUsersCount;
 
   return (
     <>
       <PwaServiceWorker />
-      <DashboardShell subscription={subscription} notifications={notifications} isAdmin={isAdmin} pendingReviewsCount={pendingReviewsCount}>
+      <DashboardShell subscription={subscription} notifications={notifications} isAdmin={isAdmin} pendingReviewsCount={adminDotCount}>
         {children}
       </DashboardShell>
       {/* Overlay d'onboarding — affiché uniquement pour les nouveaux utilisateurs */}

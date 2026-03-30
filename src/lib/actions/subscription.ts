@@ -136,25 +136,31 @@ export async function createStripeCheckoutSession(
       });
     }
 
-    // Appliquer le code promo fondateur directement si présent, sinon laisser le champ libre
-    const isFounder = promoCode === "FONDATEUR" && !!process.env.STRIPE_FOUNDER_PROMO_CODE_ID;
-    const discounts = isFounder
-      ? [{ promotion_code: process.env.STRIPE_FOUNDER_PROMO_CODE_ID! }]
-      : undefined;
-
-    // Vérifier le partnerCode si fourni ET si pas de code fondateur actif (exclusion mutuelle)
-    // Le partnerCode est stocké dans les metadata Stripe pour être lu par le webhook
+    // Résoudre le partnerCode si fourni : on vérifie qu'il est actif et on note s'il est fondateur
     let resolvedPartnerCode: string | undefined;
-    if (partnerCode && !isFounder) {
+    let isFounderPartner = false;
+    if (partnerCode) {
       const code = partnerCode.toUpperCase().trim();
       const partner = await prisma.partner.findFirst({
         where: { code, status: "ACTIVE" },
-        select: { code: true },
+        select: { code: true, isFounder: true },
       });
       if (partner) {
         resolvedPartnerCode = partner.code;
+        isFounderPartner = partner.isFounder;
       }
     }
+
+    // Appliquer la promo fondateur si :
+    // 1. promoCode manuel = "FONDATEUR" (champ texte au checkout), OU
+    // 2. Le partnerCode est d'un partenaire marqué fondateur (isFounder = true)
+    // Dans le cas 2, le referral est quand même tracké (non exclusif)
+    const applyFounderPromo =
+      (promoCode === "FONDATEUR" || isFounderPartner) &&
+      !!process.env.STRIPE_FOUNDER_PROMO_CODE_ID;
+    const discounts = applyFounderPromo
+      ? [{ promotion_code: process.env.STRIPE_FOUNDER_PROMO_CODE_ID! }]
+      : undefined;
 
     // Construire les metadata de la session (userId, plan + partnerCode si valide)
     const sessionMetadata: Record<string, string> = { userId: session.user.id, plan };
@@ -178,7 +184,7 @@ export async function createStripeCheckoutSession(
           message: "Paiement 100% sécurisé par Stripe · Chiffrement SSL · Sans engagement · Annulable à tout moment depuis FacturNow",
         },
       },
-      // Code promo fondateur appliqué directement, sinon champ libre pour tout code
+      // Promo fondateur appliquée directement si applicable, sinon champ libre
       ...(discounts ? { discounts } : { allow_promotion_codes: true }),
     });
 

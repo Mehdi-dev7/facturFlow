@@ -35,6 +35,7 @@ export interface PartnerWithStats {
   commissionYearly: number;
   iban: string | null;
   status: string;
+  isFounder: boolean;   // Si true : promo fondateur appliquée au checkout
   createdAt: Date;
   _count: { referrals: number };
   totalDue: number;    // Somme commissions PENDING (€)
@@ -123,6 +124,7 @@ export async function getPartners(): Promise<{
         commissionYearly: p.commissionYearly,
         iban: p.iban,
         status: p.status,
+        isFounder: p.isFounder,
         createdAt: p.createdAt,
         _count: p._count,
         totalDue: Math.round(totalDue * 100) / 100,
@@ -149,6 +151,7 @@ export async function createPartner(data: {
   commissionMonthly?: number;
   commissionYearly?: number;
   iban?: string;
+  isFounder?: boolean;
 }): Promise<{ success: boolean; data?: PartnerWithStats; error?: string }> {
   try {
     await requireAdmin();
@@ -177,6 +180,7 @@ export async function createPartner(data: {
         commissionMonthly: data.commissionMonthly ?? 10,
         commissionYearly: data.commissionYearly ?? 15,
         iban: data.iban?.trim() || null,
+        isFounder: data.isFounder ?? false,
       },
       include: {
         _count: { select: { referrals: true } },
@@ -189,6 +193,7 @@ export async function createPartner(data: {
       success: true,
       data: {
         ...partner,
+        isFounder: partner.isFounder,
         totalDue: 0,
         totalPaid: 0,
         referralsCount: 0,
@@ -212,6 +217,7 @@ export async function updatePartner(
     status?: string;
     commissionMonthly?: number;
     commissionYearly?: number;
+    isFounder?: boolean;
   }
 ): Promise<{ success: boolean; error?: string }> {
   try {
@@ -226,6 +232,7 @@ export async function updatePartner(
         ...(data.status !== undefined && { status: data.status }),
         ...(data.commissionMonthly !== undefined && { commissionMonthly: data.commissionMonthly }),
         ...(data.commissionYearly !== undefined && { commissionYearly: data.commissionYearly }),
+        ...(data.isFounder !== undefined && { isFounder: data.isFounder }),
       },
     });
 
@@ -346,6 +353,7 @@ export async function getPartnerStats(
       commissionYearly: partner.commissionYearly,
       iban: partner.iban,
       status: partner.status,
+      isFounder: partner.isFounder,
       createdAt: partner.createdAt,
       _count: partner._count,
       totalDue: Math.round(totalDue * 100) / 100,
@@ -496,6 +504,7 @@ export async function getPartnerByToken(token: string): Promise<{
       commissionYearly: partner.commissionYearly,
       iban: partner.iban,
       status: partner.status,
+      isFounder: partner.isFounder,
       createdAt: partner.createdAt,
       _count: partner._count,
       totalDue: Math.round(totalDue * 100) / 100,

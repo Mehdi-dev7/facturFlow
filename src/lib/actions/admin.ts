@@ -128,6 +128,21 @@ export async function getAdminUsers({
 }
 
 /**
+ * Nombre de nouveaux inscrits dans les dernières 48h (hors admin).
+ * Utilisé pour le dot de notification dans la sidebar et l'admin panel.
+ */
+export async function getNewUsersCount(): Promise<number> {
+  const admin = await requireAdmin()
+  const fortyEightHoursAgo = new Date(Date.now() - 48 * 60 * 60 * 1000)
+  return prisma.user.count({
+    where: {
+      createdAt: { gte: fortyEightHoursAgo },
+      email: { not: admin.user.email },
+    },
+  })
+}
+
+/**
  * Stats globales : total users par plan + invités + trial actifs.
  */
 export async function getAdminStats(): Promise<{ success: boolean; data?: AdminStats; error?: string }> {
