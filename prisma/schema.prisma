@@ -180,6 +180,7 @@ model User {
   apiKeys          ApiKey[]
   webhookEndpoints WebhookEndpoint[]
   reviews          Review[]
+  partnerReferral  PartnerReferral?
 
   // Onboarding
   onboardingCompletedAt DateTime? // null = onboarding pas encore terminé
@@ -612,6 +613,67 @@ model Review {
   updatedAt   DateTime  @updatedAt
 
   @@index([userId])
+  @@index([status])
+}
+
+// ============================================
+// SYSTÈME D'AFFILIATION / PARTENAIRES
+// ============================================
+
+// Partenaire (créé manuellement par l'admin)
+model Partner {
+  id                String            @id @default(cuid())
+  name              String
+  email             String            @unique
+  code              String            @unique   // ex: PAUL2026 (uppercase)
+  token             String            @unique   // 32 chars aléatoires pour portail public
+  commissionMonthly Float             @default(10)  // % sur abonnements monthly (10% par défaut)
+  commissionYearly  Float             @default(15)  // % sur abonnements yearly (15% par défaut)
+  iban              String?           // Pour les virements manuels de commission
+  status            String            @default("ACTIVE")  // ACTIVE | PAUSED
+  referrals         PartnerReferral[]
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  @@index([code])
+  @@index([token])
+}
+
+// Referral : un user souscrit via un code partenaire
+model PartnerReferral {
+  id             String              @id @default(cuid())
+  partnerId      String
+  partner        Partner             @relation(fields: [partnerId], references: [id])
+  userId         String              @unique  // Un user ne peut avoir qu'un seul referral
+  user           User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan           String              // PRO | BUSINESS
+  billingCycle   String              // MONTHLY | YEARLY
+  monthlyAmount  Float               // Montant HT payé par le user par période (€)
+  commissionRate Float               // Taux appliqué au moment de la souscription (%)
+  stripeSubId    String?             // ID sub Stripe pour tracking des renouvellements
+  status         String              @default("ACTIVE")  // ACTIVE | CANCELLED
+  commissions    PartnerCommission[]
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  @@index([partnerId])
+  @@index([userId])
+}
+
+// Commission : générée à chaque renouvellement (max 12 périodes)
+model PartnerCommission {
+  id          String          @id @default(cuid())
+  referralId  String
+  referral    PartnerReferral @relation(fields: [referralId], references: [id])
+  partnerId   String
+  periodIndex Int             // 1 à 12 (numéro de la période de commission)
+  amount      Float           // Montant commission en €
+  status      String          @default("PENDING")  // PENDING | PAID
+  paidAt      DateTime?
+  createdAt   DateTime        @default(now())
+
+  @@unique([referralId, periodIndex])  // Une seule commission par période par referral
+  @@index([partnerId])
   @@index([status])
 }
 

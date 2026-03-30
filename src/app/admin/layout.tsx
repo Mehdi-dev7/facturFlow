@@ -7,7 +7,7 @@ import { headers } from "next/headers";
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { getPendingReviewsCount } from "@/lib/actions/reviews";
-import { Shield, LayoutDashboard, MessageSquare } from "lucide-react";
+import { Shield, LayoutDashboard, MessageSquare, Users2 } from "lucide-react";
 
 export const metadata = {
   title: "Admin — FacturNow",
@@ -52,6 +52,7 @@ export default async function AdminLayout({
           </p>
           <AdminNavLink href="/admin" icon={LayoutDashboard} label="Dashboard" exact />
           <AdminNavLink href="/admin/avis" icon={MessageSquare} label="Avis" badge={pendingReviews} />
+          <AdminNavLink href="/admin/partners" icon={Users2} label="Partenaires" />
         </nav>
 
         {/* Footer : lien retour dashboard */}

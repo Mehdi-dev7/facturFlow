@@ -677,7 +677,7 @@ Utilise les agents quand :
 - [x] Pages légales (mentions, RGPD, CGU/CGV) + Formulaire contact/support
 
 ### Bugs connus
-- [ ] **Bug SuperPDP** : envoi e-invoicing échoue dans certains cas — investiguer logs, vérifier seller.electronic_address et flux convert → send
+- [ ] **Bug SuperPDP** : envoi e-invoicing échoue dans certains cas — en attente accès prod SuperPDP
 
 ### Pricing (validé 02/03/2026)
 
@@ -685,31 +685,29 @@ Utilise les agents quand :
 **PRO — 9,99€/mois** (ou annuel -20%) : illimité, Stripe/PayPal/GoCardless, relances auto, templates, SEPA
 **BUSINESS — 20€/mois** : tout Pro + multi-users (3), export CSV comptable, e-invoicing illimité, API/webhooks
 
-### Reste à faire — App (11/03/2026)
+### Système Partenaires (implémenté 30/03/2026) ✅
+- Tables `Partner` + `PartnerReferral` + `PartnerCommission` en DB (Prisma + Supabase)
+- Page `/admin/partners` : créer partenaire, copier lien portail, marquer commissions payées
+- Portail `/partner/[token]` : lecture seule pour le partenaire (stats, referrals, commissions)
+- Checkout Stripe : `partnerCode` dans metadata → webhook `checkout.session.completed` → referral créé
+- Webhook `invoice.paid` → commission auto (max 12 périodes)
+- Taux : 10% monthly / 15% yearly — mutuellement exclusif avec offre Fondateur
+- **À activer ~juillet 2026** : discount client 5-10% sur 3 premiers mois (voir `STRIPE_PARTNER_TODO.md`)
 
-- [x] **Responsive xs** : revoir toute l'app ✅
-- [x] **Boutons paiement dans form facture** : afficher par provider connecté ✅
-- [x] **OAuth Microsoft** : activé ✅
-- [x] **Export CSV** (Pro) : factures, CA, TVA — page /dashboard/stats ✅
-- [x] **Export comptable** (Business) : FEC, URSSAF, rapport annuel, journal mensuel, email comptable ✅
-- [x] **Statistiques** : page /dashboard/stats — CA, TVA, graphiques mensuels ✅
-- [x] **Factures récurrentes** : page /dashboard/recurring + cron ✅
-- [x] **Mon Compte** : page profil (email, téléphone, avatar) ✅
-- [x] **Tutoriels intégrés** : optimisés (images WebP, steps fusionnés) ✅
-- [x] **API & Webhooks** (Business) : clés API `fnk_xxx`, routes `/api/v1/`, dispatcher HMAC, page `/dashboard/api`, logs livraisons ✅ (11/03/2026)
-- [x] **Démo vidéo** : section `#demo` sur la landing (boutons Hero + "Comment ça marche"), vidéo intégrée dans tutoriels dashboard ✅ (28/03/2026)
-- [x] **Offre Fondateur** : réduction à vie pour les 50 premiers users — Pro à vie au tarif réduit + Business -3€/mois à vie (17€ au lieu de 20€), banner landing + dashboard, email envoyé avec code promo `FONDATEUR` (pré-rempli mais modifiable) ✅ (28/03/2026)
-- [ ] **Style email paiement** : responsive mobile des emails avec boutons Stripe/PayPal/SEPA
-- [ ] **Documents complémentaires** : avoirs, bons de commande, bons de livraison, proforma
-- [ ] **PWA mobile** : manifest + service worker, encadré sidebar "Installer l'app" + prompt après X jours d'utilisation (Pro/Business uniquement)
+### Reste à faire — App (30/03/2026)
+
+- [x] Tout le reste est fait ✅
+- [ ] **SuperPDP prod** : en attente accès production SuperPDP — dernière étape avant lancement officiel
+- [ ] **Templates métiers factures** : 9 templates visuels par secteur (Web Dev, Design, Consultant, BTP, Photo, Rédacteur, Coach, E-commerce, Services) — pas urgent
+- [ ] **Discount client partenaire** : 5-10% sur 3 premiers mois via Stripe coupon — à activer ~juillet 2026 (voir `STRIPE_PARTNER_TODO.md`)
 
 ### Reste à faire — Qualité & Lancement
 
-- [ ] **SEO audit** : métadonnées, sitemap, og:image, structured data
-- [ ] **Security audit** : CSP headers, rate limiting, XSS, CSRF
-- [ ] **Tests unitaires** : agent spécial — calculs, feature-gate, webhooks critiques
+- [x] **SEO audit** ✅
+- [x] **Security audit** ✅
+- [x] **Tests unitaires** ✅
 - [ ] **Test complet live .fr** : parcours complet en production
-- [ ] **Google Search Console** : soumettre sitemap
+- [x] **Google Search Console** ✅
 - [ ] **Google Ads** : campagne de lancement
 - [ ] **Lancement officiel** 🚀
 

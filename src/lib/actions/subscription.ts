@@ -89,12 +89,14 @@ export async function getCurrentSubscription() {
 /**
  * Crée une Checkout Session Stripe pour souscrire à un plan.
  * Retourne l'URL de redirection vers la page de paiement Stripe.
- * @param promoCode  Code promo optionnel (ex: "FONDATEUR") — appliqué directement si valide
+ * @param promoCode   Code promo optionnel (ex: "FONDATEUR") — appliqué directement si valide
+ * @param partnerCode Code partenaire optionnel — mutuellement exclusif avec FONDATEUR
  */
 export async function createStripeCheckoutSession(
   plan: "PRO" | "BUSINESS",
   interval: "monthly" | "yearly",
-  promoCode?: string
+  promoCode?: string,
+  partnerCode?: string
 ) {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session?.user?.id) {
@@ -135,17 +137,37 @@ export async function createStripeCheckoutSession(
     }
 
     // Appliquer le code promo fondateur directement si présent, sinon laisser le champ libre
-    const discounts =
-      promoCode === "FONDATEUR" && process.env.STRIPE_FOUNDER_PROMO_CODE_ID
-        ? [{ promotion_code: process.env.STRIPE_FOUNDER_PROMO_CODE_ID }]
-        : undefined;
+    const isFounder = promoCode === "FONDATEUR" && !!process.env.STRIPE_FOUNDER_PROMO_CODE_ID;
+    const discounts = isFounder
+      ? [{ promotion_code: process.env.STRIPE_FOUNDER_PROMO_CODE_ID! }]
+      : undefined;
+
+    // Vérifier le partnerCode si fourni ET si pas de code fondateur actif (exclusion mutuelle)
+    // Le partnerCode est stocké dans les metadata Stripe pour être lu par le webhook
+    let resolvedPartnerCode: string | undefined;
+    if (partnerCode && !isFounder) {
+      const code = partnerCode.toUpperCase().trim();
+      const partner = await prisma.partner.findFirst({
+        where: { code, status: "ACTIVE" },
+        select: { code: true },
+      });
+      if (partner) {
+        resolvedPartnerCode = partner.code;
+      }
+    }
+
+    // Construire les metadata de la session (userId, plan + partnerCode si valide)
+    const sessionMetadata: Record<string, string> = { userId: session.user.id, plan };
+    if (resolvedPartnerCode) {
+      sessionMetadata.partnerCode = resolvedPartnerCode;
+    }
 
     // Créer la Checkout Session en mode subscription
     const checkoutSession = await stripe.checkout.sessions.create({
       mode: "subscription",
       customer: customerId,
       line_items: [{ price: priceId, quantity: 1 }],
-      metadata: { userId: session.user.id, plan },
+      metadata: sessionMetadata,
       success_url: `${appUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}&plan=${plan.toLowerCase()}`,
       cancel_url: `${appUrl}/checkout/cancel`,
       // Pré-remplir l'email du client

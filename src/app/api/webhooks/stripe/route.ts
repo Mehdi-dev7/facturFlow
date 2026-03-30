@@ -94,7 +94,7 @@ export async function POST(req: NextRequest) {
           data: {
             object: {
               mode?: string;
-              metadata?: { invoiceId?: string; userId?: string };
+              metadata?: { invoiceId?: string; userId?: string; plan?: string; partnerCode?: string };
               customer?: string;
               subscription?: string;
             };
@@ -115,6 +115,91 @@ export async function POST(req: NextRequest) {
               data: updateData,
             });
           }
+
+          // ── Créer le referral partenaire si un partnerCode est dans les metadata ──
+          const partnerCode = sessionObj.metadata?.partnerCode;
+          const plan = sessionObj.metadata?.plan as string | undefined;
+
+          if (partnerCode && uid && plan) {
+            try {
+              // Récupérer le partenaire par code (findFirst car on filtre aussi par status)
+              const partner = await prisma.partner.findFirst({
+                where: { code: partnerCode, status: "ACTIVE" },
+              });
+
+              if (partner) {
+                // Vérifier si le user a déjà un referral (unicité @@unique userId)
+                const existingReferral = await prisma.partnerReferral.findUnique({
+                  where: { userId: uid },
+                });
+
+                if (!existingReferral) {
+                  // Déduire le billingCycle et monthlyAmount depuis le priceId exact
+                  // On récupère le sub Stripe pour obtenir le price ID exact
+                  let billingCycle = "MONTHLY";
+                  let monthlyAmount = 0;
+                  let commissionRate = partner.commissionMonthly;
+
+                  if (sessionObj.subscription && typeof sessionObj.subscription === "string") {
+                    try {
+                      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+                      const sub = await stripe.subscriptions.retrieve(sessionObj.subscription);
+                      const actualPriceId = sub.items.data[0]?.price.id;
+
+                      if (
+                        actualPriceId === process.env.STRIPE_PRO_YEARLY_PRICE_ID ||
+                        actualPriceId === process.env.STRIPE_BUSINESS_YEARLY_PRICE_ID
+                      ) {
+                        billingCycle = "YEARLY";
+                        commissionRate = partner.commissionYearly;
+                        monthlyAmount = plan === "BUSINESS" ? 192 : 95.9;
+                      } else {
+                        billingCycle = "MONTHLY";
+                        commissionRate = partner.commissionMonthly;
+                        monthlyAmount = plan === "BUSINESS" ? 20 : 9.99;
+                      }
+                    } catch {
+                      // Fallback sur les montants monthly si impossible de récupérer le sub
+                      monthlyAmount = plan === "BUSINESS" ? 20 : 9.99;
+                    }
+                  }
+
+                  // Calculer la commission de la 1ère période
+                  const commissionAmount = Math.round((monthlyAmount * commissionRate / 100) * 100) / 100;
+
+                  // Créer le referral + première commission atomiquement
+                  await prisma.partnerReferral.create({
+                    data: {
+                      partnerId: partner.id,
+                      userId: uid,
+                      plan: plan.toUpperCase(),
+                      billingCycle,
+                      monthlyAmount,
+                      commissionRate,
+                      stripeSubId: typeof sessionObj.subscription === "string" ? sessionObj.subscription : null,
+                      status: "ACTIVE",
+                      commissions: {
+                        create: {
+                          partnerId: partner.id,
+                          periodIndex: 1,
+                          amount: commissionAmount,
+                          status: "PENDING",
+                        },
+                      },
+                    },
+                  });
+
+                  console.log(
+                    `[Stripe webhook] Referral créé : partner=${partner.code}, user=${uid}, plan=${plan}, commission=${commissionAmount}€`
+                  );
+                }
+              }
+            } catch (err) {
+              // Ne pas bloquer le webhook pour un referral — juste logger
+              console.error("[Stripe webhook] Erreur création referral partenaire:", err);
+            }
+          }
+
           break;
         }
 
@@ -242,6 +327,79 @@ export async function POST(req: NextRequest) {
         });
 
         console.log(`[Stripe webhook] Abonnement supprimé pour customer ${sub.customer} → FREE`);
+        break;
+      }
+
+      // ── Renouvellement d'abonnement Stripe → commission partenaire ───────
+      case "invoice.paid": {
+        // Cet événement se déclenche à chaque renouvellement (mensuel ou annuel).
+        // On vérifie si le user a un referral partenaire actif et on crée la commission.
+        try {
+          const parsed = JSON.parse(rawBody) as {
+            data: {
+              object: {
+                customer?: string;
+                subscription?: string;
+                billing_reason?: string; // "subscription_create" | "subscription_cycle" | etc.
+              };
+            };
+          };
+          const invoiceObj = parsed.data.object;
+
+          // Ignorer la première facture (déjà gérée dans checkout.session.completed)
+          if (invoiceObj.billing_reason === "subscription_create") break;
+          if (!invoiceObj.customer || typeof invoiceObj.customer !== "string") break;
+
+          // Trouver l'utilisateur via son stripeCustomerId
+          const user = await prisma.user.findFirst({
+            where: { stripeCustomerId: invoiceObj.customer },
+            select: { id: true },
+          });
+
+          if (!user) break;
+
+          // Vérifier si cet user a un referral partenaire actif
+          const referral = await prisma.partnerReferral.findUnique({
+            where: { userId: user.id },
+            include: {
+              partner: { select: { id: true, status: true } },
+              commissions: { select: { id: true, periodIndex: true } },
+            },
+          });
+
+          if (!referral || referral.status !== "ACTIVE" || referral.partner.status !== "ACTIVE") break;
+
+          // Vérifier si on n'a pas atteint le maximum de 12 périodes
+          const existingCount = referral.commissions.length;
+          if (existingCount >= 12) {
+            console.log(`[Stripe webhook] Referral ${referral.id} : limite de 12 commissions atteinte`);
+            break;
+          }
+
+          // Calculer le montant de la commission pour cette période
+          const commissionAmount =
+            Math.round((referral.monthlyAmount * referral.commissionRate / 100) * 100) / 100;
+
+          const periodIndex = existingCount + 1;
+
+          // Créer la commission (@@unique [referralId, periodIndex] évite les doublons)
+          await prisma.partnerCommission.create({
+            data: {
+              referralId: referral.id,
+              partnerId: referral.partner.id,
+              periodIndex,
+              amount: commissionAmount,
+              status: "PENDING",
+            },
+          });
+
+          console.log(
+            `[Stripe webhook] Commission partenaire créée : referral=${referral.id}, période=${periodIndex}/${12}, montant=${commissionAmount}€`
+          );
+        } catch (err) {
+          // Ne pas bloquer le webhook — juste logger
+          console.error("[Stripe webhook] Erreur traitement invoice.paid (partenaire):", err);
+        }
         break;
       }
 
