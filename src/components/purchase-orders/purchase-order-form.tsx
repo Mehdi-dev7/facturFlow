@@ -49,16 +49,16 @@ import { calcInvoiceTotals } from "@/lib/utils/calculs-facture";
 // ─── Styles partagés ─────────────────────────────────────────────────────────
 
 const dividerClass =
-  "mx-0 h-px bg-linear-to-r from-transparent via-teal-400/30 to-transparent";
+  "mx-0 h-px bg-linear-to-r from-transparent via-violet-400/30 to-transparent";
 
 const inputClass =
-  "bg-white/90 dark:bg-[#0f2a2a] border-slate-300 dark:border-teal-400/30 rounded-xl text-xs xs:text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-teal-300/50 autofill:shadow-[inset_0_0_0_30px_white] dark:autofill:shadow-[inset_0_0_0_30px_#0f2a2a] autofill:[-webkit-text-fill-color:theme(--color-slate-900)] dark:autofill:[-webkit-text-fill-color:theme(--color-slate-50)]";
+  "bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-xs xs:text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-violet-300/50 autofill:shadow-[inset_0_0_0_30px_white] dark:autofill:shadow-[inset_0_0_0_30px_#2a2254] autofill:[-webkit-text-fill-color:theme(--color-slate-900)] dark:autofill:[-webkit-text-fill-color:theme(--color-slate-50)]";
 
 const selectContentClass =
-  "bg-linear-to-b from-teal-100 via-white to-white dark:from-[#0f2a2a] dark:via-[#0a2020] dark:to-[#0a2020] border border-teal-500/20 dark:border-teal-400/30 rounded-xl shadow-xl dark:shadow-teal-950/50 z-50";
+  "bg-linear-to-b from-violet-100 via-white to-white dark:from-[#2a2254] dark:via-[#1e1845] dark:to-[#1e1845] border border-violet-500/20 dark:border-violet-400/30 rounded-xl shadow-xl dark:shadow-violet-950/50 z-50";
 
 const selectItemClass =
-  "cursor-pointer rounded-lg transition-colors text-xs dark:text-slate-100 hover:bg-teal-200/70 data-[highlighted]:bg-teal-200/70 dark:hover:bg-teal-500/25 dark:data-[highlighted]:bg-teal-500/25 data-[highlighted]:text-teal-900 dark:data-[highlighted]:text-slate-50";
+  "cursor-pointer rounded-lg transition-colors text-xs dark:text-slate-100 hover:bg-violet-200/70 data-[highlighted]:bg-violet-200/70 dark:hover:bg-violet-500/25 dark:data-[highlighted]:bg-violet-500/25 data-[highlighted]:text-violet-900 dark:data-[highlighted]:text-slate-50";
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -179,7 +179,7 @@ export function PurchaseOrderForm({
             <section className="space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-                  <Building2 className="size-4 text-teal-600 dark:text-teal-400" />
+                  <Building2 className="size-4 text-violet-600 dark:text-violet-400" />
                   Émetteur
                 </h3>
                 <Button
@@ -187,26 +187,26 @@ export function PurchaseOrderForm({
                   variant="ghost"
                   size="xs"
                   onClick={() => setShowCompanyModal(true)}
-                  className="text-slate-400 hover:text-teal-600 hover:bg-teal-50 dark:text-teal-400 dark:hover:text-teal-300 dark:hover:bg-teal-500/10 transition-all duration-300 cursor-pointer"
+                  className="text-slate-400 hover:text-violet-600 hover:bg-violet-50 dark:text-violet-400 dark:hover:text-violet-300 dark:hover:bg-violet-500/10 transition-all duration-300 cursor-pointer"
                 >
                   {companyInfo ? "Modifier" : "Compléter"}
                 </Button>
               </div>
               {companyInfo ? (
-                <div className="rounded-xl border border-teal-200 dark:border-teal-400/25 bg-teal-100/60 dark:bg-[#0f2a2a] p-2.5 xs:p-3.5 text-[10px] xs:text-xs 2xl:text-sm shadow-sm">
+                <div className="rounded-xl border border-violet-200 dark:border-violet-400/25 bg-violet-100/60 dark:bg-[#2a2254] p-2.5 xs:p-3.5 text-[10px] xs:text-xs 2xl:text-sm shadow-sm">
                   <p className="font-semibold text-slate-800 dark:text-slate-100 truncate">
                     {companyInfo.name}
                   </p>
-                  <p className="text-slate-500 text-[10px] xs:text-xs dark:text-teal-300/80 mt-0.5">
+                  <p className="text-slate-500 text-[10px] xs:text-xs dark:text-violet-300/80 mt-0.5">
                     SIRET : {companyInfo.siret}
                   </p>
-                  <p className="text-slate-500 text-[10px] xs:text-xs dark:text-teal-300/80">
+                  <p className="text-slate-500 text-[10px] xs:text-xs dark:text-violet-300/80">
                     {companyInfo.address}
                   </p>
-                  <p className="text-slate-500 dark:text-teal-300/80 text-[10px] xs:text-xs">
+                  <p className="text-slate-500 dark:text-violet-300/80 text-[10px] xs:text-xs">
                     {companyInfo.zipCode} {companyInfo.city}
                   </p>
-                  <p className="text-slate-500 text-[10px] xs:text-xs dark:text-teal-300/80">
+                  <p className="text-slate-500 text-[10px] xs:text-xs dark:text-violet-300/80">
                     {companyInfo.email}
                     {companyInfo.phone ? ` — ${companyInfo.phone}` : ""}
                   </p>
@@ -253,18 +253,18 @@ export function PurchaseOrderForm({
               <div className="space-y-2">
                 {/* N° Bon de commande — non éditable */}
                 <div className="max-w-[130px] xs:max-w-xs">
-                  <Label className="text-xs text-slate-600 dark:text-teal-200">N° Bon de commande</Label>
+                  <Label className="text-xs text-slate-600 dark:text-violet-200">N° Bon de commande</Label>
                   <Input
                     value={orderNumber}
                     disabled
-                    className="bg-slate-100 dark:bg-[#0a2020] border-slate-300 dark:border-teal-400/70 rounded-xl text-xs sm:text-sm text-slate-500 dark:text-teal-100/80"
+                    className="bg-slate-100 dark:bg-[#1e1845] border-slate-300 dark:border-violet-400/70 rounded-xl text-xs sm:text-sm text-slate-500 dark:text-violet-100/80"
                   />
                 </div>
 
                 {/* Date d'émission + Date de livraison */}
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <Label className="text-xs text-slate-600 dark:text-teal-200">Date</Label>
+                    <Label className="text-xs text-slate-600 dark:text-violet-200">Date</Label>
                     <Controller
                       name="date"
                       control={control}
@@ -286,7 +286,7 @@ export function PurchaseOrderForm({
                     )}
                   </div>
                   <div>
-                    <Label className="text-xs text-slate-600 dark:text-teal-200">
+                    <Label className="text-xs text-slate-600 dark:text-violet-200">
                       Date de livraison
                       <span className="ml-1 text-slate-400">(optionnel)</span>
                     </Label>
@@ -308,7 +308,7 @@ export function PurchaseOrderForm({
 
                 {/* Référence client (BC côté acheteur) */}
                 <div>
-                  <Label className="text-xs text-slate-600 dark:text-teal-200 flex items-center gap-1">
+                  <Label className="text-xs text-slate-600 dark:text-violet-200 flex items-center gap-1">
                     <Hash className="size-3" />
                     Référence client
                     <span className="ml-1 text-slate-400">(optionnel)</span>
@@ -318,7 +318,7 @@ export function PurchaseOrderForm({
                     {...register("bcReference")}
                     className={inputClass}
                   />
-                  <p className="text-[10px] text-slate-400 dark:text-teal-400/60 mt-0.5">
+                  <p className="text-[10px] text-slate-400 dark:text-violet-400/60 mt-0.5">
                     La référence du bon de commande émis par votre client
                   </p>
                 </div>
@@ -337,7 +337,7 @@ export function PurchaseOrderForm({
             {/* ── Type de bon de commande ───────────────────── */}
             <section className="space-y-3">
               <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-                <Layers className="size-4 text-teal-600 dark:text-teal-400" />
+                <Layers className="size-4 text-violet-600 dark:text-violet-400" />
                 Type de bon de commande
               </h3>
               <Controller
@@ -385,7 +385,7 @@ export function PurchaseOrderForm({
                   variant="outline"
                   size="xs"
                   onClick={handleAddLine}
-                  className="border-teal-400/20 text-xs xs:text-sm dark:border-teal-400/30 hover:bg-teal-50 dark:hover:bg-teal-500/15 dark:text-slate-100 transition-all duration-300 cursor-pointer"
+                  className="border-violet-400/20 text-xs xs:text-sm dark:border-violet-400/30 hover:bg-violet-50 dark:hover:bg-violet-500/15 dark:text-slate-100 transition-all duration-300 cursor-pointer"
                 >
                   <Plus className="size-3 xs:size-3.5" />
                   Ajouter
@@ -413,7 +413,7 @@ export function PurchaseOrderForm({
                   return (
                     <div
                       key={field.id}
-                      className="rounded-xl border border-teal-200 dark:border-teal-400/25 p-2 xs:p-3 space-y-2 bg-teal-100/45 dark:bg-[#0f2a2a] transition-all duration-300 hover:shadow-md hover:border-teal-300 dark:hover:border-teal-400/40 shadow-sm"
+                      className="rounded-xl border border-violet-200 dark:border-violet-400/25 p-2 xs:p-3 space-y-2 bg-violet-100/45 dark:bg-[#2a2254] transition-all duration-300 hover:shadow-md hover:border-violet-300 dark:hover:border-violet-400/40 shadow-sm"
                     >
                       {/* Catégorie (artisan uniquement) */}
                       {isArtisan && (
@@ -429,7 +429,7 @@ export function PurchaseOrderForm({
                                   f.onChange(v as "main_oeuvre" | "materiel")
                                 }
                               >
-                                <SelectTrigger className="h-7 w-44 bg-white/90 dark:bg-[#0f2a2a] border-slate-300 dark:border-teal-400/30 rounded-lg text-xs xs:text-sm dark:text-slate-50">
+                                <SelectTrigger className="h-7 w-44 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-lg text-xs xs:text-sm dark:text-slate-50">
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent side="bottom" avoidCollisions={false} className={selectContentClass}>
@@ -493,7 +493,7 @@ export function PurchaseOrderForm({
                         {/* Quantité (masquée en mode forfait) */}
                         {!isForfait && (
                           <div>
-                            <Label className="text-xs text-slate-500 dark:text-teal-200">
+                            <Label className="text-xs text-slate-500 dark:text-violet-200">
                               {typeConfig.quantityLabel}
                             </Label>
                             <Controller
@@ -524,7 +524,7 @@ export function PurchaseOrderForm({
 
                         {/* Prix unitaire */}
                         <div>
-                          <Label className="text-xs text-slate-500 dark:text-teal-200">
+                          <Label className="text-xs text-slate-500 dark:text-violet-200">
                             {isForfait ? "Montant (€)" : typeConfig.priceLabel}
                           </Label>
                           <Controller
@@ -554,16 +554,16 @@ export function PurchaseOrderForm({
 
                       {/* Total HT de la ligne */}
                       {visibleStep ? (
-                        <div className="flex items-center justify-between border-t border-teal-100 dark:border-teal-400/20 pt-2 mt-1">
-                          <span className="text-xs text-slate-500 dark:text-teal-200">Total HT</span>
-                          <span className="text-sm font-bold text-teal-700 dark:text-teal-300">
+                        <div className="flex items-center justify-between border-t border-violet-100 dark:border-violet-400/20 pt-2 mt-1">
+                          <span className="text-xs text-slate-500 dark:text-violet-200">Total HT</span>
+                          <span className="text-sm font-bold text-violet-700 dark:text-violet-300">
                             {fmt(lineHT)} €
                           </span>
                         </div>
                       ) : (
                         <div className="flex items-center justify-between">
-                          <span className="text-xs text-slate-500 dark:text-teal-200">Total HT</span>
-                          <span className="text-xs xs:text-sm font-bold text-teal-700 dark:text-teal-300">
+                          <span className="text-xs text-slate-500 dark:text-violet-200">Total HT</span>
+                          <span className="text-xs xs:text-sm font-bold text-violet-700 dark:text-violet-300">
                             {fmt(lineHT)} €
                           </span>
                         </div>
@@ -578,7 +578,7 @@ export function PurchaseOrderForm({
                 <Button
                   type="button"
                   variant="outline"
-                  className="w-full border-teal-400/20 dark:border-teal-400/30 hover:bg-teal-50 dark:hover:bg-teal-500/15 dark:text-slate-100 transition-all duration-300 cursor-pointer rounded-xl"
+                  className="w-full border-violet-400/20 dark:border-violet-400/30 hover:bg-violet-50 dark:hover:bg-violet-500/15 dark:text-slate-100 transition-all duration-300 cursor-pointer rounded-xl"
                   onClick={handleAddLine}
                 >
                   <Plus className="size-4" />
@@ -590,11 +590,11 @@ export function PurchaseOrderForm({
             <div className={dividerClass} />
 
             {/* ── Totaux + TVA + Réduction ──────────────────── */}
-            <section className="rounded-xl border border-teal-200 dark:border-teal-400/25 bg-teal-100/60 dark:bg-[#0f2a2a] p-3 xs:p-4 space-y-2 shadow-sm">
+            <section className="rounded-xl border border-violet-200 dark:border-violet-400/25 bg-violet-100/60 dark:bg-[#2a2254] p-3 xs:p-4 space-y-2 shadow-sm">
 
               {/* Sous-total HT */}
               <div className="flex justify-between text-xs xs:text-sm">
-                <span className="text-slate-500 dark:text-teal-200">Sous-total HT</span>
+                <span className="text-slate-500 dark:text-violet-200">Sous-total HT</span>
                 <span className="font-medium text-slate-800 dark:text-slate-100">
                   {fmt(totals.subtotal)} €
                 </span>
@@ -603,7 +603,7 @@ export function PurchaseOrderForm({
               {/* Réduction */}
               <div className="flex items-center justify-between text-xs xs:text-sm">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-slate-500 dark:text-teal-200">Réduction</span>
+                  <span className="text-slate-500 dark:text-violet-200">Réduction</span>
                   <Controller
                     name="discountType"
                     control={control}
@@ -619,7 +619,7 @@ export function PurchaseOrderForm({
                           }
                         }}
                       >
-                        <SelectTrigger className="h-6 w-24 xs:h-7 xs:w-28 bg-white/90 dark:bg-[#0f2a2a] border-slate-300 dark:border-teal-400/30 rounded-lg text-xs text-slate-900 dark:text-slate-50">
+                        <SelectTrigger className="h-6 w-24 xs:h-7 xs:w-28 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-lg text-xs text-slate-900 dark:text-slate-50">
                           <SelectValue placeholder="Aucune" />
                         </SelectTrigger>
                         <SelectContent side="bottom" avoidCollisions={false} className={selectContentClass}>
@@ -650,7 +650,7 @@ export function PurchaseOrderForm({
                             const v = e.target.value;
                             f.onChange(v === "" ? 0 : Number(v));
                           }}
-                          className="h-6 w-16 xs:h-7 xs:w-20 bg-white/90 dark:bg-[#0f2a2a] border-slate-300 dark:border-teal-400/30 rounded-lg text-xs text-slate-900 dark:text-slate-50"
+                          className="h-6 w-16 xs:h-7 xs:w-20 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-lg text-xs text-slate-900 dark:text-slate-50"
                         />
                       )}
                     />
@@ -663,8 +663,8 @@ export function PurchaseOrderForm({
 
               {/* Net HT si réduction active */}
               {totals.discountAmount > 0 && (
-                <div className="flex justify-between text-xs xs:text-sm border-t border-teal-200 dark:border-teal-400/20 pt-2">
-                  <span className="text-slate-600 dark:text-teal-200 font-medium">Net HT</span>
+                <div className="flex justify-between text-xs xs:text-sm border-t border-violet-200 dark:border-violet-400/20 pt-2">
+                  <span className="text-slate-600 dark:text-violet-200 font-medium">Net HT</span>
                   <span className="font-medium text-slate-800 dark:text-slate-100">
                     {fmt(totals.netHT)} €
                   </span>
@@ -674,7 +674,7 @@ export function PurchaseOrderForm({
               {/* TVA avec sélecteur */}
               <div className="flex justify-between items-center text-xs xs:text-sm">
                 <div className="flex items-center gap-2">
-                  <span className="text-slate-500 dark:text-teal-200">TVA</span>
+                  <span className="text-slate-500 dark:text-violet-200">TVA</span>
                   <Select
                     value={String(vatRate ?? 20)}
                     onValueChange={(v) =>
@@ -684,7 +684,7 @@ export function PurchaseOrderForm({
                       })
                     }
                   >
-                    <SelectTrigger className="h-6 w-16 xs:h-7 xs:w-20 bg-white/90 dark:bg-[#0f2a2a] border-slate-300 dark:border-teal-400/30 rounded-lg text-xs text-slate-900 dark:text-slate-50">
+                    <SelectTrigger className="h-6 w-16 xs:h-7 xs:w-20 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-lg text-xs text-slate-900 dark:text-slate-50">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent side="bottom" avoidCollisions={false} className={selectContentClass}>
@@ -706,18 +706,18 @@ export function PurchaseOrderForm({
               {/* Total TTC */}
               <div className="flex justify-between text-xs xs:text-sm font-bold">
                 <span className="text-slate-800 dark:text-slate-50">Total TTC</span>
-                <span className="text-teal-600 dark:text-teal-400">
+                <span className="text-violet-600 dark:text-violet-400">
                   {fmt(totals.totalTTC)} €
                 </span>
               </div>
 
               {/* NET À PAYER si réduction */}
               {totals.discountAmount > 0 && (
-                <div className="flex justify-between items-center pt-2 border-t-2 border-teal-400/40 dark:border-teal-500/30 mt-1">
+                <div className="flex justify-between items-center pt-2 border-t-2 border-violet-400/40 dark:border-violet-500/30 mt-1">
                   <span className="text-sm font-extrabold text-slate-900 dark:text-slate-50 tracking-tight">
                     NET À PAYER
                   </span>
-                  <span className="text-base font-extrabold text-teal-600 dark:text-teal-400">
+                  <span className="text-base font-extrabold text-violet-600 dark:text-violet-400">
                     {fmt(totals.netAPayer)} €
                   </span>
                 </div>
@@ -740,7 +740,7 @@ export function PurchaseOrderForm({
               <Textarea
                 placeholder="Conditions particulières, mentions légales, notes de commande..."
                 {...register("notes")}
-                className="bg-white/90 dark:bg-[#0f2a2a] border-slate-300 dark:border-teal-400/30 rounded-xl text-xs xs:text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-teal-300/50"
+                className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-xs xs:text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-violet-300/50"
               />
             </section>
           </>
@@ -760,7 +760,7 @@ export function PurchaseOrderForm({
               type="submit"
               variant="gradient"
               disabled={isSubmitting}
-              className="w-full h-11 cursor-pointer transition-all duration-300 hover:scale-101 bg-teal-600 hover:bg-teal-700"
+              className="w-full h-11 cursor-pointer transition-all duration-300 hover:scale-103 disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {isSubmitting ? "Création en cours…" : "Créer le bon de commande"}
             </Button>

@@ -41,7 +41,7 @@ export default function NewPurchaseOrderPage() {
   const companyInfo = companyInfoLocal ?? companyInfoDB ?? null;
 
   // Apparence
-  const { companyFont, companyLogo, companyName } = useAppearance();
+  const { themeColor, companyFont, companyLogo, companyName } = useAppearance();
 
   // Ref pour le brouillon en cours
   const draftIdRef = useRef<string | undefined>(undefined);
@@ -112,8 +112,8 @@ export default function NewPurchaseOrderPage() {
   if (!mounted) {
     return (
       <div className="animate-pulse space-y-6">
-        <div className="h-8 w-48 bg-slate-200 dark:bg-teal-900/30 rounded-lg" />
-        <div className="h-[600px] bg-slate-200 dark:bg-teal-900/30 rounded-2xl" />
+        <div className="h-8 w-48 bg-slate-200 dark:bg-violet-900/30 rounded-lg" />
+        <div className="h-[600px] bg-slate-200 dark:bg-violet-900/30 rounded-2xl" />
       </div>
     );
   }
@@ -126,7 +126,7 @@ export default function NewPurchaseOrderPage() {
           variant="ghost"
           size="icon"
           asChild
-          className="text-slate-400 hover:text-teal-600 hover:bg-teal-50 dark:text-teal-400 dark:hover:text-teal-300 dark:hover:bg-teal-500/10 transition-all duration-300 cursor-pointer"
+          className="text-slate-400 hover:text-primary hover:bg-primary/20 dark:text-violet-400 dark:hover:text-violet-300 dark:hover:bg-primary/80 transition-all duration-300 cursor-pointer"
         >
           <Link href="/dashboard/purchase-orders">
             <ArrowLeft className="size-5" />
@@ -136,10 +136,10 @@ export default function NewPurchaseOrderPage() {
           <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
             Nouveau bon de commande
           </h1>
-          <p className="text-sm text-slate-500 dark:text-teal-400/60">
+          <p className="text-sm text-slate-500 dark:text-violet-400/60">
             {orderNumber || "Chargement…"}
             {lastSaved && (
-              <span className="ml-2 text-xs text-teal-500 dark:text-teal-400">
+              <span className="ml-2 text-xs text-emerald-500 dark:text-emerald-400">
                 · Sauvegardé à{" "}
                 {lastSaved.toLocaleTimeString("fr-FR", {
                   hour: "2-digit",
@@ -154,7 +154,7 @@ export default function NewPurchaseOrderPage() {
       {/* Desktop : split screen formulaire + aperçu */}
       <div className="hidden lg:grid lg:grid-cols-2 lg:gap-6">
         <div className="space-y-4">
-          <div className="rounded-2xl border border-teal-300/80 dark:border-teal-500/20 shadow-lg shadow-teal-100/50 dark:shadow-teal-950/40 bg-white/75 dark:bg-[#061a1a] backdrop-blur-lg p-6">
+          <div className="rounded-2xl border border-slate-300/80 dark:border-violet-500/20 shadow-lg shadow-slate-200/50 dark:shadow-violet-950/40 bg-white/75 dark:bg-[#1a1438] backdrop-blur-lg p-6">
             <PurchaseOrderForm
               form={form}
               onSubmit={onSubmit}
@@ -170,6 +170,7 @@ export default function NewPurchaseOrderPage() {
             form={form}
             orderNumber={orderNumber}
             companyInfo={companyInfo}
+            themeColor={themeColor}
             companyFont={companyFont}
             companyLogo={companyLogo}
             companyName={companyName}
@@ -178,13 +179,14 @@ export default function NewPurchaseOrderPage() {
       </div>
 
       {/* Mobile : stepper */}
-      <div className="lg:hidden rounded-2xl border border-teal-300/80 dark:border-teal-500/20 bg-white/75 dark:bg-[#061a1a] backdrop-blur-lg shadow-lg shadow-teal-100/50 dark:shadow-teal-950/40 min-h-[70vh]">
+      <div className="lg:hidden rounded-2xl border border-slate-300/80 dark:border-violet-500/20 bg-white/75 dark:bg-[#1a1438] backdrop-blur-lg shadow-lg shadow-slate-200/50 dark:shadow-violet-950/40 min-h-[70vh]">
         <PurchaseOrderStepper
           form={form}
           onSubmit={onSubmit}
           orderNumber={orderNumber}
           companyInfo={companyInfo}
           onCompanyChange={handleCompanyChange}
+          themeColor={themeColor}
           companyFont={companyFont}
           companyLogo={companyLogo}
           companyName={companyName}

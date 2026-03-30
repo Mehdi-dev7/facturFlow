@@ -204,12 +204,12 @@ function PurchaseOrdersPageContent() {
         change: `${total} BC`,
         changeType: "up",
         icon: "file",
-        iconBg: "bg-teal-500",
-        borderAccent: "border-teal-500/30",
-        gradientFrom: "#f0fdfa",
-        gradientTo: "#99f6e4",
-        darkGradientFrom: "#042f2e",
-        darkGradientTo: "#134e4a",
+        iconBg: "bg-violet-500",
+        borderAccent: "border-violet-500/30",
+        gradientFrom: "#f5f3ff",
+        gradientTo: "#ddd6fe",
+        darkGradientFrom: "#1e1b4b",
+        darkGradientTo: "#2e1065",
       },
       {
         label: "Acceptés",
@@ -221,7 +221,7 @@ function PurchaseOrdersPageContent() {
         borderAccent: "border-emerald-500/30",
         gradientFrom: "#ecfdf5",
         gradientTo: "#a7f3d0",
-        darkGradientFrom: "#042f2e",
+        darkGradientFrom: "#1e1b4b",
         darkGradientTo: "#064e3b",
       },
       {
@@ -230,12 +230,12 @@ function PurchaseOrdersPageContent() {
         change: `${sent} envoyé${sent > 1 ? "s" : ""}`,
         changeType: "neutral",
         icon: "clock",
-        iconBg: "bg-blue-500",
-        borderAccent: "border-blue-500/30",
-        gradientFrom: "#eff6ff",
-        gradientTo: "#bfdbfe",
-        darkGradientFrom: "#042f2e",
-        darkGradientTo: "#1e3a5f",
+        iconBg: "bg-amber-500",
+        borderAccent: "border-amber-500/30",
+        gradientFrom: "#fffbeb",
+        gradientTo: "#fde68a",
+        darkGradientFrom: "#1e1b4b",
+        darkGradientTo: "#78350f",
       },
       {
         label: "Annulés",
@@ -243,12 +243,12 @@ function PurchaseOrdersPageContent() {
         change: `${cancelled} annulé${cancelled > 1 ? "s" : ""}`,
         changeType: "down",
         icon: "alert",
-        iconBg: "bg-red-500",
-        borderAccent: "border-red-500/30",
-        gradientFrom: "#fef2f2",
-        gradientTo: "#fecaca",
-        darkGradientFrom: "#042f2e",
-        darkGradientTo: "#7f1d1d",
+        iconBg: "bg-blue-500",
+        borderAccent: "border-blue-500/30",
+        gradientFrom: "#eff6ff",
+        gradientTo: "#bfdbfe",
+        darkGradientFrom: "#1e1b4b",
+        darkGradientTo: "#1e3a5f",
       },
     ];
   }, [monthRows]);
@@ -434,7 +434,7 @@ function PurchaseOrdersPageContent() {
       </div>
 
       {/* Tableau */}
-      <div className="rounded-2xl border border-teal-300/80 dark:border-teal-500/20 shadow-lg shadow-teal-100/50 dark:shadow-teal-950/40 bg-white/75 dark:bg-[#061a1a] backdrop-blur-lg overflow-hidden mb-8">
+      <div className="rounded-2xl border border-slate-300/80 dark:border-violet-500/20 shadow-lg shadow-slate-200/50 dark:shadow-violet-950/40 bg-white/75 dark:bg-[#1a1438] backdrop-blur-lg overflow-hidden mb-8">
         <DataTable<PurchaseOrderRow>
           data={filteredRows}
           columns={columns}

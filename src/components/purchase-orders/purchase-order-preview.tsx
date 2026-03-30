@@ -8,10 +8,7 @@ import type { PurchaseOrderFormData, CompanyInfo, InvoiceType } from "@/lib/vali
 import { INVOICE_TYPE_LABELS, INVOICE_TYPE_CONFIG } from "@/lib/validations/purchase-order";
 import { useClients } from "@/hooks/use-clients";
 import { calcInvoiceTotals } from "@/lib/utils/calculs-facture";
-import { getFontFamily, getFontWeight, DEFAULT_FONT } from "@/components/appearance/theme-config";
-
-// Couleur teal fixe pour les bons de commande
-const TEAL_COLOR = "#0d9488";
+import { getFontFamily, getFontWeight, DEFAULT_FONT, DEFAULT_THEME } from "@/components/appearance/theme-config";
 
 // ─── Props ─────────────────────────────────────────────────────────────────────
 
@@ -20,6 +17,7 @@ interface PurchaseOrderPreviewProps {
   orderNumber: string;
   companyInfo: CompanyInfo | null;
   compact?: boolean;
+  themeColor?: string;
   companyFont?: string;
   companyLogo?: string | null;
   companyName?: string;
@@ -33,33 +31,34 @@ interface LinesTableProps {
   isForfait: boolean;
   typeConfig: { descriptionLabel: string; quantityLabel: string | null; priceLabel: string };
   fmt: (n: number) => string;
+  themeColor: string;
 }
 
-function LinesTable({ title, lines, isForfait, typeConfig, fmt }: LinesTableProps) {
+function LinesTable({ title, lines, isForfait, typeConfig, fmt, themeColor }: LinesTableProps) {
   return (
     <div>
       {title && (
-        <h3 className="font-semibold mb-3 text-xs uppercase tracking-wide" style={{ color: TEAL_COLOR }}>
+        <h3 className="font-semibold mb-3 text-xs uppercase tracking-wide" style={{ color: themeColor }}>
           {title}
         </h3>
       )}
       <div className="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
         <table className="w-full">
-          <thead style={{ backgroundColor: TEAL_COLOR + "1a" }}>
+          <thead style={{ backgroundColor: themeColor + "1a" }}>
             <tr>
-              <th className="text-left p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: TEAL_COLOR }}>
+              <th className="text-left p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: themeColor }}>
                 {typeConfig.descriptionLabel}
               </th>
               {!isForfait && (
-                <th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: TEAL_COLOR }}>
+                <th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: themeColor }}>
                   {typeConfig.quantityLabel}
                 </th>
               )}
-              <th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: TEAL_COLOR }}>
+              <th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: themeColor }}>
                 {isForfait ? "Montant" : "Prix unit."}
               </th>
               {!isForfait && (
-                <th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: TEAL_COLOR }}>
+                <th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: themeColor }}>
                   Total HT
                 </th>
               )}
@@ -90,7 +89,7 @@ function LinesTable({ title, lines, isForfait, typeConfig, fmt }: LinesTableProp
                       {fmt(line.unitPrice || 0)} €
                     </td>
                     {!isForfait && (
-                      <td className="p-2 lg:p-3 text-xs text-right font-medium" style={{ color: TEAL_COLOR }}>
+                      <td className="p-2 lg:p-3 text-xs text-right font-medium" style={{ color: themeColor }}>
                         {fmt(ht)} €
                       </td>
                     )}
@@ -112,6 +111,7 @@ export function PurchaseOrderPreview({
   orderNumber,
   companyInfo,
   compact = false,
+  themeColor = DEFAULT_THEME.primary,
   companyFont = DEFAULT_FONT.id,
   companyLogo,
   companyName = "",
@@ -159,7 +159,7 @@ export function PurchaseOrderPreview({
     return null;
   })();
 
-  // Apparence (teal fixe + police user)
+  // Apparence (couleur thème user + police user)
   const fontFamily = getFontFamily(companyFont);
   const fontWeight = getFontWeight(companyFont);
 
@@ -200,21 +200,21 @@ export function PurchaseOrderPreview({
     return (
       <div className="space-y-3 text-xs">
         {/* En-tête compact */}
-        <div className="flex items-center justify-between text-[10px] text-slate-400 dark:text-teal-400/70 border-b border-slate-100 dark:border-teal-500/20 pb-2">
-          <span className="font-semibold" style={{ color: TEAL_COLOR }}>{orderNumber}</span>
+        <div className="flex items-center justify-between text-[10px] text-slate-400 dark:text-violet-400/70 border-b border-slate-100 dark:border-violet-500/20 pb-2">
+          <span className="font-semibold" style={{ color: themeColor }}>{orderNumber}</span>
           <span>{formatDate(date)}{deliveryDate ? ` · Livraison : ${formatDate(deliveryDate)}` : ""}</span>
         </div>
 
         {/* Réf client si présente */}
         {bcReference && (
-          <p className="text-[10px] text-slate-500 dark:text-teal-400/70">
+          <p className="text-[10px] text-slate-500 dark:text-violet-400/70">
             Réf. client : <span className="font-medium text-slate-700 dark:text-slate-300">{bcReference}</span>
           </p>
         )}
 
         {/* Émetteur compact */}
         <div>
-          <p className="text-[10px] uppercase tracking-wider mb-0.5 font-semibold" style={{ color: TEAL_COLOR }}>Émetteur</p>
+          <p className="text-[10px] uppercase tracking-wider mb-0.5 font-semibold" style={{ color: themeColor }}>Émetteur</p>
           {companyInfo ? (
             <div className="text-xs space-y-0.5 text-slate-700 dark:text-slate-300">
               <p className="font-semibold">{companyInfo.name}</p>
@@ -233,7 +233,7 @@ export function PurchaseOrderPreview({
 
         {/* Destinataire compact */}
         <div>
-          <p className="text-[10px] uppercase tracking-wider mb-0.5 font-semibold" style={{ color: TEAL_COLOR }}>Destinataire</p>
+          <p className="text-[10px] uppercase tracking-wider mb-0.5 font-semibold" style={{ color: themeColor }}>Destinataire</p>
           {client ? (
             <div className="text-xs space-y-0.5 text-slate-700 dark:text-slate-300">
               <p className="font-semibold">{client.name}</p>
@@ -250,7 +250,7 @@ export function PurchaseOrderPreview({
           )}
         </div>
 
-        <div className="h-px bg-slate-100 dark:bg-teal-500/20" />
+        <div className="h-px bg-slate-100 dark:bg-violet-500/20" />
 
         {/* Lignes compactes */}
         <div className="space-y-1">
@@ -270,7 +270,7 @@ export function PurchaseOrderPreview({
           })}
         </div>
 
-        <div className="h-px bg-slate-100 dark:bg-teal-500/20" />
+        <div className="h-px bg-slate-100 dark:bg-violet-500/20" />
 
         {/* Totaux compacts */}
         <div className="space-y-1">
@@ -288,14 +288,14 @@ export function PurchaseOrderPreview({
             <span>TVA ({vatRate ?? 0}%)</span>
             <span>{fmt(totals.taxTotal)} €</span>
           </div>
-          <div className="flex justify-between font-bold text-slate-800 dark:text-slate-100 pt-1 border-t border-slate-200 dark:border-teal-500/20">
+          <div className="flex justify-between font-bold text-slate-800 dark:text-slate-100 pt-1 border-t border-slate-200 dark:border-violet-500/20">
             <span>Total TTC</span>
-            <span style={{ color: TEAL_COLOR }}>{fmt(totals.totalTTC)} €</span>
+            <span style={{ color: themeColor }}>{fmt(totals.totalTTC)} €</span>
           </div>
         </div>
 
         {notes && (
-          <p className="text-[10px] text-slate-500 dark:text-slate-400 italic border-t border-slate-100 dark:border-teal-500/20 pt-2">{notes}</p>
+          <p className="text-[10px] text-slate-500 dark:text-slate-400 italic border-t border-slate-100 dark:border-violet-500/20 pt-2">{notes}</p>
         )}
       </div>
     );
@@ -303,9 +303,9 @@ export function PurchaseOrderPreview({
 
   // ── Mode normal (desktop preview A4) ──────────────────────────────────
   return (
-    <div className="rounded-2xl border border-slate-300/80 dark:border-teal-500/20 shadow-lg shadow-slate-200/50 dark:shadow-teal-950/40 bg-white/75 dark:bg-[#061a1a] backdrop-blur-lg overflow-hidden">
+    <div className="rounded-2xl border border-slate-300/80 dark:border-violet-500/20 shadow-lg shadow-slate-200/50 dark:shadow-violet-950/40 bg-white/75 dark:bg-[#1a1438] backdrop-blur-lg overflow-hidden">
       {/* Bandeau "Aperçu temps réel" */}
-      <div className="p-3 px-4" style={{ backgroundColor: TEAL_COLOR }}>
+      <div className="p-3 px-4" style={{ backgroundColor: themeColor }}>
         <p className="text-xs font-semibold text-white/90 uppercase tracking-wide">Aperçu temps réel</p>
       </div>
 
@@ -314,7 +314,7 @@ export function PurchaseOrderPreview({
         <div className="bg-white rounded-lg border border-slate-200 p-3 md:p-6 space-y-6 shadow-sm">
 
           {/* Header 3 colonnes */}
-          <div className="rounded-lg px-6 py-5 text-white" style={{ backgroundColor: TEAL_COLOR }}>
+          <div className="rounded-lg px-6 py-5 text-white" style={{ backgroundColor: themeColor }}>
             <div className="flex items-start gap-4">
               {/* Gauche : BON DE COMMANDE + N° + réf client */}
               <div className="flex-1">
@@ -355,7 +355,7 @@ export function PurchaseOrderPreview({
           {/* Émetteur & Destinataire */}
           <div className="grid grid-cols-2 gap-6">
             <div>
-              <p className="text-[10px] uppercase tracking-wider mb-1 font-semibold" style={{ color: TEAL_COLOR }}>
+              <p className="text-[10px] uppercase tracking-wider mb-1 font-semibold" style={{ color: themeColor }}>
                 Émetteur
               </p>
               {companyInfo ? (
@@ -376,7 +376,7 @@ export function PurchaseOrderPreview({
               )}
             </div>
             <div>
-              <p className="text-[10px] uppercase tracking-wider mb-1 font-semibold" style={{ color: TEAL_COLOR }}>
+              <p className="text-[10px] uppercase tracking-wider mb-1 font-semibold" style={{ color: themeColor }}>
                 Destinataire
               </p>
               {client ? (
@@ -406,6 +406,7 @@ export function PurchaseOrderPreview({
                 isForfait={false}
                 typeConfig={typeConfig}
                 fmt={fmt}
+                themeColor={themeColor}
               />
               {materiauLines.length > 0 && (
                 <LinesTable
@@ -414,33 +415,34 @@ export function PurchaseOrderPreview({
                   isForfait={false}
                   typeConfig={typeConfig}
                   fmt={fmt}
+                  themeColor={themeColor}
                 />
               )}
             </div>
           ) : (
-            <LinesTable lines={safeLines} isForfait={isForfait} typeConfig={typeConfig} fmt={fmt} />
+            <LinesTable lines={safeLines} isForfait={isForfait} typeConfig={typeConfig} fmt={fmt} themeColor={themeColor} />
           )}
 
           {/* Totaux */}
           <div className="flex justify-end">
             <div
               className="w-64 space-y-1.5 rounded-lg p-3 border"
-              style={{ backgroundColor: TEAL_COLOR + "0d", borderColor: TEAL_COLOR + "33" }}
+              style={{ backgroundColor: themeColor + "0d", borderColor: themeColor + "33" }}
             >
               <div className="flex justify-between text-sm">
-                <span style={{ color: TEAL_COLOR }}>Sous-total HT</span>
+                <span style={{ color: themeColor }}>Sous-total HT</span>
                 <span className="text-slate-800 font-medium">{fmt(totals.subtotal)} €</span>
               </div>
 
               {totals.discountAmount > 0 && (
                 <>
                   <div className="flex justify-between text-sm">
-                    <span style={{ color: TEAL_COLOR }}>
+                    <span style={{ color: themeColor }}>
                       Réduction{discountType === "pourcentage" ? ` (${discountValue}%)` : ""}
                     </span>
                     <span className="text-rose-600 font-medium">−{fmt(totals.discountAmount)} €</span>
                   </div>
-                  <div className="flex justify-between text-sm" style={{ borderTop: `1px solid ${TEAL_COLOR}33`, paddingTop: "4px" }}>
+                  <div className="flex justify-between text-sm" style={{ borderTop: `1px solid ${themeColor}33`, paddingTop: "4px" }}>
                     <span className="text-slate-600 font-medium">Net HT</span>
                     <span className="text-slate-800 font-medium">{fmt(totals.netHT)} €</span>
                   </div>
@@ -448,20 +450,20 @@ export function PurchaseOrderPreview({
               )}
 
               <div className="flex justify-between text-sm">
-                <span style={{ color: TEAL_COLOR }}>TVA ({vatRate ?? 0}%)</span>
+                <span style={{ color: themeColor }}>TVA ({vatRate ?? 0}%)</span>
                 <span className="text-slate-800 font-medium">{fmt(totals.taxTotal)} €</span>
               </div>
 
-              <div className="flex justify-between text-base font-bold pt-2" style={{ borderTop: `1px solid ${TEAL_COLOR}33` }}>
+              <div className="flex justify-between text-base font-bold pt-2" style={{ borderTop: `1px solid ${themeColor}33` }}>
                 <span className="text-slate-900">Total TTC</span>
-                <span style={{ color: TEAL_COLOR }}>{fmt(totals.totalTTC)} €</span>
+                <span style={{ color: themeColor }}>{fmt(totals.totalTTC)} €</span>
               </div>
 
               {/* NET À PAYER si réduction */}
               {totals.discountAmount > 0 && (
-                <div className="flex justify-between items-center pt-2 mt-1" style={{ borderTop: `2px solid ${TEAL_COLOR}66` }}>
+                <div className="flex justify-between items-center pt-2 mt-1" style={{ borderTop: `2px solid ${themeColor}66` }}>
                   <span className="text-sm font-extrabold text-slate-900 tracking-tight">NET À PAYER</span>
-                  <span className="text-base font-extrabold" style={{ color: TEAL_COLOR }}>
+                  <span className="text-base font-extrabold" style={{ color: themeColor }}>
                     {fmt(totals.netAPayer)} €
                   </span>
                 </div>
@@ -472,7 +474,7 @@ export function PurchaseOrderPreview({
           {/* Notes */}
           {notes && (
             <div className="rounded-lg bg-slate-50 border border-slate-100 p-3 text-xs text-slate-600">
-              <p className="font-medium mb-1" style={{ color: TEAL_COLOR }}>Notes</p>
+              <p className="font-medium mb-1" style={{ color: themeColor }}>Notes</p>
               <p className="whitespace-pre-line text-slate-700">{notes}</p>
             </div>
           )}

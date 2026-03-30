@@ -62,7 +62,6 @@ import {
 	UserCircle2,
 	Shield,
 	Code2,
-	ClipboardList,
 } from "lucide-react";
 
 interface NavItem {
@@ -93,8 +92,7 @@ const navSections: NavSection[] = [
 		items: [
 			{ label: "Factures", href: "/dashboard/invoices", icon: FileText },
 			{ label: "Devis", href: "/dashboard/quotes", icon: FileCheck },
-			{ label: "Bons de commande", href: "/dashboard/purchase-orders", icon: ClipboardList },
-			{ label: "Acomptes", href: "/dashboard/deposits", icon: Banknote },
+{ label: "Acomptes", href: "/dashboard/deposits", icon: Banknote },
 			{ label: "Reçus", href: "/dashboard/receipts", icon: Receipt },
 			{ label: "Documents", href: "/dashboard/documents", icon: FolderOpen },
 			{ label: "Récurrences", href: "/dashboard/recurring", icon: Repeat },

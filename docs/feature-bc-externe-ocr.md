@@ -1,12 +1,15 @@
 # Feature — Import de bon de commande externe (OCR/IA)
 
+## Statut : ✅ Implémenté (30/03/2026)
+
+---
+
 ## Contexte
 
-Un utilisateur qui reçoit un bon de commande d'une société externe peut aujourd'hui :
-- Créer une facture manuellement en recopiant les infos
-- Convertir un BC **interne** FacturNow en facture (déjà implémenté)
-
-Cette feature permet d'uploader le PDF d'un BC externe et de générer automatiquement une facture pré-remplie.
+Un utilisateur qui reçoit un bon de commande d'une société externe peut :
+- Créer une facture manuellement en recopiant les infos ❌ (fastidieux)
+- Convertir un BC **interne** FacturNow en facture (déjà implémenté) ✅
+- **Uploader le PDF/image d'un BC externe → IA extrait les données → facture pré-remplie** ✅ (cette feature)
 
 ---
 
@@ -16,50 +19,124 @@ Cette feature permet d'uploader le PDF d'un BC externe et de générer automatiq
 
 ---
 
+## Comment l'utiliser
+
+### Prérequis
+- Être sur le plan **Business**
+- Variable d'env `ANTHROPIC_API_KEY=sk-ant-api03-...` configurée (`.env.local` + Vercel)
+
+### Flux utilisateur
+
+1. **Factures → bouton "Importer un BC"** (header, à gauche de "Nouvelle facture")
+2. **Upload** le PDF ou l'image du BC reçu (drag & drop ou clic)
+3. Claude analyse le document — quelques secondes
+4. **Aperçu** des données extraites : référence, client, lignes, dates, TVA
+5. Clic **"Créer la facture"** → redirige vers `/dashboard/invoices/new?from=bc`
+6. Le formulaire est **pré-rempli** — vérifier, corriger, sauvegarder normalement
+
+### Ce que l'IA extrait
+
+| Champ extrait | Injection dans le formulaire |
+|---------------|------------------------------|
+| `bcReference` | Mis dans les Notes |
+| `clientName` + `clientAddress` | Mis dans les Notes (lier manuellement le client) |
+| `lines` (description, qty, prix HT) | Lignes du formulaire |
+| `vatRate` | TVA (prise sur la 1ère ligne) |
+| `date` | Date de la facture |
+| `dueDate` | Échéance |
+| `notes` | Notes de la facture |
+
+> Le client n'est pas lié automatiquement (pas de correspondance SIRET/email fiable) — à sélectionner manuellement dans le formulaire.
+
+---
+
 ## Architecture technique
 
-### Stack retenue
-- **API** : GPT-4o Vision (OpenAI) ou Claude API (Anthropic) — à trancher
-- **Upload** : Supabase Storage (PDF temporaire, supprimé après extraction)
-- **Parsing** : réponse JSON structurée via prompt engineering
+### Stack
+- **API IA** : Claude API (Anthropic) — modèle `claude-sonnet-4-6`
+- **Support natif** : PDF + PNG + JPG + WebP (base64 → Claude)
+- **Pas de stockage** : le fichier n'est jamais sauvegardé en DB ni Supabase Storage
+- **Passage de données** : `localStorage` (clé `bc_import_data`), effacé après usage
 
-### Flux
+### Fichiers implémentés
+
 ```
-1. User upload le PDF du BC externe
-2. PDF converti en image(s) côté serveur (ou envoyé direct selon l'API)
-3. Appel API IA avec prompt d'extraction structurée
-4. Retour JSON → pré-remplissage du formulaire de facture
-5. User vérifie / corrige les données extraites
-6. Création de la facture (flow standard)
+src/
+├── app/api/extract-bc/route.ts          ← POST /api/extract-bc
+├── components/factures/
+│   └── bc-import-dialog.tsx             ← Dialog upload + preview extraits
+└── app/(dashboard)/dashboard/invoices/
+    ├── page.tsx                          ← Bouton "Importer un BC" + BcImportDialog
+    └── new/page.tsx                      ← Lecture localStorage ?from=bc + pré-remplissage
 ```
 
-### Prompt d'extraction (exemple)
+### Flux technique
+
 ```
-Extrais les informations de ce bon de commande et retourne un JSON avec :
+1. User upload le fichier (PDF/PNG/JPG, max 10 MB)
+2. POST /api/extract-bc — FormData avec le fichier
+3. Vérification auth + feature gate Business (canUseFeature userId "bc_import")
+4. Fichier converti en base64
+5. Appel claude-sonnet-4-6 :
+   - PDF  → type "document" (support natif Claude)
+   - Image → type "image"
+6. Claude retourne JSON structuré (prompt d'extraction)
+7. JSON parsé + nettoyé (retrait backticks si présents)
+8. Retourné au client : { success: true, data: BcExtractedData }
+9. Dialog affiche l'aperçu — user valide
+10. localStorage.setItem("bc_import_data", JSON.stringify(data))
+11. Redirect → /dashboard/invoices/new?from=bc
+12. Page new/ lit le localStorage, setValue() sur le formulaire RHF
+13. localStorage.removeItem("bc_import_data") — nettoyage immédiat
+```
+
+### Prompt d'extraction
+
+```
+Extrais les informations de ce bon de commande et retourne UNIQUEMENT un objet JSON :
 {
-  "bcReference": "string",        // numéro du BC
-  "clientName": "string",
-  "clientAddress": "string",
+  "bcReference": "string | null",
+  "clientName": "string | null",
+  "clientAddress": "string | null",
   "clientSiret": "string | null",
-  "date": "YYYY-MM-DD",
+  "clientEmail": "string | null",
+  "date": "YYYY-MM-DD | null",
   "dueDate": "YYYY-MM-DD | null",
-  "lines": [
-    {
-      "description": "string",
-      "quantity": number,
-      "unitPrice": number,
-      "vatRate": number           // 0, 5.5, 10 ou 20
-    }
-  ],
+  "lines": [{ "description", "quantity", "unitPrice" (HT), "vatRate" (0/5.5/10/20) }],
   "notes": "string | null"
 }
-Retourne uniquement le JSON, sans texte autour.
 ```
 
 ### Sécurité
-- Fichier stocké temporairement (supprimé après extraction, max 5 min)
-- Taille max : 10 MB
-- Formats acceptés : PDF, PNG, JPG
+- Auth vérifiée server-side (session Better Auth)
+- Feature gate : `canUseFeature(dbUser, "bc_import")` → 403 si pas Business
+- Taille max : 10 MB (vérification client + serveur)
+- Formats acceptés : `application/pdf`, `image/png`, `image/jpeg`, `image/webp`
+- Aucun fichier stocké — traitement en mémoire uniquement
+
+### Gestion des erreurs dans le dialog
+
+| Cas | Comportement |
+|-----|--------------|
+| Fichier trop lourd ou mauvais format | Message d'erreur, retour step upload |
+| Plan pas Business (403) | Écran upgrade avec lien `/dashboard/subscription` |
+| Erreur API Claude | Message d'erreur, retour step upload |
+| Données partiellement extraites | Warning jaune + invitation à compléter le formulaire |
+
+---
+
+## Feature gate
+
+```typescript
+// src/lib/feature-gate.ts
+type Feature = ... | "bc_import";
+
+const BUSINESS_FEATURES: Feature[] = [
+  ...PRO_FEATURES,
+  "bc_import",  // ← ajouté
+  ...
+];
+```
 
 ---
 
@@ -67,51 +144,30 @@ Retourne uniquement le JSON, sans texte autour.
 
 | Service | Prix/page | BC 2 pages | Précision |
 |---------|-----------|------------|-----------|
+| **Claude Sonnet 4.6** ← retenu | ~$0.005 | ~$0.01 | Excellente |
 | GPT-4o Vision | ~$0.01 | ~$0.02 | Excellente |
-| Claude API (Sonnet) | ~$0.005 | ~$0.01 | Excellente |
 | AWS Textract | ~$0.015 | ~$0.03 | Très bonne |
-| Google Document AI | ~$0.065 | ~$0.13 | Très bonne |
 
-**Projection à 100 users × 5 extractions/mois = ~$10/mois total** — coût absorbé.
+**Projection à 100 users × 5 extractions/mois = ~$5/mois total** — coût absorbé dans le plan Business.
 
-### Limites de sécurité
-- **50 extractions/mois** par user (anti-abus)
-- Réservé au plan **Business** (ou Pro selon décision)
-
----
-
-## Plan d'implémentation
-
-### Étapes
-1. **Route API** `POST /api/extract-bc` — reçoit le PDF, appelle l'IA, retourne le JSON
-2. **Supabase Storage** — bucket temporaire `bc-uploads` avec politique d'expiration
-3. **Composant UI** — drag & drop upload + preview des données extraites + formulaire de correction
-4. **Création facture** — injection des données dans le flow standard de création
-
-### Variables d'environnement à ajouter
-```
-OPENAI_API_KEY=sk-...          # si GPT-4o retenu
-# ou
-ANTHROPIC_API_KEY=sk-ant-...   # si Claude retenu
-```
-
-### Durée estimée
-~1-2 jours de dev.
+### Limites anti-abus
+- Réservé plan **Business** uniquement
+- 50 extractions/mois par user *(à implémenter si abus constatés)*
 
 ---
 
 ## Plan tarifaire
 
-- **Business (20€/mois)** : inclus (50 extractions/mois absorbées)
-- **Pro (9,99€/mois)** : à décider — inclus limité (10/mois) ou Business only
-
-> 💡 Note : cette feature justifie facilement un prix Business à 25€/mois.
-> À considérer pour une prochaine révision tarifaire.
+- **Business (20€/mois)** : inclus (coût IA absorbé)
+- **Pro / Free** : non disponible — écran upgrade affiché
 
 ---
 
-## Statut
+## Variables d'environnement
 
-- [ ] À implémenter (post-lancement)
-- [ ] Choix API IA à trancher (GPT-4o vs Claude)
-- [ ] Décision plan tarifaire (Business only vs Pro limité)
+```bash
+# .env.local + Vercel
+ANTHROPIC_API_KEY=sk-ant-api03-...
+```
+
+Clé à générer sur : https://console.anthropic.com → API Keys

@@ -85,10 +85,10 @@ const DOCS: DocCard[] = [
     icon: ShoppingCart,
     label: "Bons de commande",
     description: "Formalisez vos commandes fournisseurs ou clients avec un document officiel.",
-    href: "/dashboard/documents",
+    href: "/dashboard/purchase-orders",
     accent: "#0891b2",
     iconColor: "text-cyan-600 dark:text-cyan-400",
-    available: false,
+    available: true,
   },
   {
     icon: Truck,
@@ -183,9 +183,6 @@ function DocCard({ doc }: { doc: DocCard }) {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function DocumentsPage() {
-  const availableDocs = DOCS.filter((d) => d.available);
-  const comingSoonDocs = DOCS.filter((d) => !d.available);
-
   return (
     <div className="space-y-8 max-w-5xl">
       {/* Header */}
@@ -203,29 +200,11 @@ export default function DocumentsPage() {
         </div>
       </div>
 
-      {/* Docs disponibles */}
-      <section>
-        <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-3 xs:mb-4">
-          Disponibles maintenant
-        </p>
-        <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-3 xs:gap-4">
-          {availableDocs.map((doc) => (
-            <DocCard key={doc.label} doc={doc} />
-          ))}
-        </div>
-      </section>
-
-      {/* Docs à venir */}
-      <section>
-        <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-3 xs:mb-4">
-          Prochainement
-        </p>
-        <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-3 xs:gap-4">
-          {comingSoonDocs.map((doc) => (
-            <DocCard key={doc.label} doc={doc} />
-          ))}
-        </div>
-      </section>
+      <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-3 xs:gap-4">
+        {DOCS.map((doc) => (
+          <DocCard key={doc.label} doc={doc} />
+        ))}
+      </div>
     </div>
   );
 }

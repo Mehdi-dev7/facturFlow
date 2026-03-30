@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useCallback } from "react";
 import { Plus, Pause, Play, Repeat } from "lucide-react";
+import { useRouter } from "next/navigation";
 import {
   PageHeader,
   KpiCard,
@@ -175,8 +176,10 @@ const columns: Column<RecurringRow>[] = [
 // ─── Composant principal ──────────────────────────────────────────────────────
 
 export function RecurringPageContent() {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+  // La modale est gardée pour une éventuelle utilisation future
   const [modalOpen, setModalOpen] = useState(false);
 
   // Donnees
@@ -293,7 +296,7 @@ export function RecurringPageContent() {
         subtitle="Automatisez la génération de vos factures"
         ctaLabel="Nouvelle récurrence"
         ctaIcon={<Plus className="size-4" />}
-        onCtaClick={() => setModalOpen(true)}
+        onCtaClick={() => router.push("/dashboard/recurring/new")}
       />
 
       {/* KPI Cards */}

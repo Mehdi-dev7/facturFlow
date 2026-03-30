@@ -36,6 +36,7 @@ interface PurchaseOrderStepperProps {
   companyInfo: CompanyInfo | null;
   onCompanyChange: (data: CompanyInfo) => void;
   submitLabel?: string;
+  themeColor?: string;
   companyFont?: string;
   companyLogo?: string | null;
   companyName?: string;
@@ -50,6 +51,7 @@ export function PurchaseOrderStepper({
   companyInfo,
   onCompanyChange,
   submitLabel = "Créer",
+  themeColor,
   companyFont,
   companyLogo,
   companyName,
@@ -93,8 +95,8 @@ export function PurchaseOrderStepper({
               <div
                 className={`flex items-center justify-center size-7 rounded-full text-xs font-semibold transition-all duration-300 shrink-0 ${
                   step >= s.id
-                    ? "bg-teal-600 text-white shadow-lg"
-                    : "bg-slate-200 dark:bg-teal-950/40 text-slate-500 dark:text-teal-400/60"
+                    ? "bg-violet-600 text-white shadow-lg"
+                    : "bg-slate-200 dark:bg-violet-950/40 text-slate-500 dark:text-violet-400/60"
                 }`}
               >
                 {step > s.id ? <Check className="size-3.5" /> : s.id}
@@ -103,8 +105,8 @@ export function PurchaseOrderStepper({
               <span
                 className={`text-[10px] sm:text-xs hidden sm:inline transition-colors overflow-hidden ${
                   step >= s.id
-                    ? "text-teal-600 dark:text-teal-400 font-medium"
-                    : "text-slate-400 dark:text-teal-400/60"
+                    ? "text-violet-600 dark:text-violet-400 font-medium"
+                    : "text-slate-400 dark:text-violet-400/60"
                 }`}
               >
                 {s.label}
@@ -114,8 +116,8 @@ export function PurchaseOrderStepper({
                 <div
                   className={`flex-1 h-0.5 rounded-full transition-colors duration-300 ${
                     step > s.id
-                      ? "bg-teal-600"
-                      : "bg-slate-200 dark:bg-teal-950/40"
+                      ? "bg-violet-600"
+                      : "bg-slate-200 dark:bg-violet-950/40"
                   }`}
                 />
               )}
@@ -123,9 +125,9 @@ export function PurchaseOrderStepper({
           ))}
         </div>
         {/* Barre de progression */}
-        <div className="h-1 bg-slate-200 dark:bg-teal-950/40 rounded-full overflow-hidden">
+        <div className="h-1 bg-slate-200 dark:bg-violet-950/40 rounded-full overflow-hidden">
           <div
-            className="h-full bg-linear-to-r from-teal-600 to-cyan-500 rounded-full transition-all duration-500 ease-out"
+            className="h-full bg-linear-to-r from-violet-600 to-purple-500 rounded-full transition-all duration-500 ease-out"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -147,13 +149,14 @@ export function PurchaseOrderStepper({
         ) : (
           // Étape 4 : récapitulatif
           <div className="space-y-3">
-            <h3 className="text-xs font-semibold text-slate-500 dark:text-teal-400 uppercase tracking-wider">
+            <h3 className="text-xs font-semibold text-slate-500 dark:text-violet-400 uppercase tracking-wider">
               Récapitulatif
             </h3>
             <PurchaseOrderPreview
               form={form}
               orderNumber={orderNumber}
               companyInfo={companyInfo}
+              themeColor={themeColor}
               companyFont={companyFont}
               companyLogo={companyLogo}
               companyName={companyName}
@@ -164,7 +167,7 @@ export function PurchaseOrderStepper({
       </div>
 
       {/* Navigation bas de page */}
-      <div className="border-t border-slate-200 dark:border-teal-500/20 px-4 pt-3 pb-2 bg-white/50 dark:bg-[#061a1a]/50 backdrop-blur-sm space-y-2">
+      <div className="border-t border-slate-200 dark:border-violet-500/20 px-4 pt-3 pb-2 bg-white/50 dark:bg-[#1a1438]/50 backdrop-blur-sm space-y-2">
         {/* Ligne 1 : Précédent + Suivant/Créer */}
         <div className="flex items-center justify-between gap-3">
           <Button
@@ -173,7 +176,7 @@ export function PurchaseOrderStepper({
             size="sm"
             onClick={handlePrev}
             disabled={step === 1}
-            className="border-teal-500/20 dark:border-teal-500/30 hover:bg-teal-50 dark:hover:bg-teal-500/10 dark:text-slate-200 transition-all duration-300 cursor-pointer"
+            className="border-violet-500/20 dark:border-violet-500/30 hover:bg-violet-50 dark:hover:bg-violet-500/10 dark:text-slate-200 transition-all duration-300 cursor-pointer"
           >
             Précédent
           </Button>
@@ -183,7 +186,7 @@ export function PurchaseOrderStepper({
               type="button"
               size="sm"
               onClick={handleNext}
-              className="cursor-pointer transition-all duration-300 hover:scale-105 bg-teal-600 hover:bg-teal-700 text-white"
+              className="cursor-pointer transition-all duration-300 hover:scale-105 bg-violet-600 hover:bg-violet-700 text-white"
             >
               Suivant
               <ChevronRight className="size-4" />
@@ -205,13 +208,13 @@ export function PurchaseOrderStepper({
                 type="button"
                 variant="ghost"
                 size="sm"
-                className="text-slate-400 hover:text-teal-600 hover:bg-teal-50 dark:text-teal-400 dark:hover:text-teal-300 dark:hover:bg-teal-500/10 transition-all duration-300 cursor-pointer text-xs border border-slate-200 dark:border-teal-500/30"
+                className="text-slate-400 hover:text-violet-600 hover:bg-violet-50 dark:text-violet-400 dark:hover:text-violet-300 dark:hover:bg-violet-500/10 transition-all duration-300 cursor-pointer text-xs border border-slate-200 dark:border-violet-500/30"
               >
                 <Eye className="size-3.5" />
                 Aperçu
               </Button>
             </SheetTrigger>
-            <SheetContent side="bottom" className="h-[80vh] overflow-y-auto bg-linear-to-b from-teal-50 via-white to-white dark:from-[#061a1a] dark:via-[#051414] dark:to-[#051414]">
+            <SheetContent side="bottom" className="h-[80vh] overflow-y-auto bg-linear-to-b from-violet-50 via-white to-white dark:from-[#1a1438] dark:via-[#1a1438] dark:to-[#1a1438]">
               <SheetHeader>
                 <SheetTitle className="text-slate-900 dark:text-slate-100">Aperçu du bon de commande</SheetTitle>
               </SheetHeader>
@@ -220,6 +223,7 @@ export function PurchaseOrderStepper({
                   form={form}
                   orderNumber={orderNumber}
                   companyInfo={companyInfo}
+                  themeColor={themeColor}
                   companyFont={companyFont}
                   companyLogo={companyLogo}
                   compact
