@@ -32,7 +32,8 @@ export type Feature =
   | "legal_archiving"
   | "api_webhooks"
   | "priority_support"
-  | "multi_users";
+  | "multi_users"
+  | "bc_import";
 
 // ─── Limites du plan FREE ─────────────────────────────────────────────────────
 
@@ -69,6 +70,7 @@ const BUSINESS_FEATURES: Feature[] = [
   "api_webhooks",
   "priority_support",
   "multi_users",
+  "bc_import",
 ];
 
 const FEATURES_BY_PLAN: Record<string, Feature[]> = {

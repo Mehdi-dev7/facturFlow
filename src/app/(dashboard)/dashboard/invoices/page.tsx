@@ -3,7 +3,9 @@
 import { useState, useMemo, useCallback, useEffect, useRef, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Plus } from "lucide-react";
+import { Plus, FileUp } from "lucide-react";
+import dynamic from "next/dynamic";
+import { Button } from "@/components/ui/button";
 import {
   PageHeader,
   KpiCard,
@@ -15,14 +17,17 @@ import {
 } from "@/components/dashboard";
 import type { KpiData, Column } from "@/components/dashboard";
 import type { InvoiceStatus } from "@/components/dashboard/status-badge";
-import dynamic from "next/dynamic";
-// Lazy load des modals — chargées seulement quand l'utilisateur clique
+// Lazy load des modals et du dialog BC — chargées seulement quand l'utilisateur clique
 const DeleteConfirmModal = dynamic(
   () => import("@/components/shared/delete-confirm-modal").then((m) => ({ default: m.DeleteConfirmModal })),
   { ssr: false }
 );
 const InvoicePreviewModal = dynamic(
   () => import("@/components/factures/invoice-preview-modal").then((m) => ({ default: m.InvoicePreviewModal })),
+  { ssr: false }
+);
+const BcImportDialog = dynamic(
+  () => import("@/components/factures/bc-import-dialog").then((m) => ({ default: m.BcImportDialog })),
   { ssr: false }
 );
 import { useInvoices, useDeleteInvoice, type SavedInvoice } from "@/hooks/use-invoices";
@@ -111,6 +116,7 @@ function InvoicesPageContent() {
   const [previewInvoice, setPreviewInvoice] = useState<SavedInvoice | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+  const [bcImportOpen, setBcImportOpen] = useState(false);
 
   // Fetch real data
   const { data: allInvoices = [], isLoading } = useInvoices();
@@ -445,6 +451,18 @@ function InvoicesPageContent() {
         ctaHref="/dashboard/invoices/new"
         ctaIcon={<Plus className="h-5 w-5" strokeWidth={2.5} />}
         ctaVariant="gradient"
+        extraActions={
+          <Button
+            variant="outline"
+            size="sm"
+            className="cursor-pointer gap-2 text-xs xs:text-sm border-violet-300 dark:border-violet-500/40 text-violet-700 dark:text-violet-300 hover:bg-violet-50 dark:hover:bg-violet-950/30"
+            onClick={() => setBcImportOpen(true)}
+          >
+            <FileUp className="h-4 w-4 shrink-0" />
+            <span className="hidden xs:inline">Importer un BC</span>
+            <span className="xs:hidden">BC</span>
+          </Button>
+        }
       />
 
       {/* KPI Cards */}
@@ -513,6 +531,9 @@ function InvoicesPageContent() {
         documentLabel="la facture"
         documentNumber={deleteTargetId ? (invoiceMap.get(deleteTargetId)?.number ?? "") : ""}
       />
+
+      {/* Dialog import BC externe */}
+      <BcImportDialog open={bcImportOpen} onOpenChange={setBcImportOpen} />
     </div>
   );
 }

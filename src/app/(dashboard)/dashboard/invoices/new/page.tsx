@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useRef, Suspense } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useSearchParams } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,8 @@ import {
 	type InvoiceFormData,
 	type CompanyInfo,
 } from "@/lib/validations/invoice";
+import type { BcExtractedData } from "@/components/factures/bc-import-dialog";
+import { BC_IMPORT_LS_KEY } from "@/components/factures/bc-import-dialog";
 import { getNextInvoiceNumber, saveDraft } from "@/lib/actions/invoices";
 import { useCreateInvoice } from "@/hooks/use-invoices";
 import { useAppearance } from "@/hooks/use-appearance";
@@ -31,7 +34,9 @@ function dueDateISO(): string {
 	return d.toISOString().split("T")[0];
 }
 
-export default function NewInvoicePage() {
+function NewInvoicePageContent() {
+	const searchParams = useSearchParams();
+
 	// Tout le state client-only initialisé dans useEffect pour éviter les hydration mismatches
 	const [mounted, setMounted] = useState(false);
 	const [invoiceNumber, setInvoiceNumber] = useState("");
@@ -75,18 +80,59 @@ export default function NewInvoicePage() {
 			if (result.success && result.data) {
 				setInvoiceNumber(result.data.number);
 			} else {
-				// Fallback si non connecté
 				const year = new Date().getFullYear();
 				setInvoiceNumber(`FAC-${year}-0001`);
 			}
 		});
 
-		// 2. Initialiser les dates (les infos company sont chargées via useCompanyInfoForForms)
+		// 2. Initialiser les dates
 		form.setValue("date", todayISO());
 		form.setValue("dueDate", dueDateISO());
 
+		// 3. Pré-remplissage depuis import BC externe (si ?from=bc dans l'URL)
+		if (searchParams.get("from") === "bc") {
+			try {
+				const raw = localStorage.getItem(BC_IMPORT_LS_KEY);
+				if (raw) {
+					const bc = JSON.parse(raw) as BcExtractedData;
+
+					// Lignes (au moins une ligne non vide)
+					if (bc.lines?.length > 0) {
+						form.setValue("lines", bc.lines.map((l) => ({
+							description: l.description,
+							quantity: l.quantity,
+							unitPrice: l.unitPrice,
+						})));
+						// TVA : on prend celle de la première ligne (cast vers les taux valides)
+						const rate = bc.lines[0].vatRate;
+						if ([0, 5.5, 10, 20].includes(rate)) {
+							form.setValue("vatRate", rate as 0 | 5.5 | 10 | 20);
+						}
+					}
+
+					// Dates (si fournies par l'IA)
+					if (bc.date) form.setValue("date", bc.date);
+					if (bc.dueDate) form.setValue("dueDate", bc.dueDate);
+
+					// Notes : référence BC + infos client non trouvé
+					const notesParts: string[] = [];
+					if (bc.bcReference) notesParts.push(`Réf. BC : ${bc.bcReference}`);
+					if (bc.clientName && !bc.clientName.match(/^\s*$/)) notesParts.push(`Client : ${bc.clientName}`);
+					if (bc.clientAddress) notesParts.push(bc.clientAddress);
+					if (bc.notes) notesParts.push(bc.notes);
+					if (notesParts.length > 0) form.setValue("notes", notesParts.join("\n"));
+
+					// Nettoyer le localStorage après utilisation
+					localStorage.removeItem(BC_IMPORT_LS_KEY);
+				}
+			} catch {
+				// Ignorer les erreurs de parsing silencieusement
+			}
+		}
+
 		setMounted(true);
-	}, [form]);
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	const handleCompanyChange = useCallback((data: CompanyInfo) => {
 		setCompanyInfoLocal(data);
@@ -204,5 +250,14 @@ export default function NewInvoicePage() {
 			/>
 			</div>
 		</div>
+	);
+}
+
+// Wrapper Suspense requis à cause de useSearchParams
+export default function NewInvoicePage() {
+	return (
+		<Suspense>
+			<NewInvoicePageContent />
+		</Suspense>
 	);
 }

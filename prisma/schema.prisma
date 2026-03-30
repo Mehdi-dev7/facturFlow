@@ -146,6 +146,8 @@ model User {
   deliveryNotePrefix String @default("BL")
   nextProformaNumber Int    @default(1)
   proformaPrefix     String @default("PRF")
+  nextPurchaseOrderNumber Int    @default(1)
+  purchaseOrderPrefix     String @default("BC")
 
   // Subscription & Plan
   plan             String    @default("FREE") // FREE | PRO | BUSINESS
