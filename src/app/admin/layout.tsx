@@ -8,11 +8,11 @@ import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { getPendingReviewsCount } from "@/lib/actions/reviews";
 import { getNewUsersCount } from "@/lib/actions/admin";
-import { Shield, LayoutDashboard, MessageSquare, Users2 } from "lucide-react";
+import { Shield } from "lucide-react";
+import { AdminNavLinks } from "./admin-nav-links";
 
 export const metadata = {
   title: "Admin — FacturNow",
-  // Backoffice admin — jamais indexé
   robots: { index: false, follow: false },
 };
 
@@ -49,15 +49,8 @@ export default async function AdminLayout({
           </span>
         </div>
 
-        {/* Nav */}
-        <nav className="flex flex-col gap-1 p-3 flex-1">
-          <p className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-widest text-slate-500">
-            Navigation
-          </p>
-          <AdminNavLink href="/admin" icon={LayoutDashboard} label="Dashboard" exact dot={newUsers > 0} />
-          <AdminNavLink href="/admin/avis" icon={MessageSquare} label="Avis" badge={pendingReviews} />
-          <AdminNavLink href="/admin/partners" icon={Users2} label="Partenaires" />
-        </nav>
+        {/* Nav — client component pour gérer le dismiss du dot */}
+        <AdminNavLinks newUsers={newUsers} pendingReviews={pendingReviews} />
 
         {/* Footer : lien retour dashboard */}
         <div className="p-3 border-t border-slate-800">
@@ -87,46 +80,5 @@ export default async function AdminLayout({
         </main>
       </div>
     </div>
-  );
-}
-
-// Petit helper de nav link pour éviter d'importer usePathname côté server
-// (on passe par un composant client minimal ou on utilise des classes statiques)
-function AdminNavLink({
-  href,
-  icon: Icon,
-  label,
-  badge = 0,
-  dot = false,
-  exact = false,
-}: {
-  href: string;
-  icon: React.ComponentType<{ className?: string }>;
-  label: string;
-  badge?: number;
-  dot?: boolean;
-  exact?: boolean;
-}) {
-  return (
-    <Link
-      href={href}
-      className="flex items-center gap-3 rounded-md px-3 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
-    >
-      <Icon className="h-4 w-4 shrink-0" />
-      <span className="flex-1">{label}</span>
-      {/* Badge numérique (ex: nombre d'avis en attente) */}
-      {badge > 0 && (
-        <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
-          {badge}
-        </span>
-      )}
-      {/* Dot pulsant (ex: nouveaux utilisateurs) */}
-      {dot && !badge && (
-        <span className="relative flex h-2 w-2">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
-          <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
-        </span>
-      )}
-    </Link>
   );
 }

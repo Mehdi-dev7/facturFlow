@@ -43,7 +43,7 @@ export default async function DashboardLayout({
     documentsThisMonth: number;
   } | undefined = undefined;
 
-  let notifications: NotificationCounts = { invoices: false, quotes: false, deposits: false };
+  let notifications: NotificationCounts = { invoices: false, quotes: false, deposits: false, admin: false };
   let onboardingCompleted = true; // par défaut : pas d'overlay
 
   if (session?.user?.id) {
@@ -83,11 +83,12 @@ export default async function DashboardLayout({
     ? await Promise.all([getPendingReviewsCount(), getNewUsersCount()])
     : [0, 0];
   const adminDotCount = pendingReviewsCount + newUsersCount;
+  if (isAdmin) notifications.admin = adminDotCount > 0;
 
   return (
     <>
       <PwaServiceWorker />
-      <DashboardShell subscription={subscription} notifications={notifications} isAdmin={isAdmin} pendingReviewsCount={adminDotCount}>
+      <DashboardShell subscription={subscription} notifications={notifications} isAdmin={isAdmin} pendingReviewsCount={0}>
         {children}
       </DashboardShell>
       {/* Overlay d'onboarding — affiché uniquement pour les nouveaux utilisateurs */}

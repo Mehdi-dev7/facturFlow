@@ -17,25 +17,63 @@ Pourquoi : cet événement se déclenche à chaque renouvellement d'abonnement (
 Le code dans /api/webhooks/stripe détecte si l'user a un referral partenaire actif et crée
 la commission correspondante automatiquement.
 
-## Pour plus tard : discount client (5-10% sur 3 premiers mois)
+## Partenaires fondateurs — État actuel (30/03/2026)
 
-Quand tu voudras activer le discount client pour les users qui viennent via un partenaire :
+FOUED7 et AMIN2026 sont marqués `isFounder = true` dans `/admin/partners` (étoile dorée).
 
-1. Stripe Dashboard → Products → Coupons → Create coupon
-   - Nom : "Remise partenaire 3 mois"
-   - Type : Percentage
-   - Percent off : 10
-   - Duration : repeating
-   - Duration in months : 3
+**Comment ça marche :**
+- L'user entre FOUED7 ou AMIN2026 au checkout Stripe
+- La promo fondateur (`STRIPE_FOUNDER_PROMO_CODE_ID`) est appliquée automatiquement
+- Le referral est tracké dans `PartnerReferral` pour les commissions
+- Le compteur X/50 est visible dans `/admin/partners`
 
-2. Stripe Dashboard → Products → Promotion codes → Create promotion code
-   - Coupon : sélectionner "Remise partenaire 3 mois"
-   - Code : PARTNER10 (ou un code générique)
-   - OU créer un promotion code par partenaire si tu veux tracker individuellement
+**Quand tu atteins 50 referrals fondateurs :**
 
-3. Dans le code (`src/lib/actions/subscription.ts`) :
-   - Ajouter la logique pour appliquer le promotion code quand partnerCode est présent
-   - Actuellement on ignore le discount client pour éviter de cumuler avec l'offre Fondateur
+### Étape 1 — Créer le nouveau coupon dans Stripe
+
+1. Stripe Dashboard → `Product catalog → Coupons → Create coupon`
+   - Nom : `Remise partenaire 3 mois`
+   - Type : **Percentage off → 10%**
+   - Duration : **Repeating → 3 months**
+   - Sauvegarder → noter l'ID du coupon (ex: `JnX8aZ3p`)
+
+2. Stripe Dashboard → sur ce coupon → `Add promotion code`
+   - Code : `PARTNER10` (ou ce que tu veux)
+   - Sauvegarder → noter l'ID de la promotion code (format `promo_xxxx`)
+
+### Étape 2 — Mettre à jour le code (3 lignes)
+
+1. Ajouter dans `.env` et dans Vercel :
+   ```
+   STRIPE_PARTNER_PROMO_CODE_ID=promo_xxxx
+   ```
+
+2. Dans `src/lib/actions/subscription.ts`, remplacer la logique `applyFounderPromo` :
+   ```typescript
+   // AVANT (promo fondateur uniquement)
+   const applyFounderPromo = (promoCode === "FONDATEUR" || isFounderPartner) && !!process.env.STRIPE_FOUNDER_PROMO_CODE_ID;
+   const discounts = applyFounderPromo ? [{ promotion_code: process.env.STRIPE_FOUNDER_PROMO_CODE_ID! }] : undefined;
+
+   // APRÈS (fondateur → promo fondateur / partenaire standard → -10% 3 mois)
+   const applyFounderPromo = (promoCode === "FONDATEUR" || isFounderPartner) && !!process.env.STRIPE_FOUNDER_PROMO_CODE_ID;
+   const applyPartnerPromo = resolvedPartnerCode && !isFounderPartner && !!process.env.STRIPE_PARTNER_PROMO_CODE_ID;
+   const discounts = applyFounderPromo
+     ? [{ promotion_code: process.env.STRIPE_FOUNDER_PROMO_CODE_ID! }]
+     : applyPartnerPromo
+     ? [{ promotion_code: process.env.STRIPE_PARTNER_PROMO_CODE_ID! }]
+     : undefined;
+   ```
+
+### Étape 3 — Désactiver le mode fondateur
+
+Dans `/admin/partners`, cliquer l'étoile sur FOUED7 et AMIN2026 pour repasser `isFounder = false`.
+Ils passent en partenaires standard → leurs nouveaux clients reçoivent -10%/3 mois au lieu de la promo fondateur.
+
+---
+
+## Pour plus tard : discount client standard (hors partenaires fondateurs)
+
+Même logique mais pour tous les partenaires non-fondateurs si tu veux généraliser le discount client.
 
 ## Variables d'environnement déjà utilisées
 - STRIPE_SECRET_KEY ✅

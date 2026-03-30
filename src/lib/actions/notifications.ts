@@ -7,6 +7,7 @@ export interface NotificationCounts {
   invoices: boolean  // OVERDUE ou PAID depuis <7j
   quotes: boolean    // ACCEPTED ou REJECTED depuis <7j
   deposits: boolean  // OVERDUE ou PAID depuis <7j
+  admin: boolean     // Nouveaux inscrits <48h ou avis en attente (admin uniquement)
 }
 
 // Retourne si chaque section a une notif active
@@ -48,5 +49,6 @@ export async function getNotificationCounts(userId: string): Promise<Notificatio
     invoices: overdueInvoices + paidInvoices > 0,
     deposits: overdueDeposits + paidDeposits > 0,
     quotes: acceptedQuotes + refusedQuotes > 0,
+    admin: false, // géré séparément dans le layout (admin uniquement)
   }
 }

@@ -406,6 +406,7 @@ export default function DashboardShell({
 			["/dashboard/invoices", "invoices"],
 			["/dashboard/quotes",   "quotes"],
 			["/dashboard/deposits", "deposits"],
+			["/admin",              "admin"],
 		];
 		for (const [prefix, key] of map) {
 			if (pathname.startsWith(prefix) && notifications?.[key]) {
@@ -429,6 +430,7 @@ export default function DashboardShell({
 			if (!notifications.invoices && next.has("invoices")) { next.delete("invoices"); changed = true; }
 			if (!notifications.quotes  && next.has("quotes"))   { next.delete("quotes");   changed = true; }
 			if (!notifications.deposits && next.has("deposits")) { next.delete("deposits"); changed = true; }
+			if (!notifications.admin   && next.has("admin"))    { next.delete("admin");    changed = true; }
 			if (!changed) return prev;
 			persistDismissed(next);
 			return next;
@@ -547,7 +549,7 @@ export default function DashboardShell({
 						{/* Lien Admin — visible uniquement pour l'admin */}
 							{isAdmin && (
 								<NavLink
-									item={{ label: "Admin", href: "/admin", icon: Shield, dot: pendingReviewsCount > 0 }}
+									item={{ label: "Admin", href: "/admin", icon: Shield, dot: !!(notifications?.admin && !dismissedNotifs?.has("admin")) }}
 									collapsed={collapsed}
 									isActive={isItemActive("/admin", pathname)}
 									activeClassName="border-violet-600 bg-violet-600/10 text-violet-600 dark:text-violet-300"
@@ -625,7 +627,7 @@ export default function DashboardShell({
 												{/* Admin link mobile */}
 												{isAdmin && (
 													<NavLink
-														item={{ label: "Admin", href: "/admin", icon: Shield, dot: pendingReviewsCount > 0 }}
+														item={{ label: "Admin", href: "/admin", icon: Shield, dot: !!(notifications?.admin && !dismissedNotifs?.has("admin")) }}
 														collapsed={false}
 														onNavigate={() => setSidebarOpen(false)}
 														isActive={isItemActive("/admin", pathname)}
