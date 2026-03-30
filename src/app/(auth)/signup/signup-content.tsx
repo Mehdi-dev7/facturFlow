@@ -17,6 +17,7 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import Logo from "@/components/Logo";
+import { TopProgressBar, Spinner } from "@/components/ui/page-loader";
 
 function GoogleIcon() {
 	return (
@@ -112,27 +113,35 @@ function SignUpForm() {
 	const [showConfirm, setShowConfirm] = useState(false);
 	const [error, setError] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
+	const [oauthLoading, setOauthLoading] = useState<"google" | "github" | "microsoft" | null>(null);
+
+	const anyLoading = isLoading || oauthLoading !== null;
+
 	const handleOAuthSignIn = useCallback(
 		async (provider: "google" | "github" | "microsoft") => {
+			if (anyLoading) return;
+			setError("");
+			setOauthLoading(provider);
 			try {
-				setError("");
 				await signIn.social({
 					provider,
-					// Si un plan est présent, rediriger vers checkout après OAuth (+ promo si présente)
 					callbackURL: plan
 						? `/dashboard/subscription?checkout=${plan}${promo ? `&promo=${promo}` : ""}`
 						: "/dashboard",
 				});
+				// Pas de reset : la page redirige vers le provider
 			} catch (err) {
 				toast.error("Erreur lors de l'inscription avec " + provider);
 				console.error(err);
+				setOauthLoading(null);
 			}
 		},
-		[plan, promo],
+		[plan, promo, anyLoading],
 	);
 
 	const handleEmailSignUp = async (e: React.FormEvent) => {
 		e.preventDefault();
+		if (anyLoading) return;
 		setError("");
 
 		const result = signUpSchema.safeParse({
@@ -188,6 +197,9 @@ function SignUpForm() {
 	};
 
 	return (
+		<>
+			{/* Barre de progression violette en haut dès qu'un chargement démarre */}
+			<TopProgressBar loading={anyLoading} />
 		<Card className="w-full max-w-md shadow-2xl border-slate-200/50 backdrop-blur-sm bg-white/95 relative z-10">
 			<CardHeader className="space-y-3 pb-8">
 				<Link href="/" className="flex justify-center mb-2 group  w-fit mx-auto">
@@ -205,27 +217,36 @@ function SignUpForm() {
 				<div className="space-y-3">
 					<Button
 						variant="outline"
-						className="group w-full h-12 border-slate-300 hover:border-primary hover:bg-slate-50 transition-all shadow-sm cursor-pointer"
+						className="group w-full h-12 border-slate-300 hover:border-primary hover:bg-slate-50 transition-all shadow-sm cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
 						onClick={() => handleOAuthSignIn("google")}
+						disabled={anyLoading}
 					>
-						<GoogleIcon />
-						<span className="ml-3">Continuer avec Google</span>
+						{oauthLoading === "google" ? <Spinner size="sm" /> : <GoogleIcon />}
+						<span className="ml-3">
+							{oauthLoading === "google" ? "Connexion en cours..." : "Continuer avec Google"}
+						</span>
 					</Button>
 					<Button
 						variant="outline"
-						className="group w-full h-12 border-slate-300 hover:border-primary hover:bg-slate-50 transition-all shadow-sm cursor-pointer"
+						className="group w-full h-12 border-slate-300 hover:border-primary hover:bg-slate-50 transition-all shadow-sm cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
 						onClick={() => handleOAuthSignIn("github")}
+						disabled={anyLoading}
 					>
-						<GitHubIcon />
-						<span className="ml-3">Continuer avec GitHub</span>
+						{oauthLoading === "github" ? <Spinner size="sm" /> : <GitHubIcon />}
+						<span className="ml-3">
+							{oauthLoading === "github" ? "Connexion en cours..." : "Continuer avec GitHub"}
+						</span>
 					</Button>
 					<Button
 						variant="outline"
-						className="group w-full h-12 border-slate-300 hover:border-primary hover:bg-slate-50 transition-all shadow-sm cursor-pointer"
+						className="group w-full h-12 border-slate-300 hover:border-primary hover:bg-slate-50 transition-all shadow-sm cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
 						onClick={() => handleOAuthSignIn("microsoft")}
+						disabled={anyLoading}
 					>
-						<MicrosoftIcon />
-						<span className="ml-3">Continuer avec Microsoft</span>
+						{oauthLoading === "microsoft" ? <Spinner size="sm" /> : <MicrosoftIcon />}
+						<span className="ml-3">
+							{oauthLoading === "microsoft" ? "Connexion en cours..." : "Continuer avec Microsoft"}
+						</span>
 					</Button>
 				</div>
 
@@ -320,10 +341,13 @@ function SignUpForm() {
 						type="submit"
 						variant="gradient"
 						size="lg"
-						className="w-full h-12 font-semibold cursor-pointer hover:scale-103 transition-all duration-300"
-						disabled={isLoading}
+						className="w-full h-12 font-semibold cursor-pointer hover:scale-103 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed disabled:scale-100"
+						disabled={anyLoading}
 					>
-						{isLoading ? "Création en cours..." : "Créer mon compte"}
+						{isLoading && <Spinner size="sm" />}
+						<span className={isLoading ? "ml-2" : ""}>
+							{isLoading ? "Création en cours..." : "Créer mon compte"}
+						</span>
 					</Button>
 				</form>
 
@@ -339,6 +363,7 @@ function SignUpForm() {
 				</div>
 			</CardContent>
 		</Card>
+		</>
 	);
 }
 

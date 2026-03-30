@@ -9,7 +9,7 @@ import Image from "next/image";
 import { toast } from "sonner";
 import { grantGuestAccess, revokeGuestAccess } from "@/lib/actions/admin";
 import type { AdminUser } from "@/lib/actions/admin";
-import { Search, Gift, X, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { Search, Gift, X, ChevronLeft, ChevronRight, Loader2, RefreshCw } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -221,6 +221,18 @@ export default function AdminDashboardClient({
         )}
 
         <span className="ml-auto text-xs text-slate-500">{totalUsers} utilisateur{totalUsers > 1 ? "s" : ""}</span>
+
+        {/* Refresh manuel — utile après suppression directe en DB */}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => router.refresh()}
+          disabled={isPending}
+          className="text-slate-400 hover:text-white cursor-pointer"
+          title="Rafraîchir les données"
+        >
+          <RefreshCw className={`h-4 w-4 ${isPending ? "animate-spin" : ""}`} />
+        </Button>
       </div>
 
       {/* Table */}
@@ -276,9 +288,11 @@ export default function AdminDashboardClient({
                       </span>
                     </TableCell>
 
-                    {/* Trial */}
+                    {/* Trial — masqué pour les invités (grantedPlan prime sur tout) */}
                     <TableCell>
-                      {trialActive ? (
+                      {user.grantedPlan ? (
+                        <span className="text-xs text-slate-600">—</span>
+                      ) : trialActive ? (
                         <span className="text-xs text-amber-400">
                           Expire {new Date(user.trialEndsAt!).toLocaleDateString("fr-FR")}
                         </span>

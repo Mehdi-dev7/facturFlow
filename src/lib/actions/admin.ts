@@ -7,6 +7,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { headers } from "next/headers";
+import { revalidatePath } from "next/cache";
 
 // ─── Guard admin ─────────────────────────────────────────────────────────────
 
@@ -168,6 +169,7 @@ export async function grantGuestAccess(
       },
     });
 
+    revalidatePath("/admin");
     return { success: true };
   } catch (error) {
     console.error("[admin] grantGuestAccess error:", error);
@@ -192,6 +194,7 @@ export async function revokeGuestAccess(
       },
     });
 
+    revalidatePath("/admin");
     return { success: true };
   } catch (error) {
     console.error("[admin] revokeGuestAccess error:", error);

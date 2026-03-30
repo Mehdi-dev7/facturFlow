@@ -14,6 +14,7 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import Logo from "@/components/Logo";
+import { TopProgressBar, Spinner } from "@/components/ui/page-loader";
 
 function GoogleIcon() {
 	return (
@@ -44,28 +45,39 @@ const MicrosoftIcon = () => (
 	</svg>
 );
 
+type OAuthProvider = "google" | "github" | "microsoft";
+
 export default function LoginContent() {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
+	// Email/password loading
 	const [isLoading, setIsLoading] = useState(false);
+	// OAuth loading — on garde le provider actif pour afficher le bon spinner
+	const [oauthLoading, setOauthLoading] = useState<OAuthProvider | null>(null);
 
+	// Un seul chargement actif à la fois (email ou OAuth)
+	const anyLoading = isLoading || oauthLoading !== null;
 
-	const handleOAuthSignIn = async (
-		provider: "google" | "github" | "microsoft",
-	) => {
+	const handleOAuthSignIn = async (provider: OAuthProvider) => {
+		if (anyLoading) return;
+		setOauthLoading(provider);
 		try {
 			await signIn.social({
 				provider,
 				callbackURL: "/dashboard",
 			});
+			// Pas de setOauthLoading(null) ici : la page redirige vers le provider,
+			// le loader reste visible jusqu'à la redirection
 		} catch (err) {
 			toast.error("Erreur lors de la connexion avec " + provider);
 			console.error(err);
+			setOauthLoading(null);
 		}
 	};
 
 	const handleEmailSignIn = async (e: React.FormEvent) => {
 		e.preventDefault();
+		if (anyLoading) return;
 		setIsLoading(true);
 
 		try {
@@ -74,16 +86,18 @@ export default function LoginContent() {
 				password,
 				callbackURL: "/dashboard",
 			});
+			// Pas de finally : si succès la page redirige, le loader reste actif
 		} catch (err) {
 			toast.error("Email ou mot de passe incorrect");
 			console.error(err);
-		} finally {
 			setIsLoading(false);
 		}
 	};
 
 	return (
 		<div className="flex min-h-screen items-center justify-center p-4 bg-linear-to-br from-slate-50 via-white to-slate-50 relative overflow-hidden">
+			{/* Barre de progression violette en haut dès qu'un chargement démarre */}
+			<TopProgressBar loading={anyLoading} />
 			{/* Effet de fond élégant */}
 			<div className="absolute inset-0 overflow-hidden pointer-events-none">
 				<div
@@ -119,27 +133,36 @@ export default function LoginContent() {
 					<div className="space-y-3">
 						<Button
 							variant="outline"
-							className="group w-full h-12 border-slate-300 hover:border-primary hover:bg-slate-50 transition-all shadow-sm cursor-pointer"
+							className="group w-full h-12 border-slate-300 hover:border-primary hover:bg-slate-50 transition-all shadow-sm cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
 							onClick={() => handleOAuthSignIn("google")}
+							disabled={anyLoading}
 						>
-							<GoogleIcon />
-							<span className="ml-3">Continuer avec Google</span>
+							{oauthLoading === "google" ? <Spinner size="sm" /> : <GoogleIcon />}
+							<span className="ml-3">
+								{oauthLoading === "google" ? "Connexion en cours..." : "Continuer avec Google"}
+							</span>
 						</Button>
 						<Button
 							variant="outline"
-							className="group w-full h-12 border-slate-300 hover:border-primary hover:bg-slate-50 transition-all shadow-sm cursor-pointer"
+							className="group w-full h-12 border-slate-300 hover:border-primary hover:bg-slate-50 transition-all shadow-sm cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
 							onClick={() => handleOAuthSignIn("github")}
+							disabled={anyLoading}
 						>
-							<GitHubIcon />
-							<span className="ml-3">Continuer avec GitHub</span>
+							{oauthLoading === "github" ? <Spinner size="sm" /> : <GitHubIcon />}
+							<span className="ml-3">
+								{oauthLoading === "github" ? "Connexion en cours..." : "Continuer avec GitHub"}
+							</span>
 						</Button>
 						<Button
 							variant="outline"
-							className="group w-full h-12 border-slate-300 hover:border-primary hover:bg-slate-50 transition-all shadow-sm cursor-pointer"
+							className="group w-full h-12 border-slate-300 hover:border-primary hover:bg-slate-50 transition-all shadow-sm cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
 							onClick={() => handleOAuthSignIn("microsoft")}
+							disabled={anyLoading}
 						>
-							<MicrosoftIcon />
-							<span className="ml-3">Continuer avec Microsoft</span>
+							{oauthLoading === "microsoft" ? <Spinner size="sm" /> : <MicrosoftIcon />}
+							<span className="ml-3">
+								{oauthLoading === "microsoft" ? "Connexion en cours..." : "Continuer avec Microsoft"}
+							</span>
 						</Button>
 					</div>
 
@@ -192,10 +215,13 @@ export default function LoginContent() {
 							type="submit"
 							variant="gradient"
 							size="lg"
-							className="w-full h-12 font-semibold hover:scale-103 transition-all duration-300 cursor-pointer"
-							disabled={isLoading}
+							className="w-full h-12 font-semibold hover:scale-103 transition-all duration-300 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed disabled:scale-100"
+							disabled={anyLoading}
 						>
-							{isLoading ? "Connexion en cours..." : "Se connecter"}
+							{isLoading && <Spinner size="sm" />}
+							<span className={isLoading ? "ml-2" : ""}>
+								{isLoading ? "Connexion en cours..." : "Se connecter"}
+							</span>
 						</Button>
 					</form>
 
