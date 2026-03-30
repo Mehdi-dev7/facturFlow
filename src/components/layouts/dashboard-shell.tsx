@@ -400,6 +400,17 @@ export default function DashboardShell({
 		try { localStorage.setItem("notif_dismissed", JSON.stringify([...next])); } catch { /* ignore */ }
 	}, []);
 
+	// Admin navigue vers /admin (hors layout dashboard) → le pathname effect ne se déclenche jamais
+	// → on dismiss manuellement au clic
+	const handleDismissAdmin = useCallback(() => {
+		setDismissedNotifs((prev) => {
+			if (prev.has("admin")) return prev;
+			const next = new Set([...prev, "admin"]);
+			persistDismissed(next);
+			return next;
+		});
+	}, [persistDismissed]);
+
 	// Dismiss uniquement quand l'utilisateur visite une section QUI A une notification active
 	useEffect(() => {
 		const map: Array<[string, keyof NotificationCounts]> = [
@@ -551,6 +562,7 @@ export default function DashboardShell({
 								<NavLink
 									item={{ label: "Admin", href: "/admin", icon: Shield, dot: !!(notifications?.admin && !dismissedNotifs?.has("admin")) }}
 									collapsed={collapsed}
+									onNavigate={handleDismissAdmin}
 									isActive={isItemActive("/admin", pathname)}
 									activeClassName="border-violet-600 bg-violet-600/10 text-violet-600 dark:text-violet-300"
 									isDimmed={isSpotlightMode}
@@ -629,7 +641,7 @@ export default function DashboardShell({
 													<NavLink
 														item={{ label: "Admin", href: "/admin", icon: Shield, dot: !!(notifications?.admin && !dismissedNotifs?.has("admin")) }}
 														collapsed={false}
-														onNavigate={() => setSidebarOpen(false)}
+														onNavigate={() => { setSidebarOpen(false); handleDismissAdmin(); }}
 														isActive={isItemActive("/admin", pathname)}
 														activeClassName="border-violet-600 bg-violet-600/10 text-violet-600 dark:text-violet-300"
 													/>

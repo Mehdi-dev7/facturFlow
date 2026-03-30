@@ -42,7 +42,7 @@ export function PageHeader({
       </div>
 
       {(hasCta || extraActions) && (
-        <div className="flex items-center gap-2 lg:ml-auto">
+        <div className="flex items-center gap-4 lg:ml-auto">
           {/* Actions secondaires (ex: bouton Importer un BC) */}
           {extraActions}
 

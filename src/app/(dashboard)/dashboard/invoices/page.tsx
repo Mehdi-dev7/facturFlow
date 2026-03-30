@@ -453,12 +453,11 @@ function InvoicesPageContent() {
         ctaVariant="gradient"
         extraActions={
           <Button
-            variant="outline"
-            size="sm"
-            className="cursor-pointer gap-2 text-xs xs:text-sm border-violet-300 dark:border-violet-500/40 text-violet-700 dark:text-violet-300 hover:bg-violet-50 dark:hover:bg-violet-950/30"
+            style={{ background: "linear-gradient(to right, #8b5cf6, #9333ea)" }}
+            className="cursor-pointer gap-2 h-11 sm:h-12 px-6 sm:px-8 text-sm sm:text-base font-ui text-white font-semibold transition-all duration-300 hover:scale-103 hover:opacity-90 rounded-lg shadow-sm"
             onClick={() => setBcImportOpen(true)}
           >
-            <FileUp className="h-4 w-4 shrink-0" />
+            <FileUp className="h-5 w-5 shrink-0" />
             <span className="hidden xs:inline">Importer un BC</span>
             <span className="xs:hidden">BC</span>
           </Button>

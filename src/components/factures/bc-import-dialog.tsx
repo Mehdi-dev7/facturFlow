@@ -184,11 +184,11 @@ export function BcImportDialog({ open, onOpenChange }: Props) {
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <DialogHeader>
-          <DialogTitle className="text-base xs:text-lg flex items-center gap-2">
+          <DialogTitle className="text-base mt-5 xs:mt-0 xs:text-lg flex items-center gap-2 text-slate-900 dark:text-slate-100">
             <FileText className="h-5 w-5 text-violet-500 shrink-0" />
             Importer un bon de commande
           </DialogTitle>
-          <DialogDescription className="text-xs xs:text-sm">
+          <DialogDescription className="text-xs xs:text-sm text-slate-500 dark:text-slate-400">
             Uploadez le PDF ou l&apos;image d&apos;un BC reçu d&apos;un client — l&apos;IA extrait les
             informations et pré-remplit votre facture.
           </DialogDescription>
