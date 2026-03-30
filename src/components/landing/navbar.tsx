@@ -2,9 +2,11 @@
 
 import { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { LogIn, Menu, X } from "lucide-react"
+import { LogIn, Loader2, Menu, X } from "lucide-react"
 import Logo from "@/components/Logo"
+import { useSession } from "@/lib/auth-client"
 
 const navLinks = [
   { href: "#features", label: "Fonctionnalités" },
@@ -14,8 +16,18 @@ const navLinks = [
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
+  const [isNavigating, setIsNavigating] = useState(false)
+  const { data: session } = useSession()
+  const router = useRouter()
 
   const close = useCallback(() => setIsOpen(false), [])
+
+  // Redirige vers le dashboard si déjà connecté, sinon vers /login
+  // On ne ferme PAS la nav mobile : elle reste visible (avec le loader) jusqu'à la redirection
+  const handleConnexion = useCallback(() => {
+    setIsNavigating(true)
+    router.push(session ? "/dashboard" : "/login")
+  }, [session, router])
 
   const scrollTo = useCallback((e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault()
@@ -68,15 +80,19 @@ export function Navbar() {
 
             {/* Desktop - Bouton connexion */}
             <div className="hidden lg:block">
-              <Link href="/login">
-                <Button
-                  variant="outline"
-                  className="kanit text-lg text-primary border-primary/30 bg-primary/5 hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 cursor-pointer"
-                >
+              <Button
+                variant="outline"
+                onClick={handleConnexion}
+                disabled={isNavigating}
+                className="kanit text-lg text-primary border-primary/30 bg-primary/5 hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
+              >
+                {isNavigating ? (
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                ) : (
                   <LogIn className="mr-2 h-5 w-5" strokeWidth={2.7} />
-                  Connexion
-                </Button>
-              </Link>
+                )}
+                {isNavigating ? "Chargement..." : "Connexion"}
+              </Button>
             </div>
 
             {/* Mobile - Hamburger */}
@@ -138,9 +154,7 @@ export function Navbar() {
 
           <div className="w-106 h-px bg-linear-to-r from-transparent via-primary/30 to-transparent" />
 
-          <Link
-            href="/login"
-            onClick={close}
+          <div
             className={`transition-all duration-300 ${
               isOpen ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
             }`}
@@ -148,12 +162,18 @@ export function Navbar() {
           >
             <Button
               variant="outline"
-              className="kanit text-lg text-primary border-primary/30 bg-primary/5 hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 cursor-pointer px-8 py-6"
+              onClick={handleConnexion}
+              disabled={isNavigating}
+              className="kanit text-lg text-primary border-primary/30 bg-primary/5 hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 cursor-pointer px-8 py-6 disabled:opacity-70 disabled:cursor-not-allowed"
             >
-              <LogIn className="mr-2 h-5 w-5" strokeWidth={2.7} />
-              Connexion
+              {isNavigating ? (
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+              ) : (
+                <LogIn className="mr-2 h-5 w-5" strokeWidth={2.7} />
+              )}
+              {isNavigating ? "Chargement..." : "Connexion"}
             </Button>
-          </Link>
+          </div>
         </div>
       </div>
     </>
