@@ -700,6 +700,7 @@ Utilise les agents quand :
 - [ ] **SuperPDP prod** : en attente accès production SuperPDP — dernière étape avant lancement officiel
 - [ ] **Templates métiers factures** : 9 templates visuels par secteur (Web Dev, Design, Consultant, BTP, Photo, Rédacteur, Coach, E-commerce, Services) — pas urgent
 - [ ] **Discount client partenaire** : 5-10% sur 3 premiers mois via Stripe coupon — à activer ~juillet 2026 (voir `STRIPE_PARTNER_TODO.md`)
+- [ ] **Workflow n8n marketing auto** : publication automatique d'articles + pubs sur Reddit, auto-entrepreneur.com et autres plateformes partenaires — déclenché sur schedule ou événement (nouvelle inscription, etc.)
 
 ### Reste à faire — Qualité & Lancement
 
