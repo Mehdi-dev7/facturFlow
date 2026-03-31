@@ -20,7 +20,7 @@ export function FounderBannerDashboard({ effectivePlan }: FounderBannerDashboard
     fetch("/api/founder-spots")
       .then((r) => r.json())
       .then((d: { remaining: number }) => setRemaining(d.remaining))
-      .catch(() => setRemaining(50));
+      .catch(() => setRemaining(30));
   }, []);
 
   // Ne pas afficher si déjà sur un plan payant ou s'il n'y a plus de places

@@ -41,6 +41,8 @@ export default async function DashboardLayout({
     effectivePlan: string;
     trialDaysLeft: number | null;
     documentsThisMonth: number;
+    trialEndsAt: string | null;
+    paymentGraceEndsAt: string | null;
   } | undefined = undefined;
 
   let notifications: NotificationCounts = { invoices: false, quotes: false, deposits: false, admin: false };
@@ -59,11 +61,19 @@ export default async function DashboardLayout({
     ]);
 
     if (subResult.success) {
+      // Calculer paymentGraceEndsAt = trialEndsAt + 7 jours (fenêtre de grâce paiements)
+      const trialEndsAt = subResult.data.trialEndsAt ?? null;
+      const paymentGraceEndsAt = trialEndsAt
+        ? new Date(new Date(trialEndsAt).getTime() + 7 * 24 * 60 * 60 * 1000).toISOString()
+        : null;
+
       subscription = {
         plan: subResult.data.plan,
         effectivePlan: subResult.data.effectivePlan,
         trialDaysLeft: subResult.data.trialDaysLeft,
         documentsThisMonth: docCheck.count,
+        trialEndsAt,
+        paymentGraceEndsAt,
       };
     }
 

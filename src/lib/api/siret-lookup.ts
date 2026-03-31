@@ -1,21 +1,16 @@
-// Lookup d'entreprise via l'API officielle Recherche Entreprises (data.gouv.fr)
-// Exécuté côté CLIENT (browser) — pas de "use server" pour éviter le rate-limit serveur.
-// Aucune clé API requise, données publiques INSEE.
+// Lookup d'entreprise via notre proxy API (qui appelle data.gouv.fr côté serveur)
+// Proxifier évite les problèmes CORS en dev et en prod.
 
 import type { SiretData } from "@/types/siret";
 
 export async function lookupSiret(siret: string): Promise<SiretData> {
 	const clean = siret.replace(/\s/g, "");
 
-	const res = await fetch(
-		`https://recherche-entreprises.api.gouv.fr/search?q=${encodeURIComponent(clean)}&per_page=1`,
-	);
+	const res = await fetch(`/api/siret-lookup?q=${encodeURIComponent(clean)}`);
 
 	if (!res.ok) {
-		if (res.status === 429) {
-			throw new Error("Trop de recherches — patientez quelques secondes");
-		}
-		throw new Error("Erreur lors de la recherche SIRET");
+		const body = await res.json().catch(() => ({}));
+		throw new Error(body.error ?? "Erreur lors de la recherche SIRET");
 	}
 
 	const data = await res.json();

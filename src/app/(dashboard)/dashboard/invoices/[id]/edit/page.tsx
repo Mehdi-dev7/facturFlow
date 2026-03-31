@@ -20,6 +20,8 @@ import {
 import { getInvoice } from "@/lib/actions/invoices";
 import { useUpdateInvoice, useCreateInvoice, type SavedInvoice } from "@/hooks/use-invoices";
 import { useAppearance } from "@/hooks/use-appearance";
+import { useQuery } from "@tanstack/react-query";
+import { getCurrentSubscription } from "@/lib/actions/subscription";
 
 // ─── Mapping DB → valeurs du formulaire ───────────────────────────────────────
 
@@ -90,6 +92,8 @@ export default function EditInvoicePage() {
 
 	const [mounted, setMounted] = useState(false);
 	const { themeColor, companyFont, companyLogo, companyName } = useAppearance();
+	const { data: subData } = useQuery({ queryKey: ["subscription"], queryFn: getCurrentSubscription, staleTime: 5 * 60 * 1000 });
+	const effectivePlan = subData?.success ? subData.data.effectivePlan : "FREE";
 	const [invoice, setInvoice] = useState<SavedInvoice | null>(null);
 	const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
 	const [loadError, setLoadError] = useState<string | null>(null);
@@ -228,6 +232,7 @@ export default function EditInvoicePage() {
 							onCompanyChange={handleCompanyChange}
 							isSubmitting={updateMutation.isPending || createMutation.isPending}
 							submitLabel={isDraft ? "Créer la facture" : "Sauvegarder"}
+							effectivePlan={effectivePlan}
 						/>
 					</div>
 				</div>
@@ -254,11 +259,11 @@ export default function EditInvoicePage() {
 					companyInfo={companyInfo}
 					onCompanyChange={handleCompanyChange}
 					submitLabel={isDraft ? "Créer la facture" : "Sauvegarder"}
-				
+					effectivePlan={effectivePlan}
 					themeColor={themeColor}
 					companyFont={companyFont}
 					companyLogo={companyLogo}
-				companyName={companyName}
+					companyName={companyName}
 				/>
 			</div>
 		</div>

@@ -24,6 +24,8 @@ import {
 	type SavedProforma,
 } from "@/hooks/use-proformas";
 import { useAppearance } from "@/hooks/use-appearance";
+import { useQuery } from "@tanstack/react-query";
+import { getCurrentSubscription } from "@/lib/actions/subscription";
 
 // ─── Mapping DB → valeurs du formulaire ───────────────────────────────────────
 
@@ -94,6 +96,8 @@ export default function EditProformaPage() {
 
 	const [mounted, setMounted] = useState(false);
 	const { themeColor, companyFont, companyLogo, companyName } = useAppearance();
+	const { data: subData } = useQuery({ queryKey: ["subscription"], queryFn: getCurrentSubscription, staleTime: 5 * 60 * 1000 });
+	const effectivePlan = subData?.success ? subData.data.effectivePlan : "FREE";
 	const [proforma, setProforma] = useState<SavedProforma | null>(null);
 	const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
 	const [loadError, setLoadError] = useState<string | null>(null);
@@ -227,6 +231,7 @@ export default function EditProformaPage() {
 								updateMutation.isPending || createMutation.isPending
 							}
 							submitLabel={isDraft ? "Créer la proforma" : "Sauvegarder"}
+							effectivePlan={effectivePlan}
 						/>
 					</div>
 				</div>
@@ -252,6 +257,7 @@ export default function EditProformaPage() {
 					companyInfo={companyInfo}
 					onCompanyChange={handleCompanyChange}
 					submitLabel={isDraft ? "Créer la proforma" : "Sauvegarder"}
+					effectivePlan={effectivePlan}
 					themeColor={themeColor}
 					companyFont={companyFont}
 					companyLogo={companyLogo}

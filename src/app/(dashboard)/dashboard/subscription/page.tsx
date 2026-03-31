@@ -9,6 +9,7 @@ import { getCurrentSubscription } from "@/lib/actions/subscription";
 import { BcCreditsSection } from "@/components/subscription/bc-credits-section";
 import { PlanBadge } from "@/components/subscription/plan-badge";
 import { PricingCards } from "@/components/subscription/pricing-cards";
+import { FeatureGate } from "@/components/subscription/feature-gate";
 import { FounderBannerDashboard } from "@/components/dashboard/founder-banner";
 
 export const metadata = {
@@ -181,23 +182,21 @@ export default async function SubscriptionPage({
         pendingPromo={promo}
       />
 
-      {/* ── Section crédits BC (Business uniquement) ── */}
-      {(plan === "BUSINESS" || effectivePlan === "BUSINESS") && (
-        <>
-          <div className="flex items-center gap-4">
-            <div className="flex-1 h-px bg-slate-200 dark:bg-slate-800" />
-            <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Options complémentaires
-            </span>
-            <div className="flex-1 h-px bg-slate-200 dark:bg-slate-800" />
-          </div>
-          <BcCreditsSection
-            bcPagesUsedThisMonth={bcPagesUsedThisMonth ?? 0}
-            bcPagesCredit={bcPagesCredit ?? 0}
-            rechargeDone={bc_recharge === "success"}
-          />
-        </>
-      )}
+      {/* ── Section crédits BC — visible pour tous, verrouillée si pas Business ── */}
+      <div className="flex items-center gap-4">
+        <div className="flex-1 h-px bg-slate-200 dark:bg-slate-800" />
+        <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+          Options complémentaires
+        </span>
+        <div className="flex-1 h-px bg-slate-200 dark:bg-slate-800" />
+      </div>
+      <FeatureGate feature="bc_import" plan={plan} effectivePlan={effectivePlan}>
+        <BcCreditsSection
+          bcPagesUsedThisMonth={bcPagesUsedThisMonth ?? 0}
+          bcPagesCredit={bcPagesCredit ?? 0}
+          rechargeDone={bc_recharge === "success"}
+        />
+      </FeatureGate>
     </div>
   );
 }

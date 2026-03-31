@@ -41,6 +41,7 @@ const FEATURE_REQUIRED_PLAN: Partial<Record<Feature, "PRO" | "BUSINESS">> = {
   api_webhooks:        "BUSINESS",
   priority_support:    "BUSINESS",
   multi_users:         "BUSINESS",
+  bc_import:           "BUSINESS",
 };
 
 export function FeatureGate({
@@ -91,7 +92,7 @@ export function FeatureGate({
         </div>
 
         {/* Overlay semi-transparent */}
-        <div className="absolute inset-0 rounded-xl bg-white/60 dark:bg-slate-900/70 backdrop-blur-[2px] flex flex-col items-center justify-center gap-2 transition-opacity group-hover:bg-white/50 dark:group-hover:bg-slate-900/60">
+        <div className="absolute inset-0 rounded-xl bg-white/30 dark:bg-slate-900/45 backdrop-blur-[1px] flex flex-col items-center justify-center gap-2 transition-opacity group-hover:bg-white/20 dark:group-hover:bg-slate-900/35">
           {/* Icône cadenas */}
           <div className="flex items-center justify-center w-10 h-10 rounded-full bg-white dark:bg-slate-800 shadow-md">
             <Lock className="h-5 w-5 text-slate-500 dark:text-slate-400" />

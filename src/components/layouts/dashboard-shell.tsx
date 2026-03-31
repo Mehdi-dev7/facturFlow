@@ -352,6 +352,8 @@ interface SubscriptionData {
 	effectivePlan: string;
 	trialDaysLeft: number | null;
 	documentsThisMonth: number;
+	trialEndsAt: string | null;
+	paymentGraceEndsAt: string | null;
 }
 
 export default function DashboardShell({
@@ -785,6 +787,8 @@ export default function DashboardShell({
 							effectivePlan={subscription.effectivePlan}
 							trialDaysLeft={subscription.trialDaysLeft}
 							documentsThisMonth={subscription.documentsThisMonth}
+							trialEndsAt={subscription.trialEndsAt}
+							paymentGraceEndsAt={subscription.paymentGraceEndsAt}
 						/>
 					)}
 					{children}

@@ -30,6 +30,7 @@ interface InvoiceStepperProps {
 	companyInfo: CompanyInfo | null;
 	onCompanyChange: (data: CompanyInfo) => void;
 	submitLabel?: string;
+	effectivePlan?: string;
 	themeColor?: string;
 	companyFont?: string;
 	companyLogo?: string | null;
@@ -43,6 +44,7 @@ export function InvoiceStepper({
 	companyInfo,
 	onCompanyChange,
 	submitLabel = "Créer la facture",
+	effectivePlan,
 	themeColor,
 	companyFont,
 	companyLogo,
@@ -137,6 +139,7 @@ export function InvoiceStepper({
 						onCompanyChange={onCompanyChange}
 						visibleStep={step as 1 | 2 | 3}
 						hideSubmit
+						effectivePlan={effectivePlan}
 					/>
 				) : (
 					// Étape 4 : récapitulatif compact (pas la facture finale)

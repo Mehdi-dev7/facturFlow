@@ -30,6 +30,10 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { Lock } from "lucide-react";
+import { canUseFeature } from "@/lib/feature-gate";
+import { UpgradeModal } from "@/components/subscription/upgrade-modal";
+import type { Feature } from "@/lib/feature-gate";
 import { ClientSearch } from "./client-search";
 import { CompanyInfoModal } from "./company-info-modal";
 import { ProductCombobox } from "@/components/shared/product-combobox";
@@ -69,6 +73,8 @@ interface InvoiceFormProps {
 	visibleStep?: 1 | 2 | 3;
 	/** Cache le bouton de soumission (le stepper gère sa propre navigation) */
 	hideSubmit?: boolean;
+	/** Plan effectif de l'utilisateur pour gater les features */
+	effectivePlan?: string;
 }
 
 // ─── Composant ───────────────────────────────────────────────────────────────
@@ -83,6 +89,7 @@ export function InvoiceForm({
 	submitLabel = "Créer la facture",
 	visibleStep,
 	hideSubmit = false,
+	effectivePlan = "FREE",
 }: InvoiceFormProps) {
 	const {
 		register,
@@ -95,6 +102,13 @@ export function InvoiceForm({
 	const { fields, append, remove } = useFieldArray({ control, name: "lines" });
 
 	const [showCompanyModal, setShowCompanyModal] = useState(false);
+	const [upgradeFeature, setUpgradeFeature] = useState<Feature | null>(null);
+
+	// Vérifier l'accès aux providers de paiement
+	const pseudoUser = { plan: effectivePlan, trialEndsAt: null };
+	const canStripe = canUseFeature(pseudoUser, "payment_stripe");
+	const canPaypal = canUseFeature(pseudoUser, "payment_paypal");
+	const canGocardless = canUseFeature(pseudoUser, "payment_gocardless");
 
 	// État local des boutons de paiement actifs (toggle directs, sans checkbox parent)
 	const [activePayments, setActivePayments] = useState(() => {
@@ -858,61 +872,100 @@ export function InvoiceForm({
 							</div>
 							<div className="flex flex-wrap gap-2 xs:gap-3">
 								{/* Stripe */}
-								<button
-									type="button"
-									onClick={() => togglePayment("stripe")}
-									className={`flex items-center gap-2 px-3 xs:px-4 py-2 xs:py-2.5 rounded-xl border-2 transition-all duration-300 cursor-pointer text-xs xs:text-sm font-semibold ${
-										activePayments.stripe
-											? "border-[#635BFF]/40 bg-linear-to-r from-[#635BFF]/10 to-[#7C3AED]/10 text-[#635BFF] dark:text-violet-300 shadow-sm"
-											: "border-dashed border-slate-300 dark:border-violet-400/20 text-slate-400 dark:text-violet-400/50 hover:border-[#635BFF]/40 hover:text-[#635BFF] dark:hover:border-violet-400/40"
-									}`}
-								>
-									<SiStripe className="size-3.5 xs:size-4" />
-									Stripe
-									{activePayments.stripe && (
-										<span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-linear-to-r from-[#635BFF] to-[#7C3AED] text-white">
-											Actif
-										</span>
-									)}
-								</button>
+								{canStripe ? (
+									<button
+										type="button"
+										onClick={() => togglePayment("stripe")}
+										className={`flex items-center gap-2 px-3 xs:px-4 py-2 xs:py-2.5 rounded-xl border-2 transition-all duration-300 cursor-pointer text-xs xs:text-sm font-semibold ${
+											activePayments.stripe
+												? "border-[#635BFF]/40 bg-linear-to-r from-[#635BFF]/10 to-[#7C3AED]/10 text-[#635BFF] dark:text-violet-300 shadow-sm"
+												: "border-dashed border-slate-300 dark:border-violet-400/20 text-slate-400 dark:text-violet-400/50 hover:border-[#635BFF]/40 hover:text-[#635BFF] dark:hover:border-violet-400/40"
+										}`}
+									>
+										<SiStripe className="size-3.5 xs:size-4" />
+										Stripe
+										{activePayments.stripe && (
+											<span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-linear-to-r from-[#635BFF] to-[#7C3AED] text-white">
+												Actif
+											</span>
+										)}
+									</button>
+								) : (
+									<button
+										type="button"
+										onClick={() => setUpgradeFeature("payment_stripe")}
+										className="flex items-center gap-2 px-3 xs:px-4 py-2 xs:py-2.5 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-700 text-slate-300 dark:text-slate-600 cursor-pointer text-xs xs:text-sm font-semibold"
+									>
+										<Lock className="size-3 text-slate-300 dark:text-slate-600" />
+										<SiStripe className="size-3.5 xs:size-4" />
+										Stripe
+										<span className="px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-violet-100 dark:bg-violet-900/30 text-violet-500 dark:text-violet-400 border border-violet-200 dark:border-violet-700">Pro</span>
+									</button>
+								)}
 
 								{/* PayPal */}
-								<button
-									type="button"
-									onClick={() => togglePayment("paypal")}
-									className={`flex items-center gap-2 px-3 xs:px-4 py-2 xs:py-2.5 rounded-xl border-2 transition-all duration-300 cursor-pointer text-xs xs:text-sm font-semibold ${
-										activePayments.paypal
-											? "border-[#003087]/30 bg-linear-to-r from-[#003087]/10 to-[#009CDE]/10 text-[#003087] dark:text-blue-300 shadow-sm"
-											: "border-dashed border-slate-300 dark:border-violet-400/20 text-slate-400 dark:text-violet-400/50 hover:border-[#003087]/30 hover:text-[#003087] dark:hover:border-blue-400/40"
-									}`}
-								>
-									<SiPaypal className="size-3.5 xs:size-4" />
-									PayPal
-									{activePayments.paypal && (
-										<span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-linear-to-r from-[#003087] to-[#009CDE] text-white">
-											Actif
-										</span>
-									)}
-								</button>
+								{canPaypal ? (
+									<button
+										type="button"
+										onClick={() => togglePayment("paypal")}
+										className={`flex items-center gap-2 px-3 xs:px-4 py-2 xs:py-2.5 rounded-xl border-2 transition-all duration-300 cursor-pointer text-xs xs:text-sm font-semibold ${
+											activePayments.paypal
+												? "border-[#003087]/30 bg-linear-to-r from-[#003087]/10 to-[#009CDE]/10 text-[#003087] dark:text-blue-300 shadow-sm"
+												: "border-dashed border-slate-300 dark:border-violet-400/20 text-slate-400 dark:text-violet-400/50 hover:border-[#003087]/30 hover:text-[#003087] dark:hover:border-blue-400/40"
+										}`}
+									>
+										<SiPaypal className="size-3.5 xs:size-4" />
+										PayPal
+										{activePayments.paypal && (
+											<span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-linear-to-r from-[#003087] to-[#009CDE] text-white">
+												Actif
+											</span>
+										)}
+									</button>
+								) : (
+									<button
+										type="button"
+										onClick={() => setUpgradeFeature("payment_paypal")}
+										className="flex items-center gap-2 px-3 xs:px-4 py-2 xs:py-2.5 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-700 text-slate-300 dark:text-slate-600 cursor-pointer text-xs xs:text-sm font-semibold"
+									>
+										<Lock className="size-3 text-slate-300 dark:text-slate-600" />
+										<SiPaypal className="size-3.5 xs:size-4" />
+										PayPal
+										<span className="px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-violet-100 dark:bg-violet-900/30 text-violet-500 dark:text-violet-400 border border-violet-200 dark:border-violet-700">Pro</span>
+									</button>
+								)}
 
 								{/* GoCardless SEPA */}
-								<button
-									type="button"
-									onClick={() => togglePayment("gocardless")}
-									className={`flex items-center gap-2 px-3 xs:px-4 py-2 xs:py-2.5 rounded-xl border-2 transition-all duration-300 cursor-pointer text-xs xs:text-sm font-semibold ${
-										activePayments.gocardless
-											? "border-[#0F766E]/30 bg-linear-to-r from-[#0F766E]/10 to-[#059669]/10 text-[#0F766E] dark:text-emerald-300 shadow-sm"
-											: "border-dashed border-slate-300 dark:border-violet-400/20 text-slate-400 dark:text-violet-400/50 hover:border-[#0F766E]/30 hover:text-[#0F766E] dark:hover:border-emerald-400/40"
-									}`}
-								>
-									<span className="size-3.5 xs:size-4 flex items-center justify-center font-black text-[10px]">GC</span>
-									SEPA
-									{activePayments.gocardless && (
-										<span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-linear-to-r from-[#0F766E] to-[#059669] text-white">
-											Actif
-										</span>
-									)}
-								</button>
+								{canGocardless ? (
+									<button
+										type="button"
+										onClick={() => togglePayment("gocardless")}
+										className={`flex items-center gap-2 px-3 xs:px-4 py-2 xs:py-2.5 rounded-xl border-2 transition-all duration-300 cursor-pointer text-xs xs:text-sm font-semibold ${
+											activePayments.gocardless
+												? "border-[#0F766E]/30 bg-linear-to-r from-[#0F766E]/10 to-[#059669]/10 text-[#0F766E] dark:text-emerald-300 shadow-sm"
+												: "border-dashed border-slate-300 dark:border-violet-400/20 text-slate-400 dark:text-violet-400/50 hover:border-[#0F766E]/30 hover:text-[#0F766E] dark:hover:border-emerald-400/40"
+										}`}
+									>
+										<span className="size-3.5 xs:size-4 flex items-center justify-center font-black text-[10px]">GC</span>
+										SEPA
+										{activePayments.gocardless && (
+											<span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-linear-to-r from-[#0F766E] to-[#059669] text-white">
+												Actif
+											</span>
+										)}
+									</button>
+								) : (
+									<button
+										type="button"
+										onClick={() => setUpgradeFeature("payment_gocardless")}
+										className="flex items-center gap-2 px-3 xs:px-4 py-2 xs:py-2.5 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-700 text-slate-300 dark:text-slate-600 cursor-pointer text-xs xs:text-sm font-semibold"
+									>
+										<Lock className="size-3 text-slate-300 dark:text-slate-600" />
+										<span className="size-3.5 xs:size-4 flex items-center justify-center font-black text-[10px]">GC</span>
+										SEPA
+										<span className="px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-violet-100 dark:bg-violet-900/30 text-violet-500 dark:text-violet-400 border border-violet-200 dark:border-violet-700">Pro</span>
+									</button>
+								)}
 							</div>
 						</section>
 					</>
@@ -939,6 +992,16 @@ export function InvoiceForm({
 					</div>
 				)}
 			</form>
+
+			{/* Modale upgrade pour les providers de paiement */}
+			{upgradeFeature && (
+				<UpgradeModal
+					open={!!upgradeFeature}
+					onClose={() => setUpgradeFeature(null)}
+					feature={upgradeFeature}
+					plan={effectivePlan}
+				/>
+			)}
 		</>
 	);
 }

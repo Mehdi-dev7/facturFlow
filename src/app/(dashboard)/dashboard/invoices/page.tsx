@@ -5,7 +5,11 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Plus, FileUp } from "lucide-react";
 import dynamic from "next/dynamic";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
+import { canUseFeature } from "@/lib/feature-gate";
+import { getCurrentSubscription } from "@/lib/actions/subscription";
+import { UpgradeModal } from "@/components/subscription/upgrade-modal";
 import {
   PageHeader,
   KpiCard,
@@ -117,9 +121,21 @@ function InvoicesPageContent() {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [bcImportOpen, setBcImportOpen] = useState(false);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
 
   // Fetch real data
   const { data: allInvoices = [], isLoading } = useInvoices();
+
+  // Plan utilisateur — pour gater l'import BC (Business only)
+  const { data: subData } = useQuery({
+    queryKey: ["subscription"],
+    queryFn: getCurrentSubscription,
+    staleTime: 5 * 60 * 1000,
+  });
+  const subPlan = subData?.success ? subData.data.plan : "FREE";
+  const canImportBc = subData?.success
+    ? canUseFeature({ plan: subData.data.effectivePlan, trialEndsAt: null }, "bc_import")
+    : false;
 
   // IDs des factures récemment modifiées (PAID/OVERDUE depuis <7j) → highlight 3.5s une seule fois
   const [highlightedIds, setHighlightedIds] = useState<Set<string>>(new Set());
@@ -453,9 +469,13 @@ function InvoicesPageContent() {
         ctaVariant="gradient"
         extraActions={
           <Button
-            style={{ background: "linear-gradient(to right, #8b5cf6, #9333ea)" }}
-            className="cursor-pointer gap-2 h-11 sm:h-12 px-6 sm:px-8 text-sm sm:text-base font-ui text-white font-semibold transition-all duration-300 hover:scale-103 hover:opacity-90 rounded-lg shadow-sm"
-            onClick={() => setBcImportOpen(true)}
+            style={canImportBc ? { background: "linear-gradient(to right, #8b5cf6, #9333ea)" } : {}}
+            className={`gap-2 h-11 sm:h-12 px-6 sm:px-8 text-sm sm:text-base font-ui font-semibold transition-all duration-300 rounded-lg shadow-sm ${
+              canImportBc
+                ? "cursor-pointer text-white hover:scale-103 hover:opacity-90"
+                : "cursor-pointer bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700"
+            }`}
+            onClick={() => canImportBc ? setBcImportOpen(true) : setUpgradeOpen(true)}
           >
             <FileUp className="h-5 w-5 shrink-0" />
             <span className="hidden xs:inline">Importer un BC</span>
@@ -533,6 +553,9 @@ function InvoicesPageContent() {
 
       {/* Dialog import BC externe */}
       <BcImportDialog open={bcImportOpen} onOpenChange={setBcImportOpen} />
+
+      {/* Modale upgrade — si clic sur BC sans plan Business */}
+      <UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} feature="bc_import" plan={subPlan} />
     </div>
   );
 }

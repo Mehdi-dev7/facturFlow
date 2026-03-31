@@ -5,11 +5,16 @@
 // C'est getEffectivePlan() dans feature-gate.ts qui retourne 'PRO'
 // si trialEndsAt > now. Ce cron n'a donc PAS besoin de modifier le plan.
 //
-// Ce cron envoie un email de rappel 1 jour avant la fin du trial (J-1).
-// Ajout futur : email de rappel J-3 si Resend est configuré.
+// Séquence d'emails envoyés :
+//   J-1 → sendTrialReminderEmail({ daysLeft: 1 })
+//   J+0 → sendTrialExpiredEmail() (les dernières 24h)
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import {
+  sendTrialReminderEmail,
+  sendTrialExpiredEmail,
+} from "@/lib/email/send-trial-reminder-email";
 
 export const runtime = "nodejs";
 
@@ -18,26 +23,63 @@ export const runtime = "nodejs";
 export async function runExpireTrials() {
   const now = new Date();
   const in24h = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+  const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
-  // Compter les trials expirés (pour les logs)
+  let remindersJ1 = 0;
+  let expiredEmails = 0;
+
+  // ── J-1 : trials expirant dans les prochaines 24h ──────────────────────────
+  const expiringTomorrow = await prisma.user.findMany({
+    where: {
+      trialEndsAt: { gte: now, lte: in24h },
+      plan: "FREE",
+      trialUsed: true,
+    },
+    select: { id: true, email: true, name: true },
+  });
+
+  for (const user of expiringTomorrow) {
+    try {
+      await sendTrialReminderEmail({
+        to: user.email,
+        userName: user.name ?? "là",
+        daysLeft: 1,
+      });
+      remindersJ1++;
+    } catch (err) {
+      console.error(`[expire-trials] Rappel J-1 échoué pour ${user.email}:`, err);
+    }
+  }
+
+  // ── J+0 : trials qui ont expiré dans les dernières 24h ────────────────────
+  // On utilise la fenêtre [yesterday, now] pour éviter de renvoyer l'email plusieurs nuits.
+  const justExpired = await prisma.user.findMany({
+    where: {
+      trialEndsAt: { gte: yesterday, lte: now },
+      plan: "FREE",
+      trialUsed: true,
+    },
+    select: { id: true, email: true, name: true, trialEndsAt: true },
+  });
+
+  for (const user of justExpired) {
+    try {
+      await sendTrialExpiredEmail({
+        to: user.email,
+        userName: user.name ?? "là",
+      });
+      expiredEmails++;
+    } catch (err) {
+      console.error(`[expire-trials] Email expiration échoué pour ${user.email}:`, err);
+    }
+  }
+
+  // Nombre total de trials expirés en DB (pour les logs)
   const expiredCount = await prisma.user.count({
     where: { trialEndsAt: { lt: now }, plan: "FREE", trialUsed: true },
   });
 
-  // Récupérer les users dont le trial expire dans ~24h (pour email de rappel)
-  const expiringTomorrow = await prisma.user.findMany({
-    where: { trialEndsAt: { gte: now, lte: in24h }, plan: "FREE", trialUsed: true },
-    select: { id: true, email: true, name: true, trialEndsAt: true },
-  });
-
-  // TODO : envoyer un email de rappel à chaque user en fin de trial
-  for (const user of expiringTomorrow) {
-    console.log(
-      `[expire-trials] Rappel J-1 : ${user.email} (trial expire le ${user.trialEndsAt?.toISOString()})`
-    );
-  }
-
-  return { expiredTrials: expiredCount, remindersToSend: expiringTomorrow.length };
+  return { expiredTrials: expiredCount, remindersJ1, expiredEmails };
 }
 
 // ─── Route individuelle (tests manuels en dev) ────────────────────────────────

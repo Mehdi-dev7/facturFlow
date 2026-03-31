@@ -1,6 +1,6 @@
 // src/components/landing/founder-banner.tsx
 // Bannière offre Fondateur — Server Component (fetch au rendu, revalidate 1h).
-// Disparaît automatiquement quand les 50 places sont épuisées.
+// Disparaît automatiquement quand les 30 places sont épuisées.
 
 import Link from "next/link";
 
@@ -8,10 +8,10 @@ async function getFounderSpots(): Promise<{ remaining: number; total: number }> 
   try {
     const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
     const res = await fetch(`${appUrl}/api/founder-spots`, { next: { revalidate: 3600 } });
-    if (!res.ok) return { remaining: 50, total: 50 };
+    if (!res.ok) return { remaining: 30, total: 30 };
     return res.json();
   } catch {
-    return { remaining: 50, total: 50 };
+    return { remaining: 30, total: 30 };
   }
 }
 

@@ -233,7 +233,7 @@ export function PricingSection() {
                     </span>
                   </div>
                   {plan.price !== "0" && (
-                    <p className="text-xs text-slate-400">TTC · -20% annuel</p>
+                    <p className="text-xs text-slate-400">TTC · -10% annuel</p>
                   )}
 
                   <p className="text-xs text-slate-500 mt-2">
@@ -282,7 +282,7 @@ export function PricingSection() {
             🔒 Paiement sécurisé · Support français · 💯 Satisfait ou remboursé 30 jours
           </p>
           <p className="text-sm text-slate-500">
-            Tous les prix sont TTC · TVA 20% incluse · -20% en facturation annuelle
+            Tous les prix sont TTC · TVA 20% incluse · -10% en facturation annuelle
           </p>
         </div>
       </div>

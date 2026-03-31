@@ -187,7 +187,7 @@ export function HeroSection() {
 						<p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-xl">
 							Créez vos factures et devis en 2 minutes, encaissez en 1 clic via
 							Stripe, PayPal ou SEPA. Relances automatiques, facturation
-							récurrente et conformité électronique 2026 incluse.
+							récurrente et conformité électronique 2026 en cours (prévue avril 2026).
 						</p>
 
 						{/* Features badges */}

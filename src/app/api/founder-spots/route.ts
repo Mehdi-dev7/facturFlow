@@ -7,7 +7,7 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
-const TOTAL_SPOTS = 50;
+const TOTAL_SPOTS = 30;
 
 // Cache ISR côté Next.js : la réponse est régénérée au plus toutes les 3600s
 export const revalidate = 3600;

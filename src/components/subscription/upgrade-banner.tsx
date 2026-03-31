@@ -1,10 +1,11 @@
 "use client";
 // src/components/subscription/upgrade-banner.tsx
 // Bannière intelligente et dismissible affichée selon l'état du plan.
-// - Trial actif : rappel violet avec compte à rebours
-// - FREE peu de docs : info discrète bleue
-// - FREE proche limite : orange
-// - FREE limite atteinte : rouge bloquant
+// - Trial actif       : rappel violet avec compte à rebours
+// - Trial expiré      : même bannière FREE + préfixe "Essai Pro terminé —"
+// - FREE peu de docs  : info discrète bleue
+// - FREE proche limite: orange
+// - FREE limite att.  : rouge bloquant
 
 import { useState, useEffect } from "react";
 import { X, Sparkles, ArrowRight, AlertTriangle, Ban } from "lucide-react";
@@ -18,6 +19,8 @@ interface UpgradeBannerProps {
   effectivePlan: string;
   trialDaysLeft?: number | null;
   documentsThisMonth: number;
+  trialEndsAt?: string | null;
+  paymentGraceEndsAt?: string | null;
 }
 
 type BannerVariant = "trial" | "info" | "warning" | "danger";
@@ -33,7 +36,8 @@ function getBannerConfig(
   plan: string,
   effectivePlan: string,
   trialDaysLeft: number | null | undefined,
-  docs: number
+  docs: number,
+  trialEndsAt?: string | null,
 ): BannerConfig | null {
   // Plan payant actif → pas de bannière
   if (effectivePlan === "PRO" && plan === "PRO") return null;
@@ -49,29 +53,33 @@ function getBannerConfig(
     };
   }
 
+  // Préfixe "Essai Pro terminé" si le trial a expiré
+  const trialExpired = !!(trialEndsAt && new Date(trialEndsAt) < new Date());
+  const prefix = trialExpired ? "Essai Pro terminé — " : "";
+
   // Plan FREE — selon le nb de documents
-  if (docs >= 5) {
+  if (docs >= 10) {
     return {
       variant: "danger",
-      message: "Limite atteinte — Vous ne pouvez plus créer de documents ce mois-ci",
+      message: `${prefix}Limite atteinte — Vous ne pouvez plus créer de documents ce mois-ci`,
       cta: "Passer au Pro",
       dismissible: true,
     };
   }
 
-  if (docs === 4) {
+  if (docs >= 8) {
     return {
       variant: "warning",
-      message: "Plus qu'1 document gratuit ce mois-ci",
+      message: `${prefix}Plus que ${10 - docs} document${10 - docs > 1 ? "s" : ""} gratuit${10 - docs > 1 ? "s" : ""} ce mois-ci`,
       cta: "Passer au Pro",
       dismissible: true,
     };
   }
 
-  // docs < 4 → info discrète
+  // docs < 8 → info discrète
   return {
-    variant: "info",
-    message: `Plan Gratuit — ${docs}/5 documents ce mois`,
+    variant: trialExpired ? "warning" : "info",
+    message: `${prefix}${docs}/10 documents ce mois`,
     cta: "Passer au Pro",
     dismissible: true,
   };
@@ -79,8 +87,8 @@ function getBannerConfig(
 
 // Styles par variante
 const VARIANT_STYLES: Record<BannerVariant, string> = {
-  trial: "bg-violet-50 dark:bg-violet-950/50 border-violet-300 dark:border-violet-600 text-violet-800 dark:text-violet-200",
-  info:  "bg-blue-50 dark:bg-blue-950/40 border-blue-200 dark:border-blue-700 text-blue-800 dark:text-blue-200",
+  trial:   "bg-violet-50 dark:bg-violet-950/50 border-violet-300 dark:border-violet-600 text-violet-800 dark:text-violet-200",
+  info:    "bg-blue-50 dark:bg-blue-950/40 border-blue-200 dark:border-blue-700 text-blue-800 dark:text-blue-200",
   warning: "bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-600 text-amber-800 dark:text-amber-200",
   danger:  "bg-red-50 dark:bg-red-950/40 border-red-300 dark:border-red-600 text-red-800 dark:text-red-200",
 };
@@ -99,7 +107,7 @@ const VARIANT_ICONS: Record<BannerVariant, React.ReactNode> = {
   danger:  <Ban className="h-4 w-4 shrink-0" />,
 };
 
-export function UpgradeBanner({ plan, effectivePlan, trialDaysLeft, documentsThisMonth }: UpgradeBannerProps) {
+export function UpgradeBanner({ plan, effectivePlan, trialDaysLeft, documentsThisMonth, trialEndsAt }: UpgradeBannerProps) {
   // false par défaut (SSR safe), puis sync localStorage après montage
   const [dismissed, setDismissed] = useState(false);
 
@@ -119,7 +127,7 @@ export function UpgradeBanner({ plan, effectivePlan, trialDaysLeft, documentsThi
     return () => clearTimeout(t);
   }, []);
 
-  const config = getBannerConfig(plan, effectivePlan, trialDaysLeft, documentsThisMonth);
+  const config = getBannerConfig(plan, effectivePlan, trialDaysLeft, documentsThisMonth, trialEndsAt);
 
   // Pas de config → pas de bannière
   if (!config) return null;

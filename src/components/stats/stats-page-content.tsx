@@ -37,7 +37,8 @@ const StatsDonutChart = dynamic(
 
 import { StatsTopClients } from "@/components/stats/stats-top-clients";
 import { StatsMonthlyTable } from "@/components/stats/stats-monthly-table";
-import { FeatureGate } from "@/components/subscription/feature-gate";
+import { canUseFeature } from "@/lib/feature-gate";
+import { UpgradeModal } from "@/components/subscription/upgrade-modal";
 import { useStatistics } from "@/hooks/use-statistics";
 import { useAppearance } from "@/hooks/use-appearance";
 import { exportCsv, type CsvExportType } from "@/lib/actions/statistics";
@@ -93,7 +94,10 @@ export function StatsPageContent({ plan, effectivePlan }: StatsPageContentProps)
   const currentYear = new Date().getFullYear();
   const [year, setYear] = useState(currentYear);
   const [exporting, setExporting] = useState(false);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
   const years = getYearOptions();
+
+  const canExportCsv = canUseFeature({ plan: effectivePlan, trialEndsAt: null }, "csv_export");
 
   const { data, isLoading, error } = useStatistics(year);
   const { themeColor } = useAppearance();
@@ -235,12 +239,8 @@ export function StatsPageContent({ plan, effectivePlan }: StatsPageContentProps)
             </SelectContent>
           </Select>
 
-          {/* Bouton export CSV — wrappé dans FeatureGate */}
-          <FeatureGate
-            feature="csv_export"
-            effectivePlan={effectivePlan}
-            plan={plan}
-          >
+          {/* Bouton export CSV — grisé si plan insuffisant */}
+          {canExportCsv ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -271,7 +271,19 @@ export function StatsPageContent({ plan, effectivePlan }: StatsPageContentProps)
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
-          </FeatureGate>
+          ) : (
+            <Button
+              variant="outline"
+              size="sm"
+              className="cursor-pointer gap-2 rounded-xl bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all"
+              onClick={() => setUpgradeOpen(true)}
+            >
+              <Download className="h-4 w-4" />
+              <span className="hidden sm:inline">Export CSV</span>
+            </Button>
+          )}
+
+          <UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} feature="csv_export" plan={plan} />
         </div>
       </div>
 

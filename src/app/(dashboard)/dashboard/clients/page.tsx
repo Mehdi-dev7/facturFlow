@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useMemo, useCallback } from "react";
-import { Plus } from "lucide-react";
+import { Plus, Lock } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import {
   PageHeader,
   KpiCard,
@@ -12,6 +13,7 @@ import {
 import type { KpiData, Column } from "@/components/dashboard";
 import { useClients, useDeleteClient, type SavedClient } from "@/hooks/use-clients";
 import { SkeletonTable } from "@/components/ui/skeleton-table";
+import { getCurrentSubscription } from "@/lib/actions/subscription";
 import dynamic from "next/dynamic";
 // Lazy load des modals — chargées seulement quand l'utilisateur ouvre/clique
 const ClientModal = dynamic(
@@ -191,6 +193,15 @@ export default function ClientsPage() {
   const { data: clients = [], isLoading } = useClients();
   const deleteMutation = useDeleteClient();
 
+  // Plan courant — pour grisage des clients au-delà de la limite FREE (5 clients)
+  const { data: subData } = useQuery({
+    queryKey: ["subscription"],
+    queryFn: getCurrentSubscription,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+  const effectivePlan = subData?.success ? subData.data.effectivePlan : "FREE";
+  const isFree = effectivePlan === "FREE";
+
   const kpiData = useMemo(() => buildKpiData(clients), [clients]);
 
   // Filtrage local par recherche
@@ -204,6 +215,19 @@ export default function ClientsPage() {
         (c.city?.toLowerCase().includes(q) ?? false),
     );
   }, [search, clients]);
+
+  // Clients actifs (affichés dans le DataTable) : limités à 5 sur FREE hors recherche
+  const activeClients = useMemo(() => {
+    if (!isFree || search) return filteredClients;
+    return filteredClients.slice(0, 5);
+  }, [filteredClients, isFree, search]);
+
+  // Clients gelés : au-delà de 5 sur FREE, uniquement hors mode recherche
+  // On prend les clients non filtrés (liste complète) pour ne pas masquer des clients gelés
+  const frozenClients = useMemo(() => {
+    if (!isFree || search) return [];
+    return clients.slice(5);
+  }, [clients, isFree, search]);
 
   const handleSearch = useCallback((value: string) => {
     setSearch(value);
@@ -299,12 +323,12 @@ export default function ClientsPage() {
             <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">
               {isLoading
                 ? "Chargement..."
-                : `${filteredClients.length} client${filteredClients.length > 1 ? "s" : ""}`}
+                : `${activeClients.length} client${activeClients.length > 1 ? "s" : ""}`}
             </p>
           </div>
         </div>
         <DataTable
-          data={filteredClients}
+          data={activeClients}
           columns={columns}
           getRowId={(c) => c.id}
           // Mobile : ligne 1 = Nom (gauche) + TypeBadge (droite via mobileStatusKey)
@@ -322,6 +346,46 @@ export default function ClientsPage() {
           emptyDescription="Ajoutez votre premier client pour commencer."
         />
       </div>
+
+      {/* Section clients gelés — plan FREE, au-delà de 5 clients, hors mode recherche */}
+      {isFree && frozenClients.length > 0 && (
+        <div className="mt-4 rounded-2xl border border-amber-200 dark:border-amber-500/30 overflow-hidden">
+          {/* Header de la section */}
+          <div className="flex items-center gap-2 px-4 sm:px-6 py-3 bg-amber-50 dark:bg-amber-950/30 border-b border-amber-200 dark:border-amber-500/30">
+            <Lock className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0" />
+            <span className="text-sm font-semibold text-amber-800 dark:text-amber-300">
+              {frozenClients.length} client{frozenClients.length > 1 ? "s" : ""} gelé{frozenClients.length > 1 ? "s" : ""} — Plan Gratuit
+            </span>
+            <button
+              onClick={() => window.location.href = "/dashboard/subscription"}
+              className="ml-auto text-xs font-semibold text-amber-700 dark:text-amber-400 underline underline-offset-2 cursor-pointer"
+            >
+              Passer au Pro
+            </button>
+          </div>
+
+          {/* Liste des clients gelés — opacité réduite, non interactifs */}
+          <div className="divide-y divide-amber-100 dark:divide-amber-500/20">
+            {frozenClients.map((client) => (
+              <div
+                key={client.id}
+                className="flex items-center gap-3 px-4 sm:px-6 py-3 opacity-50 select-none"
+              >
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 truncate">
+                    {client.name}
+                  </p>
+                  <p className="text-xs text-slate-400 truncate">{client.email}</p>
+                </div>
+                <span className="flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400 font-medium shrink-0">
+                  <Lock className="h-3 w-3" />
+                  Gelé
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Modale de prévisualisation (clic sur une ligne) */}
       <ClientPreviewModal

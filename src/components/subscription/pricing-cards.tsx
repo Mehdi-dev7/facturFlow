@@ -107,10 +107,10 @@ export function PricingCards({ currentPlan, effectivePlan, stripeSubId, pendingC
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Prix selon l'intervalle
-  const proPrice = interval === "yearly" ? "7,99€" : "9,99€";
-  const businessPrice = interval === "yearly" ? "16€" : "20€";
-  const proAnnualNote = interval === "yearly" ? "facturé 95€/an" : null;
-  const businessAnnualNote = interval === "yearly" ? "facturé 192€/an" : null;
+  const proPrice = interval === "yearly" ? "8,99€" : "9,99€";
+  const businessPrice = interval === "yearly" ? "18€" : "20€";
+  const proAnnualNote = interval === "yearly" ? "facturé 107,88€/an" : null;
+  const businessAnnualNote = interval === "yearly" ? "facturé 216€/an" : null;
 
   const handleCheckout = useCallback(async (plan: "PRO" | "BUSINESS") => {
     setLoadingPlan(plan);
@@ -240,7 +240,7 @@ export function PricingCards({ currentPlan, effectivePlan, stripeSubId, pendingC
             animate={{ opacity: 1, scale: 1 }}
             className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400"
           >
-            -20%
+            -10%
           </motion.span>
         )}
       </div>
@@ -462,7 +462,7 @@ export function PricingCards({ currentPlan, effectivePlan, stripeSubId, pendingC
           Paiement sécurisé Stripe · Sans engagement · Annulable à tout moment
         </p>
         <p className="text-xs text-slate-400 dark:text-slate-500">
-          Tous les prix sont HT. TVA applicable selon votre localisation.
+          Tous les prix sont TTC.
         </p>
       </div>
     </div>

@@ -10,8 +10,11 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Crown, Sparkles, Check, ArrowRight, Zap } from "lucide-react";
+import { Crown, Sparkles, Check, ArrowRight, Zap, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { createStripeCheckoutSession } from "@/lib/actions/subscription";
 import type { Feature } from "@/lib/feature-gate";
 
 interface UpgradeModalProps {
@@ -43,6 +46,7 @@ const FEATURE_REQUIRED_PLAN: Partial<Record<Feature, "PRO" | "BUSINESS">> = {
   api_webhooks:        "BUSINESS",
   priority_support:    "BUSINESS",
   multi_users:         "BUSINESS",
+  bc_import:           "BUSINESS",
 };
 
 // Label lisible par feature
@@ -67,6 +71,7 @@ const FEATURE_LABELS: Partial<Record<Feature, string>> = {
   api_webhooks:        "API & Webhooks",
   priority_support:    "Support prioritaire",
   multi_users:         "Multi-utilisateurs (3 comptes)",
+  bc_import:           "Import IA de bons de commande",
 };
 
 // Features du plan PRO à afficher dans la modale
@@ -82,6 +87,7 @@ const PRO_HIGHLIGHTS = [
 // Features supplémentaires Business
 const BUSINESS_HIGHLIGHTS = [
   "Tout ce qui est inclus dans Pro",
+  "Import IA de bons de commande (150 pages/mois)",
   "3 utilisateurs par compte",
   "Export FEC comptable",
   "Rapport mensuel comptable",
@@ -92,10 +98,27 @@ const BUSINESS_HIGHLIGHTS = [
 export function UpgradeModal({ open, onClose, feature }: UpgradeModalProps) {
   const requiredPlan = FEATURE_REQUIRED_PLAN[feature] ?? "PRO";
   const isPro = requiredPlan === "PRO";
+  const [loading, setLoading] = useState(false);
 
   const price = isPro ? "9,99€/mois" : "20€/mois";
   const highlights = isPro ? PRO_HIGHLIGHTS : BUSINESS_HIGHLIGHTS;
   const featureLabel = FEATURE_LABELS[feature] ?? feature;
+
+  async function handleCheckout() {
+    setLoading(true);
+    try {
+      const result = await createStripeCheckoutSession(requiredPlan, "monthly");
+      if (result.success && result.data?.url) {
+        window.location.href = result.data.url;
+      } else {
+        toast.error("Impossible de créer la session de paiement");
+        setLoading(false);
+      }
+    } catch {
+      toast.error("Erreur lors de la redirection vers le paiement");
+      setLoading(false);
+    }
+  }
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
@@ -135,7 +158,7 @@ export function UpgradeModal({ open, onClose, feature }: UpgradeModalProps) {
         {/* Prix */}
         <div className="text-center py-2">
           <span className="text-2xl font-bold text-gradient">{price}</span>
-          <span className="text-xs text-slate-500 dark:text-slate-400 ml-1">HT · sans engagement</span>
+          <span className="text-xs text-slate-500 dark:text-slate-400 ml-1">TTC · sans engagement</span>
         </div>
 
         {/* Actions */}
@@ -143,15 +166,20 @@ export function UpgradeModal({ open, onClose, feature }: UpgradeModalProps) {
           <Button
             variant="gradient"
             className="w-full gap-2 cursor-pointer"
-            onClick={() => { window.location.href = "/dashboard/subscription"; }}
+            disabled={loading}
+            onClick={handleCheckout}
           >
-            <Sparkles className="h-4 w-4" />
-            Voir les plans
-            <ArrowRight className="h-4 w-4" />
+            {loading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Sparkles className="h-4 w-4" />
+            )}
+            {loading ? "Redirection…" : `Accéder au plan ${isPro ? "Pro" : "Business"}`}
+            {!loading && <ArrowRight className="h-4 w-4" />}
           </Button>
           <Button
             variant="ghost"
-            className="w-full text-slate-500 dark:text-slate-400 cursor-pointer"
+            className="w-full text-slate-500 dark:text-slate-400 cursor-pointer hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/20 dark:hover:text-violet-300"
             onClick={onClose}
           >
             Pas maintenant

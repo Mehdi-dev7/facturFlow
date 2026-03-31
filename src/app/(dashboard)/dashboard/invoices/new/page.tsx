@@ -21,6 +21,8 @@ import { getNextInvoiceNumber, saveDraft } from "@/lib/actions/invoices";
 import { useCreateInvoice } from "@/hooks/use-invoices";
 import { useAppearance } from "@/hooks/use-appearance";
 import { useCompanyInfoForForms } from "@/hooks/use-company";
+import { useQuery } from "@tanstack/react-query";
+import { getCurrentSubscription } from "@/lib/actions/subscription";
 
 const AUTOSAVE_INTERVAL = 30_000;
 
@@ -50,6 +52,9 @@ function NewInvoicePageContent() {
 
 	// Mutation de création (gère toast + redirect auto vers /dashboard/invoices?preview=<id>)
 		const { themeColor, companyFont, companyLogo, companyName } = useAppearance();
+
+	const { data: subData } = useQuery({ queryKey: ["subscription"], queryFn: getCurrentSubscription, staleTime: 5 * 60 * 1000 });
+	const effectivePlan = subData?.success ? subData.data.effectivePlan : "FREE";
 
 	const createMutation = useCreateInvoice();
 
@@ -233,6 +238,7 @@ function NewInvoicePageContent() {
 							companyInfo={companyInfo}
 							onCompanyChange={handleCompanyChange}
 							isSubmitting={createMutation.isPending}
+							effectivePlan={effectivePlan}
 						/>
 					</div>
 				</div>
@@ -249,12 +255,12 @@ function NewInvoicePageContent() {
 					invoiceNumber={invoiceNumber}
 					companyInfo={companyInfo}
 					onCompanyChange={handleCompanyChange}
-				
-				themeColor={themeColor}
-				companyFont={companyFont}
-				companyLogo={companyLogo}
-			companyName={companyName}
-			/>
+					effectivePlan={effectivePlan}
+					themeColor={themeColor}
+					companyFont={companyFont}
+					companyLogo={companyLogo}
+					companyName={companyName}
+				/>
 			</div>
 		</div>
 	);

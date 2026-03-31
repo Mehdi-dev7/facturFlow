@@ -18,6 +18,8 @@ import { getNextProformaNumber, saveDraftProforma } from "@/lib/actions/proforma
 import { useCreateProforma } from "@/hooks/use-proformas";
 import { useAppearance } from "@/hooks/use-appearance";
 import { useCompanyInfoForForms } from "@/hooks/use-company";
+import { useQuery } from "@tanstack/react-query";
+import { getCurrentSubscription } from "@/lib/actions/subscription";
 
 const AUTOSAVE_INTERVAL = 30_000;
 
@@ -43,6 +45,8 @@ export default function NewProformaPage() {
 	const companyInfo = companyInfoLocal ?? companyInfoDB ?? null;
 
 	const { themeColor, companyFont, companyLogo, companyName } = useAppearance();
+	const { data: subData } = useQuery({ queryKey: ["subscription"], queryFn: getCurrentSubscription, staleTime: 5 * 60 * 1000 });
+	const effectivePlan = subData?.success ? subData.data.effectivePlan : "FREE";
 	const createMutation = useCreateProforma();
 	const draftIdRef = useRef<string | undefined>(undefined);
 
@@ -174,6 +178,7 @@ export default function NewProformaPage() {
 							onCompanyChange={handleCompanyChange}
 							isSubmitting={createMutation.isPending}
 							submitLabel="Créer la proforma"
+							effectivePlan={effectivePlan}
 						/>
 					</div>
 				</div>
@@ -198,6 +203,7 @@ export default function NewProformaPage() {
 					invoiceNumber={proformaNumber}
 					companyInfo={companyInfo}
 					onCompanyChange={handleCompanyChange}
+					effectivePlan={effectivePlan}
 					themeColor={themeColor}
 					companyFont={companyFont}
 					companyLogo={companyLogo}
