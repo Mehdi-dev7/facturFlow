@@ -1,7 +1,7 @@
 // Server Component — pas de hooks React ni event handlers
-import { Bell, PieChart, Palette, FileStack, Zap, CreditCard, CheckCircle2, Send, Workflow, ArrowRight } from "lucide-react"
+import { Bell, PieChart, Palette, FileStack, Zap, CreditCard, CheckCircle2, Send, Workflow, ArrowRight, ScanText, User, Hash, Package } from "lucide-react"
 
-// ─── Petites feature cards ─────────────────────────────────────────────────────
+// ─── Petites feature cards (4 items) ─────────────────────────────────────────
 
 const smallFeatures = [
   {
@@ -301,6 +301,141 @@ function InvoiceCreationDemo() {
   )
 }
 
+// ─── Animation 4 — Import IA de bon de commande ───────────────────────────────
+
+function BcImportDemo() {
+  return (
+    <div className="relative w-full h-full flex items-center justify-center p-4">
+      <div className="w-full max-w-xs space-y-3">
+
+        {/* Document PDF source */}
+        <div className="bc-pdf relative bg-white rounded-xl border-2 border-slate-200 shadow-md p-3 overflow-hidden">
+          {/* Ligne de scan IA */}
+          <div className="bc-scan-line absolute left-0 right-0 h-0.5 pointer-events-none"
+            style={{ background: "linear-gradient(90deg, transparent 0%, #8b5cf6 30%, #a78bfa 50%, #8b5cf6 70%, transparent 100%)", boxShadow: "0 0 8px 2px rgba(139,92,246,0.45)" }} />
+
+          {/* En-tête PDF */}
+          <div className="flex items-center gap-2 mb-2.5">
+            <div className="w-7 h-9 rounded flex items-center justify-center shrink-0"
+              style={{ background: "linear-gradient(135deg, #ef4444, #f87171)" }}>
+              <span className="text-[7px] font-bold text-white leading-none">PDF</span>
+            </div>
+            <div className="flex-1">
+              <div className="h-2 w-28 bg-slate-200 rounded mb-1" />
+              <div className="h-1.5 w-20 bg-slate-100 rounded" />
+            </div>
+            <div className="text-[9px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">BC</div>
+          </div>
+          {/* Lignes de contenu simulées */}
+          <div className="space-y-1.5">
+            <div className="h-1.5 w-full bg-slate-100 rounded" />
+            <div className="h-1.5 w-5/6 bg-slate-100 rounded" />
+            <div className="h-1.5 w-4/5 bg-slate-100 rounded" />
+            <div className="grid grid-cols-3 gap-1 pt-0.5">
+              <div className="h-1.5 bg-slate-100 rounded" />
+              <div className="h-1.5 bg-slate-100 rounded" />
+              <div className="h-1.5 bg-slate-100 rounded" />
+            </div>
+          </div>
+        </div>
+
+        {/* Indicateur IA en traitement */}
+        <div className="bc-ai-processing flex items-center justify-center gap-2 py-1">
+          <div className="flex gap-1">
+            <div className="bc-dot-1 w-1.5 h-1.5 rounded-full bg-violet-400" />
+            <div className="bc-dot-2 w-1.5 h-1.5 rounded-full bg-violet-400" />
+            <div className="bc-dot-3 w-1.5 h-1.5 rounded-full bg-violet-400" />
+          </div>
+          <span className="text-[10px] text-violet-500 font-medium">Extraction en cours…</span>
+        </div>
+
+        {/* Données extraites */}
+        <div className="space-y-1.5">
+          <div className="bc-field-1 flex items-center gap-2 bg-violet-50 border border-violet-200 rounded-lg px-2.5 py-1.5">
+            <User className="h-3.5 w-3.5 text-violet-500 shrink-0" />
+            <div className="min-w-0">
+              <span className="text-[8px] text-violet-400 font-semibold uppercase tracking-wide">Client</span>
+              <p className="text-[11px] font-semibold text-slate-800 truncate">Acheteur Express SARL</p>
+            </div>
+          </div>
+          <div className="bc-field-2 flex items-center gap-2 bg-violet-50 border border-violet-200 rounded-lg px-2.5 py-1.5">
+            <Hash className="h-3.5 w-3.5 text-violet-500 shrink-0" />
+            <div className="min-w-0">
+              <span className="text-[8px] text-violet-400 font-semibold uppercase tracking-wide">Référence BC</span>
+              <p className="text-[11px] font-semibold text-slate-800">BC-2025-0089</p>
+            </div>
+          </div>
+          <div className="bc-field-3 flex items-center gap-2 bg-violet-50 border border-violet-200 rounded-lg px-2.5 py-1.5">
+            <Package className="h-3.5 w-3.5 text-violet-500 shrink-0" />
+            <div className="min-w-0">
+              <span className="text-[8px] text-violet-400 font-semibold uppercase tracking-wide">Prestation · Montant HT</span>
+              <p className="text-[11px] font-semibold text-slate-800 truncate">Intégration e-commerce · 3 200,00 €</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <style>{`
+        /* ── Scan line ── */
+        .bc-scan-line {
+          top: 0;
+          animation: bc-scan 7s ease-in-out infinite;
+        }
+        @keyframes bc-scan {
+          0%, 5%   { top: 0%; opacity: 0; }
+          8%       { opacity: 1; }
+          42%      { top: 100%; opacity: 1; }
+          46%      { top: 100%; opacity: 0; }
+          100%     { top: 0%; opacity: 0; }
+        }
+
+        /* PDF — glow violet pendant le scan */
+        .bc-pdf {
+          animation: bc-pdf-glow 7s ease-in-out infinite;
+        }
+        @keyframes bc-pdf-glow {
+          0%, 5%   { border-color: #e2e8f0; }
+          15%      { border-color: #a78bfa; box-shadow: 0 0 0 3px rgba(139,92,246,0.12); }
+          45%      { border-color: #e2e8f0; box-shadow: none; }
+          100%     { border-color: #e2e8f0; }
+        }
+
+        /* ── Dots "traitement IA" — apparaissent après le scan ── */
+        .bc-ai-processing { animation: bc-processing-show 7s ease-in-out infinite; opacity: 0; }
+        @keyframes bc-processing-show {
+          0%, 44%  { opacity: 0; }
+          50%, 60% { opacity: 1; }
+          65%, 100%{ opacity: 0; }
+        }
+
+        /* Dots rebond décalé */
+        .bc-dot-1 { animation: bc-dot-bounce 0.8s ease-in-out 0s infinite, bc-dot-visible 7s ease-in-out infinite; }
+        .bc-dot-2 { animation: bc-dot-bounce 0.8s ease-in-out 0.15s infinite, bc-dot-visible 7s ease-in-out infinite; }
+        .bc-dot-3 { animation: bc-dot-bounce 0.8s ease-in-out 0.30s infinite, bc-dot-visible 7s ease-in-out infinite; }
+        @keyframes bc-dot-bounce {
+          0%, 100% { transform: translateY(0); }
+          50%      { transform: translateY(-4px); }
+        }
+        @keyframes bc-dot-visible {
+          0%, 44%  { opacity: 0; }
+          50%, 60% { opacity: 1; }
+          65%, 100%{ opacity: 0; }
+        }
+
+        /* ── Champs extraits — apparaissent un par un ── */
+        .bc-field-1 { opacity: 0; animation: bc-field-in 7s ease-in-out 0s infinite; }
+        .bc-field-2 { opacity: 0; animation: bc-field-in 7s ease-in-out 0.25s infinite; }
+        .bc-field-3 { opacity: 0; animation: bc-field-in 7s ease-in-out 0.5s infinite; }
+        @keyframes bc-field-in {
+          0%, 60%  { opacity: 0; transform: translateX(-10px); }
+          70%, 88% { opacity: 1; transform: translateX(0); }
+          96%, 100%{ opacity: 0; transform: translateX(-10px); }
+        }
+      `}</style>
+    </div>
+  )
+}
+
 // ─── Section principale ───────────────────────────────────────────────────────
 
 export function FeaturesSection() {
@@ -310,7 +445,7 @@ export function FeaturesSection() {
 
         {/* Titre */}
         <div className="text-center mb-16">
-          
+
           <h2 className="text-4xl md:text-5xl mb-4">
             <span className="text-gradient">Tout ce dont vous avez besoin</span>
             <br />
@@ -321,11 +456,13 @@ export function FeaturesSection() {
           </p>
         </div>
 
-        {/* ── Bento grid ── */}
+        {/* ── Bento grid — 3 colonnes sur desktop ── */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
 
+          {/* ── Ligne 1 : 3 grandes cartes animées ── */}
+
           {/* Grande carte 1 — Email + paiement animé */}
-          <div className="lg:col-span-1 rounded-2xl border border-indigo-200 bg-linear-to-br from-indigo-50 to-white shadow-sm overflow-hidden min-h-[320px] flex flex-col">
+          <div className="lg:col-span-1 rounded-2xl border border-indigo-200 bg-linear-to-br from-indigo-50 to-white shadow-sm overflow-hidden min-h-80 flex flex-col">
             <div className="p-6 pb-2">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-100 mb-3">
                 <CreditCard className="h-3.5 w-3.5 text-indigo-600" />
@@ -342,7 +479,7 @@ export function FeaturesSection() {
           </div>
 
           {/* Grande carte 2 — Dashboard badge animé */}
-          <div className="lg:col-span-1 rounded-2xl border border-emerald-200 bg-linear-to-br from-emerald-50 to-white shadow-sm overflow-hidden min-h-[320px] flex flex-col">
+          <div className="lg:col-span-1 rounded-2xl border border-emerald-200 bg-linear-to-br from-emerald-50 to-white shadow-sm overflow-hidden min-h-80 flex flex-col">
             <div className="p-6 pb-2">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 mb-3">
                 <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
@@ -359,7 +496,7 @@ export function FeaturesSection() {
           </div>
 
           {/* Grande carte 3 — Création facture animée */}
-          <div className="lg:col-span-1 rounded-2xl border border-amber-200 bg-linear-to-br from-amber-50 to-white shadow-sm overflow-hidden min-h-[300px] flex flex-col">
+          <div className="lg:col-span-1 rounded-2xl border border-amber-200 bg-linear-to-br from-amber-50 to-white shadow-sm overflow-hidden min-h-75 flex flex-col">
             <div className="p-6 pb-2">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 mb-3">
                 <Zap className="h-3.5 w-3.5 text-amber-600" />
@@ -375,7 +512,29 @@ export function FeaturesSection() {
             </div>
           </div>
 
-          {/* Petites cartes */}
+          {/* ── Ligne 2 : Grande carte BC (col 1, 2 lignes) + 4 petites cartes (cols 2-3) ── */}
+
+          {/* Grande carte BC — Import IA (occupe 2 lignes sur desktop) */}
+          <div className=" lg:col-span-1 lg:row-span-2 rounded-2xl border border-violet-200 bg-linear-to-br from-violet-50 to-white shadow-sm overflow-hidden flex flex-col">
+            <div className="p-6 pb-2">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-100">
+                  <ScanText className="h-3.5 w-3.5 text-violet-600" />
+                  <span className="text-xs font-semibold text-violet-600">Import IA</span>
+                </div>
+                <span className="text-[10px] font-semibold text-violet-500 bg-violet-100 border border-violet-200 px-2 py-0.5 rounded-full">Business</span>
+              </div>
+              <h3 className="text-lg font-bold text-slate-900">Bons de commande en 1 clic</h3>
+              <p className="text-sm text-slate-500 mt-1">
+                Uploadez le BC de votre client — l&apos;IA extrait le client, les prestations et les montants pour pré-remplir votre facture en quelques secondes.
+              </p>
+            </div>
+            <div className="flex-1 min-h-64">
+              <BcImportDemo />
+            </div>
+          </div>
+
+          {/* 4 petites cartes — remplissent les 2 cols restants sur 2 lignes */}
           {smallFeatures.map((feature, i) => {
             const Icon = feature.icon
             return (
@@ -396,8 +555,8 @@ export function FeaturesSection() {
             )
           })}
 
-          {/* Carte Automatisations — col-span-2 */}
-          <div className="lg:col-span-2 rounded-2xl border border-orange-200 bg-linear-to-br from-orange-50 to-white shadow-sm p-6 hover:shadow-md hover:border-orange-300 transition-all duration-300">
+          {/* ── Ligne 4 : Carte Automatisations — pleine largeur ── */}
+          <div className="lg:col-span-3 md:col-span-2 rounded-2xl border border-orange-200 bg-linear-to-br from-orange-50 to-white shadow-sm p-6 hover:shadow-md hover:border-orange-300 transition-all duration-300">
             <div className="flex flex-col sm:flex-row sm:items-start gap-4">
               <div className="inline-flex p-2.5 rounded-xl bg-orange-500 shrink-0 self-start">
                 <Workflow className="h-5 w-5 text-white" strokeWidth={2} />

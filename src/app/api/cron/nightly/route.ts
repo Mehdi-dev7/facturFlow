@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { prisma } from "@/lib/prisma"
 import { runUpdateOverdue } from "@/app/api/cron/update-overdue/route"
 import { runUpdateExpiredQuotes } from "@/app/api/cron/update-expired-quotes/route"
 import { runSendReminders } from "@/app/api/cron/send-reminders/route"
@@ -93,6 +94,19 @@ export async function GET(request: NextRequest) {
   } catch (err) {
     errors.reviewRequests = String(err)
     console.error("[nightly] review-requests failed:", err)
+  }
+
+  // 9. Reset compteur pages BC (1er du mois uniquement)
+  try {
+    const today = new Date()
+    if (today.getDate() === 1) {
+      const { count } = await prisma.user.updateMany({ data: { bcPagesUsedThisMonth: 0 } })
+      results.bcPagesReset = { reset: count }
+      console.log(`[nightly] bcPagesReset: ${count} users`)
+    }
+  } catch (err) {
+    errors.bcPagesReset = String(err)
+    console.error("[nightly] bcPagesReset failed:", err)
   }
 
   console.log("[nightly] Tâches terminées", { results, errors })

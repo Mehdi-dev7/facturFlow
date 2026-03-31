@@ -149,6 +149,10 @@ model User {
   nextPurchaseOrderNumber Int    @default(1)
   purchaseOrderPrefix     String @default("BC")
 
+  // Crédits d'extraction BC (import bon de commande IA)
+  bcPagesUsedThisMonth Int @default(0) // Pages consommées ce mois (reset le 1er du mois)
+  bcPagesCredit        Int @default(0) // Pages achetées en supplément (ne reset pas)
+
   // Subscription & Plan
   plan             String    @default("FREE") // FREE | PRO | BUSINESS
   planExpiresAt    DateTime? // Date d'expiration du plan payant (si annulé)

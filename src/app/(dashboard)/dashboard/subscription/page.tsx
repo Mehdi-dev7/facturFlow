@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { Crown, Sparkles, CheckCircle, Clock, AlertTriangle, ShieldCheck, Lock, RefreshCcw } from "lucide-react";
 import Image from "next/image";
 import { getCurrentSubscription } from "@/lib/actions/subscription";
+import { BcCreditsSection } from "@/components/subscription/bc-credits-section";
 import { PlanBadge } from "@/components/subscription/plan-badge";
 import { PricingCards } from "@/components/subscription/pricing-cards";
 import { FounderBannerDashboard } from "@/components/dashboard/founder-banner";
@@ -18,18 +19,16 @@ export const metadata = {
 export default async function SubscriptionPage({
   searchParams,
 }: {
-  searchParams: Promise<{ checkout?: string; promo?: string }>;
+  searchParams: Promise<{ checkout?: string; promo?: string; bc_recharge?: string }>;
 }) {
-  // checkout = plan à déclencher automatiquement (ex: "pro", "business")
-  // promo = code promo à appliquer (ex: "FONDATEUR")
-  const { checkout, promo } = await searchParams;
+  const { checkout, promo, bc_recharge } = await searchParams;
 
   const result = await getCurrentSubscription();
 
   // Non authentifié → redirection login
   if (!result.success) redirect("/login");
 
-  const { plan, effectivePlan, trialDaysLeft, trialEndsAt, planExpiresAt, stripeSubId } = result.data;
+  const { plan, effectivePlan, trialDaysLeft, trialEndsAt, planExpiresAt, stripeSubId, bcPagesUsedThisMonth, bcPagesCredit } = result.data;
 
   const isTrial = plan === "FREE" && effectivePlan === "PRO";
   const hasActiveSub = plan === "PRO" || plan === "BUSINESS";
@@ -181,6 +180,24 @@ export default async function SubscriptionPage({
         pendingCheckout={checkout}
         pendingPromo={promo}
       />
+
+      {/* ── Section crédits BC (Business uniquement) ── */}
+      {(plan === "BUSINESS" || effectivePlan === "BUSINESS") && (
+        <>
+          <div className="flex items-center gap-4">
+            <div className="flex-1 h-px bg-slate-200 dark:bg-slate-800" />
+            <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              Options complémentaires
+            </span>
+            <div className="flex-1 h-px bg-slate-200 dark:bg-slate-800" />
+          </div>
+          <BcCreditsSection
+            bcPagesUsedThisMonth={bcPagesUsedThisMonth ?? 0}
+            bcPagesCredit={bcPagesCredit ?? 0}
+            rechargeDone={bc_recharge === "success"}
+          />
+        </>
+      )}
     </div>
   );
 }

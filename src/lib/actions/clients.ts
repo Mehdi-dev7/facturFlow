@@ -342,3 +342,69 @@ export async function deleteClient(id: string) {
     return { success: false, error: "Erreur lors de la suppression du client" } as const;
   }
 }
+
+// ─── Action : créer un client depuis l'import BC (validation souple) ─────────
+// Utilisée lors de l'import de bon de commande externe via l'IA.
+// Pas d'email obligatoire, adresse partielle acceptée.
+
+interface BcClientInput {
+  clientName: string;
+  clientAddress: string | null;
+  clientCity: string | null;
+  clientSiret: string | null;
+  clientEmail: string | null;
+  clientPhone: string | null;
+}
+
+export async function createClientFromBcData(data: BcClientInput) {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session?.user?.id) {
+    return { success: false, error: "Non authentifié" } as const;
+  }
+
+  const { allowed, max: clientMax } = await canAddClient(session.user.id);
+  if (!allowed) {
+    return {
+      success: false,
+      error: `Limite de ${clientMax} clients atteinte. Passez au plan Pro pour continuer.`,
+    } as const;
+  }
+
+  try {
+    // Si email fourni → vérifier doublon
+    if (data.clientEmail) {
+      const existing = await prisma.client.findFirst({
+        where: { email: data.clientEmail, userId: session.user.id },
+      });
+      if (existing) {
+        // Client déjà en DB → on le réutilise directement
+        return { success: true, clientId: existing.id } as const;
+      }
+    }
+
+    // SIRET présent = entreprise, sinon on devine selon le nom
+    const isCompany = !!data.clientSiret;
+
+    const client = await prisma.client.create({
+      data: {
+        userId: session.user.id,
+        type: isCompany ? "COMPANY" : "INDIVIDUAL",
+        companyName: isCompany ? data.clientName : null,
+        firstName: isCompany ? null : (data.clientName.split(" ")[0] ?? data.clientName),
+        lastName: isCompany ? null : (data.clientName.split(" ").slice(1).join(" ") || null),
+        companySiret: data.clientSiret || null,
+        email: data.clientEmail || "",
+        phone: data.clientPhone || null,
+        address: data.clientAddress || null,
+        city: data.clientCity || null,
+      },
+    });
+
+    revalidatePath("/dashboard/clients");
+
+    return { success: true, clientId: client.id } as const;
+  } catch (error) {
+    console.error("[createClientFromBcData] Erreur:", error);
+    return { success: false, error: "Erreur lors de la création du client" } as const;
+  }
+}

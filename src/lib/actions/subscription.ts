@@ -51,6 +51,8 @@ export async function getCurrentSubscription() {
         stripeCustomerId: true,
         email: true,
         grantedPlan: true,
+        bcPagesUsedThisMonth: true,
+        bcPagesCredit: true,
       },
     });
 
@@ -76,6 +78,8 @@ export async function getCurrentSubscription() {
         trialDaysLeft,
         planExpiresAt: user.planExpiresAt?.toISOString() ?? null,
         stripeSubId: user.stripeSubId,
+        bcPagesUsedThisMonth: user.bcPagesUsedThisMonth,
+        bcPagesCredit: user.bcPagesCredit,
       },
     } as const;
   } catch (error) {
@@ -275,5 +279,58 @@ export async function getStripePortalUrl() {
   } catch (error) {
     console.error("[getStripePortalUrl] Erreur:", error);
     return { success: false, error: "Erreur lors de la création du portail de facturation" } as const;
+  }
+}
+
+// ─── Packs de recharge pages BC ──────────────────────────────────────────────
+
+import { BC_PAGE_PACKS, type BcPackPages } from "@/lib/bc-packs";
+
+export async function createBcRechargeCheckout(pages: BcPackPages) {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session?.user?.id) return { success: false, error: "Non authentifié" } as const;
+
+  const pack = BC_PAGE_PACKS.find((p) => p.pages === pages);
+  if (!pack) return { success: false, error: "Pack invalide" } as const;
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { stripeCustomerId: true, email: true },
+    });
+
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+
+    // Créer ou récupérer le customer Stripe
+    let customerId = user?.stripeCustomerId;
+    if (!customerId) {
+      const customer = await stripe.customers.create({ email: user?.email ?? undefined });
+      customerId = customer.id;
+      await prisma.user.update({ where: { id: session.user.id }, data: { stripeCustomerId: customerId } });
+    }
+
+    const checkoutSession = await stripe.checkout.sessions.create({
+      mode: "payment",
+      customer: customerId,
+      line_items: [{
+        price_data: {
+          currency: "eur",
+          unit_amount: pack.price * 100,
+          product_data: {
+            name: `Crédit extraction BC — ${pack.label}`,
+            description: `${pack.pages} pages supplémentaires pour l'import de bons de commande`,
+          },
+        },
+        quantity: 1,
+      }],
+      metadata: { userId: session.user.id, bcPages: String(pack.pages), type: "bc_recharge" },
+      success_url: `${appUrl}/dashboard/subscription?bc_recharge=success`,
+      cancel_url: `${appUrl}/dashboard/subscription`,
+    });
+
+    return { success: true, data: { url: checkoutSession.url } } as const;
+  } catch (error) {
+    console.error("[createBcRechargeCheckout] Erreur:", error);
+    return { success: false, error: "Erreur lors de la création du paiement" } as const;
   }
 }

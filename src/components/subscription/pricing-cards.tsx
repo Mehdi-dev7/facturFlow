@@ -59,6 +59,7 @@ const PLAN_FEATURES = {
     { label: "Rapport mensuel comptable (PDF)", included: true },
     { label: "Bilan annuel & URSSAF", included: true },
     { label: "Archivage légal 10 ans", included: true },
+    { label: "Import IA de bons de commande externes (150 pages/mois)", included: true },
     { label: "API & Webhooks", included: true },
     { label: "Support prioritaire", included: true },
     { label: "Factures électroniques illimitées", included: true, soon: true },

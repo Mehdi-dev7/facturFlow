@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
+import { PDFDocument } from "pdf-lib";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { canUseFeature } from "@/lib/feature-gate";
@@ -27,16 +28,30 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
   }
 
-  // Feature gate — Business only (récupérer le user en DB pour vérifier le plan)
+  // Feature gate — Business only + vérification quota pages
+  const BC_PAGES_INCLUDED = 150; // Pages incluses par mois
   const dbUser = await prisma.user.findUnique({
     where: { id: session.user.id },
-    select: { plan: true, trialEndsAt: true, email: true, grantedPlan: true },
+    select: { plan: true, trialEndsAt: true, email: true, grantedPlan: true, bcPagesUsedThisMonth: true, bcPagesCredit: true },
   });
   const hasAccess = dbUser && canUseFeature(dbUser, "bc_import");
   if (!hasAccess) {
     return NextResponse.json(
       { error: "Cette fonctionnalité est réservée au plan Business." },
       { status: 403 }
+    );
+  }
+
+  // Calcul des pages disponibles (incluses + crédit acheté)
+  const pagesUsed = dbUser.bcPagesUsedThisMonth ?? 0;
+  const pagesCredit = dbUser.bcPagesCredit ?? 0;
+  const pagesIncludedLeft = Math.max(0, BC_PAGES_INCLUDED - pagesUsed);
+  const totalPagesLeft = pagesIncludedLeft + pagesCredit;
+
+  if (totalPagesLeft <= 0) {
+    return NextResponse.json(
+      { error: "quota_exceeded", pagesUsed, pagesCredit, limit: BC_PAGES_INCLUDED },
+      { status: 402 }
     );
   }
 
@@ -61,7 +76,42 @@ export async function POST(req: NextRequest) {
   }
 
   // Conversion en base64
-  const arrayBuffer = await file.arrayBuffer();
+  // Pour les PDFs multi-pages : on limite à 3 pages max pour réduire les tokens (et le coût)
+  // Un BC peut tenir sur plusieurs pages (lignes longues), mais rarement plus de 3
+  const MAX_PDF_PAGES = 3;
+  let arrayBuffer = await file.arrayBuffer();
+  if (file.type === "application/pdf") {
+    try {
+      const originalPdf = await PDFDocument.load(arrayBuffer);
+      if (originalPdf.getPageCount() > MAX_PDF_PAGES) {
+        const trimmedPdf = await PDFDocument.create();
+        const pageIndexes = Array.from({ length: MAX_PDF_PAGES }, (_, i) => i);
+        const pages = await trimmedPdf.copyPages(originalPdf, pageIndexes);
+        pages.forEach((p) => trimmedPdf.addPage(p));
+        const trimmedBytes = await trimmedPdf.save();
+        arrayBuffer = trimmedBytes.buffer as ArrayBuffer;
+      }
+    } catch {
+      // Échec du découpage → on envoie le PDF original (pas bloquant)
+    }
+  }
+  // Compter le nombre de pages qui seront effectivement envoyées à Claude
+  let pagesConsumed = 1; // images = 1 page
+  if (file.type === "application/pdf") {
+    try {
+      const countPdf = await PDFDocument.load(arrayBuffer);
+      pagesConsumed = Math.min(countPdf.getPageCount(), MAX_PDF_PAGES);
+    } catch { pagesConsumed = 1; }
+  }
+
+  // Vérifier qu'on a assez de pages pour ce fichier
+  if (pagesConsumed > totalPagesLeft) {
+    return NextResponse.json(
+      { error: "quota_exceeded", pagesUsed, pagesCredit, limit: BC_PAGES_INCLUDED },
+      { status: 402 }
+    );
+  }
+
   const base64 = Buffer.from(arrayBuffer).toString("base64");
   const mediaType = file.type as "application/pdf" | "image/png" | "image/jpeg" | "image/webp";
 
@@ -74,8 +124,10 @@ Analyse ce bon de commande et retourne UNIQUEMENT un objet JSON valide (sans tex
   "bcReference": "string ou null",
   "clientName": "string ou null",
   "clientAddress": "string ou null",
+  "clientCity": "string ou null",
   "clientSiret": "string ou null",
   "clientEmail": "string ou null",
+  "clientPhone": "string ou null",
   "date": "YYYY-MM-DD ou null",
   "dueDate": "YYYY-MM-DD ou null",
   "lines": [
@@ -94,6 +146,8 @@ Règles :
 - unitPrice : montant HT par unité (sans TVA)
 - quantity : nombre (décimal si besoin)
 - date et dueDate : format YYYY-MM-DD uniquement
+- clientCity : ville seule (sans code postal ni pays)
+- clientAddress : rue + numéro uniquement (sans ville ni code postal)
 - Si une valeur est absente ou illisible, mets null
 - Retourne UNIQUEMENT le JSON, aucun texte avant ou après`;
 
@@ -112,19 +166,48 @@ Règles :
           source: { type: "base64", media_type: mediaType, data: base64 },
         };
 
-    const message = await anthropic.messages.create({
-      model: "claude-sonnet-4-6",
-      max_tokens: 2048,
-      messages: [
-        {
-          role: "user",
-          content: [
-            fileBlock,
-            { type: "text", text: extractionPrompt },
+    // Retry automatique x3 si les serveurs Anthropic sont surchargés (erreur 529)
+    let message;
+    let lastError: unknown;
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      try {
+        message = await anthropic.messages.create({
+          model: "claude-sonnet-4-6",
+          max_tokens: 2048,
+          messages: [
+            {
+              role: "user",
+              content: [
+                fileBlock,
+                { type: "text", text: extractionPrompt },
+              ],
+            },
           ],
-        },
-      ],
-    });
+        });
+        break; // succès → on sort de la boucle
+      } catch (e: unknown) {
+        lastError = e;
+        const status = (e as { status?: number })?.status;
+        if (status === 529 && attempt < 2) {
+          // Serveurs Anthropic surchargés → attendre avant de réessayer
+          await new Promise((r) => setTimeout(r, attempt * 2000));
+          continue;
+        }
+        // Autre erreur ou 3ème tentative → on remonte l'erreur
+        if (status === 529) {
+          return NextResponse.json(
+            {
+              error: "overloaded",
+              message:
+                "Les serveurs d'intelligence artificielle sont momentanément surchargés. Ce n'est pas un problème FacturNow — réessayez dans quelques secondes.",
+            },
+            { status: 503 }
+          );
+        }
+        throw e;
+      }
+    }
+    if (!message) throw lastError;
 
     // Extraction du contenu texte
     const textContent = message.content.find((c) => c.type === "text");
@@ -149,7 +232,19 @@ Règles :
       );
     }
 
-    return NextResponse.json({ success: true, data: extracted });
+    // Décompter les pages consommées — d'abord sur l'inclus, puis sur le crédit
+    const deductFromIncluded = Math.min(pagesConsumed, pagesIncludedLeft);
+    const deductFromCredit = pagesConsumed - deductFromIncluded;
+    await prisma.user.update({
+      where: { id: session.user.id },
+      data: {
+        bcPagesUsedThisMonth: { increment: deductFromIncluded },
+        ...(deductFromCredit > 0 && { bcPagesCredit: { decrement: deductFromCredit } }),
+      },
+    });
+
+    const newPagesLeft = totalPagesLeft - pagesConsumed;
+    return NextResponse.json({ success: true, data: extracted, pagesLeft: newPagesLeft });
   } catch (err) {
     console.error("[extract-bc] Erreur API Claude :", err);
     return NextResponse.json(

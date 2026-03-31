@@ -94,7 +94,7 @@ export async function POST(req: NextRequest) {
           data: {
             object: {
               mode?: string;
-              metadata?: { invoiceId?: string; userId?: string; plan?: string; partnerCode?: string };
+              metadata?: { invoiceId?: string; userId?: string; plan?: string; partnerCode?: string; type?: string; bcPages?: string };
               customer?: string;
               subscription?: string;
             };
@@ -200,6 +200,20 @@ export async function POST(req: NextRequest) {
             }
           }
 
+          break;
+        }
+
+        // Recharge pages BC (one-time payment avec metadata.type = "bc_recharge")
+        if (sessionObj.mode === "payment" && sessionObj.metadata?.type === "bc_recharge") {
+          const uid = sessionObj.metadata?.userId;
+          const bcPages = parseInt(sessionObj.metadata?.bcPages ?? "0", 10);
+          if (uid && bcPages > 0) {
+            await prisma.user.update({
+              where: { id: uid },
+              data: { bcPagesCredit: { increment: bcPages } },
+            });
+            console.log(`[Stripe webhook] +${bcPages} pages BC créditées pour user ${uid}`);
+          }
           break;
         }
 

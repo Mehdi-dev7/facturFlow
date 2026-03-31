@@ -96,6 +96,11 @@ function NewInvoicePageContent() {
 				if (raw) {
 					const bc = JSON.parse(raw) as BcExtractedData;
 
+					// Client créé automatiquement depuis le BC → pré-sélectionner
+					if (bc.clientId) {
+						form.setValue("clientId", bc.clientId);
+					}
+
 					// Lignes (au moins une ligne non vide)
 					if (bc.lines?.length > 0) {
 						form.setValue("lines", bc.lines.map((l) => ({
@@ -171,6 +176,8 @@ function NewInvoicePageContent() {
 	// ─── Submit : créer la facture en DB ──────────────────────────────────────
 	const onSubmit = useCallback(
 		(data: InvoiceFormData) => {
+			// Stopper l'auto-save immédiatement pour éviter un brouillon orphelin
+			clearInterval(intervalRef.current);
 			createMutation.mutate({ data, draftId: draftIdRef.current });
 		},
 		[createMutation],
