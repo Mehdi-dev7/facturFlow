@@ -71,6 +71,7 @@
 
 @theme {
 	--breakpoint-xs: 25rem;
+	--breakpoint-wide: 75rem; /* 1200px — grille 3 colonnes landing */
 
 	/* Couleurs personnalisées */
 	--color-primary: #4f46e5;

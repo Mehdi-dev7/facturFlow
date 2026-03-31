@@ -456,13 +456,13 @@ export function FeaturesSection() {
           </p>
         </div>
 
-        {/* ── Bento grid — 3 colonnes sur desktop ── */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        {/* ── Bento grid — 3 colonnes à partir de 1200px ── */}
+        <div className="grid grid-cols-1 md:grid-cols-2 wide:grid-cols-3 gap-5">
 
           {/* ── Ligne 1 : 3 grandes cartes animées ── */}
 
           {/* Grande carte 1 — Email + paiement animé */}
-          <div className="lg:col-span-1 rounded-2xl border border-indigo-200 bg-linear-to-br from-indigo-50 to-white shadow-sm overflow-hidden min-h-80 flex flex-col">
+          <div className="rounded-2xl border border-indigo-200 bg-linear-to-br from-indigo-50 to-white shadow-sm overflow-hidden min-h-80 flex flex-col">
             <div className="p-6 pb-2">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-100 mb-3">
                 <CreditCard className="h-3.5 w-3.5 text-indigo-600" />
@@ -479,7 +479,7 @@ export function FeaturesSection() {
           </div>
 
           {/* Grande carte 2 — Dashboard badge animé */}
-          <div className="lg:col-span-1 rounded-2xl border border-emerald-200 bg-linear-to-br from-emerald-50 to-white shadow-sm overflow-hidden min-h-80 flex flex-col">
+          <div className="rounded-2xl border border-emerald-200 bg-linear-to-br from-emerald-50 to-white shadow-sm overflow-hidden min-h-80 flex flex-col">
             <div className="p-6 pb-2">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 mb-3">
                 <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
@@ -496,7 +496,7 @@ export function FeaturesSection() {
           </div>
 
           {/* Grande carte 3 — Création facture animée */}
-          <div className="lg:col-span-1 rounded-2xl border border-amber-200 bg-linear-to-br from-amber-50 to-white shadow-sm overflow-hidden min-h-75 flex flex-col">
+          <div className="rounded-2xl border border-amber-200 bg-linear-to-br from-amber-50 to-white shadow-sm overflow-hidden min-h-75 flex flex-col">
             <div className="p-6 pb-2">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 mb-3">
                 <Zap className="h-3.5 w-3.5 text-amber-600" />
@@ -515,7 +515,7 @@ export function FeaturesSection() {
           {/* ── Ligne 2 : Grande carte BC (col 1, 2 lignes) + 4 petites cartes (cols 2-3) ── */}
 
           {/* Grande carte BC — Import IA (occupe 2 lignes sur desktop) */}
-          <div className=" lg:col-span-1 lg:row-span-2 rounded-2xl border border-violet-200 bg-linear-to-br from-violet-50 to-white shadow-sm overflow-hidden flex flex-col">
+          <div className="wide:col-span-1 wide:row-span-2 rounded-2xl border border-violet-200 bg-linear-to-br from-violet-50 to-white shadow-sm overflow-hidden flex flex-col">
             <div className="p-6 pb-2">
               <div className="flex items-center gap-2 mb-3">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-100">
@@ -556,7 +556,7 @@ export function FeaturesSection() {
           })}
 
           {/* ── Ligne 4 : Carte Automatisations — pleine largeur ── */}
-          <div className="lg:col-span-3 md:col-span-2 rounded-2xl border border-orange-200 bg-linear-to-br from-orange-50 to-white shadow-sm p-6 hover:shadow-md hover:border-orange-300 transition-all duration-300">
+          <div className="md:col-span-2 wide:col-span-3 rounded-2xl border border-orange-200 bg-linear-to-br from-orange-50 to-white shadow-sm p-6 hover:shadow-md hover:border-orange-300 transition-all duration-300">
             <div className="flex flex-col sm:flex-row sm:items-start gap-4">
               <div className="inline-flex p-2.5 rounded-xl bg-orange-500 shrink-0 self-start">
                 <Workflow className="h-5 w-5 text-white" strokeWidth={2} />
@@ -566,7 +566,7 @@ export function FeaturesSection() {
                 <p className="text-sm text-slate-500 mb-4">
                   FacturNow travaille pour vous — les tâches répétitives sont déclenchées automatiquement.
                 </p>
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 wide:grid-cols-3 gap-3">
                   <div className="flex items-start gap-2.5 p-3 rounded-xl bg-white border border-orange-100 shadow-sm">
                     <ArrowRight className="h-4 w-4 text-orange-500 shrink-0 mt-0.5" />
                     <div>
