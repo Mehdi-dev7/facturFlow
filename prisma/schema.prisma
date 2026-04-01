@@ -416,6 +416,9 @@ model Document {
   // Index composites pour les queries fréquentes (liste par user + type + status)
   @@index([userId, type])
   @@index([userId, type, status])
+  // Exports comptables — filtres par plage de dates (FEC, rapport annuel, journal mensuel)
+  @@index([userId, type, date])
+  @@index([userId, type, status, date])
   // Cron OVERDUE + lien acompte → devis
   @@index([dueDate])
   @@index([relatedDocumentId])

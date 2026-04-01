@@ -12,6 +12,8 @@ import {
   SearchBar,
   DataTable,
   ActionButtons,
+  MonthSelector,
+  ArchiveSection,
 } from "@/components/dashboard";
 import type { KpiData, Column } from "@/components/dashboard";
 import { DeleteConfirmModal } from "@/components/shared/delete-confirm-modal";
@@ -69,6 +71,12 @@ function formatDateFR(iso: string) {
 
 function formatAmount(n: number) {
   return n.toLocaleString("fr-FR", { minimumFractionDigits: 2 }) + " €";
+}
+
+// Retourne "YYYY-MM" à partir d'une date ISO
+function getMonthKey(dateStr: string): string {
+  const d = new Date(dateStr);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
 }
 
 function toRow(cn: SavedCreditNote): CreditNoteRow {
@@ -310,6 +318,7 @@ function InvoiceCreditNoteGenerator() {
 function AvoirsPageContent() {
   const [search, setSearch] = useState("");
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+  const [selectedMonth, setSelectedMonth] = useState(() => new Date());
 
   const { data: allCreditNotes = [], isLoading } = useCreditNotes();
   const deleteMutation = useDeleteCreditNote();
@@ -321,20 +330,72 @@ function AvoirsPageContent() {
   }, [allCreditNotes]);
 
   const handleSearch = useCallback((v: string) => setSearch(v), []);
+  const handleMonthChange = useCallback((date: Date) => setSelectedMonth(date), []);
+
+  // Clé du mois sélectionné au format "YYYY-MM"
+  const selectedMonthKey = useMemo(() => getMonthKey(selectedMonth.toISOString()), [selectedMonth]);
 
   const allRows = useMemo(() => allCreditNotes.map(toRow), [allCreditNotes]);
+
+  // Filtre par mois
+  const monthRows = useMemo(
+    () => allRows.filter((row) => {
+      const cn = creditNoteMap.get(row.id);
+      return cn ? getMonthKey(cn.date) === selectedMonthKey : false;
+    }),
+    [allRows, creditNoteMap, selectedMonthKey],
+  );
+
   const filteredRows = useMemo(() => {
-    if (!search.trim()) return allRows;
+    if (!search.trim()) return monthRows;
     const q = search.toLowerCase();
-    return allRows.filter(
+    return monthRows.filter(
       (r) =>
         r.number.toLowerCase().includes(q) ||
         r.client.toLowerCase().includes(q) ||
         r.invoiceNumber.toLowerCase().includes(q),
     );
-  }, [allRows, search]);
+  }, [monthRows, search]);
 
-  const kpis = useMemo(() => buildKpis(allCreditNotes), [allCreditNotes]);
+  // Archive : mois avec avoirs, regroupés par année (années précédentes)
+  const archiveData = useMemo(() => {
+    const MONTH_NAMES = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+      "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+    const grouped: Record<number, Record<number, number>> = {};
+    for (const cn of allCreditNotes) {
+      const d = new Date(cn.date);
+      const y = d.getFullYear(); const mo = d.getMonth() + 1;
+      if (!grouped[y]) grouped[y] = {};
+      grouped[y][mo] = (grouped[y][mo] || 0) + 1;
+    }
+    const cy = selectedMonth.getFullYear(); const cm = selectedMonth.getMonth() + 1;
+    const currentYear = new Date().getFullYear();
+    return Object.entries(grouped)
+      .map(([yearStr, months]) => ({
+        year: parseInt(yearStr, 10),
+        months: Object.entries(months)
+          .filter(([mStr]) => {
+            const y = parseInt(yearStr, 10); const mo = parseInt(mStr, 10);
+            return !(y === cy && mo === cm) && y < currentYear;
+          })
+          .map(([mStr, count]) => ({ month: MONTH_NAMES[parseInt(mStr, 10) - 1], count }))
+          .sort((a, b) => MONTH_NAMES.indexOf(b.month) - MONTH_NAMES.indexOf(a.month)),
+      }))
+      .filter((y) => y.months.length > 0)
+      .sort((a, b) => b.year - a.year);
+  }, [allCreditNotes, selectedMonth]);
+
+  const handleArchiveSelect = useCallback((year: number, monthName: string) => {
+    const MONTH_NAMES = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+      "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+    const idx = MONTH_NAMES.indexOf(monthName);
+    if (idx >= 0) setSelectedMonth(new Date(year, idx, 1));
+  }, []);
+
+  // KPIs calculés sur le mois sélectionné
+  const kpis = useMemo(() => buildKpis(
+    allCreditNotes.filter((cn) => getMonthKey(cn.date) === selectedMonthKey)
+  ), [allCreditNotes, selectedMonthKey]);
 
   const columns = useMemo(
     (): Column<CreditNoteRow>[] => [
@@ -478,12 +539,15 @@ function AvoirsPageContent() {
         <InvoiceCreditNoteGenerator />
       </div>
 
-      {/* SearchBar */}
-      <div className="mb-6">
-        <SearchBar
-          placeholder="Rechercher par n° avoir, client, facture..."
-          onSearch={handleSearch}
-        />
+      {/* Search + Month Selector */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-6">
+        <div className="flex-1">
+          <SearchBar
+            placeholder="Rechercher par n° avoir, client, facture..."
+            onSearch={handleSearch}
+          />
+        </div>
+        <MonthSelector value={selectedMonth} onChange={handleMonthChange} />
       </div>
 
       {/* Tableau des avoirs */}
@@ -514,14 +578,19 @@ function AvoirsPageContent() {
           actions={(row) => (
             <ActionButtons onDelete={() => setDeleteTargetId(row.id)} />
           )}
-          emptyTitle={isLoading ? "Chargement…" : "Aucun avoir émis"}
+          emptyTitle={isLoading ? "Chargement…" : "Aucun avoir ce mois-ci"}
           emptyDescription={
             isLoading
               ? "Récupération des avoirs en cours…"
-              : "Utilisez le formulaire ci-dessus pour émettre votre premier avoir."
+              : "Aucun avoir pour ce mois. Consultez l'archive ci-dessous ou changez de mois."
           }
         />
       </div>
+
+      {/* Archive — mois précédents avec des avoirs */}
+      {archiveData.length > 0 && (
+        <ArchiveSection data={archiveData} onSelect={handleArchiveSelect} />
+      )}
 
       {/* Modale suppression */}
       <DeleteConfirmModal

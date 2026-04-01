@@ -343,6 +343,110 @@ export async function deleteClient(id: string) {
   }
 }
 
+// ─── Action : import CSV/Excel en masse ────────────────────────────────────
+
+export interface ImportClientRow {
+  name: string;           // Nom entreprise ou "Prénom Nom"
+  email: string;
+  type: "entreprise" | "particulier";
+  phone?: string;
+  siret?: string;
+  siren?: string;
+  vatNumber?: string;
+  address?: string;
+  zipCode?: string;
+  city?: string;
+  notes?: string;
+}
+
+export async function importClients(rows: ImportClientRow[]) {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session?.user?.id) {
+    return { success: false, error: "Non authentifié" } as const;
+  }
+
+  const userId = session.user.id;
+
+  // Une seule requête : on récupère les emails existants et on en déduit le count
+  const existingClients = await prisma.client.findMany({
+    where: { userId },
+    select: { email: true },
+  });
+  const currentCount = existingClients.length;
+  const existingEmails = new Set(existingClients.map((c) => c.email.toLowerCase().trim()));
+
+  // Vérifier la limite du plan FREE depuis le count déjà récupéré
+  const { allowed, max: clientMax } = await canAddClient(userId);
+
+  const toCreate: ImportClientRow[] = [];
+  let skipped = 0; // doublons email
+  let capped = 0;  // bloqués par limite FREE
+
+  for (const row of rows) {
+    // Doublon email → skip
+    if (existingEmails.has(row.email.toLowerCase().trim())) {
+      skipped++;
+      continue;
+    }
+
+    // Limite FREE : vérifie si la prochaine insertion dépasserait le quota
+    if (!allowed && currentCount + toCreate.length >= (clientMax ?? 5)) {
+      capped++;
+      continue;
+    }
+
+    toCreate.push(row);
+  }
+
+  if (toCreate.length === 0) {
+    return {
+      success: true,
+      imported: 0,
+      skipped,
+      capped,
+      message: skipped > 0
+        ? `${skipped} client(s) déjà présent(s) — aucun import nécessaire.`
+        : "Aucun client valide à importer.",
+    } as const;
+  }
+
+  try {
+    await prisma.client.createMany({
+      data: toCreate.map((row) => {
+        const isCompany = row.type === "entreprise";
+        return {
+          userId,
+          type: isCompany ? "COMPANY" : "INDIVIDUAL",
+          companyName: isCompany ? row.name : null,
+          firstName: isCompany ? null : (row.name.split(" ")[0] ?? row.name),
+          lastName: isCompany ? null : (row.name.split(" ").slice(1).join(" ") || null),
+          email: row.email,
+          phone: row.phone || null,
+          companySiret: row.siret || null,
+          companySiren: row.siren || null,
+          companyVatNumber: row.vatNumber || null,
+          address: row.address || null,
+          postalCode: row.zipCode || null,
+          city: row.city || null,
+          notes: row.notes || null,
+        };
+      }),
+    });
+
+    revalidatePath("/dashboard/clients");
+
+    return {
+      success: true,
+      imported: toCreate.length,
+      skipped,
+      capped,
+    } as const;
+  } catch (error) {
+    console.error("[importClients] Erreur:", error);
+    return { success: false, error: "Erreur lors de l'import" } as const;
+  }
+}
+
 // ─── Action : créer un client depuis l'import BC (validation souple) ─────────
 // Utilisée lors de l'import de bon de commande externe via l'IA.
 // Pas d'email obligatoire, adresse partielle acceptée.

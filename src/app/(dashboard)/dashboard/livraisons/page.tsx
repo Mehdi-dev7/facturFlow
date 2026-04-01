@@ -12,6 +12,8 @@ import {
   SearchBar,
   DataTable,
   ActionButtons,
+  MonthSelector,
+  ArchiveSection,
 } from "@/components/dashboard";
 import type { KpiData, Column } from "@/components/dashboard";
 import { DeleteConfirmModal } from "@/components/shared/delete-confirm-modal";
@@ -46,6 +48,12 @@ function formatDateFR(iso: string) {
 
 function formatAmount(n: number) {
   return n.toLocaleString("fr-FR", { minimumFractionDigits: 2 }) + " €";
+}
+
+// Retourne "YYYY-MM" à partir d'une date ISO
+function getMonthKey(dateStr: string): string {
+  const d = new Date(dateStr);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
 }
 
 // Date par défaut = aujourd'hui au format YYYY-MM-DD pour input[type=date]
@@ -251,6 +259,7 @@ function InvoiceDeliveryNoteGenerator() {
 function LivraisonsPageContent() {
   const [search, setSearch] = useState("");
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+  const [selectedMonth, setSelectedMonth] = useState(() => new Date());
 
   const { data: allDeliveryNotes = [], isLoading } = useDeliveryNotes();
   const deleteMutation = useDeleteDeliveryNote();
@@ -263,20 +272,72 @@ function LivraisonsPageContent() {
   }, [allDeliveryNotes]);
 
   const handleSearch = useCallback((v: string) => setSearch(v), []);
+  const handleMonthChange = useCallback((date: Date) => setSelectedMonth(date), []);
+
+  // Clé du mois sélectionné au format "YYYY-MM"
+  const selectedMonthKey = useMemo(() => getMonthKey(selectedMonth.toISOString()), [selectedMonth]);
 
   const allRows = useMemo(() => allDeliveryNotes.map(toRow), [allDeliveryNotes]);
+
+  // Filtre par mois (sur deliveryDate)
+  const monthRows = useMemo(
+    () => allRows.filter((row) => {
+      const dn = deliveryNoteMap.get(row.id);
+      return dn ? getMonthKey(dn.deliveryDate) === selectedMonthKey : false;
+    }),
+    [allRows, deliveryNoteMap, selectedMonthKey],
+  );
+
   const filteredRows = useMemo(() => {
-    if (!search.trim()) return allRows;
+    if (!search.trim()) return monthRows;
     const q = search.toLowerCase();
-    return allRows.filter(
+    return monthRows.filter(
       (r) =>
         r.number.toLowerCase().includes(q) ||
         r.client.toLowerCase().includes(q) ||
         r.invoiceNumber.toLowerCase().includes(q),
     );
-  }, [allRows, search]);
+  }, [monthRows, search]);
 
-  const kpis = useMemo(() => buildKpis(allDeliveryNotes), [allDeliveryNotes]);
+  // KPIs calculés sur le mois sélectionné
+  const kpis = useMemo(() => buildKpis(
+    allDeliveryNotes.filter((dn) => getMonthKey(dn.deliveryDate) === selectedMonthKey)
+  ), [allDeliveryNotes, selectedMonthKey]);
+
+  // Archive — mois précédents avec des bons de livraison
+  const archiveData = useMemo(() => {
+    const MONTH_NAMES = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+      "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+    const grouped: Record<number, Record<number, number>> = {};
+    for (const dn of allDeliveryNotes) {
+      const d = new Date(dn.deliveryDate);
+      const y = d.getFullYear(); const mo = d.getMonth() + 1;
+      if (!grouped[y]) grouped[y] = {};
+      grouped[y][mo] = (grouped[y][mo] || 0) + 1;
+    }
+    const cy = selectedMonth.getFullYear(); const cm = selectedMonth.getMonth() + 1;
+    const currentYear = new Date().getFullYear();
+    return Object.entries(grouped)
+      .map(([yearStr, months]) => ({
+        year: parseInt(yearStr, 10),
+        months: Object.entries(months)
+          .filter(([mStr]) => {
+            const y = parseInt(yearStr, 10); const mo = parseInt(mStr, 10);
+            return !(y === cy && mo === cm) && y < currentYear;
+          })
+          .map(([mStr, count]) => ({ month: MONTH_NAMES[parseInt(mStr, 10) - 1], count }))
+          .sort((a, b) => MONTH_NAMES.indexOf(b.month) - MONTH_NAMES.indexOf(a.month)),
+      }))
+      .filter((y) => y.months.length > 0)
+      .sort((a, b) => b.year - a.year);
+  }, [allDeliveryNotes, selectedMonth]);
+
+  const handleArchiveSelect = useCallback((year: number, monthName: string) => {
+    const MONTH_NAMES = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+      "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+    const idx = MONTH_NAMES.indexOf(monthName);
+    if (idx >= 0) setSelectedMonth(new Date(year, idx, 1));
+  }, []);
 
   const columns = useMemo(
     (): Column<DeliveryNoteRow>[] => [
@@ -408,12 +469,15 @@ function LivraisonsPageContent() {
         <InvoiceDeliveryNoteGenerator />
       </div>
 
-      {/* SearchBar */}
-      <div className="mb-6">
-        <SearchBar
-          placeholder="Rechercher par n° BL, client, facture..."
-          onSearch={handleSearch}
-        />
+      {/* Search + Month Selector */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-6">
+        <div className="flex-1">
+          <SearchBar
+            placeholder="Rechercher par n° BL, client, facture..."
+            onSearch={handleSearch}
+          />
+        </div>
+        <MonthSelector value={selectedMonth} onChange={handleMonthChange} />
       </div>
 
       {/* Tableau des bons de livraison */}
@@ -443,14 +507,19 @@ function LivraisonsPageContent() {
           actions={(row) => (
             <ActionButtons onDelete={() => setDeleteTargetId(row.id)} />
           )}
-          emptyTitle={isLoading ? "Chargement…" : "Aucun bon de livraison émis"}
+          emptyTitle={isLoading ? "Chargement…" : "Aucun bon de livraison ce mois-ci"}
           emptyDescription={
             isLoading
               ? "Récupération des bons de livraison en cours…"
-              : "Utilisez le formulaire ci-dessus pour générer votre premier bon de livraison."
+              : "Aucun BL pour ce mois. Consultez l'archive ci-dessous ou changez de mois."
           }
         />
       </div>
+
+      {/* Archive — mois précédents avec des bons de livraison */}
+      {archiveData.length > 0 && (
+        <ArchiveSection data={archiveData} onSelect={handleArchiveSelect} />
+      )}
 
       {/* Modale suppression */}
       <DeleteConfirmModal

@@ -46,17 +46,18 @@ interface ComptaPageContentProps {
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-function getYearOptions() {
+function getYearOptions(effectivePlan: string) {
   const current = new Date().getFullYear();
-  return [current, current - 1, current - 2];
+  // Business → 10 ans d'archivage légal | Pro → 5 ans | Free → 3 ans
+  const range = effectivePlan === "BUSINESS" ? 10 : effectivePlan === "PRO" ? 5 : 3;
+  return Array.from({ length: range }, (_, i) => current - i);
 }
 
-function getMonthOptions() {
-  return Array.from({ length: 12 }, (_, i) => ({
-    value: String(i),
-    label: format(new Date(2026, i, 1), "MMMM", { locale: fr }),
-  }));
-}
+// Calculé une seule fois au chargement du module — jamais recalculé
+const MONTH_OPTIONS = Array.from({ length: 12 }, (_, i) => ({
+  value: String(i),
+  label: format(new Date(2026, i, 1), "MMMM", { locale: fr }),
+}));
 
 // ─── Téléchargement helper ─────────────────────────────────────────────────
 
@@ -145,8 +146,8 @@ export function ComptaPageContent({
   const [year, setYear] = useState(currentYear);
   const [month, setMonth] = useState(new Date().getMonth());
   const [loadingExport, setLoadingExport] = useState<string | null>(null);
-  const years = getYearOptions();
-  const months = getMonthOptions();
+  const years = getYearOptions(effectivePlan);
+  const months = MONTH_OPTIONS;
 
   // Email comptable
   const [accountantEmail, setAccountantEmail] = useState(initialAccountantEmail ?? "");
@@ -332,8 +333,8 @@ export function ComptaPageContent({
         {/* Journal mensuel — avec sélecteur de mois */}
         <FeatureGate feature="monthly_accounting_report" effectivePlan={effectivePlan} plan={plan}>
           <ExportCard
-            title="Journal mensuel"
-            description="Journal des ventes du mois — factures avec détails"
+            title="Journal mensuel (CSV)"
+            description="Export CSV de toutes les factures du mois sélectionné — s'ouvre dans Excel"
             icon={CalendarDays}
             iconColor="text-amber-600 dark:text-amber-400"
             iconBg="bg-amber-100 dark:bg-amber-900/30"

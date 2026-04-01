@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useMemo, useCallback } from "react";
-import { Plus, Lock } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { Plus, Lock, Upload } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   PageHeader,
   KpiCard,
@@ -14,6 +15,7 @@ import type { KpiData, Column } from "@/components/dashboard";
 import { useClients, useDeleteClient, type SavedClient } from "@/hooks/use-clients";
 import { SkeletonTable } from "@/components/ui/skeleton-table";
 import { getCurrentSubscription } from "@/lib/actions/subscription";
+import { Button } from "@/components/ui/button";
 import dynamic from "next/dynamic";
 // Lazy load des modals — chargées seulement quand l'utilisateur ouvre/clique
 const ClientModal = dynamic(
@@ -26,6 +28,10 @@ const ClientPreviewModal = dynamic(
 );
 const DeleteClientConfirmModal = dynamic(
   () => import("@/components/clients/delete-client-confirm-modal").then((m) => ({ default: m.DeleteClientConfirmModal })),
+  { ssr: false }
+);
+const ImportClientsModal = dynamic(
+  () => import("@/components/clients/import-clients-modal").then((m) => ({ default: m.ImportClientsModal })),
   { ssr: false }
 );
 
@@ -181,6 +187,11 @@ export default function ClientsPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editClient, setEditClient] = useState<SavedClient | null>(null);
 
+  // État modale d'import CSV/Excel
+  const [importOpen, setImportOpen] = useState(false);
+  const queryClient = useQueryClient();
+  const router = useRouter();
+
   // État modale de prévisualisation
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewClient, setPreviewClient] = useState<SavedClient | null>(null);
@@ -199,7 +210,8 @@ export default function ClientsPage() {
     queryFn: getCurrentSubscription,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
-  const effectivePlan = subData?.success ? subData.data.effectivePlan : "FREE";
+  // null pendant le chargement → isFree reste false → pas de flash "clients gelés"
+  const effectivePlan = subData?.success ? subData.data.effectivePlan : null;
   const isFree = effectivePlan === "FREE";
 
   const kpiData = useMemo(() => buildKpiData(clients), [clients]);
@@ -290,13 +302,27 @@ export default function ClientsPage() {
   return (
     <div>
       {/* Header */}
-      <PageHeader
-        title="Clients"
-        subtitle="Gérez votre base clients"
-        ctaLabel="Nouveau client"
-        ctaIcon={<Plus className="h-5 w-5" strokeWidth={2.5} />}
-        onCtaClick={handleNewClient}
-      />
+      <div className="flex flex-col xs:flex-row xs:items-start gap-3 mb-6">
+        <div className="flex-1">
+          <PageHeader
+            title="Clients"
+            subtitle="Gérez votre base clients"
+            ctaLabel="Nouveau client"
+            ctaIcon={<Plus className="h-5 w-5" strokeWidth={2.5} />}
+            onCtaClick={handleNewClient}
+          />
+        </div>
+        {/* Bouton import — affiché à droite du header sur desktop, dessous sur mobile */}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setImportOpen(true)}
+          className="shrink-0 cursor-pointer border-violet-200 dark:border-violet-500/30 text-violet-600 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-500/10 self-start xs:mt-1"
+        >
+          <Upload className="size-4 mr-2" />
+          Importer CSV / Excel
+        </Button>
+      </div>
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-6">
@@ -357,7 +383,7 @@ export default function ClientsPage() {
               {frozenClients.length} client{frozenClients.length > 1 ? "s" : ""} gelé{frozenClients.length > 1 ? "s" : ""} — Plan Gratuit
             </span>
             <button
-              onClick={() => window.location.href = "/dashboard/subscription"}
+              onClick={() => router.push("/dashboard/subscription")}
               className="ml-auto text-xs font-semibold text-amber-700 dark:text-amber-400 underline underline-offset-2 cursor-pointer"
             >
               Passer au Pro
@@ -411,6 +437,16 @@ export default function ClientsPage() {
         onOpenChange={setDeleteConfirmOpen}
         onConfirm={handleConfirmDelete}
         isDeleting={deleteMutation.isPending}
+      />
+
+      {/* Modale d'import CSV/Excel */}
+      <ImportClientsModal
+        open={importOpen}
+        onOpenChange={setImportOpen}
+        onImported={() => {
+          // Invalide le cache TanStack Query pour recharger la liste
+          queryClient.invalidateQueries({ queryKey: ["clients"] });
+        }}
       />
     </div>
   );

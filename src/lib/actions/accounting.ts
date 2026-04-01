@@ -443,34 +443,70 @@ export async function exportMonthlyReport(
     const startDate = new Date(year, month, 1);
     const endDate = new Date(year, month + 1, 0, 23, 59, 59);
 
-    const invoices = await prisma.document.findMany({
+    // Récupère factures + acomptes + avoirs du mois en une seule requête
+    const docs = await prisma.document.findMany({
       where: {
         userId: user.id,
-        type: "INVOICE",
+        type: { in: ["INVOICE", "DEPOSIT", "CREDIT_NOTE"] },
         status: { not: "DRAFT" },
         date: { gte: startDate, lte: endDate },
       },
       include: {
-        client: { select: { companyName: true, firstName: true, lastName: true } },
+        client: {
+          select: {
+            companyName: true,
+            firstName: true,
+            lastName: true,
+            companySiret: true,
+            companySiren: true,
+          },
+        },
       },
       orderBy: { date: "asc" },
     });
 
-    const header = "Date;N° Facture;Client;Montant HT;TVA;Total TTC;Statut;Mode de paiement";
-    const rows = invoices.map((inv) => {
-      const clientName = inv.client?.companyName
-        || [inv.client?.firstName, inv.client?.lastName].filter(Boolean).join(" ")
+    // En-tête avec colonne Type (Facture / Acompte / Avoir), flux (Entrée/Sortie) et SIRET/SIREN
+    const header = "Date;Type;Flux;N° Document;Client;SIRET / SIREN;Montant HT;TVA;Total TTC;Statut;Mode de paiement";
+
+    const rows = docs.map((doc) => {
+      const clientName = doc.client?.companyName
+        || [doc.client?.firstName, doc.client?.lastName].filter(Boolean).join(" ")
         || "—";
-      const status = STATUS_LABELS[inv.status] ?? inv.status;
-      const payment = inv.paymentMethod ? (PAYMENT_LABELS[inv.paymentMethod] ?? inv.paymentMethod) : "—";
+
+      // SIRET prioritaire, sinon SIREN
+      const siretSiren = doc.client?.companySiret || doc.client?.companySiren || "—";
+
+      // Type lisible + sens du flux
+      let typeLabel: string;
+      let flux: string;
+      if (doc.type === "INVOICE") {
+        typeLabel = "Facture";
+        flux = "Entrée";
+      } else if (doc.type === "DEPOSIT") {
+        typeLabel = "Acompte";
+        flux = "Entrée";
+      } else {
+        // CREDIT_NOTE
+        typeLabel = "Avoir";
+        flux = "Sortie";
+      }
+
+      const status = STATUS_LABELS[doc.status] ?? doc.status;
+      const payment = doc.paymentMethod ? (PAYMENT_LABELS[doc.paymentMethod] ?? doc.paymentMethod) : "—";
+
+      // Les avoirs sont négatifs comptablement — on préfixe d'un signe –
+      const sign = doc.type === "CREDIT_NOTE" ? -1 : 1;
 
       return [
-        frDate(new Date(inv.date)),
-        inv.number ?? "—",
+        frDate(new Date(doc.date)),
+        typeLabel,
+        flux,
+        doc.number ?? "—",
         clientName,
-        fmtNum(Number(inv.subtotal)),
-        fmtNum(Number(inv.taxTotal)),
-        fmtNum(Number(inv.total)),
+        siretSiren,
+        fmtNum(sign * Number(doc.subtotal)),
+        fmtNum(sign * Number(doc.taxTotal)),
+        fmtNum(sign * Number(doc.total)),
         status,
         payment,
       ].join(";");
@@ -578,7 +614,14 @@ export async function getAnnualReportData(
         status: { not: "DRAFT" },
         date: { gte: startDate, lte: endDate },
       },
-      include: {
+      select: {
+        type: true,
+        status: true,
+        date: true,
+        subtotal: true,
+        taxTotal: true,
+        total: true,
+        clientId: true,
         client: { select: { companyName: true, firstName: true, lastName: true, id: true } },
       },
     });
