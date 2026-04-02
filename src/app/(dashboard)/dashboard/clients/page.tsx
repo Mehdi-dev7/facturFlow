@@ -302,27 +302,23 @@ export default function ClientsPage() {
   return (
     <div>
       {/* Header */}
-      <div className="flex flex-col xs:flex-row xs:items-start gap-3 mb-6">
-        <div className="flex-1">
-          <PageHeader
-            title="Clients"
-            subtitle="Gérez votre base clients"
-            ctaLabel="Nouveau client"
-            ctaIcon={<Plus className="h-5 w-5" strokeWidth={2.5} />}
-            onCtaClick={handleNewClient}
-          />
-        </div>
-        {/* Bouton import — affiché à droite du header sur desktop, dessous sur mobile */}
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setImportOpen(true)}
-          className="shrink-0 cursor-pointer border-violet-200 dark:border-violet-500/30 text-violet-600 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-500/10 self-start xs:mt-1"
-        >
-          <Upload className="size-4 mr-2" />
-          Importer CSV / Excel
-        </Button>
-      </div>
+      <PageHeader
+        title="Clients"
+        subtitle="Gérez votre base clients"
+        ctaLabel="Nouveau client"
+        ctaIcon={<Plus className="h-5 w-5" strokeWidth={2.5} />}
+        onCtaClick={handleNewClient}
+        extraActions={
+          <Button
+            style={{ background: "linear-gradient(to right, #8b5cf6, #9333ea)" }}
+            className="cursor-pointer gap-2 h-11 sm:h-12 px-6 sm:px-8 text-sm sm:text-base font-ui font-semibold transition-all duration-300 rounded-lg shadow-sm text-white hover:scale-103 hover:opacity-90"
+            onClick={() => setImportOpen(true)}
+          >
+            <Upload className="size-4 shrink-0" />
+            Importer CSV / Excel
+          </Button>
+        }
+      />
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-6">

@@ -264,11 +264,11 @@ export function ImportClientsModal({ open, onOpenChange, onImported }: ImportCli
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <DialogHeader>
-          <DialogTitle className="text-base xs:text-lg flex items-center gap-2">
+          <DialogTitle className="text-base xs:text-lg flex items-center gap-2 dark:text-white">
             <FileSpreadsheet className="size-5 text-violet-500 shrink-0" />
             Importer des clients
           </DialogTitle>
-          <DialogDescription className="text-xs xs:text-sm">
+          <DialogDescription className="text-xs xs:text-sm dark:text-slate-300">
             {step === "upload" && "Importez vos clients depuis Excel ou CSV — colonnes détectées automatiquement."}
             {step === "preview" && `${rows.length} ligne(s) détectée(s) dans « ${fileName} »`}
             {step === "done" && "Import terminé"}

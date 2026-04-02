@@ -43,9 +43,6 @@ export function PageHeader({
 
       {(hasCta || extraActions) && (
         <div className="flex items-center gap-4 lg:ml-auto">
-          {/* Actions secondaires (ex: bouton Importer un BC) */}
-          {extraActions}
-
           {/* CTA principal */}
           {hasCta && (
             onCtaClick ? (
@@ -72,6 +69,9 @@ export function PageHeader({
               </Button>
             )
           )}
+
+          {/* Actions secondaires (ex: bouton Importer) */}
+          {extraActions}
         </div>
       )}
     </div>
