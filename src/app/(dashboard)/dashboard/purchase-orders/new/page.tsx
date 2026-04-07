@@ -5,7 +5,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft, Eye } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { PurchaseOrderForm } from "@/components/purchase-orders/purchase-order-form";
@@ -166,16 +166,6 @@ export default function NewPurchaseOrderPage() {
             )}
           </p>
         </div>
-        {/* Bouton aperçu PDF — masqué sur mobile */}
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setIsPdfPreviewOpen(true)}
-          className="gap-1.5 text-xs cursor-pointer hidden sm:flex"
-        >
-          <Eye size={14} />
-          Aperçu PDF
-        </Button>
       </div>
 
       {/* Desktop : split screen formulaire + aperçu */}
@@ -189,6 +179,7 @@ export default function NewPurchaseOrderPage() {
               companyInfo={companyInfo}
               onCompanyChange={handleCompanyChange}
               isSubmitting={isSubmitting}
+              onPdfPreview={() => setIsPdfPreviewOpen(true)}
             />
           </div>
         </div>

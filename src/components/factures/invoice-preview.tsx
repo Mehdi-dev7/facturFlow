@@ -27,6 +27,7 @@ interface InvoicePreviewProps {
 	companyFont?: string;
 	companyLogo?: string | null;
 	companyName?: string;
+	invoiceFooter?: string;
 }
 
 // ─── Composant principal ───────────────────────────────────────────────────────
@@ -40,6 +41,7 @@ export function InvoicePreview({
 	companyFont = DEFAULT_FONT.id,
 	companyLogo,
 	companyName = "",
+	invoiceFooter = "",
 }: InvoicePreviewProps) {
 	const clientId = useWatch({ control: form.control, name: "clientId" });
 	const newClient = useWatch({ control: form.control, name: "newClient" });
@@ -421,7 +423,7 @@ export function InvoicePreview({
 
 				{/* Footer */}
 				<div className="text-center text-[10px] text-slate-400 pt-4 border-t border-slate-100">
-					<p>Document généré par FacturNow</p>
+					<p className="whitespace-pre-line">{invoiceFooter || "Document généré par FacturNow"}</p>
 				</div>
 			</div>{/* end inner white card */}
 			</div>{/* end scrollable */}

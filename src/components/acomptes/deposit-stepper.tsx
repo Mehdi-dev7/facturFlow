@@ -50,6 +50,7 @@ interface DepositStepperProps {
 	onCompanyChange: (data: CompanyInfo) => void;
 	isSubmitting?: boolean;
 	submitLabel?: string;
+	effectivePlan?: string;
 	themeColor?: string;
 	companyFont?: string;
 	companyLogo?: string | null;
@@ -66,6 +67,7 @@ export function DepositStepper({
 	onCompanyChange,
 	isSubmitting,
 	submitLabel = "Créer",
+	effectivePlan,
 	themeColor,
 	companyFont,
 	companyLogo,
@@ -160,6 +162,7 @@ export function DepositStepper({
 						isSubmitting={isSubmitting ?? false}
 						visibleStep={step as 1 | 2 | 3}
 						hideSubmit
+						effectivePlan={effectivePlan}
 					/>
 				) : (
 					// Étape 4 : récapitulatif compact

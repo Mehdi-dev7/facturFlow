@@ -9,7 +9,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Download, Loader2, AlertCircle } from "lucide-react";
+import { Download, Loader2, AlertCircle, X } from "lucide-react";
 
 interface PdfPreviewModalProps {
   open: boolean;
@@ -19,6 +19,9 @@ interface PdfPreviewModalProps {
   filename?: string;
   title?: string;
 }
+
+// Hauteur fixe du header en pixels — utilisée pour calculer la hauteur de l'iframe
+const HEADER_HEIGHT = 52;
 
 export function PdfPreviewModal({
   open,
@@ -61,11 +64,9 @@ export function PdfPreviewModal({
       }
     })();
 
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]); // volontairement limité à `open` — on régénère à chaque ouverture
+  }, [open]);
 
   const handleDownload = () => {
     if (!pdfUrl) return;
@@ -79,48 +80,81 @@ export function PdfPreviewModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl w-[95vw] h-[90dvh] flex flex-col gap-0 p-0 overflow-hidden">
+      {/*
+        - w-[92vw] max-w-5xl : large sur desktop, quasi plein écran sur mobile
+        - h-[78dvh] : hauteur explicite réelle sur laquelle on va calculer l'iframe
+        - p-0 overflow-hidden : on gère le layout nous-mêmes
+      */}
+      <DialogContent
+        className="p-0 overflow-hidden flex flex-col gap-0"
+        style={{ width: "55vw", maxWidth: "720px", height: "78dvh" }}
+        showCloseButton={false}
+      >
         <DialogTitle className="sr-only">{title}</DialogTitle>
 
-        {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-violet-500/20 bg-white/90 dark:bg-[#1a1438] shrink-0">
-          <p className="font-semibold text-sm text-slate-800 dark:text-slate-100">
+        {/* Header fixe */}
+        <div
+          className="shrink-0 flex items-center justify-between gap-3 px-4 border-b border-slate-200 dark:border-violet-500/20 bg-white dark:bg-[#1a1438]"
+          style={{ height: HEADER_HEIGHT }}
+        >
+          <p className="font-semibold text-sm text-slate-800 dark:text-slate-100 truncate">
             {title}
           </p>
-          {pdfUrl && (
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={handleDownload}
-              className="gap-1.5 text-xs cursor-pointer"
+
+          <div className="flex items-center gap-2 shrink-0">
+            {pdfUrl && (
+              <Button
+                size="sm"
+                onClick={handleDownload}
+                className="gap-1.5 text-xs cursor-pointer bg-violet-600 hover:bg-violet-700 dark:bg-violet-600 dark:hover:bg-violet-500 text-white"
+              >
+                <Download size={13} />
+                Télécharger
+              </Button>
+            )}
+
+            {/* Bouton fermer custom */}
+            <button
+              onClick={() => onOpenChange(false)}
+              aria-label="Fermer"
+              className="rounded-lg p-1.5 text-violet-500 hover:text-violet-700 hover:bg-violet-50 dark:text-white dark:hover:bg-white/10 transition-colors cursor-pointer"
             >
-              <Download size={13} />
-              Télécharger
-            </Button>
-          )}
+              <X size={16} />
+            </button>
+          </div>
         </div>
 
-        {/* Contenu */}
-        <div className="flex-1 overflow-hidden bg-slate-100 dark:bg-slate-900/60">
+        {/*
+          Zone PDF — hauteur calculée explicitement en CSS pour que l'iframe
+          ait une hauteur réelle résolue (évite le bug h-full dans flex).
+          calc(78dvh - HEADER_HEIGHT px)
+        */}
+        <div
+          className="w-full bg-slate-100 dark:bg-slate-900/60 relative"
+          style={{ height: `calc(78dvh - ${HEADER_HEIGHT}px)` }}
+        >
+          {/* Loading */}
           {isLoading && (
-            <div className="flex flex-col items-center justify-center h-full gap-3 text-slate-500 dark:text-violet-300">
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-slate-500 dark:text-violet-300">
               <Loader2 className="animate-spin size-7" />
               <p className="text-sm">Génération du PDF…</p>
             </div>
           )}
 
+          {/* Erreur */}
           {error && (
-            <div className="flex flex-col items-center justify-center h-full gap-3 text-rose-500">
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-rose-500">
               <AlertCircle size={22} />
               <p className="text-sm">{error}</p>
             </div>
           )}
 
+          {/* Iframe PDF — #view=FitH force le zoom "fit width" dans Chrome/Edge/Firefox */}
           {pdfUrl && !isLoading && (
             <iframe
-              src={pdfUrl}
-              className="w-full h-full border-0"
+              src={`${pdfUrl}#view=FitH&toolbar=0`}
               title={title}
+              style={{ width: "100%", height: "100%", border: "none", display: "block" }}
             />
           )}
         </div>

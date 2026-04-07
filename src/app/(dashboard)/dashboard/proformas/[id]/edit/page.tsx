@@ -24,6 +24,10 @@ import {
 	type SavedProforma,
 } from "@/hooks/use-proformas";
 import { useAppearance } from "@/hooks/use-appearance";
+import { useClients } from "@/hooks/use-clients";
+import { PdfPreviewModal } from "@/components/shared/pdf-preview-modal";
+import { buildPreviewInvoice } from "@/lib/utils/pdf-preview-helpers";
+import InvoicePdfDocument from "@/lib/pdf/invoice-pdf-document";
 import { useQuery } from "@tanstack/react-query";
 import { getCurrentSubscription } from "@/lib/actions/subscription";
 
@@ -95,9 +99,11 @@ export default function EditProformaPage() {
 	const router = useRouter();
 
 	const [mounted, setMounted] = useState(false);
-	const { themeColor, companyFont, companyLogo, companyName } = useAppearance();
+	const [isPdfPreviewOpen, setIsPdfPreviewOpen] = useState(false);
+	const { themeColor, companyFont, companyLogo, companyName, invoiceFooter } = useAppearance();
 	const { data: subData } = useQuery({ queryKey: ["subscription"], queryFn: getCurrentSubscription, staleTime: 5 * 60 * 1000 });
 	const effectivePlan = subData?.success ? subData.data.effectivePlan : "FREE";
+	const { data: clients = [] } = useClients();
 	const [proforma, setProforma] = useState<SavedProforma | null>(null);
 	const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
 	const [loadError, setLoadError] = useState<string | null>(null);
@@ -145,6 +151,12 @@ export default function EditProformaPage() {
 	const handleCompanyChange = useCallback((data: CompanyInfo) => {
 		setCompanyInfo(data);
 	}, []);
+
+	const getDocumentForPreview = useCallback(() => {
+		const values = form.getValues();
+		const mock = buildPreviewInvoice(values, proforma?.number ?? "", companyInfo, { themeColor, companyFont, companyLogo, invoiceFooter }, clients);
+		return <InvoicePdfDocument invoice={mock} documentLabel="PROFORMA" />;
+	}, [form, proforma, companyInfo, themeColor, companyFont, companyLogo, clients]);
 
 	// Brouillon temporaire → créer avec numéro officiel ; sinon mettre à jour
 	const isDraft = proforma?.status === "DRAFT";
@@ -232,6 +244,7 @@ export default function EditProformaPage() {
 							}
 							submitLabel={isDraft ? "Créer la proforma" : "Sauvegarder"}
 							effectivePlan={effectivePlan}
+							onPdfPreview={() => setIsPdfPreviewOpen(true)}
 						/>
 					</div>
 				</div>
@@ -244,6 +257,7 @@ export default function EditProformaPage() {
 						companyFont={companyFont}
 						companyLogo={companyLogo}
 						companyName={companyName}
+					invoiceFooter={invoiceFooter}
 					/>
 				</div>
 			</div>
@@ -262,8 +276,17 @@ export default function EditProformaPage() {
 					companyFont={companyFont}
 					companyLogo={companyLogo}
 					companyName={companyName}
+				invoiceFooter={invoiceFooter}
 				/>
 			</div>
+
+			<PdfPreviewModal
+				open={isPdfPreviewOpen}
+				onOpenChange={setIsPdfPreviewOpen}
+				getDocument={getDocumentForPreview}
+				filename={`${proforma?.number ?? "proforma"}.pdf`}
+				title="Aperçu PDF — Proforma"
+			/>
 		</div>
 	);
 }

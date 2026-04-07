@@ -48,7 +48,7 @@ export default function NewProformaPage() {
 	const { data: companyInfoDB } = useCompanyInfoForForms();
 	const companyInfo = companyInfoLocal ?? companyInfoDB ?? null;
 
-	const { themeColor, companyFont, companyLogo, companyName } = useAppearance();
+	const { themeColor, companyFont, companyLogo, companyName, invoiceFooter } = useAppearance();
 	const { data: subData } = useQuery({ queryKey: ["subscription"], queryFn: getCurrentSubscription, staleTime: 5 * 60 * 1000 });
 	const effectivePlan = subData?.success ? subData.data.effectivePlan : "FREE";
 	const { data: clients = [] } = useClients();
@@ -98,7 +98,7 @@ export default function NewProformaPage() {
 	// Génère le document PDF à la volée pour la prévisualisation
 	const getDocumentForPreview = useCallback(() => {
 		const values = form.getValues();
-		const mock = buildPreviewInvoice(values, proformaNumber, companyInfo, { themeColor, companyFont, companyLogo }, clients);
+		const mock = buildPreviewInvoice(values, proformaNumber, companyInfo, { themeColor, companyFont, companyLogo, invoiceFooter }, clients);
 		return <InvoicePdfDocument invoice={mock} documentLabel="PROFORMA" />;
 	}, [form, proformaNumber, companyInfo, themeColor, companyFont, companyLogo, clients]);
 
@@ -215,6 +215,7 @@ export default function NewProformaPage() {
 						companyFont={companyFont}
 						companyLogo={companyLogo}
 						companyName={companyName}
+					invoiceFooter={invoiceFooter}
 					/>
 				</div>
 			</div>
@@ -232,6 +233,7 @@ export default function NewProformaPage() {
 					companyFont={companyFont}
 					companyLogo={companyLogo}
 					companyName={companyName}
+				invoiceFooter={invoiceFooter}
 				/>
 			</div>
 

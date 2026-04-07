@@ -30,10 +30,11 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Lock } from "lucide-react";
+import { Lock, Eye } from "lucide-react";
 import { canUseFeature } from "@/lib/feature-gate";
 import { UpgradeModal } from "@/components/subscription/upgrade-modal";
 import type { Feature } from "@/lib/feature-gate";
+import { useConnectedProviders } from "@/hooks/use-payment-accounts";
 import { ClientSearch } from "./client-search";
 import { CompanyInfoModal } from "./company-info-modal";
 import { ProductCombobox } from "@/components/shared/product-combobox";
@@ -75,6 +76,8 @@ interface InvoiceFormProps {
 	hideSubmit?: boolean;
 	/** Plan effectif de l'utilisateur pour gater les features */
 	effectivePlan?: string;
+	/** Callback pour ouvrir la modale d'aperçu PDF — affiche un bouton à côté de Créer */
+	onPdfPreview?: () => void;
 }
 
 // ─── Composant ───────────────────────────────────────────────────────────────
@@ -90,6 +93,7 @@ export function InvoiceForm({
 	visibleStep,
 	hideSubmit = false,
 	effectivePlan = "FREE",
+	onPdfPreview,
 }: InvoiceFormProps) {
 	const {
 		register,
@@ -104,11 +108,14 @@ export function InvoiceForm({
 	const [showCompanyModal, setShowCompanyModal] = useState(false);
 	const [upgradeFeature, setUpgradeFeature] = useState<Feature | null>(null);
 
-	// Vérifier l'accès aux providers de paiement
+	// Vérifier l'accès aux providers de paiement (plan)
 	const pseudoUser = { plan: effectivePlan, trialEndsAt: null };
 	const canStripe = canUseFeature(pseudoUser, "payment_stripe");
 	const canPaypal = canUseFeature(pseudoUser, "payment_paypal");
 	const canGocardless = canUseFeature(pseudoUser, "payment_gocardless");
+
+	// Vérifier si les providers sont réellement connectés (clé API configurée)
+	const connectedProviders = useConnectedProviders();
 
 	// État local des boutons de paiement actifs (toggle directs, sans checkbox parent)
 	const [activePayments, setActivePayments] = useState(() => {
@@ -873,23 +880,36 @@ export function InvoiceForm({
 							<div className="flex flex-wrap gap-2 xs:gap-3">
 								{/* Stripe */}
 								{canStripe ? (
-									<button
-										type="button"
-										onClick={() => togglePayment("stripe")}
-										className={`flex items-center gap-2 px-3 xs:px-4 py-2 xs:py-2.5 rounded-xl border-2 transition-all duration-300 cursor-pointer text-xs xs:text-sm font-semibold ${
-											activePayments.stripe
-												? "border-[#635BFF]/40 bg-linear-to-r from-[#635BFF]/10 to-[#7C3AED]/10 text-[#635BFF] dark:text-violet-300 shadow-sm"
-												: "border-dashed border-slate-300 dark:border-violet-400/20 text-slate-400 dark:text-violet-400/50 hover:border-[#635BFF]/40 hover:text-[#635BFF] dark:hover:border-violet-400/40"
-										}`}
-									>
-										<SiStripe className="size-3.5 xs:size-4" />
-										Stripe
-										{activePayments.stripe && (
-											<span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-linear-to-r from-[#635BFF] to-[#7C3AED] text-white">
-												Actif
-											</span>
-										)}
-									</button>
+									connectedProviders.stripe ? (
+										<button
+											type="button"
+											onClick={() => togglePayment("stripe")}
+											className={`flex items-center gap-2 px-3 xs:px-4 py-2 xs:py-2.5 rounded-xl border-2 transition-all duration-300 cursor-pointer text-xs xs:text-sm font-semibold ${
+												activePayments.stripe
+													? "border-[#635BFF]/40 bg-linear-to-r from-[#635BFF]/10 to-[#7C3AED]/10 text-[#635BFF] dark:text-violet-300 shadow-sm"
+													: "border-dashed border-slate-300 dark:border-violet-400/20 text-slate-400 dark:text-violet-400/50 hover:border-[#635BFF]/40 hover:text-[#635BFF] dark:hover:border-violet-400/40"
+											}`}
+										>
+											<SiStripe className="size-3.5 xs:size-4" />
+											Stripe
+											{activePayments.stripe && (
+												<span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-linear-to-r from-[#635BFF] to-[#7C3AED] text-white">
+													Actif
+												</span>
+											)}
+										</button>
+									) : (
+										<button
+											type="button"
+											disabled
+											title="Connectez Stripe dans vos paramètres de paiement"
+											className="flex items-center gap-2 px-3 xs:px-4 py-2 xs:py-2.5 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-700 text-slate-300 dark:text-slate-600 cursor-not-allowed text-xs xs:text-sm font-semibold opacity-60"
+										>
+											<SiStripe className="size-3.5 xs:size-4" />
+											Stripe
+											<span className="px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-700">Non connecté</span>
+										</button>
+									)
 								) : (
 									<button
 										type="button"
@@ -905,23 +925,36 @@ export function InvoiceForm({
 
 								{/* PayPal */}
 								{canPaypal ? (
-									<button
-										type="button"
-										onClick={() => togglePayment("paypal")}
-										className={`flex items-center gap-2 px-3 xs:px-4 py-2 xs:py-2.5 rounded-xl border-2 transition-all duration-300 cursor-pointer text-xs xs:text-sm font-semibold ${
-											activePayments.paypal
-												? "border-[#003087]/30 bg-linear-to-r from-[#003087]/10 to-[#009CDE]/10 text-[#003087] dark:text-blue-300 shadow-sm"
-												: "border-dashed border-slate-300 dark:border-violet-400/20 text-slate-400 dark:text-violet-400/50 hover:border-[#003087]/30 hover:text-[#003087] dark:hover:border-blue-400/40"
-										}`}
-									>
-										<SiPaypal className="size-3.5 xs:size-4" />
-										PayPal
-										{activePayments.paypal && (
-											<span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-linear-to-r from-[#003087] to-[#009CDE] text-white">
-												Actif
-											</span>
-										)}
-									</button>
+									connectedProviders.paypal ? (
+										<button
+											type="button"
+											onClick={() => togglePayment("paypal")}
+											className={`flex items-center gap-2 px-3 xs:px-4 py-2 xs:py-2.5 rounded-xl border-2 transition-all duration-300 cursor-pointer text-xs xs:text-sm font-semibold ${
+												activePayments.paypal
+													? "border-[#003087]/30 bg-linear-to-r from-[#003087]/10 to-[#009CDE]/10 text-[#003087] dark:text-blue-300 shadow-sm"
+													: "border-dashed border-slate-300 dark:border-violet-400/20 text-slate-400 dark:text-violet-400/50 hover:border-[#003087]/30 hover:text-[#003087] dark:hover:border-blue-400/40"
+											}`}
+										>
+											<SiPaypal className="size-3.5 xs:size-4" />
+											PayPal
+											{activePayments.paypal && (
+												<span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-linear-to-r from-[#003087] to-[#009CDE] text-white">
+													Actif
+												</span>
+											)}
+										</button>
+									) : (
+										<button
+											type="button"
+											disabled
+											title="Connectez PayPal dans vos paramètres de paiement"
+											className="flex items-center gap-2 px-3 xs:px-4 py-2 xs:py-2.5 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-700 text-slate-300 dark:text-slate-600 cursor-not-allowed text-xs xs:text-sm font-semibold opacity-60"
+										>
+											<SiPaypal className="size-3.5 xs:size-4" />
+											PayPal
+											<span className="px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-700">Non connecté</span>
+										</button>
+									)
 								) : (
 									<button
 										type="button"
@@ -937,23 +970,36 @@ export function InvoiceForm({
 
 								{/* GoCardless SEPA */}
 								{canGocardless ? (
-									<button
-										type="button"
-										onClick={() => togglePayment("gocardless")}
-										className={`flex items-center gap-2 px-3 xs:px-4 py-2 xs:py-2.5 rounded-xl border-2 transition-all duration-300 cursor-pointer text-xs xs:text-sm font-semibold ${
-											activePayments.gocardless
-												? "border-[#0F766E]/30 bg-linear-to-r from-[#0F766E]/10 to-[#059669]/10 text-[#0F766E] dark:text-emerald-300 shadow-sm"
-												: "border-dashed border-slate-300 dark:border-violet-400/20 text-slate-400 dark:text-violet-400/50 hover:border-[#0F766E]/30 hover:text-[#0F766E] dark:hover:border-emerald-400/40"
-										}`}
-									>
-										<span className="size-3.5 xs:size-4 flex items-center justify-center font-black text-[10px]">GC</span>
-										SEPA
-										{activePayments.gocardless && (
-											<span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-linear-to-r from-[#0F766E] to-[#059669] text-white">
-												Actif
-											</span>
-										)}
-									</button>
+									connectedProviders.gocardless ? (
+										<button
+											type="button"
+											onClick={() => togglePayment("gocardless")}
+											className={`flex items-center gap-2 px-3 xs:px-4 py-2 xs:py-2.5 rounded-xl border-2 transition-all duration-300 cursor-pointer text-xs xs:text-sm font-semibold ${
+												activePayments.gocardless
+													? "border-[#0F766E]/30 bg-linear-to-r from-[#0F766E]/10 to-[#059669]/10 text-[#0F766E] dark:text-emerald-300 shadow-sm"
+													: "border-dashed border-slate-300 dark:border-violet-400/20 text-slate-400 dark:text-violet-400/50 hover:border-[#0F766E]/30 hover:text-[#0F766E] dark:hover:border-emerald-400/40"
+											}`}
+										>
+											<span className="size-3.5 xs:size-4 flex items-center justify-center font-black text-[10px]">GC</span>
+											SEPA
+											{activePayments.gocardless && (
+												<span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-linear-to-r from-[#0F766E] to-[#059669] text-white">
+													Actif
+												</span>
+											)}
+										</button>
+									) : (
+										<button
+											type="button"
+											disabled
+											title="Connectez GoCardless dans vos paramètres de paiement"
+											className="flex items-center gap-2 px-3 xs:px-4 py-2 xs:py-2.5 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-700 text-slate-300 dark:text-slate-600 cursor-not-allowed text-xs xs:text-sm font-semibold opacity-60"
+										>
+											<span className="size-3.5 xs:size-4 flex items-center justify-center font-black text-[10px]">GC</span>
+											SEPA
+											<span className="px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-700">Non connecté</span>
+										</button>
+									)
 								) : (
 									<button
 										type="button"
@@ -978,14 +1024,25 @@ export function InvoiceForm({
 					</p>
 				)}
 
-				{/* Bouton de soumission — caché quand le stepper gère la navigation */}
+				{/* Boutons d'action — cachés quand le stepper gère la navigation */}
 				{!hideSubmit && (
-					<div className="lg:ml-auto lg:w-1/3">
+					<div className="flex items-center gap-3 lg:justify-end">
+						{/* Aperçu PDF — visible uniquement si le callback est fourni */}
+						{onPdfPreview && (
+							<button
+								type="button"
+								onClick={onPdfPreview}
+								className="rounded-lg border px-4 h-11 text-sm font-medium transition-colors gap-2 flex items-center border-sky-300 text-sky-600 hover:bg-sky-50 dark:border-sky-500/50 dark:text-sky-400 dark:hover:bg-sky-950/50 cursor-pointer shrink-0"
+							>
+								<Eye size={15} />
+								Aperçu PDF
+							</button>
+						)}
 						<Button
 							type="submit"
 							variant="gradient"
 							disabled={isSubmitting}
-							className="w-full h-11 cursor-pointer transition-all duration-300 hover:scale-103 disabled:opacity-70 disabled:cursor-not-allowed"
+							className="flex-1 lg:flex-none lg:min-w-44 h-11 cursor-pointer transition-all duration-300 hover:scale-103 disabled:opacity-70 disabled:cursor-not-allowed"
 						>
 							{isSubmitting ? "En cours…" : submitLabel}
 						</Button>

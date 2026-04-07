@@ -17,6 +17,7 @@ import {
 	Tag,
 	X,
 	Banknote,
+	Eye,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -77,6 +78,8 @@ interface QuoteFormProps {
 	visibleStep?: 1 | 2 | 3;
 	/** Cache le bouton de soumission (le stepper gère sa propre navigation) */
 	hideSubmit?: boolean;
+	/** Callback pour ouvrir l'aperçu PDF (optionnel) */
+	onPdfPreview?: () => void;
 }
 
 export function QuoteForm({
@@ -88,6 +91,7 @@ export function QuoteForm({
 	isSubmitting,
 	visibleStep,
 	hideSubmit = false,
+	onPdfPreview,
 }: QuoteFormProps) {
 	const {
 		register,
@@ -862,14 +866,24 @@ export function QuoteForm({
 
 				{/* Bouton de soumission — caché quand le stepper gère la navigation */}
 				{!hideSubmit && (
-					<div className="lg:ml-auto lg:w-1/3">
+					<div className="flex items-center gap-3 lg:justify-end">
+						{onPdfPreview && (
+							<button
+								type="button"
+								onClick={onPdfPreview}
+								className="rounded-lg border px-4 h-11 text-sm font-medium transition-colors gap-2 flex items-center border-sky-300 text-sky-600 hover:bg-sky-50 dark:border-sky-500/50 dark:text-sky-400 dark:hover:bg-sky-950/50 cursor-pointer shrink-0"
+							>
+								<Eye size={15} />
+								Aperçu PDF
+							</button>
+						)}
 						<Button
 							type="submit"
 							variant="gradient"
 							disabled={isSubmitting}
-							className="w-full h-11 cursor-pointer transition-all duration-300 hover:scale-101"
+							className="flex-1 lg:flex-none lg:min-w-44 h-11 cursor-pointer transition-all duration-300 hover:scale-101"
 						>
-							{isSubmitting ? "Création en cours…" : "Créer le devis"}
+							{isSubmitting ? "En cours…" : "Créer le devis"}
 						</Button>
 					</div>
 				)}

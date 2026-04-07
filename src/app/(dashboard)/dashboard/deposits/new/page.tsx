@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Eye } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { DepositForm } from "@/components/acomptes/deposit-form";
@@ -16,6 +16,8 @@ import { useCreateDeposit, useSaveDraftDeposit } from "@/hooks/use-deposits";
 import { getNextDepositNumber } from "@/lib/actions/deposits";
 import type { CompanyInfo } from "@/lib/validations/invoice";
 import { useAppearance } from "@/hooks/use-appearance";
+import { useQuery } from "@tanstack/react-query";
+import { getCurrentSubscription } from "@/lib/actions/subscription";
 import { useCompanyInfoForForms } from "@/hooks/use-company";
 import { useClients } from "@/hooks/use-clients";
 import { PdfPreviewModal } from "@/components/shared/pdf-preview-modal";
@@ -69,6 +71,8 @@ export default function NewDepositPage() {
   const companyInfo = companyInfoLocal ?? companyInfoDB ?? null;
 
   	const { themeColor, companyFont, companyLogo, companyName } = useAppearance();
+  const { data: subData } = useQuery({ queryKey: ["subscription"], queryFn: getCurrentSubscription, staleTime: 5 * 60 * 1000 });
+  const effectivePlan = subData?.success ? subData.data.effectivePlan : "FREE";
 
 	const { data: clients = [] } = useClients();
 	const [isPdfPreviewOpen, setIsPdfPreviewOpen] = useState(false);
@@ -233,16 +237,6 @@ export default function NewDepositPage() {
             )}
           </p>
         </div>
-        {/* Bouton aperçu PDF — masqué sur mobile */}
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setIsPdfPreviewOpen(true)}
-          className="gap-1.5 text-xs cursor-pointer hidden sm:flex"
-        >
-          <Eye size={14} />
-          Aperçu PDF
-        </Button>
       </div>
 
       {/* Desktop : split screen */}
@@ -255,6 +249,8 @@ export default function NewDepositPage() {
               companyInfo={companyInfo}
               onCompanyChange={handleCompanyChange}
               isSubmitting={createDeposit.isPending}
+              effectivePlan={effectivePlan}
+              onPdfPreview={() => setIsPdfPreviewOpen(true)}
             />
           </div>
         </div>
@@ -280,7 +276,7 @@ export default function NewDepositPage() {
           companyInfo={companyInfo}
           onCompanyChange={handleCompanyChange}
           isSubmitting={createDeposit.isPending}
-
+          effectivePlan={effectivePlan}
 				themeColor={themeColor}
 				companyFont={companyFont}
 				companyLogo={companyLogo}

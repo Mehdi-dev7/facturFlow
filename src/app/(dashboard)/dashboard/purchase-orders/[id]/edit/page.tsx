@@ -19,6 +19,10 @@ import {
   INVOICE_TYPES,
 } from "@/lib/validations/purchase-order";
 import { useAppearance } from "@/hooks/use-appearance";
+import { useClients } from "@/hooks/use-clients";
+import { PdfPreviewModal } from "@/components/shared/pdf-preview-modal";
+import { buildPreviewPurchaseOrder } from "@/lib/utils/pdf-preview-helpers";
+import PurchaseOrderPdfDocument from "@/lib/pdf/purchase-order-pdf-document";
 import type { SavedPurchaseOrder } from "@/lib/pdf/purchase-order-pdf-document";
 
 // TODO: brancher sur les hooks et actions backend une fois l'agent backend terminé
@@ -90,7 +94,9 @@ export default function EditPurchaseOrderPage() {
 
   const [mounted, setMounted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPdfPreviewOpen, setIsPdfPreviewOpen] = useState(false);
   const { themeColor, companyFont, companyLogo, companyName } = useAppearance();
+  const { data: clients = [] } = useClients();
   const [purchaseOrder, setPurchaseOrder] = useState<SavedPurchaseOrder | null>(null);
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -129,6 +135,12 @@ export default function EditPurchaseOrderPage() {
   const handleCompanyChange = useCallback((data: CompanyInfo) => {
     setCompanyInfo(data);
   }, []);
+
+  const getDocumentForPreview = useCallback(() => {
+    const values = form.getValues();
+    const mock = buildPreviewPurchaseOrder(values, purchaseOrder?.number ?? "", companyInfo, { themeColor, companyFont, companyLogo }, clients);
+    return <PurchaseOrderPdfDocument purchaseOrder={mock} />;
+  }, [form, purchaseOrder, companyInfo, themeColor, companyFont, companyLogo, clients]);
 
   // ─── Submit : mettre à jour le BC ─────────────────────────────────────────
   const onSubmit = useCallback(
@@ -200,6 +212,7 @@ export default function EditPurchaseOrderPage() {
               companyInfo={companyInfo}
               onCompanyChange={handleCompanyChange}
               isSubmitting={isSubmitting}
+              onPdfPreview={() => setIsPdfPreviewOpen(true)}
             />
           </div>
         </div>
@@ -231,6 +244,13 @@ export default function EditPurchaseOrderPage() {
           companyName={companyName}
         />
       </div>
+      <PdfPreviewModal
+        open={isPdfPreviewOpen}
+        onOpenChange={setIsPdfPreviewOpen}
+        getDocument={getDocumentForPreview}
+        filename={`${purchaseOrder?.number ?? "bon-de-commande"}.pdf`}
+        title="Aperçu PDF — Bon de commande"
+      />
     </div>
   );
 }

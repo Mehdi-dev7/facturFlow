@@ -22,6 +22,10 @@ import { useUpdateInvoice, useCreateInvoice, type SavedInvoice } from "@/hooks/u
 import { useAppearance } from "@/hooks/use-appearance";
 import { useQuery } from "@tanstack/react-query";
 import { getCurrentSubscription } from "@/lib/actions/subscription";
+import { useClients } from "@/hooks/use-clients";
+import { PdfPreviewModal } from "@/components/shared/pdf-preview-modal";
+import { buildPreviewInvoice } from "@/lib/utils/pdf-preview-helpers";
+import InvoicePdfDocument from "@/lib/pdf/invoice-pdf-document";
 
 // ─── Mapping DB → valeurs du formulaire ───────────────────────────────────────
 
@@ -91,9 +95,11 @@ export default function EditInvoicePage() {
 	const router = useRouter();
 
 	const [mounted, setMounted] = useState(false);
-	const { themeColor, companyFont, companyLogo, companyName } = useAppearance();
+	const [isPdfPreviewOpen, setIsPdfPreviewOpen] = useState(false);
+	const { themeColor, companyFont, companyLogo, companyName, invoiceFooter } = useAppearance();
 	const { data: subData } = useQuery({ queryKey: ["subscription"], queryFn: getCurrentSubscription, staleTime: 5 * 60 * 1000 });
 	const effectivePlan = subData?.success ? subData.data.effectivePlan : "FREE";
+	const { data: clients = [] } = useClients();
 	const [invoice, setInvoice] = useState<SavedInvoice | null>(null);
 	const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
 	const [loadError, setLoadError] = useState<string | null>(null);
@@ -146,6 +152,12 @@ export default function EditInvoicePage() {
 	const handleCompanyChange = useCallback((data: CompanyInfo) => {
 		setCompanyInfo(data);
 	}, []);
+
+	const getDocumentForPreview = useCallback(() => {
+		const values = form.getValues();
+		const mock = buildPreviewInvoice(values, invoice?.number ?? "", companyInfo, { themeColor, companyFont, companyLogo, invoiceFooter }, clients);
+		return <InvoicePdfDocument invoice={mock} />;
+	}, [form, invoice, companyInfo, themeColor, companyFont, companyLogo, clients]);
 
 	// ─── Submit ──────────────────────────────────────────────────────────────
 	// Brouillon → créer avec numéro officiel ; facture existante → mettre à jour
@@ -233,6 +245,7 @@ export default function EditInvoicePage() {
 							isSubmitting={updateMutation.isPending || createMutation.isPending}
 							submitLabel={isDraft ? "Créer la facture" : "Sauvegarder"}
 							effectivePlan={effectivePlan}
+							onPdfPreview={() => setIsPdfPreviewOpen(true)}
 						/>
 					</div>
 				</div>
@@ -246,6 +259,7 @@ export default function EditInvoicePage() {
 					companyFont={companyFont}
 					companyLogo={companyLogo}
 				companyName={companyName}
+				invoiceFooter={invoiceFooter}
 				/>
 				</div>
 			</div>
@@ -264,8 +278,17 @@ export default function EditInvoicePage() {
 					companyFont={companyFont}
 					companyLogo={companyLogo}
 					companyName={companyName}
+				invoiceFooter={invoiceFooter}
 				/>
 			</div>
+
+			<PdfPreviewModal
+				open={isPdfPreviewOpen}
+				onOpenChange={setIsPdfPreviewOpen}
+				getDocument={getDocumentForPreview}
+				filename={`${invoice?.number ?? "facture"}.pdf`}
+				title="Aperçu PDF — Facture"
+			/>
 		</div>
 	);
 }

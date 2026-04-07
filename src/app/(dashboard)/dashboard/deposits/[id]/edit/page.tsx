@@ -14,6 +14,12 @@ import { getDeposit } from "@/lib/actions/deposits";
 import { useUpdateDeposit, type SavedDeposit } from "@/hooks/use-deposits";
 import type { CompanyInfo } from "@/lib/validations/invoice";
 import { useCompanyInfoForForms } from "@/hooks/use-company";
+import { useQuery } from "@tanstack/react-query";
+import { getCurrentSubscription } from "@/lib/actions/subscription";
+import { useClients } from "@/hooks/use-clients";
+import { PdfPreviewModal } from "@/components/shared/pdf-preview-modal";
+import { buildPreviewDeposit } from "@/lib/utils/pdf-preview-helpers";
+import DepositPdfDocument from "@/lib/pdf/deposit-pdf-document";
 
 // ─── Schema local ─────────────────────────────────────────────────────────────
 
@@ -71,6 +77,10 @@ export default function EditDepositPage() {
   const depositId = params.id as string;
 
   const [mounted, setMounted] = useState(false);
+  const [isPdfPreviewOpen, setIsPdfPreviewOpen] = useState(false);
+  const { data: subData } = useQuery({ queryKey: ["subscription"], queryFn: getCurrentSubscription, staleTime: 5 * 60 * 1000 });
+  const effectivePlan = subData?.success ? subData.data.effectivePlan : "FREE";
+  const { data: clients = [] } = useClients();
   const [deposit, setDeposit] = useState<SavedDeposit | null>(null);
   const [companyInfoLocal, setCompanyInfoLocal] = useState<CompanyInfo | null>(null);
   const [loading, setLoading] = useState(true);
@@ -145,6 +155,12 @@ export default function EditDepositPage() {
     setCompanyInfoLocal(data);
   }, []);
 
+  const getDocumentForPreview = useCallback(() => {
+    const values = form.getValues();
+    const mock = buildPreviewDeposit(values, deposit?.number ?? "", companyInfo);
+    return <DepositPdfDocument deposit={mock} />;
+  }, [form, deposit, companyInfo]);
+
   const onSubmit = useCallback(
     async (data: DepositFormData) => {
       if (!deposit) return;
@@ -208,6 +224,8 @@ export default function EditDepositPage() {
               onCompanyChange={handleCompanyChange}
               isSubmitting={updateMutation.isPending}
               submitLabel="Sauvegarder"
+              effectivePlan={effectivePlan}
+              onPdfPreview={() => setIsPdfPreviewOpen(true)}
             />
           </div>
         </div>
@@ -230,8 +248,17 @@ export default function EditDepositPage() {
           onCompanyChange={handleCompanyChange}
           isSubmitting={updateMutation.isPending}
           submitLabel="Sauvegarder"
+          effectivePlan={effectivePlan}
+          onPdfPreview={() => setIsPdfPreviewOpen(true)}
         />
       </div>
+      <PdfPreviewModal
+        open={isPdfPreviewOpen}
+        onOpenChange={setIsPdfPreviewOpen}
+        getDocument={getDocumentForPreview}
+        filename={`${deposit?.number ?? "acompte"}.pdf`}
+        title="Aperçu PDF — Acompte"
+      />
     </div>
   );
 }

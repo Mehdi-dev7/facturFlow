@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft, Eye } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { QuoteForm } from "@/components/devis/quote-form";
@@ -180,16 +180,6 @@ export default function NewQuotePage() {
 						)}
 					</p>
 				</div>
-				{/* Bouton aperçu PDF — masqué sur mobile */}
-				<Button
-					variant="outline"
-					size="sm"
-					onClick={() => setIsPdfPreviewOpen(true)}
-					className="gap-1.5 text-xs cursor-pointer hidden sm:flex"
-				>
-					<Eye size={14} />
-					Aperçu PDF
-				</Button>
 			</div>
 
 			{/* Desktop: split screen */}
@@ -203,6 +193,7 @@ export default function NewQuotePage() {
 							companyInfo={companyInfo}
 							onCompanyChange={handleCompanyChange}
 							isSubmitting={createMutation.isPending}
+							onPdfPreview={() => setIsPdfPreviewOpen(true)}
 						/>
 					</div>
 				</div>

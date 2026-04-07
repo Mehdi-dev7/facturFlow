@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect, useRef, Suspense } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSearchParams } from "next/navigation";
-import { ArrowLeft, Eye } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { InvoiceForm } from "@/components/factures/invoice-form";
@@ -55,7 +55,7 @@ function NewInvoicePageContent() {
 	const companyInfo = companyInfoLocal ?? companyInfoDB ?? null;
 
 	// Mutation de création (gère toast + redirect auto vers /dashboard/invoices?preview=<id>)
-		const { themeColor, companyFont, companyLogo, companyName } = useAppearance();
+		const { themeColor, companyFont, companyLogo, companyName, invoiceFooter } = useAppearance();
 
 	const { data: subData } = useQuery({ queryKey: ["subscription"], queryFn: getCurrentSubscription, staleTime: 5 * 60 * 1000 });
 	const effectivePlan = subData?.success ? subData.data.effectivePlan : "FREE";
@@ -158,7 +158,7 @@ function NewInvoicePageContent() {
 	// Génère le document PDF à la volée pour la prévisualisation
 	const getDocumentForPreview = useCallback(() => {
 		const values = form.getValues();
-		const mock = buildPreviewInvoice(values, invoiceNumber, companyInfo, { themeColor, companyFont, companyLogo }, clients);
+		const mock = buildPreviewInvoice(values, invoiceNumber, companyInfo, { themeColor, companyFont, companyLogo, invoiceFooter }, clients);
 		return <InvoicePdfDocument invoice={mock} />;
 	}, [form, invoiceNumber, companyInfo, themeColor, companyFont, companyLogo, clients]);
 
@@ -239,16 +239,6 @@ function NewInvoicePageContent() {
 						)}
 					</p>
 				</div>
-				{/* Bouton aperçu PDF — masqué sur mobile (la préview live existe déjà sur desktop) */}
-				<Button
-					variant="outline"
-					size="sm"
-					onClick={() => setIsPdfPreviewOpen(true)}
-					className="gap-1.5 text-xs cursor-pointer hidden sm:flex"
-				>
-					<Eye size={14} />
-					Aperçu PDF
-				</Button>
 			</div>
 
 			{/* Desktop: split screen */}
@@ -263,11 +253,12 @@ function NewInvoicePageContent() {
 							onCompanyChange={handleCompanyChange}
 							isSubmitting={createMutation.isPending}
 							effectivePlan={effectivePlan}
+							onPdfPreview={() => setIsPdfPreviewOpen(true)}
 						/>
 					</div>
 				</div>
 				<div className="sticky top-6 self-start">
-					<InvoicePreview form={form} invoiceNumber={invoiceNumber} companyInfo={companyInfo} themeColor={themeColor} companyFont={companyFont} companyLogo={companyLogo} companyName={companyName} />
+					<InvoicePreview form={form} invoiceNumber={invoiceNumber} companyInfo={companyInfo} themeColor={themeColor} companyFont={companyFont} companyLogo={companyLogo} companyName={companyName} invoiceFooter={invoiceFooter} />
 				</div>
 			</div>
 
@@ -284,6 +275,7 @@ function NewInvoicePageContent() {
 					companyFont={companyFont}
 					companyLogo={companyLogo}
 					companyName={companyName}
+				invoiceFooter={invoiceFooter}
 				/>
 			</div>
 

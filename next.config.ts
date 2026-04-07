@@ -32,7 +32,8 @@ const cspDirectives = [
   // data: + blob: requis par @react-pdf/renderer (charge son module wasm via data URI)
   "connect-src 'self' data: blob: https://*.supabase.co https://api.resend.com https://api.stripe.com https://api.sandbox.gocardless.com https://api.gocardless.com",
   // Iframes : on en a besoin uniquement pour Stripe Elements / GoCardless flows
-  "frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://pay.gocardless.com",
+  // blob: requis pour PdfPreviewModal (iframe affichant un Blob URL généré côté client)
+  "frame-src 'self' blob: https://js.stripe.com https://hooks.stripe.com https://pay.gocardless.com",
   // Bloque le chargement de NOTRE app dans une iframe externe (clickjacking)
   "frame-ancestors 'none'",
   // Objets et embeds : interdits

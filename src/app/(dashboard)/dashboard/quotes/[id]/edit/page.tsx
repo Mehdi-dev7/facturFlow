@@ -19,6 +19,10 @@ import {
 import { getQuote } from "@/lib/actions/quotes";
 import { useUpdateQuote, type SavedQuote } from "@/hooks/use-quotes";
 import { useAppearance } from "@/hooks/use-appearance";
+import { useClients } from "@/hooks/use-clients";
+import { PdfPreviewModal } from "@/components/shared/pdf-preview-modal";
+import { buildPreviewQuote } from "@/lib/utils/pdf-preview-helpers";
+import QuotePdfDocument from "@/lib/pdf/quote-pdf-document";
 
 // ─── Mapping DB → valeurs du formulaire ───────────────────────────────────────
 
@@ -79,7 +83,9 @@ export default function EditQuotePage() {
 	const router = useRouter();
 
 	const [mounted, setMounted] = useState(false);
+	const [isPdfPreviewOpen, setIsPdfPreviewOpen] = useState(false);
 	const { themeColor, companyFont, companyLogo, companyName } = useAppearance();
+	const { data: clients = [] } = useClients();
 	const [quote, setQuote] = useState<SavedQuote | null>(null);
 	const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
 	const [loadError, setLoadError] = useState<string | null>(null);
@@ -131,6 +137,12 @@ export default function EditQuotePage() {
 	const handleCompanyChange = useCallback((data: CompanyInfo) => {
 		setCompanyInfo(data);
 	}, []);
+
+	const getDocumentForPreview = useCallback(() => {
+		const values = form.getValues();
+		const mock = buildPreviewQuote(values, quote?.number ?? "", companyInfo, { themeColor, companyFont, companyLogo }, clients);
+		return <QuotePdfDocument quote={mock} />;
+	}, [form, quote, companyInfo, themeColor, companyFont, companyLogo, clients]);
 
 	// ─── Submit : mettre a jour le devis ───────────────────────────────────
 	const onSubmit = useCallback(
@@ -206,6 +218,7 @@ export default function EditQuotePage() {
 							quoteNumber={quote?.number ?? ""}
 							companyInfo={companyInfo}
 							onCompanyChange={handleCompanyChange}
+							onPdfPreview={() => setIsPdfPreviewOpen(true)}
 						/>
 					</div>
 				</div>
@@ -238,6 +251,14 @@ export default function EditQuotePage() {
 				companyName={companyName}
 				/>
 			</div>
+
+			<PdfPreviewModal
+				open={isPdfPreviewOpen}
+				onOpenChange={setIsPdfPreviewOpen}
+				getDocument={getDocumentForPreview}
+				filename={`${quote?.number ?? "devis"}.pdf`}
+				title="Aperçu PDF — Devis"
+			/>
 		</div>
 	);
 }
