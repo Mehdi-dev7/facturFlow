@@ -4,8 +4,7 @@
 // Création directement depuis cette page via sélection d'une facture (pattern identique aux reçus)
 
 import { useState, useMemo, useCallback, Suspense } from "react";
-import dynamic from "next/dynamic";
-import { FileMinus, Download, Loader2, Send, CheckCircle2 } from "lucide-react";
+import { FileMinus, Loader2, Send, CheckCircle2 } from "lucide-react";
 import {
   PageHeader,
   KpiCard,
@@ -30,18 +29,12 @@ import { useCreditNotes, useDeleteCreditNote } from "@/hooks/use-credit-notes";
 import { SkeletonTable } from "@/components/ui/skeleton-table";
 import type { SavedCreditNote } from "@/lib/types/credit-notes";
 import { CREDIT_NOTE_REASONS } from "@/lib/types/credit-notes";
-import { CreditNotePdfDocument } from "@/lib/pdf/credit-note-pdf-document";
 import { useInvoices } from "@/hooks/use-invoices";
 import { createCreditNote } from "@/lib/actions/credit-notes";
 import { sendCreditNoteEmail } from "@/lib/actions/send-credit-note-email";
+import { CreditNotePreviewModal } from "@/components/avoirs/credit-note-preview-modal";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
-
-// PDFDownloadLink chargé côté client uniquement
-const PDFDownloadLink = dynamic(
-  () => import("@react-pdf/renderer").then((m) => m.PDFDownloadLink),
-  { ssr: false, loading: () => null },
-);
 
 // ─── Types & Helpers ──────────────────────────────────────────────────────────
 
@@ -319,6 +312,8 @@ function AvoirsPageContent() {
   const [search, setSearch] = useState("");
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [selectedMonth, setSelectedMonth] = useState(() => new Date());
+  const [previewCreditNote, setPreviewCreditNote] = useState<SavedCreditNote | null>(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   const { data: allCreditNotes = [], isLoading } = useCreditNotes();
   const deleteMutation = useDeleteCreditNote();
@@ -331,6 +326,14 @@ function AvoirsPageContent() {
 
   const handleSearch = useCallback((v: string) => setSearch(v), []);
   const handleMonthChange = useCallback((date: Date) => setSelectedMonth(date), []);
+
+  const handleRowClick = useCallback((row: CreditNoteRow) => {
+    const cn = creditNoteMap.get(row.id);
+    if (cn) {
+      setPreviewCreditNote(cn);
+      setIsPreviewOpen(true);
+    }
+  }, [creditNoteMap]);
 
   // Clé du mois sélectionné au format "YYYY-MM"
   const selectedMonthKey = useMemo(() => getMonthKey(selectedMonth.toISOString()), [selectedMonth]);
@@ -463,36 +466,6 @@ function AvoirsPageContent() {
           </span>
         ),
       },
-      {
-        key: "id",
-        label: "PDF",
-        align: "center",
-        render: (row) => {
-          const cn = creditNoteMap.get(row.id);
-          if (!cn) return null;
-          return (
-            <PDFDownloadLink
-              document={<CreditNotePdfDocument creditNote={cn} />}
-              fileName={`${cn.number}.pdf`}
-            >
-              {({ loading }) =>
-                loading ? (
-                  <Loader2 className="size-4 animate-spin text-slate-400 mx-auto" />
-                ) : (
-                  <button
-                    type="button"
-                    className="flex items-center gap-1 text-xs font-medium text-rose-600 hover:text-rose-800 dark:text-rose-400 dark:hover:text-rose-300 transition-colors cursor-pointer mx-auto"
-                    aria-label={`Télécharger le PDF de l'avoir ${cn.number}`}
-                  >
-                    <Download className="size-3.5" />
-                    <span className="hidden lg:inline">PDF</span>
-                  </button>
-                )
-              }
-            </PDFDownloadLink>
-          );
-        },
-      },
     ],
     [creditNoteMap],
   );
@@ -575,6 +548,7 @@ function AvoirsPageContent() {
           limit={10}
           mobileFields={["number", "client"]}
           mobileAmountKey="amount"
+          onRowClick={handleRowClick}
           actions={(row) => (
             <ActionButtons onDelete={() => setDeleteTargetId(row.id)} />
           )}
@@ -600,6 +574,13 @@ function AvoirsPageContent() {
         isDeleting={deleteMutation.isPending}
         documentLabel="l'avoir"
         documentNumber={deleteTargetId ? (creditNoteMap.get(deleteTargetId)?.number ?? "") : ""}
+      />
+
+      {/* Modale prévisualisation avoir */}
+      <CreditNotePreviewModal
+        creditNote={previewCreditNote}
+        open={isPreviewOpen}
+        onOpenChange={setIsPreviewOpen}
       />
     </div>
   );

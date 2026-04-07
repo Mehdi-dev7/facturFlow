@@ -170,7 +170,7 @@ export function InvoicePreview({
 						const ht = qty * (line.unitPrice || 0);
 						return (
 							<div key={i} className="flex justify-between gap-2">
-								<span className="text-slate-700 dark:text-slate-300 truncate flex-1">
+								<span className="text-slate-700 dark:text-slate-300 break-words min-w-0 flex-1">
 									{line.description || <span className="italic text-slate-300">Ligne {i + 1}</span>}
 								</span>
 								<span className="text-slate-500 dark:text-slate-400 shrink-0">{fmt(ht)} €</span>
@@ -476,7 +476,7 @@ function LinesTable({ title, lines, isForfait, typeConfig, fmt, themeColor }: Li
 							const ht = qty * (line.unitPrice || 0);
 							return (
 								<tr key={i} className="border-t border-slate-100 bg-slate-50/50">
-									<td className="p-2 lg:p-3 text-xs lg:text-sm text-slate-700">
+									<td className="p-2 lg:p-3 text-xs lg:text-sm text-slate-700 break-words">
 										{line.description || <span className="text-slate-300 italic">Ligne {i + 1}</span>}
 									</td>
 									{!isForfait && (

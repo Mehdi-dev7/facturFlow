@@ -96,16 +96,16 @@ export async function sendPurchaseOrderEmail(
 			.map(
 				(li) => `
 				<tr>
-					<td style="padding: 8px 12px; border-bottom: 1px solid #e2e8f0; color: #334155; font-size: 14px;">
+					<td style="padding: 8px 12px; border-bottom: 1px solid #e2e8f0; color: #334155; font-size: 14px; word-break: break-word;">
 						${li.description}
 					</td>
-					<td style="padding: 8px 12px; border-bottom: 1px solid #e2e8f0; text-align: center; color: #475569; font-size: 14px;">
+					<td style="padding: 8px 12px; border-bottom: 1px solid #e2e8f0; text-align: center; color: #475569; font-size: 14px; white-space: nowrap;">
 						${li.quantity.toNumber()}
 					</td>
-					<td style="padding: 8px 12px; border-bottom: 1px solid #e2e8f0; text-align: right; color: #475569; font-size: 14px;">
+					<td style="padding: 8px 12px; border-bottom: 1px solid #e2e8f0; text-align: right; color: #475569; font-size: 14px; white-space: nowrap;">
 						${li.unitPrice.toNumber().toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €
 					</td>
-					<td style="padding: 8px 12px; border-bottom: 1px solid #e2e8f0; text-align: right; font-weight: 600; color: #334155; font-size: 14px;">
+					<td style="padding: 8px 12px; border-bottom: 1px solid #e2e8f0; text-align: right; font-weight: 600; color: #334155; font-size: 14px; white-space: nowrap;">
 						${li.total.toNumber().toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €
 					</td>
 				</tr>`,

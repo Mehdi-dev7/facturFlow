@@ -4,8 +4,7 @@
 // Pattern identique à avoirs/page.tsx — couleur teal #0d9488
 
 import { useState, useMemo, useCallback, Suspense } from "react";
-import dynamic from "next/dynamic";
-import { Truck, Download, Loader2, CheckCircle2 } from "lucide-react";
+import { Truck, Loader2, CheckCircle2 } from "lucide-react";
 import {
   PageHeader,
   KpiCard,
@@ -22,17 +21,11 @@ import { InvoiceSearchCombobox } from "@/components/shared/invoice-search-combob
 import { useDeliveryNotes, useDeleteDeliveryNote } from "@/hooks/use-delivery-notes";
 import { SkeletonTable } from "@/components/ui/skeleton-table";
 import type { SavedDeliveryNote } from "@/lib/types/delivery-notes";
-import { DeliveryNotePdfDocument } from "@/lib/pdf/delivery-note-pdf-document";
 import { useInvoices } from "@/hooks/use-invoices";
 import { createDeliveryNote } from "@/lib/actions/delivery-notes";
+import { DeliveryNotePreviewModal } from "@/components/livraisons/delivery-note-preview-modal";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
-
-// PDFDownloadLink chargé côté client uniquement
-const PDFDownloadLink = dynamic(
-  () => import("@react-pdf/renderer").then((m) => m.PDFDownloadLink),
-  { ssr: false, loading: () => null },
-);
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -260,6 +253,8 @@ function LivraisonsPageContent() {
   const [search, setSearch] = useState("");
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [selectedMonth, setSelectedMonth] = useState(() => new Date());
+  const [previewDeliveryNote, setPreviewDeliveryNote] = useState<SavedDeliveryNote | null>(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   const { data: allDeliveryNotes = [], isLoading } = useDeliveryNotes();
   const deleteMutation = useDeleteDeliveryNote();
@@ -273,6 +268,14 @@ function LivraisonsPageContent() {
 
   const handleSearch = useCallback((v: string) => setSearch(v), []);
   const handleMonthChange = useCallback((date: Date) => setSelectedMonth(date), []);
+
+  const handleRowClick = useCallback((row: DeliveryNoteRow) => {
+    const dn = deliveryNoteMap.get(row.id);
+    if (dn) {
+      setPreviewDeliveryNote(dn);
+      setIsPreviewOpen(true);
+    }
+  }, [deliveryNoteMap]);
 
   // Clé du mois sélectionné au format "YYYY-MM"
   const selectedMonthKey = useMemo(() => getMonthKey(selectedMonth.toISOString()), [selectedMonth]);
@@ -393,36 +396,6 @@ function LivraisonsPageContent() {
           </span>
         ),
       },
-      {
-        key: "id",
-        label: "PDF",
-        align: "center",
-        render: (row) => {
-          const dn = deliveryNoteMap.get(row.id);
-          if (!dn) return null;
-          return (
-            <PDFDownloadLink
-              document={<DeliveryNotePdfDocument deliveryNote={dn} />}
-              fileName={`${dn.number}.pdf`}
-            >
-              {({ loading }) =>
-                loading ? (
-                  <Loader2 className="size-4 animate-spin text-slate-400 mx-auto" />
-                ) : (
-                  <button
-                    type="button"
-                    className="flex items-center gap-1 text-xs font-medium text-teal-600 hover:text-teal-800 dark:text-teal-400 dark:hover:text-teal-300 transition-colors cursor-pointer mx-auto"
-                    aria-label={`Télécharger le PDF du bon de livraison ${dn.number}`}
-                  >
-                    <Download className="size-3.5" />
-                    <span className="hidden lg:inline">PDF</span>
-                  </button>
-                )
-              }
-            </PDFDownloadLink>
-          );
-        },
-      },
     ],
     [deliveryNoteMap],
   );
@@ -504,6 +477,7 @@ function LivraisonsPageContent() {
           getRowId={(row) => row.id}
           limit={10}
           mobileFields={["number", "client"]}
+          onRowClick={handleRowClick}
           actions={(row) => (
             <ActionButtons onDelete={() => setDeleteTargetId(row.id)} />
           )}
@@ -529,6 +503,13 @@ function LivraisonsPageContent() {
         isDeleting={deleteMutation.isPending}
         documentLabel="le bon de livraison"
         documentNumber={deleteTargetId ? (deliveryNoteMap.get(deleteTargetId)?.number ?? "") : ""}
+      />
+
+      {/* Modale prévisualisation bon de livraison */}
+      <DeliveryNotePreviewModal
+        deliveryNote={previewDeliveryNote}
+        open={isPreviewOpen}
+        onOpenChange={setIsPreviewOpen}
       />
     </div>
   );
