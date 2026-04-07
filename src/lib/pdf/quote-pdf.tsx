@@ -44,14 +44,20 @@ export async function downloadQuotePDF(quote: SavedQuote) {
     }
   }
 
-  const blob = await pdf(<QuotePdfDocument quote={enriched} />).toBlob();
-  const url = URL.createObjectURL(blob);
-  
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `devis-${enriched.number}.pdf`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  try {
+    const blob = await pdf(<QuotePdfDocument quote={enriched} />).toBlob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `devis-${enriched.number}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch (err) {
+    console.error("[PDF] Erreur génération devis:", err);
+    const { toast } = await import("sonner");
+    toast.error("Impossible de générer le PDF. Réessayez.");
+    throw err;
+  }
 }

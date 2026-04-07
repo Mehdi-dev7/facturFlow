@@ -82,6 +82,9 @@ const nextConfig: NextConfig = {
   turbopack: {},
   // Supprime le header X-Powered-By (évite de révéler le framework)
   poweredByHeader: false,
+  // @react-pdf/renderer utilise des APIs navigateur (canvas, fetch, etc.)
+  // Il NE doit PAS être bundlé côté serveur — Next.js le requiert en externe
+  serverExternalPackages: ["@react-pdf/renderer"],
   // ── Tree-shaking optimisé pour ces librairies (réduit le bundle initial) ──
   experimental: {
     // Cache les pages dynamiques (auth/cookies) dans le router client pendant 30s

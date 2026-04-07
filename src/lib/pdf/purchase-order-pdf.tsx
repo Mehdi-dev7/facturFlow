@@ -56,14 +56,20 @@ export async function downloadPurchaseOrderPDF(purchaseOrder: SavedPurchaseOrder
     }
   }
 
-  const blob = await pdf(<PurchaseOrderPdfDocument purchaseOrder={enriched} />).toBlob();
-  const url = URL.createObjectURL(blob);
-
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `bon-commande-${enriched.number}.pdf`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  try {
+    const blob = await pdf(<PurchaseOrderPdfDocument purchaseOrder={enriched} />).toBlob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `bon-commande-${enriched.number}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch (err) {
+    console.error("[PDF] Erreur génération bon de commande:", err);
+    const { toast } = await import("sonner");
+    toast.error("Impossible de générer le PDF. Réessayez.");
+    throw err;
+  }
 }
