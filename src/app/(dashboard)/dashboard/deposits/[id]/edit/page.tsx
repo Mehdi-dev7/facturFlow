@@ -14,6 +14,7 @@ import { getDeposit } from "@/lib/actions/deposits";
 import { useUpdateDeposit, type SavedDeposit } from "@/hooks/use-deposits";
 import type { CompanyInfo } from "@/lib/validations/invoice";
 import { useCompanyInfoForForms } from "@/hooks/use-company";
+import { useAppearance } from "@/hooks/use-appearance";
 import { useQuery } from "@tanstack/react-query";
 import { getCurrentSubscription } from "@/lib/actions/subscription";
 import { useClients } from "@/hooks/use-clients";
@@ -77,6 +78,7 @@ export default function EditDepositPage() {
   const depositId = params.id as string;
 
   const [mounted, setMounted] = useState(false);
+  const { themeColor, companyFont, companyLogo, invoiceFooter } = useAppearance();
   const [isPdfPreviewOpen, setIsPdfPreviewOpen] = useState(false);
   const { data: subData } = useQuery({ queryKey: ["subscription"], queryFn: getCurrentSubscription, staleTime: 5 * 60 * 1000 });
   const effectivePlan = subData?.success ? subData.data.effectivePlan : "FREE";
@@ -157,9 +159,9 @@ export default function EditDepositPage() {
 
   const getDocumentForPreview = useCallback(() => {
     const values = form.getValues();
-    const mock = buildPreviewDeposit(values, deposit?.number ?? "", companyInfo);
+    const mock = buildPreviewDeposit(values, deposit?.number ?? "", companyInfo, { themeColor, companyFont, companyLogo, invoiceFooter }, []);
     return <DepositPdfDocument deposit={mock} />;
-  }, [form, deposit, companyInfo]);
+  }, [form, deposit, companyInfo, themeColor, companyFont, companyLogo, invoiceFooter]);
 
   const onSubmit = useCallback(
     async (data: DepositFormData) => {
