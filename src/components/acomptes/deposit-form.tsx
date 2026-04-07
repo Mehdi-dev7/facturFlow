@@ -548,8 +548,9 @@ export function DepositForm({
 							{upgradeFeature && (
 								<UpgradeModal
 									open={!!upgradeFeature}
-									onOpenChange={() => setUpgradeFeature(null)}
+									onClose={() => setUpgradeFeature(null)}
 									feature={upgradeFeature}
+									plan={effectivePlan}
 								/>
 							)}
 						</section>
