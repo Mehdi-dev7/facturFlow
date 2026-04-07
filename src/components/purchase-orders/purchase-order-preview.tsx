@@ -42,7 +42,8 @@ function LinesTable({ title, lines, isForfait, typeConfig, fmt, themeColor }: Li
           {title}
         </h3>
       )}
-      <div className="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
+      {/* Pas de dark: ici — le papier est toujours blanc */}
+      <div className="border border-slate-200 rounded-lg overflow-hidden">
         <table className="w-full">
           <thead style={{ backgroundColor: themeColor + "1a" }}>
             <tr>
@@ -76,16 +77,16 @@ function LinesTable({ title, lines, isForfait, typeConfig, fmt, themeColor }: Li
                 const qty = isForfait ? 1 : (line.quantity || 0);
                 const ht  = qty * (line.unitPrice || 0);
                 return (
-                  <tr key={i} className="border-t border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30">
-                    <td className="p-2 lg:p-3 text-xs text-slate-900 dark:text-slate-50">
-                      {line.description || <span className="italic text-slate-300">Ligne {i + 1}</span>}
+                  <tr key={i} className="border-t border-slate-200 bg-slate-50/50">
+                    <td className="p-2 lg:p-3 text-xs text-slate-800">
+                      {line.description || <span className="italic text-slate-400">Ligne {i + 1}</span>}
                     </td>
                     {!isForfait && (
-                      <td className="p-2 lg:p-3 text-xs text-right text-slate-900 dark:text-slate-50">
+                      <td className="p-2 lg:p-3 text-xs text-right text-slate-800">
                         {qty}
                       </td>
                     )}
-                    <td className="p-2 lg:p-3 text-xs text-right text-slate-900 dark:text-slate-50">
+                    <td className="p-2 lg:p-3 text-xs text-right text-slate-800">
                       {fmt(line.unitPrice || 0)} €
                     </td>
                     {!isForfait && (
@@ -395,7 +396,7 @@ export function PurchaseOrderPreview({
             </div>
           </div>
 
-          <div className="h-px bg-slate-200" />
+          <div className="h-px bg-slate-200 mt-2 mb-1" />
 
           {/* Lignes */}
           {isArtisan ? (

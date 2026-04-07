@@ -5,7 +5,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Eye } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { PurchaseOrderForm } from "@/components/purchase-orders/purchase-order-form";
@@ -18,10 +18,12 @@ import {
 } from "@/lib/validations/purchase-order";
 import { useAppearance } from "@/hooks/use-appearance";
 import { useCompanyInfoForForms } from "@/hooks/use-company";
-
-// TODO: brancher sur les hooks et actions backend une fois l'agent backend terminé
-// import { getNextPurchaseOrderNumber, saveDraftPurchaseOrder } from "@/lib/actions/purchase-orders";
-// import { useCreatePurchaseOrder } from "@/hooks/use-purchase-orders";
+import { useCreatePurchaseOrder } from "@/hooks/use-purchase-orders";
+import { getNextPurchaseOrderNumber, saveDraftPurchaseOrder } from "@/lib/actions/purchase-orders";
+import { useClients } from "@/hooks/use-clients";
+import { PdfPreviewModal } from "@/components/shared/pdf-preview-modal";
+import { buildPreviewPurchaseOrder } from "@/lib/utils/pdf-preview-helpers";
+import PurchaseOrderPdfDocument from "@/lib/pdf/purchase-order-pdf-document";
 
 const AUTOSAVE_INTERVAL = 30_000;
 
@@ -34,7 +36,6 @@ export default function NewPurchaseOrderPage() {
   const [orderNumber, setOrderNumber] = useState("");
   const [companyInfoLocal, setCompanyInfoLocal] = useState<CompanyInfo | null>(null);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Infos entreprise depuis la DB
   const { data: companyInfoDB } = useCompanyInfoForForms();
@@ -42,6 +43,13 @@ export default function NewPurchaseOrderPage() {
 
   // Apparence
   const { themeColor, companyFont, companyLogo, companyName } = useAppearance();
+
+  const { data: clients = [] } = useClients();
+  const [isPdfPreviewOpen, setIsPdfPreviewOpen] = useState(false);
+
+  // Mutation création
+  const createMutation = useCreatePurchaseOrder();
+  const isSubmitting = createMutation.isPending;
 
   // Ref pour le brouillon en cours
   const draftIdRef = useRef<string | undefined>(undefined);
@@ -63,21 +71,30 @@ export default function NewPurchaseOrderPage() {
     },
   });
 
-  // ─── Init client-only ──────────────────────────────────────────────────────
+  // ─── Init client-only : récupère le vrai numéro depuis la DB ─────────────
   useEffect(() => {
-    // TODO: remplacer par getNextPurchaseOrderNumber() une fois le backend créé
-    const year = new Date().getFullYear();
-    setOrderNumber(`BC-${year}-0001`);
+    getNextPurchaseOrderNumber().then((res) => {
+      if (res.success) setOrderNumber(res.data.number);
+      else {
+        // fallback si l'action échoue
+        setOrderNumber(`BC-${new Date().getFullYear()}-0001`);
+      }
+    });
 
-    // Initialiser la date d'émission
     form.setValue("date", todayISO());
-
     setMounted(true);
   }, [form]);
 
   const handleCompanyChange = useCallback((data: CompanyInfo) => {
     setCompanyInfoLocal(data);
   }, []);
+
+  // Génère le document PDF à la volée pour la prévisualisation
+  const getDocumentForPreview = useCallback(() => {
+    const values = form.getValues();
+    const mock = buildPreviewPurchaseOrder(values, orderNumber, companyInfo, { themeColor, companyFont, companyLogo }, clients);
+    return <PurchaseOrderPdfDocument purchaseOrder={mock} />;
+  }, [form, orderNumber, companyInfo, themeColor, companyFont, companyLogo, clients]);
 
   // ─── Auto-save silencieux toutes les 30s ──────────────────────────────────
   const intervalRef = useRef<ReturnType<typeof setInterval>>(undefined);
@@ -90,8 +107,11 @@ export default function NewPurchaseOrderPage() {
       const hasClient  = values.clientId || values.newClient;
       if (!hasContent || !hasClient) return;
 
-      // TODO: brancher sur saveDraftPurchaseOrder(values, draftIdRef.current)
-      console.log("[Auto-save BC] Données prêtes, en attente du backend");
+      const res = await saveDraftPurchaseOrder(values, draftIdRef.current);
+      if (res.success && res.data?.id) {
+        draftIdRef.current = res.data.id;
+        setLastSaved(new Date());
+      }
     }, AUTOSAVE_INTERVAL);
 
     return () => clearInterval(intervalRef.current);
@@ -99,13 +119,10 @@ export default function NewPurchaseOrderPage() {
 
   // ─── Submit : créer le BC en DB ────────────────────────────────────────────
   const onSubmit = useCallback(
-    async (data: PurchaseOrderFormData) => {
-      setIsSubmitting(true);
-      // TODO: brancher sur createMutation.mutate({ data, draftId: draftIdRef.current })
-      console.log("[NewPurchaseOrder] Submit:", data);
-      setIsSubmitting(false);
+    (data: PurchaseOrderFormData) => {
+      createMutation.mutate({ data, draftId: draftIdRef.current });
     },
-    [],
+    [createMutation],
   );
 
   // ─── Skeleton pendant le montage ──────────────────────────────────────────
@@ -132,7 +149,7 @@ export default function NewPurchaseOrderPage() {
             <ArrowLeft className="size-5" />
           </Link>
         </Button>
-        <div>
+        <div className="flex-1">
           <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
             Nouveau bon de commande
           </h1>
@@ -149,6 +166,16 @@ export default function NewPurchaseOrderPage() {
             )}
           </p>
         </div>
+        {/* Bouton aperçu PDF — masqué sur mobile */}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setIsPdfPreviewOpen(true)}
+          className="gap-1.5 text-xs cursor-pointer hidden sm:flex"
+        >
+          <Eye size={14} />
+          Aperçu PDF
+        </Button>
       </div>
 
       {/* Desktop : split screen formulaire + aperçu */}
@@ -192,6 +219,15 @@ export default function NewPurchaseOrderPage() {
           companyName={companyName}
         />
       </div>
+
+      {/* Modale d'aperçu PDF généré à la volée */}
+      <PdfPreviewModal
+        open={isPdfPreviewOpen}
+        onOpenChange={setIsPdfPreviewOpen}
+        getDocument={getDocumentForPreview}
+        filename={`${orderNumber}.pdf`}
+        title="Aperçu PDF — Bon de commande"
+      />
     </div>
   );
 }

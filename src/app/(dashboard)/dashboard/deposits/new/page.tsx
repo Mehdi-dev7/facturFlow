@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Eye } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { DepositForm } from "@/components/acomptes/deposit-form";
@@ -17,6 +17,10 @@ import { getNextDepositNumber } from "@/lib/actions/deposits";
 import type { CompanyInfo } from "@/lib/validations/invoice";
 import { useAppearance } from "@/hooks/use-appearance";
 import { useCompanyInfoForForms } from "@/hooks/use-company";
+import { useClients } from "@/hooks/use-clients";
+import { PdfPreviewModal } from "@/components/shared/pdf-preview-modal";
+import { buildPreviewDeposit } from "@/lib/utils/pdf-preview-helpers";
+import DepositPdfDocument from "@/lib/pdf/deposit-pdf-document";
 
 const AUTOSAVE_INTERVAL = 30_000;
 
@@ -65,6 +69,9 @@ export default function NewDepositPage() {
   const companyInfo = companyInfoLocal ?? companyInfoDB ?? null;
 
   	const { themeColor, companyFont, companyLogo, companyName } = useAppearance();
+
+	const { data: clients = [] } = useClients();
+	const [isPdfPreviewOpen, setIsPdfPreviewOpen] = useState(false);
 
 	const createDeposit = useCreateDeposit();
   const saveDraft = useSaveDraftDeposit();
@@ -123,6 +130,13 @@ export default function NewDepositPage() {
   const handleCompanyChange = useCallback((data: CompanyInfo) => {
     setCompanyInfoLocal(data);
   }, []);
+
+  // Génère le document PDF à la volée pour la prévisualisation
+  const getDocumentForPreview = useCallback(() => {
+    const values = form.getValues();
+    const mock = buildPreviewDeposit(values as Parameters<typeof buildPreviewDeposit>[0], depositNumber, companyInfo, { themeColor, companyFont, companyLogo }, clients);
+    return <DepositPdfDocument deposit={mock} />;
+  }, [form, depositNumber, companyInfo, themeColor, companyFont, companyLogo, clients]);
 
   // ─── Auto-save en DB toutes les 30s ─────────────────────────────────────────
   const intervalRef = useRef<ReturnType<typeof setInterval>>(undefined);
@@ -206,7 +220,7 @@ export default function NewDepositPage() {
             <ArrowLeft className="size-5" />
           </Link>
         </Button>
-        <div>
+        <div className="flex-1">
           <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
             Nouvel acompte
           </h1>
@@ -219,6 +233,16 @@ export default function NewDepositPage() {
             )}
           </p>
         </div>
+        {/* Bouton aperçu PDF — masqué sur mobile */}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setIsPdfPreviewOpen(true)}
+          className="gap-1.5 text-xs cursor-pointer hidden sm:flex"
+        >
+          <Eye size={14} />
+          Aperçu PDF
+        </Button>
       </div>
 
       {/* Desktop : split screen */}
@@ -256,13 +280,22 @@ export default function NewDepositPage() {
           companyInfo={companyInfo}
           onCompanyChange={handleCompanyChange}
           isSubmitting={createDeposit.isPending}
-        
+
 				themeColor={themeColor}
 				companyFont={companyFont}
 				companyLogo={companyLogo}
 			companyName={companyName}
 			/>
       </div>
+
+      {/* Modale d'aperçu PDF généré à la volée */}
+      <PdfPreviewModal
+        open={isPdfPreviewOpen}
+        onOpenChange={setIsPdfPreviewOpen}
+        getDocument={getDocumentForPreview}
+        filename={`${depositNumber}.pdf`}
+        title="Aperçu PDF — Acompte"
+      />
     </div>
   );
 }

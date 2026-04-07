@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Eye } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { InvoiceForm } from "@/components/factures/invoice-form";
@@ -20,6 +20,10 @@ import { useAppearance } from "@/hooks/use-appearance";
 import { useCompanyInfoForForms } from "@/hooks/use-company";
 import { useQuery } from "@tanstack/react-query";
 import { getCurrentSubscription } from "@/lib/actions/subscription";
+import { useClients } from "@/hooks/use-clients";
+import { PdfPreviewModal } from "@/components/shared/pdf-preview-modal";
+import { buildPreviewInvoice } from "@/lib/utils/pdf-preview-helpers";
+import InvoicePdfDocument from "@/lib/pdf/invoice-pdf-document";
 
 const AUTOSAVE_INTERVAL = 30_000;
 
@@ -47,6 +51,9 @@ export default function NewProformaPage() {
 	const { themeColor, companyFont, companyLogo, companyName } = useAppearance();
 	const { data: subData } = useQuery({ queryKey: ["subscription"], queryFn: getCurrentSubscription, staleTime: 5 * 60 * 1000 });
 	const effectivePlan = subData?.success ? subData.data.effectivePlan : "FREE";
+	const { data: clients = [] } = useClients();
+	const [isPdfPreviewOpen, setIsPdfPreviewOpen] = useState(false);
+
 	const createMutation = useCreateProforma();
 	const draftIdRef = useRef<string | undefined>(undefined);
 
@@ -87,6 +94,13 @@ export default function NewProformaPage() {
 	const handleCompanyChange = useCallback((data: CompanyInfo) => {
 		setCompanyInfoLocal(data);
 	}, []);
+
+	// Génère le document PDF à la volée pour la prévisualisation
+	const getDocumentForPreview = useCallback(() => {
+		const values = form.getValues();
+		const mock = buildPreviewInvoice(values, proformaNumber, companyInfo, { themeColor, companyFont, companyLogo }, clients);
+		return <InvoicePdfDocument invoice={mock} documentLabel="PROFORMA" />;
+	}, [form, proformaNumber, companyInfo, themeColor, companyFont, companyLogo, clients]);
 
 	// ─── Auto-save toutes les 30s ─────────────────────────────────────────────
 	const intervalRef = useRef<ReturnType<typeof setInterval>>(undefined);
@@ -147,7 +161,7 @@ export default function NewProformaPage() {
 						<ArrowLeft className="size-5" />
 					</Link>
 				</Button>
-				<div>
+				<div className="flex-1">
 					<h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
 						Nouvelle proforma
 					</h1>
@@ -164,6 +178,16 @@ export default function NewProformaPage() {
 						)}
 					</p>
 				</div>
+				{/* Bouton aperçu PDF — masqué sur mobile */}
+				<Button
+					variant="outline"
+					size="sm"
+					onClick={() => setIsPdfPreviewOpen(true)}
+					className="gap-1.5 text-xs cursor-pointer hidden sm:flex"
+				>
+					<Eye size={14} />
+					Aperçu PDF
+				</Button>
 			</div>
 
 			{/* Desktop : split screen */}
@@ -210,6 +234,15 @@ export default function NewProformaPage() {
 					companyName={companyName}
 				/>
 			</div>
+
+			{/* Modale d'aperçu PDF généré à la volée */}
+			<PdfPreviewModal
+				open={isPdfPreviewOpen}
+				onOpenChange={setIsPdfPreviewOpen}
+				getDocument={getDocumentForPreview}
+				filename={`${proformaNumber}.pdf`}
+				title="Aperçu PDF — Proforma"
+			/>
 		</div>
 	);
 }

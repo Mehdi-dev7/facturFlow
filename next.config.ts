@@ -18,9 +18,10 @@ const isDev = process.env.NODE_ENV === "development";
 const cspDirectives = [
   "default-src 'self'",
   // Scripts : 'unsafe-inline' pour Next.js inline scripts, 'unsafe-eval' limité au dev
+  // 'wasm-unsafe-eval' requis par @react-pdf/renderer (WebAssembly) en prod et dev
   isDev
-    ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
-    : "script-src 'self' 'unsafe-inline'",
+    ? "script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval'"
+    : "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'",
   // Styles : 'unsafe-inline' requis par Tailwind CSS
   "style-src 'self' 'unsafe-inline'",
   // Images : self + data URIs (avatars base64) + Google/GitHub avatars
@@ -28,7 +29,8 @@ const cspDirectives = [
   // Fonts : self + data URIs
   "font-src 'self' data:",
   // Fetch / XHR vers notre API + Supabase + providers externes
-  "connect-src 'self' https://*.supabase.co https://api.resend.com https://api.stripe.com https://api.sandbox.gocardless.com https://api.gocardless.com",
+  // data: + blob: requis par @react-pdf/renderer (charge son module wasm via data URI)
+  "connect-src 'self' data: blob: https://*.supabase.co https://api.resend.com https://api.stripe.com https://api.sandbox.gocardless.com https://api.gocardless.com",
   // Iframes : on en a besoin uniquement pour Stripe Elements / GoCardless flows
   "frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://pay.gocardless.com",
   // Bloque le chargement de NOTRE app dans une iframe externe (clickjacking)
