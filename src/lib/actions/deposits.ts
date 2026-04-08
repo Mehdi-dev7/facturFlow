@@ -18,6 +18,7 @@ import { sendDepositEmail } from "@/lib/actions/send-deposit-email";
 
 const depositSchema = z.object({
   clientId: z.string().min(1, "Client requis"),
+  customNumber: z.string().optional(), // Numéro personnalisé (pré-rempli auto, éditable)
   amount: z.number().min(0.01, "Montant requis"),
   vatRate: z.union([z.literal(0), z.literal(5.5), z.literal(10), z.literal(20)]),
   // Optionnels : la modale rapide n'envoie pas ces champs (defaults côté serveur)
@@ -294,16 +295,28 @@ export async function createDeposit(data: DepositFormData, draftId?: string) {
 
     if (!draftId) {
       // Créer un nouvel acompte (pas de brouillon ou brouillon introuvable)
-      // Numérotation atomique : DEP-YYYY-XXXX
-      const updatedUser = await prisma.user.update({
-        where: { id: userId },
-        data: { nextDepositNumber: { increment: 1 } },
-        select: { nextDepositNumber: true },
-      });
+      // ── Numérotation : custom ou auto-généré ──────────────────────────────
+      let depositNumber: string;
+      const customNum = data.customNumber?.trim();
 
-      const year = new Date().getFullYear();
-      const usedNumber = updatedUser.nextDepositNumber - 1;
-      const depositNumber = `DEP-${year}-${String(usedNumber).padStart(4, "0")}`;
+      if (customNum) {
+        const duplicate = await prisma.document.findFirst({
+          where: { userId, number: customNum },
+        });
+        if (duplicate) {
+          return { success: false, error: `Le numéro "${customNum}" est déjà utilisé par un autre document.` } as const;
+        }
+        depositNumber = customNum;
+      } else {
+        const updatedUser = await prisma.user.update({
+          where: { id: userId },
+          data: { nextDepositNumber: { increment: 1 } },
+          select: { nextDepositNumber: true },
+        });
+        const year = new Date().getFullYear();
+        const usedNumber = updatedUser.nextDepositNumber - 1;
+        depositNumber = `DEP-${year}-${String(usedNumber).padStart(4, "0")}`;
+      }
 
       // Créer le document DEPOSIT
       doc = await prisma.document.create({
@@ -547,10 +560,22 @@ export async function updateDeposit(id: string, data: DepositFormData) {
     // Vérifier que l'acompte existe et appartient à l'utilisateur
     const existingDeposit = await prisma.document.findFirst({
       where: { id, userId: session.user.id, type: "DEPOSIT" },
+      select: { id: true, number: true },
     });
 
     if (!existingDeposit) {
       return { success: false, error: "Acompte introuvable" } as const;
+    }
+
+    // Vérifier si le numéro personnalisé est unique (si changé)
+    const newNumber = data.customNumber?.trim();
+    if (newNumber && newNumber !== existingDeposit.number) {
+      const duplicate = await prisma.document.findFirst({
+        where: { userId: session.user.id, number: newNumber, id: { not: id } },
+      });
+      if (duplicate) {
+        return { success: false, error: `Le numéro "${newNumber}" est déjà utilisé par un autre document.` } as const;
+      }
     }
 
     // Calculer les totaux
@@ -562,6 +587,8 @@ export async function updateDeposit(id: string, data: DepositFormData) {
     const updatedDoc = await prisma.document.update({
       where: { id },
       data: {
+        // Mettre à jour le numéro si l'user l'a modifié
+        ...(newNumber && newNumber !== existingDeposit.number ? { number: newNumber } : {}),
         clientId: data.clientId,
         date: new Date(data.date ?? new Date().toISOString().split("T")[0]),
         dueDate: new Date(data.dueDate),

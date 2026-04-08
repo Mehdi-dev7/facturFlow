@@ -30,6 +30,7 @@ const AUTOSAVE_INTERVAL = 30_000;
 
 const depositFormSchema = z.object({
   clientId: z.string().min(1, "Client requis"),
+  customNumber: z.string().optional(), // Numéro personnalisé (pré-rempli auto, éditable)
   amount: z.number().min(0.01, "Montant requis"),
   vatRate: z.union([z.literal(0), z.literal(5.5), z.literal(10), z.literal(20)]),
   date: z.string().min(1, "Date requise"),
@@ -251,6 +252,8 @@ export default function NewDepositPage() {
               isSubmitting={createDeposit.isPending}
               effectivePlan={effectivePlan}
               onPdfPreview={() => setIsPdfPreviewOpen(true)}
+              depositNumber={depositNumber}
+              onNumberChange={(n) => setDepositNumber(n)}
             />
           </div>
         </div>

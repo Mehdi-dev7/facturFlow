@@ -47,6 +47,7 @@ export function InvoicePreview({
 	const newClient = useWatch({ control: form.control, name: "newClient" });
 	const lines = useWatch({ control: form.control, name: "lines" });
 	const vatRate = useWatch({ control: form.control, name: "vatRate" });
+	const vatMode = useWatch({ control: form.control, name: "vatMode" }) ?? "global";
 	const date = useWatch({ control: form.control, name: "date" });
 	const dueDate = useWatch({ control: form.control, name: "dueDate" });
 	const notes = useWatch({ control: form.control, name: "notes" });
@@ -55,6 +56,7 @@ export function InvoicePreview({
 	const discountType = useWatch({ control: form.control, name: "discountType" });
 	const discountValue = useWatch({ control: form.control, name: "discountValue" }) ?? 0;
 	const depositAmt = useWatch({ control: form.control, name: "depositAmount" }) ?? 0;
+	const isPerLine = vatMode === "per_line";
 
 	// ── Lookup client existant ─────────────────────────────────────────────
 	const { data: clients = [] } = useClients();
@@ -96,6 +98,7 @@ export function InvoicePreview({
 	const totals = calcInvoiceTotals({
 		lines: safeLines,
 		vatRate: vatRate ?? 20,
+		vatMode: isPerLine ? "per_line" : "global",
 		discountType,
 		discountValue,
 		depositAmount: depositAmt,
@@ -194,10 +197,19 @@ export function InvoicePreview({
 							<span>−{fmt(totals.discountAmount)} €</span>
 						</div>
 					)}
-					<div className="flex justify-between text-slate-500 dark:text-slate-400">
-						<span>TVA ({vatRate ?? 0}%)</span>
-						<span>{fmt(totals.taxTotal)} €</span>
-					</div>
+					{isPerLine && totals.vatBreakdown ? (
+						totals.vatBreakdown.map(({ rate, amount }) => (
+							<div key={rate} className="flex justify-between text-slate-500 dark:text-slate-400">
+								<span>TVA {rate}%</span>
+								<span>{fmt(amount)} €</span>
+							</div>
+						))
+					) : (
+						<div className="flex justify-between text-slate-500 dark:text-slate-400">
+							<span>TVA ({vatRate ?? 0}%)</span>
+							<span>{fmt(totals.taxTotal)} €</span>
+						</div>
+					)}
 					<div className="flex justify-between font-bold text-slate-800 dark:text-slate-100 pt-1 border-t border-slate-200 dark:border-violet-500/20">
 						<span>Total TTC</span>
 						<span style={{ color: themeColor }}>{fmt(totals.totalTTC)} €</span>
@@ -321,13 +333,13 @@ export function InvoicePreview({
 				{/* Lignes */}
 				{isArtisan ? (
 					<div className="space-y-4">
-						<LinesTable title="Main d'œuvre" lines={mainOeuvreLines} isForfait={false} typeConfig={typeConfig} fmt={fmt} themeColor={themeColor} />
+						<LinesTable title="Main d'œuvre" lines={mainOeuvreLines} isForfait={false} showVatColumn={isPerLine} globalVatRate={vatRate ?? 20} typeConfig={typeConfig} fmt={fmt} themeColor={themeColor} />
 						{materiauLines.length > 0 && (
-							<LinesTable title="Matériaux" lines={materiauLines} isForfait={false} typeConfig={typeConfig} fmt={fmt} themeColor={themeColor} />
+							<LinesTable title="Matériaux" lines={materiauLines} isForfait={false} showVatColumn={isPerLine} globalVatRate={vatRate ?? 20} typeConfig={typeConfig} fmt={fmt} themeColor={themeColor} />
 						)}
 					</div>
 				) : (
-					<LinesTable lines={safeLines} isForfait={isForfait} typeConfig={typeConfig} fmt={fmt} themeColor={themeColor} />
+					<LinesTable lines={safeLines} isForfait={isForfait} showVatColumn={isPerLine} globalVatRate={vatRate ?? 20} typeConfig={typeConfig} fmt={fmt} themeColor={themeColor} />
 				)}
 
 				<div className="flex-1" />
@@ -358,10 +370,20 @@ export function InvoicePreview({
 							</>
 						)}
 
-						<div className="flex justify-between text-sm">
-							<span style={{ color: themeColor }}>TVA ({vatRate ?? 0}%)</span>
-							<span className="text-slate-800 font-medium">{fmt(totals.taxTotal)} €</span>
-						</div>
+						{/* TVA : globale ou ventilée par taux */}
+						{isPerLine && totals.vatBreakdown ? (
+							totals.vatBreakdown.map(({ rate, amount }) => (
+								<div key={rate} className="flex justify-between text-sm">
+									<span style={{ color: themeColor }}>TVA {rate}%</span>
+									<span className="text-slate-800 font-medium">{fmt(amount)} €</span>
+								</div>
+							))
+						) : (
+							<div className="flex justify-between text-sm">
+								<span style={{ color: themeColor }}>TVA ({vatRate ?? 0}%)</span>
+								<span className="text-slate-800 font-medium">{fmt(totals.taxTotal)} €</span>
+							</div>
+						)}
 
 						<div className="flex justify-between text-base font-bold pt-2" style={{ borderTop: `1px solid ${themeColor}33` }}>
 							<span className="text-slate-900">Total TTC</span>
@@ -435,14 +457,16 @@ export function InvoicePreview({
 
 interface LinesTableProps {
 	title?: string;
-	lines: { description?: string; quantity?: number; unitPrice?: number }[];
+	lines: { description?: string; quantity?: number; unitPrice?: number; vatRate?: number }[];
 	isForfait: boolean;
+	showVatColumn?: boolean;
+	globalVatRate?: number;
 	typeConfig: { descriptionLabel: string; quantityLabel: string | null; priceLabel: string };
 	fmt: (n: number) => string;
 	themeColor: string;
 }
 
-function LinesTable({ title, lines, isForfait, typeConfig, fmt, themeColor }: LinesTableProps) {
+function LinesTable({ title, lines, isForfait, showVatColumn = false, globalVatRate = 20, typeConfig, fmt, themeColor }: LinesTableProps) {
 	return (
 		<div>
 			{title && (
@@ -465,6 +489,11 @@ function LinesTable({ title, lines, isForfait, typeConfig, fmt, themeColor }: Li
 							<th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: themeColor }}>
 								{isForfait ? "Montant" : "Prix unit."}
 							</th>
+							{showVatColumn && (
+								<th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: themeColor }}>
+									TVA
+								</th>
+							)}
 							{!isForfait && (
 								<th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: themeColor }}>
 									Total HT
@@ -489,6 +518,11 @@ function LinesTable({ title, lines, isForfait, typeConfig, fmt, themeColor }: Li
 									<td className="p-2 lg:p-3 text-xs lg:text-sm text-right text-slate-600">
 										{fmt(line.unitPrice || 0)} €
 									</td>
+									{showVatColumn && (
+										<td className="p-2 lg:p-3 text-xs lg:text-sm text-right text-slate-500">
+											{line.vatRate ?? globalVatRate}%
+										</td>
+									)}
 									{!isForfait && (
 										<td className="p-2 lg:p-3 text-xs lg:text-sm text-right font-medium" style={{ color: themeColor }}>
 											{fmt(ht)} €
@@ -499,7 +533,7 @@ function LinesTable({ title, lines, isForfait, typeConfig, fmt, themeColor }: Li
 						})}
 						{lines.length === 0 && (
 							<tr>
-								<td colSpan={isForfait ? 2 : 4} className="py-6 text-center text-sm text-slate-400 italic">
+								<td colSpan={isForfait ? 2 : (showVatColumn ? 5 : 4)} className="py-6 text-center text-sm text-slate-400 italic">
 									Aucune ligne
 								</td>
 							</tr>

@@ -180,6 +180,7 @@ export default function NewPurchaseOrderPage() {
               onCompanyChange={handleCompanyChange}
               isSubmitting={isSubmitting}
               onPdfPreview={() => setIsPdfPreviewOpen(true)}
+              onNumberChange={(n) => setOrderNumber(n)}
             />
           </div>
         </div>

@@ -252,11 +252,12 @@ interface LinesTablePdfProps {
   lines: SavedInvoice["lineItems"];
   typeConfig: { descriptionLabel: string; quantityLabel: string | null };
   isForfait: boolean;
+  showVatColumn?: boolean;
   title?: string;
   themeColor: string;
 }
 
-function LinesTablePdf({ lines, typeConfig, isForfait, title, themeColor }: LinesTablePdfProps) {
+function LinesTablePdf({ lines, typeConfig, isForfait, showVatColumn = false, title, themeColor }: LinesTablePdfProps) {
   const headerBg = hexToRgba(themeColor, 0.1);
 
   return (
@@ -281,6 +282,11 @@ function LinesTablePdf({ lines, typeConfig, isForfait, title, themeColor }: Line
         <Text style={[S.tableHeaderCell, { width: 65, textAlign: "right", color: themeColor }]}>
           {isForfait ? "Montant" : "Prix unit."}
         </Text>
+        {showVatColumn && (
+          <Text style={[S.tableHeaderCell, { width: 42, textAlign: "right", color: themeColor }]}>
+            TVA
+          </Text>
+        )}
         {!isForfait && (
           <Text style={[S.tableHeaderCell, { width: 65, textAlign: "right", color: themeColor }]}>
             Total HT
@@ -306,6 +312,11 @@ function LinesTablePdf({ lines, typeConfig, isForfait, title, themeColor }: Line
           <Text style={{ width: 65, textAlign: "right", fontSize: 9, color: "#64748b" }}>
             {fmtN(line.unitPrice)} €
           </Text>
+          {showVatColumn && (
+            <Text style={{ width: 42, textAlign: "right", fontSize: 9, color: "#64748b" }}>
+              {line.vatRate}%
+            </Text>
+          )}
           {!isForfait && (
             <Text style={{ width: 65, textAlign: "right", fontSize: 9, fontFamily: "Helvetica-Bold", color: themeColor }}>
               {fmtN(line.subtotal)} €
@@ -340,12 +351,27 @@ export default function InvoicePdfDocument({
     INVOICE_TYPE_CONFIG[(invoice.invoiceType as keyof typeof INVOICE_TYPE_CONFIG) ?? "basic"] ??
     INVOICE_TYPE_CONFIG["basic"];
 
-  const isForfait = typeConfig.quantityLabel === null;
-  const isArtisan = invoice.invoiceType === "artisan";
-  const vatRate   = (invoice.businessMetadata?.vatRate as number) ?? 20;
-  const discount  = invoice.discount ?? 0;
-  const deposit   = invoice.depositAmount ?? 0;
-  const netAPayer = invoice.total - deposit;
+  const isForfait  = typeConfig.quantityLabel === null;
+  const isArtisan  = invoice.invoiceType === "artisan";
+  const vatRate    = (invoice.businessMetadata?.vatRate as number) ?? 20;
+  const vatMode    = (invoice.businessMetadata?.vatMode as string | undefined) ?? "global";
+  const isPerLine  = vatMode === "per_line";
+  const discount   = invoice.discount ?? 0;
+  const deposit    = invoice.depositAmount ?? 0;
+  const netAPayer  = invoice.total - deposit;
+
+  // Ventilation TVA par taux (mode per_line) — calculée depuis les lignes
+  const vatBreakdown: { rate: number; amount: number }[] = [];
+  if (isPerLine) {
+    const groups = new Map<number, number>();
+    for (const li of invoice.lineItems) {
+      groups.set(li.vatRate, (groups.get(li.vatRate) ?? 0) + li.taxAmount);
+    }
+    for (const [rate, amount] of groups) {
+      vatBreakdown.push({ rate, amount });
+    }
+    vatBreakdown.sort((a, b) => a.rate - b.rate);
+  }
 
   const sortedLines     = [...invoice.lineItems].sort((a, b) => a.order - b.order);
   const mainOeuvreLines = isArtisan ? sortedLines.filter((l) => !l.category || l.category === "main_oeuvre") : sortedLines;
@@ -439,13 +465,13 @@ export default function InvoicePdfDocument({
         {/* ── Tableau de lignes ── */}
         {isArtisan ? (
           <>
-            <LinesTablePdf lines={mainOeuvreLines} typeConfig={typeConfig} isForfait={false} title="Main d'œuvre" themeColor={themeColor} />
+            <LinesTablePdf lines={mainOeuvreLines} typeConfig={typeConfig} isForfait={false} showVatColumn={isPerLine} title="Main d'œuvre" themeColor={themeColor} />
             {materiauLines.length > 0 && (
-              <LinesTablePdf lines={materiauLines} typeConfig={typeConfig} isForfait={false} title="Matériaux" themeColor={themeColor} />
+              <LinesTablePdf lines={materiauLines} typeConfig={typeConfig} isForfait={false} showVatColumn={isPerLine} title="Matériaux" themeColor={themeColor} />
             )}
           </>
         ) : (
-          <LinesTablePdf lines={sortedLines} typeConfig={typeConfig} isForfait={isForfait} themeColor={themeColor} />
+          <LinesTablePdf lines={sortedLines} typeConfig={typeConfig} isForfait={isForfait} showVatColumn={isPerLine} themeColor={themeColor} />
         )}
 
         <View style={S.divider} />
@@ -468,11 +494,20 @@ export default function InvoicePdfDocument({
               </View>
             )}
 
-            {/* TVA */}
-            <View style={S.totalsRow}>
-              <Text style={[S.totalLabel, { color: themeColor }]}>TVA ({vatRate}%) :</Text>
-              <Text style={S.totalValue}>{fmtN(invoice.taxTotal)} €</Text>
-            </View>
+            {/* TVA — globale ou ventilée par taux */}
+            {isPerLine ? (
+              vatBreakdown.map(({ rate, amount }) => (
+                <View key={rate} style={S.totalsRow}>
+                  <Text style={[S.totalLabel, { color: themeColor }]}>TVA {rate}% :</Text>
+                  <Text style={S.totalValue}>{fmtN(amount)} €</Text>
+                </View>
+              ))
+            ) : (
+              <View style={S.totalsRow}>
+                <Text style={[S.totalLabel, { color: themeColor }]}>TVA ({vatRate}%) :</Text>
+                <Text style={S.totalValue}>{fmtN(invoice.taxTotal)} €</Text>
+              </View>
+            )}
 
             {/* Total TTC */}
             <View style={S.grandTotalRow}>

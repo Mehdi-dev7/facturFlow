@@ -54,6 +54,7 @@ function toFormValues(po: SavedPurchaseOrder): Partial<PurchaseOrderFormData> {
 
   return {
     clientId: po.client.id,
+    customNumber: po.number, // Pré-remplir avec le numéro existant (éditable)
     date: po.date.split("T")[0],
     deliveryDate: po.deliveryDate ? po.deliveryDate.split("T")[0] : "",
     bcReference: po.bcReference ?? "",
@@ -98,6 +99,7 @@ export default function EditPurchaseOrderPage() {
   const { themeColor, companyFont, companyLogo, companyName } = useAppearance();
   const { data: clients = [] } = useClients();
   const [purchaseOrder, setPurchaseOrder] = useState<SavedPurchaseOrder | null>(null);
+  const [displayNumber, setDisplayNumber] = useState(""); // Suit le numéro éditable
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
 
@@ -208,7 +210,8 @@ export default function EditPurchaseOrderPage() {
             <PurchaseOrderForm
               form={form}
               onSubmit={onSubmit}
-              orderNumber={purchaseOrder?.number ?? ""}
+              onNumberChange={(n) => setDisplayNumber(n)}
+              orderNumber={displayNumber || purchaseOrder?.number || ""}
               companyInfo={companyInfo}
               onCompanyChange={handleCompanyChange}
               isSubmitting={isSubmitting}
@@ -219,7 +222,7 @@ export default function EditPurchaseOrderPage() {
         <div className="sticky top-6 self-start">
           <PurchaseOrderPreview
             form={form}
-            orderNumber={purchaseOrder?.number ?? ""}
+            orderNumber={displayNumber || purchaseOrder?.number || ""}
             companyInfo={companyInfo}
             themeColor={themeColor}
             companyFont={companyFont}
@@ -234,7 +237,7 @@ export default function EditPurchaseOrderPage() {
         <PurchaseOrderStepper
           form={form}
           onSubmit={onSubmit}
-          orderNumber={purchaseOrder?.number ?? ""}
+          orderNumber={displayNumber || purchaseOrder?.number || ""}
           companyInfo={companyInfo}
           onCompanyChange={handleCompanyChange}
           submitLabel="Sauvegarder"

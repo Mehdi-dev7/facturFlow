@@ -47,6 +47,7 @@ function toFormValues(q: SavedQuote): Partial<QuoteFormData> {
 
 	return {
 		clientId: q.client.id,
+		customNumber: q.number, // Pré-remplir avec le numéro existant (éditable)
 		date: q.date.split("T")[0],
 		validUntil: q.validUntil ? q.validUntil.split("T")[0] : "",
 		quoteType,
@@ -87,6 +88,7 @@ export default function EditQuotePage() {
 	const { themeColor, companyFont, companyLogo, companyName } = useAppearance();
 	const { data: clients = [] } = useClients();
 	const [quote, setQuote] = useState<SavedQuote | null>(null);
+	const [displayNumber, setDisplayNumber] = useState(""); // Suit le numéro éditable
 	const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
 	const [loadError, setLoadError] = useState<string | null>(null);
 
@@ -120,6 +122,7 @@ export default function EditQuotePage() {
 
 				// Pre-remplir le formulaire avec les donnees du devis
 				form.reset(toFormValues(q));
+				setDisplayNumber(q.number);
 
 				// Company info depuis le devis en DB
 				const dbCompany = toCompanyInfo(q.user);
@@ -203,7 +206,7 @@ export default function EditQuotePage() {
 						Modifier le devis
 					</h1>
 					<p className="text-sm text-slate-500 dark:text-violet-400/60">
-						{quote?.number}
+						{displayNumber || quote?.number}
 					</p>
 				</div>
 			</div>
@@ -215,17 +218,18 @@ export default function EditQuotePage() {
 						<QuoteForm
 							form={form}
 							onSubmit={onSubmit}
-							quoteNumber={quote?.number ?? ""}
+							quoteNumber={displayNumber || quote?.number || ""}
 							companyInfo={companyInfo}
 							onCompanyChange={handleCompanyChange}
 							onPdfPreview={() => setIsPdfPreviewOpen(true)}
+							onNumberChange={(n) => setDisplayNumber(n)}
 						/>
 					</div>
 				</div>
 				<div className="sticky top-6 self-start">
 					<QuotePreview
 						form={form}
-						quoteNumber={quote?.number ?? ""}
+						quoteNumber={displayNumber || quote?.number || ""}
 						companyInfo={companyInfo}
 					
 					themeColor={themeColor}
@@ -241,7 +245,7 @@ export default function EditQuotePage() {
 				<QuoteStepper
 					form={form}
 					onSubmit={onSubmit}
-					quoteNumber={quote?.number ?? ""}
+					quoteNumber={displayNumber || quote?.number || ""}
 					companyInfo={companyInfo}
 					onCompanyChange={handleCompanyChange}
 				

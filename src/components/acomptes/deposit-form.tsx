@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { Controller, useWatch, type UseFormReturn, type FieldErrors } from "react-hook-form";
 import {
 	Building2,
@@ -10,6 +10,7 @@ import {
 	FileText,
 	Lock,
 	Eye,
+	Pencil,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -38,6 +39,7 @@ import { useConnectedProviders } from "@/hooks/use-payment-accounts";
 
 interface DepositFormData {
 	clientId: string;
+	customNumber?: string; // Numéro personnalisé (pré-rempli auto, éditable)
 	amount: number;
 	vatRate: 0 | 5.5 | 10 | 20;
 	date: string;
@@ -69,6 +71,8 @@ interface DepositFormProps {
 	hideSubmit?: boolean;
 	// Callback pour ouvrir l'aperçu PDF (optionnel)
 	onPdfPreview?: () => void;
+	/** Callback appelé quand l'utilisateur modifie le numéro du document */
+	onNumberChange?: (n: string) => void;
 }
 
 // ─── Styles partagés ─────────────────────────────────────────────────────────
@@ -98,6 +102,7 @@ export function DepositForm({
 	visibleStep,
 	hideSubmit,
 	onPdfPreview,
+	onNumberChange,
 }: DepositFormProps) {
 	const [showCompanyModal, setShowCompanyModal] = useState(false);
 	const [upgradeFeature, setUpgradeFeature] = useState<Feature | null>(null);
@@ -142,6 +147,19 @@ export function DepositForm({
 	const amount = useWatch({ control, name: "amount" });
 	const vatRate = useWatch({ control, name: "vatRate" });
 	const clientId = useWatch({ control, name: "clientId" });
+	const customNumber = useWatch({ control, name: "customNumber" });
+
+	// Sync : quand le numéro auto-généré arrive (prop), initialiser le champ s'il est vide
+	useEffect(() => {
+		if (depositNumber && !form.getValues("customNumber")) {
+			setValue("customNumber", depositNumber);
+		}
+	}, [depositNumber, setValue, form]);
+
+	// Notifier le parent dès que customNumber change
+	useEffect(() => {
+		if (customNumber) onNumberChange?.(customNumber);
+	}, [customNumber, onNumberChange]);
 
 	const calculations = useMemo(() => {
 		const subtotal = Number(amount) || 0;
@@ -254,12 +272,34 @@ export function DepositForm({
 
 				{(!visibleStep || visibleStep === 2) && (
 					<>
-						{/* ── Dates ─────────────────────────────────── */}
+						{/* ── Numéro + Dates ───────────────────────── */}
 						<section className="space-y-4">
 							<h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-2">
 								<Calendar className="size-4 text-violet-600 dark:text-violet-400" />
-								Dates
+								Informations
 							</h3>
+							{/* N° Acompte — éditable */}
+							<div className="max-w-[130px] xs:max-w-xs">
+								<Label className="text-xs text-slate-600 dark:text-violet-200">N° Acompte</Label>
+								<div className="relative">
+									<Controller
+										name="customNumber"
+										control={control}
+										render={({ field }) => (
+											<Input
+												{...field}
+												value={field.value ?? ""}
+												placeholder={depositNumber || "Ex: DEP-2025-0001"}
+												className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-xs xs:text-sm text-slate-900 dark:text-slate-50 pr-8 font-mono"
+											/>
+										)}
+									/>
+									<Pencil className="absolute right-2.5 top-1/2 -translate-y-1/2 size-3 text-slate-400 dark:text-violet-400/60 pointer-events-none" />
+								</div>
+								{errors.customNumber && (
+									<p className="text-xs text-red-500 dark:text-red-400 mt-1">{errors.customNumber.message}</p>
+								)}
+							</div>
 							<div className="grid grid-cols-2 gap-3 xs:gap-4">
 								<div className="space-y-2">
 									<Label htmlFor="date" className="text-xs font-medium text-slate-700 dark:text-slate-300">

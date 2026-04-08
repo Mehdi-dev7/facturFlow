@@ -123,20 +123,23 @@ const saveSchema = z
 
 function calcLineItems(
   lines: InvoiceFormData["lines"],
-  vatRate: number
+  globalVatRate: number,
+  vatMode?: "global" | "per_line"
 ) {
   return (lines ?? []).map((line, idx) => {
     const qty = line.quantity ?? 1;
     const up = line.unitPrice ?? 0;
     const subtotal = qty * up;
-    const taxAmount = subtotal * (vatRate / 100);
+    // En mode per_line, chaque ligne utilise son propre taux (ou le taux global en fallback)
+    const effectiveVat = vatMode === "per_line" ? (line.vatRate ?? globalVatRate) : globalVatRate;
+    const taxAmount = subtotal * (effectiveVat / 100);
     const total = subtotal + taxAmount;
     return {
       description: line.description,
       quantity: qty,
       unit: "unité",
       unitPrice: up,
-      vatRate,
+      vatRate: effectiveVat,
       subtotal,
       taxAmount,
       total,
@@ -398,15 +401,17 @@ export async function saveDraft(data: InvoiceFormData, draftId?: string) {
     }
 
     // Calculer les totaux
+    const vatMode = data.vatMode ?? "global";
     const totals = calcInvoiceTotals({
       lines: data.lines,
       vatRate: data.vatRate as VatRate,
+      vatMode,
       discountType: data.discountType,
       discountValue: data.discountValue,
       depositAmount: data.depositAmount,
     });
 
-    const computedLines = calcLineItems(data.lines, data.vatRate);
+    const computedLines = calcLineItems(data.lines, data.vatRate, vatMode);
 
     const docData = {
       clientId: client.id,
@@ -424,6 +429,7 @@ export async function saveDraft(data: InvoiceFormData, draftId?: string) {
       notes: data.notes ?? null,
       businessMetadata: {
         vatRate: data.vatRate,
+        vatMode,
         paymentLinks: data.paymentLinks ?? {},
       },
     };
@@ -502,27 +508,42 @@ export async function createInvoice(data: InvoiceFormData, draftId?: string) {
     }
 
     // Calculer les totaux
+    const vatMode = data.vatMode ?? "global";
     const totals = calcInvoiceTotals({
       lines: data.lines,
       vatRate: data.vatRate as VatRate,
+      vatMode,
       discountType: data.discountType,
       discountValue: data.discountValue,
       depositAmount: data.depositAmount,
     });
 
-    const computedLines = calcLineItems(data.lines, data.vatRate);
+    const computedLines = calcLineItems(data.lines, data.vatRate, vatMode);
 
-    // Incrémenter le compteur de factures et générer le numéro officiel
-    const updatedUser = await prisma.user.update({
-      where: { id: userId },
-      data: { nextInvoiceNumber: { increment: 1 } },
-      select: { nextInvoiceNumber: true, invoicePrefix: true },
-    });
+    // ── Numérotation : custom ou auto-généré ────────────────────────────────
+    let invoiceNumber: string;
+    const customNum = data.customNumber?.trim();
 
-    const year = new Date().getFullYear();
-    // nextInvoiceNumber a déjà été incrémenté, donc -1 pour avoir le numéro utilisé
-    const usedNumber = updatedUser.nextInvoiceNumber - 1;
-    const invoiceNumber = `${updatedUser.invoicePrefix}-${year}-${String(usedNumber).padStart(4, "0")}`;
+    if (customNum) {
+      // L'user a fourni un numéro personnalisé → vérifier l'unicité
+      const duplicate = await prisma.document.findFirst({
+        where: { userId, number: customNum },
+      });
+      if (duplicate) {
+        return { success: false, error: `Le numéro "${customNum}" est déjà utilisé par un autre document.` } as const;
+      }
+      invoiceNumber = customNum;
+    } else {
+      // Auto-générer : incrémenter le compteur
+      const updatedUser = await prisma.user.update({
+        where: { id: userId },
+        data: { nextInvoiceNumber: { increment: 1 } },
+        select: { nextInvoiceNumber: true, invoicePrefix: true },
+      });
+      const year = new Date().getFullYear();
+      const usedNumber = updatedUser.nextInvoiceNumber - 1;
+      invoiceNumber = `${updatedUser.invoicePrefix}-${year}-${String(usedNumber).padStart(4, "0")}`;
+    }
 
     const docData = {
       userId,
@@ -542,6 +563,7 @@ export async function createInvoice(data: InvoiceFormData, draftId?: string) {
       notes: data.notes ?? null,
       businessMetadata: {
         vatRate: data.vatRate,
+        vatMode,
         paymentLinks: data.paymentLinks ?? {},
       },
     };
@@ -602,11 +624,22 @@ export async function updateInvoice(id: string, data: InvoiceFormData) {
     // Vérifier que la facture existe et appartient à l'utilisateur
     const existing = await prisma.document.findFirst({
       where: { id, userId, type: "INVOICE" },
-      select: { id: true },
+      select: { id: true, number: true },
     });
 
     if (!existing) {
       return { success: false, error: "Facture introuvable" } as const;
+    }
+
+    // Vérifier si le numéro personnalisé est unique (si changé)
+    const newNumber = data.customNumber?.trim();
+    if (newNumber && newNumber !== existing.number) {
+      const duplicate = await prisma.document.findFirst({
+        where: { userId, number: newNumber, id: { not: id } },
+      });
+      if (duplicate) {
+        return { success: false, error: `Le numéro "${newNumber}" est déjà utilisé par un autre document.` } as const;
+      }
     }
 
     // Résoudre le client
@@ -616,21 +649,25 @@ export async function updateInvoice(id: string, data: InvoiceFormData) {
     }
 
     // Calculer les totaux
+    const vatMode = data.vatMode ?? "global";
     const totals = calcInvoiceTotals({
       lines: data.lines,
       vatRate: data.vatRate as VatRate,
+      vatMode,
       discountType: data.discountType,
       discountValue: data.discountValue,
       depositAmount: data.depositAmount,
     });
 
-    const computedLines = calcLineItems(data.lines, data.vatRate);
+    const computedLines = calcLineItems(data.lines, data.vatRate, vatMode);
 
     // Mise à jour dans une transaction : update doc + delete+recreate lignes
     await prisma.$transaction([
       prisma.document.update({
         where: { id },
         data: {
+          // Mettre à jour le numéro si l'user l'a modifié
+          ...(newNumber && newNumber !== existing.number ? { number: newNumber } : {}),
           clientId: client.id,
           date: new Date(data.date),
           dueDate: new Date(data.dueDate),
@@ -644,6 +681,7 @@ export async function updateInvoice(id: string, data: InvoiceFormData) {
           notes: data.notes ?? null,
           businessMetadata: {
             vatRate: data.vatRate,
+            vatMode,
             paymentLinks: data.paymentLinks ?? {},
           },
         },

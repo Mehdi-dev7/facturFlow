@@ -429,17 +429,28 @@ export async function createPurchaseOrder(data: PurchaseOrderFormData, draftId?:
 
 		const computedLines = calcLineItems(data.lines, data.vatRate);
 
-		// Incrémenter le compteur atomiquement et générer le numéro officiel
-		const updatedUser = await prisma.user.update({
-			where: { id: userId },
-			data: { nextPurchaseOrderNumber: { increment: 1 } },
-			select: { nextPurchaseOrderNumber: true, purchaseOrderPrefix: true },
-		});
+		// ── Numérotation : custom ou auto-généré ────────────────────────────────
+		let bcNumber: string;
+		const customNum = data.customNumber?.trim();
 
-		const year = new Date().getFullYear();
-		// nextPurchaseOrderNumber a déjà été incrémenté → -1 pour le numéro utilisé
-		const usedNumber = updatedUser.nextPurchaseOrderNumber - 1;
-		const bcNumber = `${updatedUser.purchaseOrderPrefix}-${year}-${String(usedNumber).padStart(4, "0")}`;
+		if (customNum) {
+			const duplicate = await prisma.document.findFirst({
+				where: { userId, number: customNum },
+			});
+			if (duplicate) {
+				return { success: false, error: `Le numéro "${customNum}" est déjà utilisé par un autre document.` } as const;
+			}
+			bcNumber = customNum;
+		} else {
+			const updatedUser = await prisma.user.update({
+				where: { id: userId },
+				data: { nextPurchaseOrderNumber: { increment: 1 } },
+				select: { nextPurchaseOrderNumber: true, purchaseOrderPrefix: true },
+			});
+			const year = new Date().getFullYear();
+			const usedNumber = updatedUser.nextPurchaseOrderNumber - 1;
+			bcNumber = `${updatedUser.purchaseOrderPrefix}-${year}-${String(usedNumber).padStart(4, "0")}`;
+		}
 
 		const docData = {
 			userId,
@@ -644,11 +655,22 @@ export async function updatePurchaseOrder(id: string, data: PurchaseOrderFormDat
 		// Vérifier ownership
 		const existing = await prisma.document.findFirst({
 			where: { id, userId, type: "PURCHASE_ORDER" },
-			select: { id: true },
+			select: { id: true, number: true },
 		});
 
 		if (!existing) {
 			return { success: false, error: "Bon de commande introuvable" } as const;
+		}
+
+		// Vérifier si le numéro personnalisé est unique (si changé)
+		const newNumber = data.customNumber?.trim();
+		if (newNumber && newNumber !== existing.number) {
+			const duplicate = await prisma.document.findFirst({
+				where: { userId, number: newNumber, id: { not: id } },
+			});
+			if (duplicate) {
+				return { success: false, error: `Le numéro "${newNumber}" est déjà utilisé par un autre document.` } as const;
+			}
 		}
 
 		const client = await resolveClient(data, userId);
@@ -670,6 +692,8 @@ export async function updatePurchaseOrder(id: string, data: PurchaseOrderFormDat
 			prisma.document.update({
 				where: { id },
 				data: {
+					// Mettre à jour le numéro si l'user l'a modifié
+					...(newNumber && newNumber !== existing.number ? { number: newNumber } : {}),
 					clientId: client.id,
 					date: new Date(data.date),
 					validUntil: data.deliveryDate ? new Date(data.deliveryDate) : null,

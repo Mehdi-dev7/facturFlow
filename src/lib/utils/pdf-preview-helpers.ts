@@ -90,19 +90,21 @@ function buildUser(companyInfo: CompanyInfo | null, appearance: AppearanceCtx) {
 
 /** Mappe les lignes de formulaire en lineItems PDF */
 function buildLineItems(
-  lines: { description: string; quantity: number; unitPrice: number; category?: string }[],
-  vatRate: number,
+  lines: { description: string; quantity: number; unitPrice: number; vatRate?: number; category?: string }[],
+  globalVatRate: number,
+  vatMode?: "global" | "per_line",
 ) {
   return lines.map((line, i) => {
     const qty = line.quantity || 0;
     const sub = qty * (line.unitPrice || 0);
-    const tax = sub * (vatRate / 100);
+    const effectiveVat = vatMode === "per_line" ? (line.vatRate ?? globalVatRate) : globalVatRate;
+    const tax = sub * (effectiveVat / 100);
     return {
       id: `__line_${i}__`,
       description: line.description || "",
       quantity: qty,
       unitPrice: line.unitPrice || 0,
-      vatRate,
+      vatRate: effectiveVat,
       subtotal: sub,
       taxAmount: tax,
       total: sub + tax,
@@ -123,10 +125,12 @@ export function buildPreviewInvoice(
   clients: SavedClient[],
 ): SavedInvoice {
   const vatRate = values.vatRate ?? 20;
+  const vatMode = values.vatMode ?? "global";
   const lines = values.lines ?? [];
   const totals = calcInvoiceTotals({
-    lines: lines.map((l) => ({ quantity: l.quantity || 0, unitPrice: l.unitPrice || 0 })),
+    lines: lines.map((l) => ({ quantity: l.quantity || 0, unitPrice: l.unitPrice || 0, vatRate: l.vatRate })),
     vatRate,
+    vatMode,
     discountType: values.discountType,
     discountValue: values.discountValue ?? 0,
     depositAmount: values.depositAmount,
@@ -147,11 +151,11 @@ export function buildPreviewInvoice(
     discount: values.discountValue ?? null,
     depositAmount: values.depositAmount ?? null,
     notes: values.notes ?? null,
-    businessMetadata: null,
+    businessMetadata: { vatRate, vatMode },
     einvoiceRef: null,
     einvoiceStatus: null,
     einvoiceSentAt: null,
-    lineItems: buildLineItems(lines, vatRate),
+    lineItems: buildLineItems(lines, vatRate, vatMode),
     client: resolveClient(values.clientId, values.newClient, clients),
     user: buildUser(companyInfo, appearance),
   };

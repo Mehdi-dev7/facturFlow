@@ -49,6 +49,7 @@ export const purchaseOrderFormSchema = z
 	.object({
 		clientId: z.string().optional(),
 		newClient: quickClientSchema.optional(),
+		customNumber: z.string().optional(), // Numéro personnalisé (pré-rempli auto, éditable)
 		date: z.string().min(1, "La date est requise"),
 		// Date de livraison souhaitée — optionnelle (contrairement à validUntil sur les devis)
 		deliveryDate: z.string().optional(),

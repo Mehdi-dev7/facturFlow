@@ -67,6 +67,7 @@ export const invoiceLineSchema = z.object({
 	quantity: z.number().min(0.01, "La quantité doit être supérieure à 0"),
 	unitPrice: z.number().min(0, "Le prix unitaire ne peut pas être négatif"),
 	category: z.enum(["main_oeuvre", "materiel"]).optional(), // artisan uniquement
+	vatRate: z.union([z.literal(0), z.literal(5.5), z.literal(10), z.literal(20)]).optional(), // TVA par ligne
 });
 
 export const quickClientSchema = z.object({
@@ -92,6 +93,7 @@ export const invoiceFormSchema = z
 	.object({
 		clientId: z.string().optional(),
 		newClient: quickClientSchema.optional(),
+		customNumber: z.string().optional(), // Numéro personnalisé (pré-rempli auto, éditable)
 		date: z.string().min(1, "La date est requise"),
 		dueDate: z.string().min(1, "La date d'échéance est requise"),
 		invoiceType: z.enum(INVOICE_TYPES),
@@ -99,6 +101,7 @@ export const invoiceFormSchema = z
 		vatRate: z.union([z.literal(0), z.literal(5.5), z.literal(10), z.literal(20)], {
 			message: "Taux de TVA invalide",
 		}),
+		vatMode: z.enum(["global", "per_line"]).optional(), // Mode TVA : globale ou par ligne
 		discountType: z.enum(["pourcentage", "montant"]).optional(),
 		discountValue: z.number().min(0).optional(),
 		depositAmount: z.number().min(0).optional(),

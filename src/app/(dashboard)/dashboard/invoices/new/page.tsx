@@ -254,6 +254,7 @@ function NewInvoicePageContent() {
 							isSubmitting={createMutation.isPending}
 							effectivePlan={effectivePlan}
 							onPdfPreview={() => setIsPdfPreviewOpen(true)}
+							onNumberChange={(n) => setInvoiceNumber(n)}
 						/>
 					</div>
 				</div>

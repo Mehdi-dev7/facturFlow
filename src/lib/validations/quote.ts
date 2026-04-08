@@ -40,6 +40,7 @@ export const quoteFormSchema = z
 	.object({
 		clientId: z.string().optional(),
 		newClient: quickClientSchema.optional(),
+		customNumber: z.string().optional(), // Numéro personnalisé (pré-rempli auto, éditable)
 		date: z.string().min(1, "La date est requise"),
 		validUntil: z.string().min(1, "La date de validité est requise"),
 		quoteType: z.enum(INVOICE_TYPES),

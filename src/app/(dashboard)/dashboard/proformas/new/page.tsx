@@ -203,6 +203,7 @@ export default function NewProformaPage() {
 							isSubmitting={createMutation.isPending}
 							submitLabel="Créer la proforma"
 							effectivePlan={effectivePlan}
+							onNumberChange={(n) => setProformaNumber(n)}
 						/>
 					</div>
 				</div>

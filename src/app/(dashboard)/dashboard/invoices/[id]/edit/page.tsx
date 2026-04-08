@@ -37,6 +37,9 @@ function toFormValues(inv: SavedInvoice): Partial<InvoiceFormData> {
 		? rawVatRate
 		: 20) as (typeof VAT_RATES)[number];
 
+	const rawVatMode = meta.vatMode as string | undefined;
+	const vatMode: "global" | "per_line" = rawVatMode === "per_line" ? "per_line" : "global";
+
 	const rawInvoiceType = inv.invoiceType ?? "basic";
 	const invoiceType = (INVOICE_TYPES.includes(rawInvoiceType as (typeof INVOICE_TYPES)[number])
 		? rawInvoiceType
@@ -57,6 +60,7 @@ function toFormValues(inv: SavedInvoice): Partial<InvoiceFormData> {
 
 	return {
 		clientId: inv.client.id,
+		customNumber: inv.number, // Pré-remplir avec le numéro existant (éditable)
 		date: inv.date.split("T")[0], // ISO → YYYY-MM-DD
 		dueDate: inv.dueDate ? inv.dueDate.split("T")[0] : "",
 		invoiceType,
@@ -65,8 +69,13 @@ function toFormValues(inv: SavedInvoice): Partial<InvoiceFormData> {
 			quantity: li.quantity,
 			unitPrice: li.unitPrice,
 			category: (li.category === "main_oeuvre" || li.category === "materiel") ? li.category : undefined,
+			// En mode per_line, charger le taux spécifique de chaque ligne
+			vatRate: vatMode === "per_line"
+				? (VAT_RATES.includes(li.vatRate as (typeof VAT_RATES)[number]) ? li.vatRate as (typeof VAT_RATES)[number] : undefined)
+				: undefined,
 		})),
 		vatRate,
+		vatMode,
 		discountType: (inv.discountType === "pourcentage" || inv.discountType === "montant") ? inv.discountType : undefined,
 		discountValue: inv.discount ?? 0,
 		depositAmount: inv.depositAmount ?? 0,
@@ -101,6 +110,7 @@ export default function EditInvoicePage() {
 	const effectivePlan = subData?.success ? subData.data.effectivePlan : "FREE";
 	const { data: clients = [] } = useClients();
 	const [invoice, setInvoice] = useState<SavedInvoice | null>(null);
+	const [displayNumber, setDisplayNumber] = useState(""); // Suit le numéro éditable dans le form
 	const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
 	const [loadError, setLoadError] = useState<string | null>(null);
 
@@ -135,6 +145,7 @@ export default function EditInvoicePage() {
 
 				// Pré-remplir le formulaire avec les données de la facture
 				form.reset(toFormValues(inv));
+				setDisplayNumber(inv.number);
 
 				// Company info depuis la facture en DB
 				const dbCompany = toCompanyInfo(inv.user);
@@ -155,7 +166,7 @@ export default function EditInvoicePage() {
 
 	const getDocumentForPreview = useCallback(() => {
 		const values = form.getValues();
-		const mock = buildPreviewInvoice(values, invoice?.number ?? "", companyInfo, { themeColor, companyFont, companyLogo, invoiceFooter }, clients);
+		const mock = buildPreviewInvoice(values, displayNumber || invoice?.number || "", companyInfo, { themeColor, companyFont, companyLogo, invoiceFooter }, clients);
 		return <InvoicePdfDocument invoice={mock} />;
 	}, [form, invoice, companyInfo, themeColor, companyFont, companyLogo, clients]);
 
@@ -227,7 +238,7 @@ export default function EditInvoicePage() {
 						Modifier la facture
 					</h1>
 					<p className="text-sm text-slate-500 dark:text-violet-400/60">
-						{invoice?.number}
+						{displayNumber || invoice?.number}
 					</p>
 				</div>
 			</div>
@@ -239,20 +250,21 @@ export default function EditInvoicePage() {
 						<InvoiceForm
 							form={form}
 							onSubmit={onSubmit}
-							invoiceNumber={invoice?.number ?? ""}
+							invoiceNumber={displayNumber || invoice?.number || ""}
 							companyInfo={companyInfo}
 							onCompanyChange={handleCompanyChange}
 							isSubmitting={updateMutation.isPending || createMutation.isPending}
 							submitLabel={isDraft ? "Créer la facture" : "Sauvegarder"}
 							effectivePlan={effectivePlan}
 							onPdfPreview={() => setIsPdfPreviewOpen(true)}
+							onNumberChange={(n) => setDisplayNumber(n)}
 						/>
 					</div>
 				</div>
 				<div className="sticky top-6 self-start">
 					<InvoicePreview
 						form={form}
-						invoiceNumber={invoice?.number ?? ""}
+						invoiceNumber={displayNumber || invoice?.number || ""}
 						companyInfo={companyInfo}
 					
 					themeColor={themeColor}
@@ -269,7 +281,7 @@ export default function EditInvoicePage() {
 				<InvoiceStepper
 					form={form}
 					onSubmit={onSubmit}
-					invoiceNumber={invoice?.number ?? ""}
+					invoiceNumber={displayNumber || invoice?.number || ""}
 					companyInfo={companyInfo}
 					onCompanyChange={handleCompanyChange}
 					submitLabel={isDraft ? "Créer la facture" : "Sauvegarder"}
@@ -286,7 +298,7 @@ export default function EditInvoicePage() {
 				open={isPdfPreviewOpen}
 				onOpenChange={setIsPdfPreviewOpen}
 				getDocument={getDocumentForPreview}
-				filename={`${invoice?.number ?? "facture"}.pdf`}
+				filename={`${displayNumber || invoice?.number || "facture"}.pdf`}
 				title="Aperçu PDF — Facture"
 			/>
 		</div>

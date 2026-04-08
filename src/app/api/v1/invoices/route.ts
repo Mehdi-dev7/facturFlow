@@ -154,7 +154,7 @@ export async function POST(request: Request) {
     }));
 
     const totals = calcInvoiceTotals({
-      lines,
+      lines: lines.map((l) => ({ quantity: l.quantity, unitPrice: l.unitPrice })),
       vatRate: 20,
       discountType: "montant",
       discountValue: 0,

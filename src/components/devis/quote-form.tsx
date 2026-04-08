@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import {
 	useFieldArray,
 	useWatch,
@@ -18,6 +18,7 @@ import {
 	X,
 	Banknote,
 	Eye,
+	Pencil,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -80,6 +81,8 @@ interface QuoteFormProps {
 	hideSubmit?: boolean;
 	/** Callback pour ouvrir l'aperçu PDF (optionnel) */
 	onPdfPreview?: () => void;
+	/** Callback appelé quand l'utilisateur modifie le numéro du document */
+	onNumberChange?: (n: string) => void;
 }
 
 export function QuoteForm({
@@ -92,6 +95,7 @@ export function QuoteForm({
 	visibleStep,
 	hideSubmit = false,
 	onPdfPreview,
+	onNumberChange,
 }: QuoteFormProps) {
 	const {
 		register,
@@ -117,6 +121,19 @@ export function QuoteForm({
 	const discountType  = useWatch({ control, name: "discountType" });
 	const discountValue = useWatch({ control, name: "discountValue" }) ?? 0;
 	const depositAmount = useWatch({ control, name: "depositAmount" }) ?? 0;
+	const customNumber  = useWatch({ control, name: "customNumber" });
+
+	// Sync : quand le numéro auto-généré arrive (prop), initialiser le champ s'il est vide
+	useEffect(() => {
+		if (quoteNumber && !form.getValues("customNumber")) {
+			setValue("customNumber", quoteNumber);
+		}
+	}, [quoteNumber, setValue, form]);
+
+	// Notifier le parent dès que customNumber change
+	useEffect(() => {
+		if (customNumber) onNumberChange?.(customNumber);
+	}, [customNumber, onNumberChange]);
 
 	const typeConfig = INVOICE_TYPE_CONFIG[quoteType] ?? INVOICE_TYPE_CONFIG["basic"];
 	const isForfait  = typeConfig.quantityLabel === null;
@@ -330,11 +347,24 @@ export function QuoteForm({
 							<div className="space-y-2">
 								<div className="max-w-[130px] xs:max-w-xs">
 									<Label className="text-xs text-slate-600 dark:text-violet-200">N° Devis</Label>
-									<Input
-										value={quoteNumber}
-										disabled
-										className="bg-slate-100 dark:bg-[#1e1845] border-slate-300 dark:border-violet-400/70 rounded-xl text-xs sm:text-sm text-slate-500 dark:text-violet-100/80"
-									/>
+									<div className="relative">
+										<Controller
+											name="customNumber"
+											control={control}
+											render={({ field }) => (
+												<Input
+													{...field}
+													value={field.value ?? ""}
+													placeholder={quoteNumber || "Ex: DEV-2025-0001"}
+													className={`${inputClass} pr-8 text-xs sm:text-sm font-mono`}
+												/>
+											)}
+										/>
+										<Pencil className="absolute right-2.5 top-1/2 -translate-y-1/2 size-3 text-slate-400 dark:text-violet-400/60 pointer-events-none" />
+									</div>
+									{errors.customNumber && (
+										<p className="text-xs text-red-500 dark:text-red-400 mt-1">{errors.customNumber.message}</p>
+									)}
 								</div>
 								<div className="grid grid-cols-2 gap-2">
 									<div>

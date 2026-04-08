@@ -2,7 +2,7 @@
 // src/components/purchase-orders/purchase-order-form.tsx
 // Formulaire de création/édition d'un bon de commande — adapté du quote-form
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import {
   useFieldArray,
   useWatch,
@@ -19,6 +19,7 @@ import {
   Tag,
   Hash,
   Eye,
+  Pencil,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -76,6 +77,8 @@ interface PurchaseOrderFormProps {
   hideSubmit?: boolean;
   /** Callback pour ouvrir l'aperçu PDF (optionnel) */
   onPdfPreview?: () => void;
+  /** Callback appelé quand l'utilisateur modifie le numéro du document */
+  onNumberChange?: (n: string) => void;
 }
 
 // ─── Composant principal ──────────────────────────────────────────────────────
@@ -90,6 +93,7 @@ export function PurchaseOrderForm({
   visibleStep,
   hideSubmit = false,
   onPdfPreview,
+  onNumberChange,
 }: PurchaseOrderFormProps) {
   const {
     register,
@@ -113,6 +117,19 @@ export function PurchaseOrderForm({
   const orderType    = (useWatch({ control, name: "orderType" }) ?? "basic") as InvoiceType;
   const discountType = useWatch({ control, name: "discountType" });
   const discountValue = useWatch({ control, name: "discountValue" }) ?? 0;
+  const customNumber = useWatch({ control, name: "customNumber" });
+
+  // Sync : quand le numéro auto-généré arrive (prop), initialiser le champ s'il est vide
+  useEffect(() => {
+    if (orderNumber && !form.getValues("customNumber")) {
+      setValue("customNumber", orderNumber);
+    }
+  }, [orderNumber, setValue, form]);
+
+  // Notifier le parent dès que customNumber change
+  useEffect(() => {
+    if (customNumber) onNumberChange?.(customNumber);
+  }, [customNumber, onNumberChange]);
 
   const typeConfig = INVOICE_TYPE_CONFIG[orderType] ?? INVOICE_TYPE_CONFIG["basic"];
   const isForfait  = typeConfig.quantityLabel === null;
@@ -255,14 +272,27 @@ export function PurchaseOrderForm({
                 Informations
               </h3>
               <div className="space-y-2">
-                {/* N° Bon de commande — non éditable */}
+                {/* N° Bon de commande — éditable */}
                 <div className="max-w-[130px] xs:max-w-xs">
                   <Label className="text-xs text-slate-600 dark:text-violet-200">N° Bon de commande</Label>
-                  <Input
-                    value={orderNumber}
-                    disabled
-                    className="bg-slate-100 dark:bg-[#1e1845] border-slate-300 dark:border-violet-400/70 rounded-xl text-xs sm:text-sm text-slate-500 dark:text-violet-100/80"
-                  />
+                  <div className="relative">
+                    <Controller
+                      name="customNumber"
+                      control={control}
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          value={field.value ?? ""}
+                          placeholder={orderNumber || "Ex: BC-2025-0001"}
+                          className={`${inputClass} pr-8 text-xs sm:text-sm font-mono`}
+                        />
+                      )}
+                    />
+                    <Pencil className="absolute right-2.5 top-1/2 -translate-y-1/2 size-3 text-slate-400 dark:text-violet-400/60 pointer-events-none" />
+                  </div>
+                  {errors.customNumber && (
+                    <p className="text-xs text-red-500 dark:text-red-400 mt-1">{errors.customNumber.message}</p>
+                  )}
                 </div>
 
                 {/* Date d'émission + Date de livraison */}

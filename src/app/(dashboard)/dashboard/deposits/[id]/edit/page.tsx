@@ -26,6 +26,7 @@ import DepositPdfDocument from "@/lib/pdf/deposit-pdf-document";
 
 const depositFormSchema = z.object({
   clientId: z.string().min(1, "Client requis"),
+  customNumber: z.string().optional(), // Numéro personnalisé (pré-rempli auto, éditable)
   amount: z.number().min(0.01, "Montant requis"),
   vatRate: z.union([z.literal(0), z.literal(5.5), z.literal(10), z.literal(20)]),
   date: z.string().min(1, "Date requise"),
@@ -56,6 +57,7 @@ function extractVatRate(vatRate: number): VatRate {
 function toFormValues(d: SavedDeposit): Partial<DepositFormData> {
   return {
     clientId: d.clientId,
+    customNumber: d.number, // Pré-remplir avec le numéro existant (éditable)
     amount: d.amount,
     vatRate: extractVatRate(d.vatRate),
     date: d.date.split("T")[0],
@@ -78,6 +80,7 @@ export default function EditDepositPage() {
   const depositId = params.id as string;
 
   const [mounted, setMounted] = useState(false);
+  const [displayNumber, setDisplayNumber] = useState(""); // Suit le numéro éditable
   const { themeColor, companyFont, companyLogo, invoiceFooter } = useAppearance();
   const [isPdfPreviewOpen, setIsPdfPreviewOpen] = useState(false);
   const { data: subData } = useQuery({ queryKey: ["subscription"], queryFn: getCurrentSubscription, staleTime: 5 * 60 * 1000 });
@@ -130,6 +133,7 @@ export default function EditDepositPage() {
 
         // Pré-remplir le formulaire
         const formValues = toFormValues(depositData);
+        setDisplayNumber(depositData.number);
         Object.entries(formValues).forEach(([key, value]) => {
           if (value !== undefined) {
             form.setValue(key as keyof DepositFormData, value as any, {
@@ -221,20 +225,21 @@ export default function EditDepositPage() {
             <DepositForm
               form={form}
               onSubmit={onSubmit}
-              depositNumber={deposit.number}
+              depositNumber={displayNumber || deposit.number}
               companyInfo={companyInfo}
               onCompanyChange={handleCompanyChange}
               isSubmitting={updateMutation.isPending}
               submitLabel="Sauvegarder"
               effectivePlan={effectivePlan}
               onPdfPreview={() => setIsPdfPreviewOpen(true)}
+              onNumberChange={(n) => setDisplayNumber(n)}
             />
           </div>
         </div>
         <div className="sticky top-6 self-start">
           <DepositPreview
             form={form}
-            depositNumber={deposit.number}
+            depositNumber={displayNumber || deposit.number}
             companyInfo={companyInfo}
           />
         </div>
@@ -252,13 +257,14 @@ export default function EditDepositPage() {
           submitLabel="Sauvegarder"
           effectivePlan={effectivePlan}
           onPdfPreview={() => setIsPdfPreviewOpen(true)}
+          onNumberChange={(n) => setDisplayNumber(n)}
         />
       </div>
       <PdfPreviewModal
         open={isPdfPreviewOpen}
         onOpenChange={setIsPdfPreviewOpen}
         getDocument={getDocumentForPreview}
-        filename={`${deposit?.number ?? "acompte"}.pdf`}
+        filename={`${displayNumber || deposit?.number || "acompte"}.pdf`}
         title="Aperçu PDF — Acompte"
       />
     </div>

@@ -194,6 +194,7 @@ export default function NewQuotePage() {
 							onCompanyChange={handleCompanyChange}
 							isSubmitting={createMutation.isPending}
 							onPdfPreview={() => setIsPdfPreviewOpen(true)}
+							onNumberChange={(n) => setQuoteNumber(n)}
 						/>
 					</div>
 				</div>

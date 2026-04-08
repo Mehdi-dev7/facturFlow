@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import {
 	useFieldArray,
 	useWatch,
@@ -15,6 +15,7 @@ import {
 	AlertCircle,
 	Layers,
 	Tag,
+	Pencil,
 } from "lucide-react";
 import { SiStripe, SiPaypal } from "react-icons/si";
 import { Input } from "@/components/ui/input";
@@ -48,6 +49,7 @@ import {
 	type QuickClientData,
 	type InvoiceType,
 } from "@/lib/validations/invoice";
+import { calcInvoiceTotals } from "@/lib/utils/calculs-facture";
 
 // ─── Styles partagés ─────────────────────────────────────────────────────────
 
@@ -78,6 +80,8 @@ interface InvoiceFormProps {
 	effectivePlan?: string;
 	/** Callback pour ouvrir la modale d'aperçu PDF — affiche un bouton à côté de Créer */
 	onPdfPreview?: () => void;
+	/** Callback appelé quand l'utilisateur modifie le numéro du document */
+	onNumberChange?: (n: string) => void;
 }
 
 // ─── Composant ───────────────────────────────────────────────────────────────
@@ -94,6 +98,7 @@ export function InvoiceForm({
 	hideSubmit = false,
 	effectivePlan = "FREE",
 	onPdfPreview,
+	onNumberChange,
 }: InvoiceFormProps) {
 	const {
 		register,
@@ -145,36 +150,58 @@ export function InvoiceForm({
 	// ── Watch ──────────────────────────────────────────────────────────────
 	const lines = useWatch({ control, name: "lines" });
 	const vatRate = useWatch({ control, name: "vatRate" });
+	const vatMode = useWatch({ control, name: "vatMode" }) ?? "global";
+	const isPerLine = vatMode === "per_line";
 	const clientId = useWatch({ control, name: "clientId" });
 	const invoiceType = useWatch({ control, name: "invoiceType" }) ?? "basic";
 	const discountType = useWatch({ control, name: "discountType" });
 	const discountValue = useWatch({ control, name: "discountValue" }) ?? 0;
 	const depositAmount = useWatch({ control, name: "depositAmount" }) ?? 0;
+	const customNumber = useWatch({ control, name: "customNumber" });
+
+	// Sync : quand le numéro auto-généré arrive (prop), initialiser le champ s'il est vide
+	useEffect(() => {
+		if (invoiceNumber && !form.getValues("customNumber")) {
+			setValue("customNumber", invoiceNumber);
+		}
+	}, [invoiceNumber, setValue, form]);
+
+	// Notifier le parent dès que customNumber change (pour màj preview/header)
+	useEffect(() => {
+		if (customNumber) onNumberChange?.(customNumber);
+	}, [customNumber, onNumberChange]);
+
+	// Quand on passe en mode "par ligne", initialiser le vatRate de chaque ligne
+	// avec le taux global s'il n'est pas encore défini
+	useEffect(() => {
+		if (isPerLine) {
+			const currentLines = form.getValues("lines");
+			const defaultRate = (vatRate ?? 20) as 0 | 5.5 | 10 | 20;
+			currentLines.forEach((line, idx) => {
+				if (line.vatRate === undefined || line.vatRate === null) {
+					setValue(`lines.${idx}.vatRate`, defaultRate, { shouldDirty: true });
+				}
+			});
+		}
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [isPerLine]); // Déclenché uniquement quand isPerLine change
 
 	// ── Config du type ─────────────────────────────────────────────────────
 	const typeConfig = INVOICE_TYPE_CONFIG[invoiceType as InvoiceType] ?? INVOICE_TYPE_CONFIG.basic;
 
 	// ── Calculs ────────────────────────────────────────────────────────────
-	const totals = useMemo(() => {
-		const subtotal = (lines || []).reduce(
-			(sum, line) => sum + (Number(line.quantity) || 0) * (Number(line.unitPrice) || 0),
-			0,
-		);
-
-		let discountAmount = 0;
-		if (discountType === "pourcentage" && discountValue > 0) {
-			discountAmount = subtotal * (discountValue / 100);
-		} else if (discountType === "montant" && discountValue > 0) {
-			discountAmount = Math.min(discountValue, subtotal);
-		}
-
-		const netHT = Math.max(0, subtotal - discountAmount);
-		const taxTotal = netHT * ((vatRate || 0) / 100);
-		const totalTTC = netHT + taxTotal;
-		const netAPayer = Math.max(0, totalTTC - (depositAmount || 0));
-
-		return { subtotal, discountAmount, netHT, taxTotal, totalTTC, netAPayer };
-	}, [lines, vatRate, discountType, discountValue, depositAmount]);
+	const totals = useMemo(() => calcInvoiceTotals({
+		lines: (lines || []).map((l) => ({
+			quantity: Number(l.quantity) || 0,
+			unitPrice: Number(l.unitPrice) || 0,
+			vatRate: l.vatRate,
+		})),
+		vatRate: (vatRate ?? 20) as 0 | 5.5 | 10 | 20,
+		vatMode: isPerLine ? "per_line" : "global",
+		discountType,
+		discountValue,
+		depositAmount,
+	}), [lines, vatRate, isPerLine, discountType, discountValue, depositAmount]);
 
 	// ── Handlers ───────────────────────────────────────────────────────────
 	const handleSelectClient = useCallback(
@@ -265,11 +292,13 @@ export function InvoiceForm({
 	const handleAddLine = useCallback(() => {
 		append({
 			description: "",
-			quantity: typeConfig.quantityLabel === null ? 1 : 1,
+			quantity: 1,
 			unitPrice: 0,
 			category: invoiceType === "artisan" ? "main_oeuvre" : undefined,
+			// En mode par ligne, initialiser avec le taux global comme défaut
+			vatRate: isPerLine ? ((vatRate ?? 20) as 0 | 5.5 | 10 | 20) : undefined,
 		});
-	}, [append, typeConfig, invoiceType]);
+	}, [append, invoiceType, isPerLine, vatRate]);
 
 	const fmt = useCallback(
 		(n: number) =>
@@ -370,11 +399,24 @@ export function InvoiceForm({
 							<div className="space-y-2">
 								<div className="max-w-[130px] xs:max-w-xs">
 									<Label className="text-xs text-slate-600 dark:text-violet-200">N° Facture</Label>
-									<Input
-										value={invoiceNumber}
-										disabled
-										className="bg-slate-100 dark:bg-[#1e1845] border-slate-300 dark:border-violet-400/70 rounded-xl text-xs sm:text-sm text-slate-500 dark:text-violet-100/80"
-									/>
+									<div className="relative">
+										<Controller
+											name="customNumber"
+											control={control}
+											render={({ field }) => (
+												<Input
+													{...field}
+													value={field.value ?? ""}
+													placeholder={invoiceNumber || "Ex: FAC-2025-0001"}
+													className={`${inputClass} pr-8 text-xs sm:text-sm font-mono`}
+												/>
+											)}
+										/>
+										<Pencil className="absolute right-2.5 top-1/2 -translate-y-1/2 size-3 text-slate-400 dark:text-violet-400/60 pointer-events-none" />
+									</div>
+									{errors.customNumber && (
+										<p className="text-xs text-red-500 dark:text-red-400 mt-1">{errors.customNumber.message}</p>
+									)}
 								</div>
 								<div className="grid grid-cols-2 gap-2">
 									<div>
@@ -646,6 +688,34 @@ export function InvoiceForm({
 													/>
 												</div>
 
+												{/* TVA par ligne (mode per_line) */}
+												{isPerLine && (
+													<div>
+														<Label className="text-xs text-slate-500 dark:text-violet-200">TVA</Label>
+														<Controller
+															name={`lines.${index}.vatRate`}
+															control={control}
+															render={({ field: f }) => (
+																<Select
+																	value={String(f.value ?? vatRate ?? 20)}
+																	onValueChange={(v) => f.onChange(Number(v) as 0 | 5.5 | 10 | 20)}
+																>
+																	<SelectTrigger className={`h-9 w-full ${inputClass}`}>
+																		<SelectValue />
+																	</SelectTrigger>
+																	<SelectContent side="bottom" avoidCollisions={false} className={selectContentClass}>
+																		{VAT_RATES.map((rate) => (
+																			<SelectItem key={rate} value={String(rate)} className={selectItemClass}>
+																				{rate}%
+																			</SelectItem>
+																		))}
+																	</SelectContent>
+																</Select>
+															)}
+														/>
+													</div>
+												)}
+
 												{/* Total HT — dans le grid hors stepper */}
 												{!visibleStep && (
 													<div>
@@ -767,34 +837,68 @@ export function InvoiceForm({
 								</div>
 							)}
 
-							{/* TVA */}
-							<div className="flex justify-between items-center text-xs xs:text-sm">
-								<div className="flex items-center gap-2">
-									<span className="text-slate-500 dark:text-violet-200">TVA</span>
-									<Select
-										value={String(vatRate ?? 20)}
-										onValueChange={(v) =>
-											setValue("vatRate", Number(v) as 0 | 5.5 | 10 | 20, {
-												shouldValidate: true,
-												shouldDirty: true,
-											})
-										}
-									>
-										<SelectTrigger className="h-6 w-16 xs:h-7 xs:w-20 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-lg text-xs text-slate-900 dark:text-slate-50">
-											<SelectValue />
-										</SelectTrigger>
-										<SelectContent side="bottom" avoidCollisions={false} className={selectContentClass}>
-											{VAT_RATES.map((rate) => (
-												<SelectItem key={rate} value={String(rate)} className={selectItemClass}>
-													{rate}%
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
+							{/* TVA — toggle globale / par ligne + sélecteur taux */}
+							<div className="space-y-2">
+								{/* Toggle mode TVA */}
+								<div className="flex items-center justify-between gap-2">
+									<span className="text-xs text-slate-500 dark:text-violet-200">TVA</span>
+									<div className="flex rounded-lg overflow-hidden border border-violet-200 dark:border-violet-400/30 text-xs">
+										<button
+											type="button"
+											onClick={() => setValue("vatMode", "global", { shouldDirty: true })}
+											className={`px-2.5 py-1 cursor-pointer transition-colors ${!isPerLine ? "bg-violet-600 text-white font-medium" : "bg-white/90 dark:bg-[#2a2254] text-slate-500 dark:text-violet-300 hover:bg-violet-50 dark:hover:bg-violet-500/15"}`}
+										>
+											Globale
+										</button>
+										<button
+											type="button"
+											onClick={() => setValue("vatMode", "per_line", { shouldDirty: true })}
+											className={`px-2.5 py-1 cursor-pointer transition-colors ${isPerLine ? "bg-violet-600 text-white font-medium" : "bg-white/90 dark:bg-[#2a2254] text-slate-500 dark:text-violet-300 hover:bg-violet-50 dark:hover:bg-violet-500/15"}`}
+										>
+											Par ligne
+										</button>
+									</div>
 								</div>
-								<span className="font-medium text-slate-800 dark:text-slate-100">
-									{fmt(totals.taxTotal)} €
-								</span>
+
+								{/* Taux global (masqué en mode par ligne) */}
+								{!isPerLine && (
+									<div className="flex items-center justify-between text-xs xs:text-sm">
+										<div className="flex items-center gap-2">
+											<span className="text-slate-500 dark:text-violet-200/60 text-xs">Taux</span>
+											<Select
+												value={String(vatRate ?? 20)}
+												onValueChange={(v) =>
+													setValue("vatRate", Number(v) as 0 | 5.5 | 10 | 20, {
+														shouldValidate: true,
+														shouldDirty: true,
+													})
+												}
+											>
+												<SelectTrigger className="h-6 w-16 xs:h-7 xs:w-20 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-lg text-xs text-slate-900 dark:text-slate-50">
+													<SelectValue />
+												</SelectTrigger>
+												<SelectContent side="bottom" avoidCollisions={false} className={selectContentClass}>
+													{VAT_RATES.map((rate) => (
+														<SelectItem key={rate} value={String(rate)} className={selectItemClass}>
+															{rate}%
+														</SelectItem>
+													))}
+												</SelectContent>
+											</Select>
+										</div>
+										<span className="font-medium text-slate-800 dark:text-slate-100">
+											{fmt(totals.taxTotal)} €
+										</span>
+									</div>
+								)}
+
+								{/* Ventilation TVA en mode par ligne */}
+								{isPerLine && totals.vatBreakdown && totals.vatBreakdown.map(({ rate, amount }) => (
+									<div key={rate} className="flex justify-between text-xs xs:text-sm">
+										<span className="text-slate-500 dark:text-violet-200">TVA {rate}%</span>
+										<span className="font-medium text-slate-800 dark:text-slate-100">{fmt(amount)} €</span>
+									</div>
+								))}
 							</div>
 
 							{/* Séparateur */}

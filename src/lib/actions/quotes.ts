@@ -418,17 +418,30 @@ export async function createQuote(data: QuoteFormData, draftId?: string) {
 
 		const computedLines = calcLineItems(data.lines, data.vatRate);
 
-		// Incrémenter le compteur de devis et générer le numéro officiel
-		const updatedUser = await prisma.user.update({
-			where: { id: userId },
-			data: { nextQuoteNumber: { increment: 1 } },
-			select: { nextQuoteNumber: true, quotePrefix: true },
-		});
+		// ── Numérotation : custom ou auto-généré ────────────────────────────────
+		let quoteNumber: string;
+		const customNum = data.customNumber?.trim();
 
-		const year = new Date().getFullYear();
-		// nextQuoteNumber a déjà été incrémenté, donc -1 pour avoir le numéro utilisé
-		const usedNumber = updatedUser.nextQuoteNumber - 1;
-		const quoteNumber = `${updatedUser.quotePrefix}-${year}-${String(usedNumber).padStart(4, "0")}`;
+		if (customNum) {
+			// L'user a fourni un numéro personnalisé → vérifier l'unicité
+			const duplicate = await prisma.document.findFirst({
+				where: { userId, number: customNum },
+			});
+			if (duplicate) {
+				return { success: false, error: `Le numéro "${customNum}" est déjà utilisé par un autre document.` } as const;
+			}
+			quoteNumber = customNum;
+		} else {
+			// Auto-générer
+			const updatedUser = await prisma.user.update({
+				where: { id: userId },
+				data: { nextQuoteNumber: { increment: 1 } },
+				select: { nextQuoteNumber: true, quotePrefix: true },
+			});
+			const year = new Date().getFullYear();
+			const usedNumber = updatedUser.nextQuoteNumber - 1;
+			quoteNumber = `${updatedUser.quotePrefix}-${year}-${String(usedNumber).padStart(4, "0")}`;
+		}
 
 		// Générer les tokens de validation
 		const acceptToken = crypto.randomUUID();
@@ -710,11 +723,22 @@ export async function updateQuote(id: string, data: QuoteFormData) {
 		// Vérifier que le devis existe et appartient à l'utilisateur
 		const existing = await prisma.document.findFirst({
 			where: { id, userId, type: "QUOTE" },
-			select: { id: true },
+			select: { id: true, number: true },
 		});
 
 		if (!existing) {
 			return { success: false, error: "Devis introuvable" } as const;
+		}
+
+		// Vérifier si le numéro personnalisé est unique (si changé)
+		const newNumber = data.customNumber?.trim();
+		if (newNumber && newNumber !== existing.number) {
+			const duplicate = await prisma.document.findFirst({
+				where: { userId, number: newNumber, id: { not: id } },
+			});
+			if (duplicate) {
+				return { success: false, error: `Le numéro "${newNumber}" est déjà utilisé par un autre document.` } as const;
+			}
 		}
 
 		// Résoudre le client
@@ -738,6 +762,8 @@ export async function updateQuote(id: string, data: QuoteFormData) {
 			prisma.document.update({
 				where: { id },
 				data: {
+					// Mettre à jour le numéro si l'user l'a modifié
+					...(newNumber && newNumber !== existing.number ? { number: newNumber } : {}),
 					clientId: client.id,
 					date: new Date(data.date),
 					validUntil: new Date(data.validUntil),
