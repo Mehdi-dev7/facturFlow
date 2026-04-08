@@ -528,7 +528,7 @@ export default function DashboardShell({
 				<div className="mx-4 h-px bg-linear-to-r from-transparent via-primary/30 dark:via-violet-400/30 to-transparent" />
 
 				{/* Navigation */}
-				<div className="flex-1 overflow-y-auto py-4">
+				<div className="flex-1 overflow-y-auto sidebar-scroll py-4">
 					<SidebarNav pathname={pathname} collapsed={collapsed} notifications={notifications} dismissedNotifs={dismissedNotifs} effectivePlan={subscription?.effectivePlan} spotlitHref={isSpotlightMode ? spotlitHref : null} />
 				</div>
 
@@ -605,7 +605,7 @@ export default function DashboardShell({
 										</span>
 									</div>
 									<div className="mx-6 h-px bg-linear-to-r from-transparent via-primary/30 dark:via-violet-400/30 to-transparent" />
-									<div className="flex-1 overflow-y-auto py-4">
+									<div className="flex-1 overflow-y-auto sidebar-scroll py-4">
 										<SidebarNav
 											pathname={pathname}
 											onNavigate={() => setSidebarOpen(false)}

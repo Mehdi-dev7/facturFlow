@@ -61,6 +61,7 @@ export const depositSchema = z.object({
   amount: z.number().min(0.01, "Montant requis"),
   vatRate: z.union([z.literal(0), z.literal(5.5), z.literal(10), z.literal(20)]),
   dueDate: z.string().min(1, "Date d'échéance requise"),
+  deliveryDate: z.string().optional(),
   relatedQuoteId: z.string().optional(),
   notes: z.string().optional(),
 });

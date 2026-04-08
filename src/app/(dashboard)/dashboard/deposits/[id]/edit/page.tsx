@@ -31,6 +31,7 @@ const depositFormSchema = z.object({
   vatRate: z.union([z.literal(0), z.literal(5.5), z.literal(10), z.literal(20)]),
   date: z.string().min(1, "Date requise"),
   dueDate: z.string().min(1, "Date d'échéance requise"),
+  deliveryDate: z.string().optional(),
   description: z.string().min(1, "Description requise"),
   notes: z.string().optional(),
   paymentLinks: z.object({
@@ -62,6 +63,7 @@ function toFormValues(d: SavedDeposit): Partial<DepositFormData> {
     vatRate: extractVatRate(d.vatRate),
     date: d.date.split("T")[0],
     dueDate: d.dueDate ? d.dueDate.split("T")[0] : "",
+    deliveryDate: (d.businessMetadata?.deliveryDate as string | undefined) ?? "",
     description: d.description,
     notes: d.notes || "",
     paymentLinks: d.paymentLinks || {

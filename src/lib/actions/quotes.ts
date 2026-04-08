@@ -205,6 +205,7 @@ const saveSchema = z
 		discountType: z.enum(["pourcentage", "montant"]).optional(),
 		discountValue: z.number().min(0).optional(),
 		depositAmount: z.number().min(0).optional(),
+		deliveryDate: z.string().optional(),
 		notes: z.string().optional(),
 	})
 	.refine((d) => d.clientId || d.newClient, {
@@ -331,6 +332,7 @@ export async function saveDraftQuote(data: QuoteFormData, draftId?: string) {
 			refuseToken,
 			businessMetadata: {
 				vatRate: data.vatRate,
+				deliveryDate: data.deliveryDate ?? null,
 			},
 		};
 
@@ -467,6 +469,7 @@ export async function createQuote(data: QuoteFormData, draftId?: string) {
 			refuseToken,
 			businessMetadata: {
 				vatRate: data.vatRate,
+				deliveryDate: data.deliveryDate ?? null,
 			},
 		};
 

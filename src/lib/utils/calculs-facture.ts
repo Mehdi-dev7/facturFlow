@@ -17,9 +17,9 @@ export interface InvoiceTotals {
 	netAPayer: number;
 	/**
 	 * Ventilation TVA par taux (mode per_line uniquement).
-	 * Ex: [{ rate: 20, amount: 80 }, { rate: 10, amount: 15 }]
+	 * Ex: [{ rate: 20, baseHT: 400, amount: 80 }, { rate: 10, baseHT: 150, amount: 15 }]
 	 */
-	vatBreakdown?: { rate: number; amount: number }[];
+	vatBreakdown?: { rate: number; baseHT: number; amount: number }[];
 }
 
 export interface CalcOptions {
@@ -67,7 +67,7 @@ export function calcInvoiceTotals(opts: CalcOptions): InvoiceTotals {
 
 	// 4. TVA
 	let taxTotal: number;
-	let vatBreakdown: { rate: number; amount: number }[] | undefined;
+	let vatBreakdown: { rate: number; baseHT: number; amount: number }[] | undefined;
 
 	if (vatMode === "per_line") {
 		// Rapport de réduction à appliquer proportionnellement à chaque ligne
@@ -88,7 +88,7 @@ export function calcInvoiceTotals(opts: CalcOptions): InvoiceTotals {
 			const adjustedBase = baseHT * discountRatio;
 			const taxAmount = round(adjustedBase * (rate / 100));
 			rawTaxTotal += taxAmount;
-			vatBreakdown.push({ rate, amount: taxAmount });
+			vatBreakdown.push({ rate, baseHT: round(adjustedBase), amount: taxAmount });
 		}
 		// Trier par taux croissant pour l'affichage
 		vatBreakdown.sort((a, b) => a.rate - b.rate);

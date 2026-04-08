@@ -51,6 +51,7 @@ export const quoteFormSchema = z
 		discountType: z.enum(["pourcentage", "montant"]).optional(),
 		discountValue: z.number().min(0).optional(),
 		depositAmount: z.number().min(0).optional(),
+		deliveryDate: z.string().optional(), // Date de livraison / fin de prestation (optionnel)
 		notes: z.string().optional(),
 	})
 	.refine((data) => data.clientId || data.newClient, {

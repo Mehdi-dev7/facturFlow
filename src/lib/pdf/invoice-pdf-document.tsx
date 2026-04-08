@@ -361,14 +361,20 @@ export default function InvoicePdfDocument({
   const netAPayer  = invoice.total - deposit;
 
   // Ventilation TVA par taux (mode per_line) — calculée depuis les lignes
-  const vatBreakdown: { rate: number; amount: number }[] = [];
+  // baseHT = base brute par taux × ratio de réduction (cohérent avec calculs-facture.ts)
+  const vatBreakdown: { rate: number; baseHT: number; amount: number }[] = [];
   if (isPerLine) {
-    const groups = new Map<number, number>();
+    const totalSubtotal = invoice.lineItems.reduce((s, li) => s + li.subtotal, 0);
+    const discountRatio = totalSubtotal > 0 ? (invoice.subtotal / totalSubtotal) : 1;
+
+    const groups = new Map<number, number>(); // rate → subtotal brut cumulé
     for (const li of invoice.lineItems) {
-      groups.set(li.vatRate, (groups.get(li.vatRate) ?? 0) + li.taxAmount);
+      groups.set(li.vatRate, (groups.get(li.vatRate) ?? 0) + li.subtotal);
     }
-    for (const [rate, amount] of groups) {
-      vatBreakdown.push({ rate, amount });
+    for (const [rate, rawBase] of groups) {
+      const baseHT = Math.round(rawBase * discountRatio * 100) / 100;
+      const amount = Math.round(baseHT * (rate / 100) * 100) / 100;
+      vatBreakdown.push({ rate, baseHT, amount });
     }
     vatBreakdown.sort((a, b) => a.rate - b.rate);
   }
@@ -414,6 +420,11 @@ export default function InvoicePdfDocument({
             <View style={S.headerRight}>
               <Text style={S.headerDate}>Date : {fmtDate(invoice.date)}</Text>
               <Text style={S.headerDate}>Échéance : {fmtDate(invoice.dueDate)}</Text>
+              {invoice.businessMetadata?.deliveryDate ? (
+                <Text style={S.headerDate}>
+                  Livraison : {fmtDate(invoice.businessMetadata.deliveryDate as string)}
+                </Text>
+              ) : null}
             </View>
           </View>
         </View>
@@ -494,12 +505,18 @@ export default function InvoicePdfDocument({
               </View>
             )}
 
-            {/* TVA — globale ou ventilée par taux */}
+            {/* TVA — globale ou ventilée par taux avec base HT */}
             {isPerLine ? (
-              vatBreakdown.map(({ rate, amount }) => (
-                <View key={rate} style={S.totalsRow}>
-                  <Text style={[S.totalLabel, { color: themeColor }]}>TVA {rate}% :</Text>
-                  <Text style={S.totalValue}>{fmtN(amount)} €</Text>
+              vatBreakdown.map(({ rate, baseHT, amount }) => (
+                <View key={rate}>
+                  <View style={S.totalsRow}>
+                    <Text style={[S.totalLabel, { color: "#64748b" }]}>Base HT {rate}% :</Text>
+                    <Text style={[S.totalValue, { color: "#475569" }]}>{fmtN(baseHT)} €</Text>
+                  </View>
+                  <View style={S.totalsRow}>
+                    <Text style={[S.totalLabel, { color: themeColor }]}>TVA {rate}% :</Text>
+                    <Text style={S.totalValue}>{fmtN(amount)} €</Text>
+                  </View>
                 </View>
               ))
             ) : (

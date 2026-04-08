@@ -105,6 +105,7 @@ const saveSchema = z
     discountType: z.enum(["pourcentage", "montant"]).optional(),
     discountValue: z.number().min(0).optional(),
     depositAmount: z.number().min(0).optional(),
+    deliveryDate: z.string().optional(),
     notes: z.string().optional(),
     paymentLinks: z
       .object({
@@ -430,6 +431,7 @@ export async function saveDraft(data: InvoiceFormData, draftId?: string) {
       businessMetadata: {
         vatRate: data.vatRate,
         vatMode,
+        deliveryDate: data.deliveryDate ?? null,
         paymentLinks: data.paymentLinks ?? {},
       },
     };
@@ -564,6 +566,7 @@ export async function createInvoice(data: InvoiceFormData, draftId?: string) {
       businessMetadata: {
         vatRate: data.vatRate,
         vatMode,
+        deliveryDate: data.deliveryDate ?? null,
         paymentLinks: data.paymentLinks ?? {},
       },
     };

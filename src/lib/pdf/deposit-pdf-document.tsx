@@ -209,6 +209,14 @@ export default function DepositPdfDocument({ deposit }: DepositPdfDocumentProps)
                   <Text style={S.headerDateValue}>{fmtDate(deposit.dueDate)}</Text>
                 </>
               )}
+              {(deposit.businessMetadata?.deliveryDate as string | null) ? (
+                <>
+                  <Text style={S.headerDateLabel}>Livraison</Text>
+                  <Text style={S.headerDateValue}>
+                    {fmtDate(deposit.businessMetadata!.deliveryDate as string)}
+                  </Text>
+                </>
+              ) : null}
             </View>
           </View>
         </View>

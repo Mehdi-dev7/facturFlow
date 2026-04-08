@@ -209,6 +209,14 @@ export default function QuotePdfDocument({ quote }: QuotePdfDocumentProps) {
                   <Text style={S.headerDateValue}>{fmtDate(quote.validUntil)}</Text>
                 </>
               )}
+              {(quote.businessMetadata?.deliveryDate as string | null) ? (
+                <>
+                  <Text style={S.headerDateLabel}>Livraison</Text>
+                  <Text style={S.headerDateValue}>
+                    {fmtDate(quote.businessMetadata!.deliveryDate as string)}
+                  </Text>
+                </>
+              ) : null}
             </View>
           </View>
         </View>

@@ -49,6 +49,7 @@ export function QuotePreview({
 	const discountType  = useWatch({ control: form.control, name: "discountType" });
 	const discountValue = useWatch({ control: form.control, name: "discountValue" }) ?? 0;
 	const depositAmt    = (useWatch({ control: form.control, name: "depositAmount" }) ?? 0) as number;
+	const deliveryDate  = useWatch({ control: form.control, name: "deliveryDate" });
 
 	// ── Lookup client existant depuis la DB ────────────────────────────────
 	const { data: clients = [] } = useClients();
@@ -199,7 +200,7 @@ export function QuotePreview({
 					</div>
 					<div className="flex justify-between font-bold text-slate-800 dark:text-slate-100 pt-1 border-t border-slate-200 dark:border-violet-500/20">
 						<span>Total TTC</span>
-						<span style={{ color: themeColor }}>{fmt(totals.totalTTC)} €</span>
+						<span className="truncate ml-2" style={{ color: themeColor }}>{fmt(totals.totalTTC)} €</span>
 					</div>
 					{depositAmt > 0 && (
 						<div className="flex justify-between pt-1 border-t border-slate-100 dark:border-violet-500/20">
@@ -258,6 +259,7 @@ export function QuotePreview({
 					<div className="flex-1 text-right text-xs">
 						<p className="text-white/90">Date : {formatDate(date)}</p>
 						<p className="text-white/90">Validité : {formatDate(validUntil)}</p>
+						{deliveryDate && <p className="text-white/90">Livraison : {formatDate(deliveryDate)}</p>}
 					</div>
 				</div>
 			</div>
@@ -326,8 +328,8 @@ export function QuotePreview({
 						style={{ backgroundColor: themeColor + "0d", borderColor: themeColor + "33" }}
 					>
 						<div className="flex justify-between text-sm">
-							<span style={{ color: themeColor }}>Sous-total HT</span>
-							<span className="text-slate-800 font-medium">{fmt(totals.subtotal)} €</span>
+							<span className="shrink-0" style={{ color: themeColor }}>Sous-total HT</span>
+							<span className="text-slate-800 font-medium truncate ml-2">{fmt(totals.subtotal)} €</span>
 						</div>
 
 						{totals.discountAmount > 0 && (
@@ -336,29 +338,29 @@ export function QuotePreview({
 									<span style={{ color: themeColor }}>
 										Réduction{discountType === "pourcentage" ? ` (${discountValue}%)` : ""}
 									</span>
-									<span className="text-rose-600 font-medium">−{fmt(totals.discountAmount)} €</span>
+									<span className="text-rose-600 font-medium truncate ml-2">−{fmt(totals.discountAmount)} €</span>
 								</div>
 								<div className="flex justify-between text-sm" style={{ borderTop: `1px solid ${themeColor}33`, paddingTop: "4px" }}>
-									<span className="text-slate-600 font-medium">Net HT</span>
-									<span className="text-slate-800 font-medium">{fmt(totals.netHT)} €</span>
+									<span className="text-slate-600 font-medium shrink-0">Net HT</span>
+									<span className="text-slate-800 font-medium truncate ml-2">{fmt(totals.netHT)} €</span>
 								</div>
 							</>
 						)}
 
 						<div className="flex justify-between text-sm">
 							<span style={{ color: themeColor }}>TVA ({vatRate ?? 0}%)</span>
-							<span className="text-slate-800 font-medium">{fmt(totals.taxTotal)} €</span>
+							<span className="text-slate-800 font-medium truncate ml-2">{fmt(totals.taxTotal)} €</span>
 						</div>
 
 						<div className="flex justify-between text-base font-bold pt-2" style={{ borderTop: `1px solid ${themeColor}33` }}>
-							<span className="text-slate-900">Total TTC</span>
-							<span style={{ color: themeColor }}>{fmt(totals.totalTTC)} €</span>
+							<span className="text-slate-900 shrink-0">Total TTC</span>
+							<span className="truncate ml-2" style={{ color: themeColor }}>{fmt(totals.totalTTC)} €</span>
 						</div>
 
 						{totals.discountAmount > 0 && (
 							<div className="flex justify-between items-center pt-2 mt-1" style={{ borderTop: `2px solid ${themeColor}66` }}>
-								<span className="text-sm font-extrabold text-slate-900 tracking-tight">NET À PAYER</span>
-								<span className="text-base font-extrabold" style={{ color: themeColor }}>
+								<span className="text-sm font-extrabold text-slate-900 tracking-tight shrink-0">NET À PAYER</span>
+								<span className="text-base font-extrabold truncate ml-2" style={{ color: themeColor }}>
 									{fmt(totals.netAPayer)} €
 								</span>
 							</div>
@@ -473,22 +475,28 @@ function LinesTable({ title, lines, isForfait, typeConfig, fmt, themeColor }: Li
 				</p>
 			)}
 			<div className="border border-slate-200 rounded-lg overflow-hidden">
-				<table className="w-full text-sm">
+				<table className="w-full text-sm table-fixed">
+					<colgroup>
+						<col />
+						{!isForfait && <col style={{ width: "10%" }} />}
+						<col style={{ width: "18%" }} />
+						{!isForfait && <col style={{ width: "18%" }} />}
+					</colgroup>
 					<thead style={{ backgroundColor: themeColor + "1a" }}>
 						<tr>
 							<th className="text-left p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: themeColor }}>
 								{typeConfig.descriptionLabel}
 							</th>
 							{!isForfait && (
-								<th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: themeColor }}>
+								<th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide whitespace-nowrap" style={{ color: themeColor }}>
 									{typeConfig.quantityLabel}
 								</th>
 							)}
-							<th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: themeColor }}>
+							<th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide whitespace-nowrap" style={{ color: themeColor }}>
 								{isForfait ? "Montant" : "Prix unit."}
 							</th>
 							{!isForfait && (
-								<th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: themeColor }}>
+								<th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide whitespace-nowrap" style={{ color: themeColor }}>
 									Total HT
 								</th>
 							)}
@@ -500,17 +508,17 @@ function LinesTable({ title, lines, isForfait, typeConfig, fmt, themeColor }: Li
 							const ht = qty * (line.unitPrice || 0);
 							return (
 								<tr key={i} className="border-t border-slate-100 bg-slate-50/50">
-									<td className="p-2 lg:p-3 text-xs lg:text-sm text-slate-700 break-words">
+									<td className="p-2 lg:p-3 text-xs lg:text-sm text-slate-700 break-all">
 										{line.description || <span className="text-slate-300 italic">Ligne {i + 1}</span>}
 									</td>
 									{!isForfait && (
-										<td className="p-2 lg:p-3 text-xs lg:text-sm text-right text-slate-600">{line.quantity || 0}</td>
+										<td className="p-2 lg:p-3 text-xs lg:text-sm text-right text-slate-600 whitespace-nowrap overflow-hidden">{line.quantity || 0}</td>
 									)}
-									<td className="p-2 lg:p-3 text-xs lg:text-sm text-right text-slate-600">
+									<td className="p-2 lg:p-3 text-xs lg:text-sm text-right text-slate-600 whitespace-nowrap overflow-hidden">
 										{fmt(line.unitPrice || 0)} €
 									</td>
 									{!isForfait && (
-										<td className="p-2 lg:p-3 text-xs lg:text-sm text-right font-medium" style={{ color: themeColor }}>
+										<td className="p-2 lg:p-3 text-xs lg:text-sm text-right font-medium whitespace-nowrap" style={{ color: themeColor }}>
 											{fmt(ht)} €
 										</td>
 									)}

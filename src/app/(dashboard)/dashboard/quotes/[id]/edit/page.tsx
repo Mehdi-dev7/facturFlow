@@ -58,6 +58,7 @@ function toFormValues(q: SavedQuote): Partial<QuoteFormData> {
 			category: (li.category === "main_oeuvre" || li.category === "materiel") ? li.category : undefined,
 		})),
 		vatRate: extractVatRate(q.businessMetadata),
+		deliveryDate: ((q.businessMetadata as Record<string, unknown> | null)?.deliveryDate as string | undefined) ?? "",
 		discountType: (q.discountType === "pourcentage" || q.discountType === "montant") ? q.discountType : undefined,
 		discountValue: q.discount ?? 0,
 		depositAmount: q.depositAmount ?? 0,

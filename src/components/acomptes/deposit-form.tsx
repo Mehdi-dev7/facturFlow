@@ -44,6 +44,7 @@ interface DepositFormData {
 	vatRate: 0 | 5.5 | 10 | 20;
 	date: string;
 	dueDate: string;
+	deliveryDate?: string;
 	description: string;
 	notes?: string;
 	paymentLinks: {
@@ -333,6 +334,19 @@ export function DepositForm({
 										</p>
 									)}
 								</div>
+							</div>
+							{/* Date de livraison optionnelle */}
+							<div className="space-y-2">
+								<Label htmlFor="deliveryDate" className="text-xs font-medium text-slate-700 dark:text-slate-300">
+									Date de livraison{" "}
+									<span className="font-normal text-slate-400 dark:text-violet-400/50">(optionnel)</span>
+								</Label>
+								<Input
+									id="deliveryDate"
+									type="date"
+									{...register("deliveryDate")}
+									className={inputClass}
+								/>
 							</div>
 						</section>
 

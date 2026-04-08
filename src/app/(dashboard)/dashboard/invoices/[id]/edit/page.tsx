@@ -76,6 +76,7 @@ function toFormValues(inv: SavedInvoice): Partial<InvoiceFormData> {
 		})),
 		vatRate,
 		vatMode,
+		deliveryDate: (meta.deliveryDate as string | undefined) ?? "",
 		discountType: (inv.discountType === "pourcentage" || inv.discountType === "montant") ? inv.discountType : undefined,
 		discountValue: inv.discount ?? 0,
 		depositAmount: inv.depositAmount ?? 0,

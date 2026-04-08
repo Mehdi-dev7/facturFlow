@@ -15,6 +15,7 @@ interface DepositFormData {
 	vatRate: 0 | 5.5 | 10 | 20;
 	date: string;
 	dueDate: string;
+	deliveryDate?: string;
 	description: string;
 	notes?: string;
 	paymentLinks: {
@@ -156,7 +157,7 @@ export function DepositPreview({
 					</div>
 					<div className="flex justify-between text-sm font-bold pt-1.5 mt-1" style={{ borderTop: `1px solid ${themeColor}33` }}>
 						<span className="text-slate-900">Total TTC</span>
-						<span style={{ color: themeColor }}>{fmtMoney(calc.total)} €</span>
+						<span className="truncate ml-2" style={{ color: themeColor }}>{fmtMoney(calc.total)} €</span>
 					</div>
 				</div>
 
@@ -225,6 +226,7 @@ export function DepositPreview({
 							<div className="flex-1 text-right text-xs md:text-sm">
 								<p className="text-white/90">Date : {fmtDate(formData.date)}</p>
 								<p className="text-white/90">Échéance : {fmtDate(formData.dueDate)}</p>
+								{formData.deliveryDate && <p className="text-white/90">Livraison : {fmtDate(formData.deliveryDate)}</p>}
 							</div>
 						</div>
 					</div>
@@ -290,35 +292,35 @@ export function DepositPreview({
 							Détails
 						</h3>
 						<div className="border border-slate-200 rounded-lg overflow-hidden">
-							<table className="w-full">
+							<table className="w-full table-fixed">
 								<thead style={{ backgroundColor: themeColor + "1a" }}>
 									<tr>
 										<th className="text-left p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: themeColor }}>
 											Description
 										</th>
-										<th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: themeColor }}>
+										<th className="w-24 text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide whitespace-nowrap" style={{ color: themeColor }}>
 											Montant HT
 										</th>
-										<th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: themeColor }}>
+										<th className="w-16 text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide whitespace-nowrap" style={{ color: themeColor }}>
 											TVA
 										</th>
-										<th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: themeColor }}>
+										<th className="w-24 text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide whitespace-nowrap" style={{ color: themeColor }}>
 											Total TTC
 										</th>
 									</tr>
 								</thead>
 								<tbody>
 									<tr className="border-t border-slate-200 bg-slate-50/50">
-										<td className="p-2 lg:p-3 text-xs lg:text-sm text-slate-900">
+										<td className="p-2 lg:p-3 text-xs lg:text-sm text-slate-900 break-words overflow-hidden">
 											{formData.description || "Description de l'acompte"}
 										</td>
-										<td className="p-2 lg:p-3 text-xs lg:text-sm text-right text-slate-900">
+										<td className="p-2 lg:p-3 text-xs lg:text-sm text-right text-slate-900 whitespace-nowrap">
 											{fmtMoney(calc.subtotal)} €
 										</td>
-										<td className="p-2 lg:p-3 text-xs lg:text-sm text-right text-slate-900">
+										<td className="p-2 lg:p-3 text-xs lg:text-sm text-right text-slate-900 whitespace-nowrap">
 											{fmtMoney(calc.taxAmount)} €
 										</td>
-										<td className="p-2 lg:p-3 text-xs lg:text-sm text-right font-medium" style={{ color: themeColor }}>
+										<td className="p-2 lg:p-3 text-xs lg:text-sm text-right font-medium whitespace-nowrap" style={{ color: themeColor }}>
 											{fmtMoney(calc.total)} €
 										</td>
 									</tr>
@@ -335,18 +337,18 @@ export function DepositPreview({
 						>
 							<div className="flex justify-between text-xs lg:text-sm">
 								<span style={{ color: themeColor }}>Sous-total HT :</span>
-								<span className="text-slate-900 font-medium">{fmtMoney(calc.subtotal)} €</span>
+								<span className="text-slate-900 font-medium truncate ml-2">{fmtMoney(calc.subtotal)} €</span>
 							</div>
 							<div className="flex justify-between text-xs lg:text-sm">
 								<span style={{ color: themeColor }}>TVA ({formData.vatRate ?? 20}%) :</span>
-								<span className="text-slate-900 font-medium">{fmtMoney(calc.taxAmount)} €</span>
+								<span className="text-slate-900 font-medium truncate ml-2">{fmtMoney(calc.taxAmount)} €</span>
 							</div>
 							<div
 								className="flex justify-between text-sm lg:text-base font-bold pt-2"
 								style={{ borderTop: `1px solid ${themeColor}33` }}
 							>
 								<span className="text-slate-900">Total TTC :</span>
-								<span style={{ color: themeColor }}>{fmtMoney(calc.total)} €</span>
+								<span className="truncate ml-2" style={{ color: themeColor }}>{fmtMoney(calc.total)} €</span>
 							</div>
 						</div>
 					</div>

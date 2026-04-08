@@ -35,6 +35,7 @@ const depositFormSchema = z.object({
   vatRate: z.union([z.literal(0), z.literal(5.5), z.literal(10), z.literal(20)]),
   date: z.string().min(1, "Date requise"),
   dueDate: z.string().min(1, "Date d'échéance requise"),
+  deliveryDate: z.string().optional(),
   description: z.string().min(1, "Description requise"),
   notes: z.string().optional(),
   paymentLinks: z.object({

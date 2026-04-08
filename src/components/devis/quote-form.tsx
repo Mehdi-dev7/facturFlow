@@ -414,6 +414,26 @@ export function QuoteForm({
 										)}
 									</div>
 								</div>
+								{/* Date de livraison optionnelle */}
+								<div>
+									<Label className="text-xs text-slate-600 dark:text-violet-200">
+										Date de livraison{" "}
+										<span className="font-normal text-slate-400 dark:text-violet-400/50">(optionnel)</span>
+									</Label>
+									<Controller
+										name="deliveryDate"
+										control={control}
+										render={({ field }) => (
+											<Input
+												type="date"
+												value={field.value ?? ""}
+												onChange={field.onChange}
+												onBlur={field.onBlur}
+												className={`${inputClass} text-xs sm:text-sm dark:[&::-webkit-calendar-picker-indicator]:invert`}
+											/>
+										)}
+									/>
+								</div>
 							</div>
 						</section>
 					</>

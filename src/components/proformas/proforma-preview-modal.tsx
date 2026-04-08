@@ -255,7 +255,13 @@ function ProformaPreviewStatic({ proforma }: { proforma: SavedProforma }) {
 
 			{/* Lignes */}
 			<div className="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
-				<table className="w-full">
+				<table className="w-full text-sm table-fixed">
+						<colgroup>
+							<col />
+							{!isForfait && <col style={{ width: "10%" }} />}
+							<col style={{ width: "18%" }} />
+							{!isForfait && <col style={{ width: "18%" }} />}
+						</colgroup>
 					<thead style={{ backgroundColor: themeColor + "1a" }}>
 						<tr>
 							<th
@@ -266,21 +272,21 @@ function ProformaPreviewStatic({ proforma }: { proforma: SavedProforma }) {
 							</th>
 							{!isForfait && (
 								<th
-									className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide"
+									className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide whitespace-nowrap"
 									style={{ color: themeColor }}
 								>
 									{typeConfig.quantityLabel}
 								</th>
 							)}
 							<th
-								className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide"
+								className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide whitespace-nowrap"
 								style={{ color: themeColor }}
 							>
 								{isForfait ? "Montant" : "Prix unit."}
 							</th>
 							{!isForfait && (
 								<th
-									className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide"
+									className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide whitespace-nowrap"
 									style={{ color: themeColor }}
 								>
 									Total HT
@@ -294,20 +300,20 @@ function ProformaPreviewStatic({ proforma }: { proforma: SavedProforma }) {
 								key={line.id}
 								className="border-t border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30"
 							>
-								<td className="p-2 lg:p-3 text-xs lg:text-sm text-slate-900 dark:text-slate-50">
+								<td className="p-2 lg:p-3 text-xs lg:text-sm text-slate-900 dark:text-slate-50 break-all">
 									{line.description}
 								</td>
 								{!isForfait && (
-									<td className="p-2 lg:p-3 text-xs lg:text-sm text-right text-slate-900 dark:text-slate-50">
+									<td className="p-2 lg:p-3 text-xs lg:text-sm text-right text-slate-900 dark:text-slate-50 whitespace-nowrap overflow-hidden">
 										{line.quantity}
 									</td>
 								)}
-								<td className="p-2 lg:p-3 text-xs lg:text-sm text-right text-slate-900 dark:text-slate-50">
+								<td className="p-2 lg:p-3 text-xs lg:text-sm text-right text-slate-900 dark:text-slate-50 whitespace-nowrap overflow-hidden">
 									{fmt(line.unitPrice)} €
 								</td>
 								{!isForfait && (
 									<td
-										className="p-2 lg:p-3 text-xs lg:text-sm text-right font-medium"
+										className="p-2 lg:p-3 text-xs lg:text-sm text-right font-medium whitespace-nowrap overflow-hidden"
 										style={{ color: themeColor }}
 									>
 										{fmt(line.subtotal)} €
@@ -341,37 +347,37 @@ function ProformaPreviewStatic({ proforma }: { proforma: SavedProforma }) {
 					}}
 				>
 					<div className="flex justify-between text-xs lg:text-sm">
-						<span className="text-slate-500 dark:text-slate-400">
+						<span className="text-slate-500 dark:text-slate-400 shrink-0">
 							Sous-total HT
 						</span>
-						<span className="text-slate-800 dark:text-slate-100 font-medium">
+						<span className="text-slate-800 dark:text-slate-100 font-medium truncate ml-2">
 							{fmt(proforma.subtotal)} €
 						</span>
 					</div>
 					{discount > 0 && (
 						<div className="flex justify-between text-xs lg:text-sm">
-							<span className="text-slate-500 dark:text-slate-400">
+							<span className="text-slate-500 dark:text-slate-400 shrink-0">
 								Réduction
 							</span>
-							<span className="text-rose-600 font-medium">
+							<span className="text-rose-600 font-medium truncate ml-2">
 								−{fmt(discount)} €
 							</span>
 						</div>
 					)}
 					<div className="flex justify-between text-xs lg:text-sm">
-						<span className="text-slate-500 dark:text-slate-400">
+						<span className="text-slate-500 dark:text-slate-400 shrink-0">
 							TVA ({vatRate}%)
 						</span>
-						<span className="text-slate-800 dark:text-slate-100 font-medium">
+						<span className="text-slate-800 dark:text-slate-100 font-medium truncate ml-2">
 							{fmt(proforma.taxTotal)} €
 						</span>
 					</div>
 					<div className="h-px bg-slate-200 dark:bg-slate-700 my-1" />
 					<div className="flex justify-between text-sm lg:text-base font-bold">
-						<span className="text-slate-900 dark:text-slate-50">
+						<span className="text-slate-900 dark:text-slate-50 shrink-0">
 							Total TTC
 						</span>
-						<span style={{ color: themeColor }}>
+						<span className="truncate ml-2" style={{ color: themeColor }}>
 							{fmt(proforma.total)} €
 						</span>
 					</div>
