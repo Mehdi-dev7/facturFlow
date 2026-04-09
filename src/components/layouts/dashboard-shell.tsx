@@ -379,9 +379,10 @@ export default function DashboardShell({
 
 	// Spotlight onboarding — lien mis en évidence dans la sidebar
 	const { activeStep } = useOnboardingStore();
-	// hrefs ciblés par chaque étape d'onboarding (même ordre que STEPS dans onboarding-tutorial)
-	const ONBOARDING_HREFS = ["/dashboard/company", "/dashboard/payments", "/dashboard/appearance"];
-	const spotlitHref = activeStep !== null ? ONBOARDING_HREFS[activeStep] ?? null : null;
+	// hrefs ciblés par chaque étape d'onboarding (ordre : Entreprise → Apparence → Paiements)
+	const ONBOARDING_HREFS = ["/dashboard/company", "/dashboard/appearance", "/dashboard/payments"];
+	// Spotlight uniquement pour les étapes réelles (>= 0), pas pendant le welcome (-1)
+	const spotlitHref = (activeStep !== null && activeStep >= 0) ? ONBOARDING_HREFS[activeStep] ?? null : null;
 	// Spotlight actif uniquement si on n'est PAS sur la page cible
 	const isSpotlightMode = spotlitHref !== null && !pathname.startsWith(spotlitHref);
 
