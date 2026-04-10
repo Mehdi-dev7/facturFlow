@@ -24,6 +24,7 @@ export interface AppearanceData {
 export interface AppearanceSettings extends AppearanceData {
   /** true si le user est en plan FREE — les champs Pro-gated retournent leurs valeurs par défaut */
   isCustomAppearanceLocked: boolean;
+  // currency est hérité de AppearanceData (accessible en FREE)
 }
 
 // ─── Sauvegarder les réglages d'apparence ────────────────────────────────────
@@ -66,6 +67,7 @@ export async function getAppearanceSettings(): Promise<AppearanceSettings | null
       companyName: true,
       companyLogo: true,
       invoiceFooter: true,
+      currency: true,
       // Champs pour le calcul du plan effectif
       plan: true,
       trialEndsAt: true,
@@ -94,6 +96,7 @@ export async function getAppearanceSettings(): Promise<AppearanceSettings | null
     companyName: user.companyName ?? "",
     companyLogo: isCustomAppearanceLocked ? null : (user.companyLogo ?? null),
     invoiceFooter: user.invoiceFooter ?? "",
+    currency: user.currency ?? "EUR",
     isCustomAppearanceLocked,
   };
 }

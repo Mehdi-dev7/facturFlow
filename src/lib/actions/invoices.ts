@@ -70,6 +70,7 @@ export interface SavedInvoice {
     iban: string | null;
     bic: string | null;
     invoiceFooter: string | null;
+    currency: string | null;
   };
 }
 
@@ -264,6 +265,7 @@ type PrismaDocumentWithRelations = {
     iban: string | null;
     bic: string | null;
     invoiceFooter: string | null;
+    currency: string | null;
   };
 };
 
@@ -342,6 +344,7 @@ const documentInclude = {
       iban: true,
       bic: true,
       invoiceFooter: true,
+      currency: true,
     },
   },
 } as const;

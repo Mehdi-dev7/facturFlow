@@ -73,6 +73,7 @@ const depositInclude = {
       companyFont: true,
       invoiceFooter: true,
       companyLogo: true,
+      currency: true,
     },
   },
 } as const;

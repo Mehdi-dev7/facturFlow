@@ -50,6 +50,10 @@ const proformaInclude = {
 			themeColor: true,
 			companyFont: true,
 			companyLogo: true,
+			iban: true,
+			bic: true,
+			invoiceFooter: true,
+			currency: true,
 		},
 	},
 } as const;

@@ -65,6 +65,7 @@ export interface SavedQuote {
 		companyFont: string | null;
 		companyLogo: string | null;
 		invoiceFooter: string | null;
+		currency: string | null;
 	};
 }
 
@@ -97,6 +98,7 @@ const quoteInclude = {
 			companyFont: true,
 			companyLogo: true,
 			invoiceFooter: true,
+			currency: true,
 		},
 	},
 } as const;

@@ -40,6 +40,7 @@ export interface SavedDeposit {
     companyFont: string | null;
     invoiceFooter: string | null;
     companyLogo: string | null;
+    currency: string | null;
   };
   // Propriétés additionnelles pour la prévisualisation (calculées ou extraites de businessMetadata)
   amount: number;

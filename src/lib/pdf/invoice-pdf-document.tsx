@@ -25,6 +25,17 @@ function fmtN(n: number) {
   });
 }
 
+// Formate un montant avec la bonne devise
+function fmtC(n: number, currency: string | null | undefined): string {
+  const formatted = n.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  switch (currency) {
+    case "USD": return formatted + " $";
+    case "GBP": return formatted + " £";
+    case "MAD": return formatted + " DH";
+    default:    return formatted + " €";
+  }
+}
+
 function fmtDate(dateStr: string | null) {
   if (!dateStr) return "—";
   return new Date(dateStr).toLocaleDateString("fr-FR", {
@@ -255,9 +266,10 @@ interface LinesTablePdfProps {
   showVatColumn?: boolean;
   title?: string;
   themeColor: string;
+  currency: string | null | undefined;
 }
 
-function LinesTablePdf({ lines, typeConfig, isForfait, showVatColumn = false, title, themeColor }: LinesTablePdfProps) {
+function LinesTablePdf({ lines, typeConfig, isForfait, showVatColumn = false, title, themeColor, currency }: LinesTablePdfProps) {
   const headerBg = hexToRgba(themeColor, 0.1);
 
   return (
@@ -310,7 +322,7 @@ function LinesTablePdf({ lines, typeConfig, isForfait, showVatColumn = false, ti
             </Text>
           )}
           <Text style={{ width: 65, textAlign: "right", fontSize: 9, color: "#64748b" }}>
-            {fmtN(line.unitPrice)} €
+            {fmtC(line.unitPrice, currency)}
           </Text>
           {showVatColumn && (
             <Text style={{ width: 42, textAlign: "right", fontSize: 9, color: "#64748b" }}>
@@ -319,7 +331,7 @@ function LinesTablePdf({ lines, typeConfig, isForfait, showVatColumn = false, ti
           )}
           {!isForfait && (
             <Text style={{ width: 65, textAlign: "right", fontSize: 9, fontFamily: "Helvetica-Bold", color: themeColor }}>
-              {fmtN(line.subtotal)} €
+              {fmtC(line.subtotal, currency)}
             </Text>
           )}
         </View>
@@ -476,13 +488,13 @@ export default function InvoicePdfDocument({
         {/* ── Tableau de lignes ── */}
         {isArtisan ? (
           <>
-            <LinesTablePdf lines={mainOeuvreLines} typeConfig={typeConfig} isForfait={false} showVatColumn={isPerLine} title="Main d'œuvre" themeColor={themeColor} />
+            <LinesTablePdf lines={mainOeuvreLines} typeConfig={typeConfig} isForfait={false} showVatColumn={isPerLine} title="Main d'œuvre" themeColor={themeColor} currency={invoice.user.currency} />
             {materiauLines.length > 0 && (
-              <LinesTablePdf lines={materiauLines} typeConfig={typeConfig} isForfait={false} showVatColumn={isPerLine} title="Matériaux" themeColor={themeColor} />
+              <LinesTablePdf lines={materiauLines} typeConfig={typeConfig} isForfait={false} showVatColumn={isPerLine} title="Matériaux" themeColor={themeColor} currency={invoice.user.currency} />
             )}
           </>
         ) : (
-          <LinesTablePdf lines={sortedLines} typeConfig={typeConfig} isForfait={isForfait} showVatColumn={isPerLine} themeColor={themeColor} />
+          <LinesTablePdf lines={sortedLines} typeConfig={typeConfig} isForfait={isForfait} showVatColumn={isPerLine} themeColor={themeColor} currency={invoice.user.currency} />
         )}
 
         <View style={S.divider} />
@@ -494,14 +506,14 @@ export default function InvoicePdfDocument({
             {/* Sous-total HT */}
             <View style={S.totalsRow}>
               <Text style={[S.totalLabel, { color: themeColor }]}>Sous-total HT :</Text>
-              <Text style={S.totalValue}>{fmtN(invoice.subtotal)} €</Text>
+              <Text style={S.totalValue}>{fmtC(invoice.subtotal, invoice.user.currency)}</Text>
             </View>
 
             {/* Réduction */}
             {discount > 0 && (
               <View style={S.totalsRow}>
                 <Text style={[S.totalLabel, { color: themeColor }]}>Réduction :</Text>
-                <Text style={[S.totalValue, { color: "#e11d48" }]}>−{fmtN(discount)} €</Text>
+                <Text style={[S.totalValue, { color: "#e11d48" }]}>−{fmtC(discount, invoice.user.currency)}</Text>
               </View>
             )}
 
@@ -511,25 +523,25 @@ export default function InvoicePdfDocument({
                 <View key={rate}>
                   <View style={S.totalsRow}>
                     <Text style={[S.totalLabel, { color: "#64748b" }]}>Base HT {rate}% :</Text>
-                    <Text style={[S.totalValue, { color: "#475569" }]}>{fmtN(baseHT)} €</Text>
+                    <Text style={[S.totalValue, { color: "#475569" }]}>{fmtC(baseHT, invoice.user.currency)}</Text>
                   </View>
                   <View style={S.totalsRow}>
                     <Text style={[S.totalLabel, { color: themeColor }]}>TVA {rate}% :</Text>
-                    <Text style={S.totalValue}>{fmtN(amount)} €</Text>
+                    <Text style={S.totalValue}>{fmtC(amount, invoice.user.currency)}</Text>
                   </View>
                 </View>
               ))
             ) : (
               <View style={S.totalsRow}>
                 <Text style={[S.totalLabel, { color: themeColor }]}>TVA ({vatRate}%) :</Text>
-                <Text style={S.totalValue}>{fmtN(invoice.taxTotal)} €</Text>
+                <Text style={S.totalValue}>{fmtC(invoice.taxTotal, invoice.user.currency)}</Text>
               </View>
             )}
 
             {/* Total TTC */}
             <View style={S.grandTotalRow}>
               <Text style={S.grandTotalLabel}>Total TTC :</Text>
-              <Text style={[S.grandTotalValue, { color: themeColor }]}>{fmtN(invoice.total)} €</Text>
+              <Text style={[S.grandTotalValue, { color: themeColor }]}>{fmtC(invoice.total, invoice.user.currency)}</Text>
             </View>
 
             {/* Acompte + Net à payer */}
@@ -537,11 +549,11 @@ export default function InvoicePdfDocument({
               <>
                 <View style={[S.totalsRow, { marginTop: 6 }]}>
                   <Text style={[S.totalLabel, { color: themeColor }]}>Acompte versé :</Text>
-                  <Text style={[S.totalValue, { color: "#e11d48" }]}>−{fmtN(deposit)} €</Text>
+                  <Text style={[S.totalValue, { color: "#e11d48" }]}>−{fmtC(deposit, invoice.user.currency)}</Text>
                 </View>
                 <View style={S.grandTotalRow}>
                   <Text style={S.grandTotalLabel}>NET À PAYER :</Text>
-                  <Text style={[S.grandTotalValue, { color: themeColor }]}>{fmtN(netAPayer)} €</Text>
+                  <Text style={[S.grandTotalValue, { color: themeColor }]}>{fmtC(netAPayer, invoice.user.currency)}</Text>
                 </View>
               </>
             )}

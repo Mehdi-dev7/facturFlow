@@ -67,6 +67,7 @@ export interface SavedPurchaseOrder {
     companyFont: string | null;
     companyLogo: string | null;
     invoiceFooter: string | null;
+    currency: string | null;
   };
   createdAt: string;
   updatedAt: string;
@@ -82,6 +83,17 @@ function fmtN(n: number) {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
+}
+
+// Formate un montant avec la bonne devise
+function fmtC(n: number, currency: string | null | undefined): string {
+  const formatted = n.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  switch (currency) {
+    case "USD": return formatted + " $";
+    case "GBP": return formatted + " £";
+    case "MAD": return formatted + " DH";
+    default:    return formatted + " €";
+  }
 }
 
 function fmtDate(dateStr: string | null) {
@@ -352,19 +364,19 @@ export default function PurchaseOrderPdfDocument({ purchaseOrder }: PurchaseOrde
           <>
             {/* Main d'oeuvre */}
             <Text style={[S.sectionGroupTitle, sectionTitleColor]}>Main d&apos;oeuvre</Text>
-            <LinesTable lines={mainOeuvreLines} tableHeaderBg={tableHeaderBg} tableHeaderTextColor={tableHeaderTextColor} totalHtColor={totalHtColor} />
+            <LinesTable lines={mainOeuvreLines} tableHeaderBg={tableHeaderBg} tableHeaderTextColor={tableHeaderTextColor} totalHtColor={totalHtColor} currency={purchaseOrder.user.currency} />
 
             {/* Matériaux si présents */}
             {materiauLines.length > 0 && (
               <>
                 <Text style={[S.sectionGroupTitle, sectionTitleColor, { marginTop: 12 }]}>Matériaux</Text>
-                <LinesTable lines={materiauLines} tableHeaderBg={tableHeaderBg} tableHeaderTextColor={tableHeaderTextColor} totalHtColor={totalHtColor} />
+                <LinesTable lines={materiauLines} tableHeaderBg={tableHeaderBg} tableHeaderTextColor={tableHeaderTextColor} totalHtColor={totalHtColor} currency={purchaseOrder.user.currency} />
               </>
             )}
           </>
         ) : (
           // Mode standard : une seule table
-          <LinesTable lines={sortedLines} tableHeaderBg={tableHeaderBg} tableHeaderTextColor={tableHeaderTextColor} totalHtColor={totalHtColor} />
+          <LinesTable lines={sortedLines} tableHeaderBg={tableHeaderBg} tableHeaderTextColor={tableHeaderTextColor} totalHtColor={totalHtColor} currency={purchaseOrder.user.currency} />
         )}
 
         {/* ── Totaux ────────────────────────────────────────────────── */}
@@ -372,22 +384,22 @@ export default function PurchaseOrderPdfDocument({ purchaseOrder }: PurchaseOrde
           <View style={[S.totalBox, totalBoxStyle]}>
             <View style={S.totalRow}>
               <Text style={S.totalLabel}>Sous-total HT :</Text>
-              <Text style={S.totalValue}>{fmtN(purchaseOrder.subtotal)} €</Text>
+              <Text style={S.totalValue}>{fmtC(purchaseOrder.subtotal, purchaseOrder.user.currency)}</Text>
             </View>
             {/* Réduction si présente */}
             {discount > 0 && (
               <View style={S.totalRow}>
                 <Text style={S.totalLabel}>Réduction :</Text>
-                <Text style={[S.totalValue, { color: "#ef4444" }]}>-{fmtN(discount)} €</Text>
+                <Text style={[S.totalValue, { color: "#ef4444" }]}>-{fmtC(discount, purchaseOrder.user.currency)}</Text>
               </View>
             )}
             <View style={S.totalRow}>
               <Text style={S.totalLabel}>TVA :</Text>
-              <Text style={S.totalValue}>{fmtN(purchaseOrder.taxTotal)} €</Text>
+              <Text style={S.totalValue}>{fmtC(purchaseOrder.taxTotal, purchaseOrder.user.currency)}</Text>
             </View>
             <View style={S.totalFinalRow}>
               <Text style={[S.totalFinalLabel, totalFinalColor]}>Total TTC :</Text>
-              <Text style={[S.totalFinalValue, totalFinalColor]}>{fmtN(purchaseOrder.total)} €</Text>
+              <Text style={[S.totalFinalValue, totalFinalColor]}>{fmtC(purchaseOrder.total, purchaseOrder.user.currency)}</Text>
             </View>
           </View>
         </View>
@@ -418,9 +430,10 @@ interface LinesTableProps {
   tableHeaderBg: Style;
   tableHeaderTextColor: Style;
   totalHtColor: Style;
+  currency: string | null | undefined;
 }
 
-function LinesTable({ lines, tableHeaderBg, tableHeaderTextColor, totalHtColor }: LinesTableProps) {
+function LinesTable({ lines, tableHeaderBg, tableHeaderTextColor, totalHtColor, currency }: LinesTableProps) {
   return (
     <View style={S.table}>
       <View style={[S.tableHeader, tableHeaderBg]}>
@@ -447,10 +460,10 @@ function LinesTable({ lines, tableHeaderBg, tableHeaderTextColor, totalHtColor }
             <Text style={S.tableCellText}>{fmtN(line.quantity)}</Text>
           </View>
           <View style={S.tableColPrice}>
-            <Text style={S.tableCellText}>{fmtN(line.unitPrice)} €</Text>
+            <Text style={S.tableCellText}>{fmtC(line.unitPrice, currency)}</Text>
           </View>
           <View style={S.tableColTotal}>
-            <Text style={[S.tableCellText, totalHtColor]}>{fmtN(line.total)} €</Text>
+            <Text style={[S.tableCellText, totalHtColor]}>{fmtC(line.total, currency)}</Text>
           </View>
         </View>
       ))}

@@ -38,6 +38,7 @@ const receiptInclude = {
       themeColor: true,
       companyFont: true,
       companyLogo: true,
+      currency: true,
     },
   },
 } as const;

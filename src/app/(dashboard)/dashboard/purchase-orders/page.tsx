@@ -18,6 +18,8 @@ import type { KpiData, Column } from "@/components/dashboard";
 import dynamic from "next/dynamic";
 import { SkeletonTable } from "@/components/ui/skeleton-table";
 import type { SavedPurchaseOrder } from "@/lib/pdf/purchase-order-pdf-document";
+import { useAppearance } from "@/hooks/use-appearance";
+import { formatCurrency } from "@/lib/utils/calculs-facture";
 
 // Lazy load des modals
 const DeleteConfirmModal = dynamic(
@@ -85,18 +87,14 @@ function formatDateFR(dateStr: string | null): string {
   return new Date(dateStr).toLocaleDateString("fr-FR");
 }
 
-function formatAmountFR(amount: number): string {
-  return amount.toLocaleString("fr-FR", { minimumFractionDigits: 2 }) + " €";
-}
-
-function toRow(po: SavedPurchaseOrder): PurchaseOrderRow {
+function toRow(po: SavedPurchaseOrder, currency: string): PurchaseOrderRow {
   return {
     id: po.id,
     number: po.number,
     client: getClientName(po.client),
     date: formatDateFR(po.date),
     deliveryDate: formatDateFR(po.deliveryDate),
-    amount: formatAmountFR(po.total),
+    amount: formatCurrency(po.total, currency),
     status: mapDbStatus(po.status),
     dbStatus: po.status,
   };
@@ -121,6 +119,8 @@ function PurchaseOrdersPageContent() {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const { currency } = useAppearance();
 
   // ── Données (hook à brancher sur l'agent backend) ────────────────────
   // TODO: remplacer par `usePurchaseOrders()` une fois l'agent backend terminé
@@ -166,7 +166,7 @@ function PurchaseOrdersPageContent() {
     return `${selectedMonth.getFullYear()}-${m}`;
   }, [selectedMonth]);
 
-  const allRows = useMemo(() => allOrders.map(toRow), [allOrders]);
+  const allRows = useMemo(() => allOrders.map((po) => toRow(po, currency)), [allOrders, currency]);
 
   // Filtrage par mois
   const monthRows = useMemo(

@@ -39,9 +39,6 @@ function formatDateFR(iso: string) {
   return new Date(iso).toLocaleDateString("fr-FR");
 }
 
-function formatAmount(n: number) {
-  return n.toLocaleString("fr-FR", { minimumFractionDigits: 2 }) + " €";
-}
 
 // Retourne "YYYY-MM" à partir d'une date ISO
 function getMonthKey(dateStr: string): string {

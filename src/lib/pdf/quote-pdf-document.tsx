@@ -24,6 +24,17 @@ function fmtN(n: number) {
   });
 }
 
+// Formate un montant avec la bonne devise
+function fmtC(n: number, currency: string | null | undefined): string {
+  const formatted = n.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  switch (currency) {
+    case "USD": return formatted + " $";
+    case "GBP": return formatted + " £";
+    case "MAD": return formatted + " DH";
+    default:    return formatted + " €";
+  }
+}
+
 function fmtDate(dateStr: string | null) {
   if (!dateStr) return "—";
   return new Date(dateStr).toLocaleDateString("fr-FR", {
@@ -278,10 +289,10 @@ export default function QuotePdfDocument({ quote }: QuotePdfDocumentProps) {
                 <Text style={S.tableCellText}>{fmtN(line.quantity)}</Text>
               </View>
               <View style={S.tableColPrice}>
-                <Text style={S.tableCellText}>{fmtN(line.unitPrice)} €</Text>
+                <Text style={S.tableCellText}>{fmtC(line.unitPrice, quote.user.currency)}</Text>
               </View>
               <View style={S.tableColTotal}>
-                <Text style={[S.tableCellText, totalHtColor]}>{fmtN(line.total)} €</Text>
+                <Text style={[S.tableCellText, totalHtColor]}>{fmtC(line.total, quote.user.currency)}</Text>
               </View>
             </View>
           ))}
@@ -292,15 +303,15 @@ export default function QuotePdfDocument({ quote }: QuotePdfDocumentProps) {
           <View style={[S.totalBox, totalBoxStyle]}>
             <View style={S.totalRow}>
               <Text style={S.totalLabel}>Sous-total HT :</Text>
-              <Text style={S.totalValue}>{fmtN(quote.subtotal)} €</Text>
+              <Text style={S.totalValue}>{fmtC(quote.subtotal, quote.user.currency)}</Text>
             </View>
             <View style={S.totalRow}>
               <Text style={S.totalLabel}>TVA :</Text>
-              <Text style={S.totalValue}>{fmtN(quote.taxTotal)} €</Text>
+              <Text style={S.totalValue}>{fmtC(quote.taxTotal, quote.user.currency)}</Text>
             </View>
             <View style={S.totalFinalRow}>
               <Text style={[S.totalFinalLabel, totalFinalColor]}>Total TTC :</Text>
-              <Text style={[S.totalFinalValue, totalFinalColor]}>{fmtN(quote.total)} €</Text>
+              <Text style={[S.totalFinalValue, totalFinalColor]}>{fmtC(quote.total, quote.user.currency)}</Text>
             </View>
           </View>
         </View>

@@ -7,8 +7,15 @@ import { RECEIPT_PAYMENT_METHODS } from "@/lib/types/receipts";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-function fmtAmount(n: number) {
-  return n.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
+// Formate un montant avec la bonne devise
+function fmtAmount(n: number, currency?: string | null): string {
+  const formatted = n.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  switch (currency) {
+    case "USD": return formatted + " $";
+    case "GBP": return formatted + " £";
+    case "MAD": return formatted + " DH";
+    default:    return formatted + " €";
+  }
 }
 
 function fmtDate(iso: string) {
@@ -253,7 +260,7 @@ export function ReceiptPdfDocument({ receipt }: { receipt: SavedReceipt }) {
           </View>
           <View style={[S.totalRow, totalBorder]}>
             <Text style={[S.totalLabel, totalColor]}>Montant encaissé</Text>
-            <Text style={[S.totalAmount, totalColor]}>{fmtAmount(receipt.total)}</Text>
+            <Text style={[S.totalAmount, totalColor]}>{fmtAmount(receipt.total, receipt.user.currency)}</Text>
           </View>
         </View>
 

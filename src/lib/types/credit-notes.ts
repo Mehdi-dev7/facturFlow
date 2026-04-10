@@ -55,6 +55,7 @@ export interface SavedCreditNote {
     companyLogo: string | null;
     iban: string | null;
     bic: string | null;
+    currency: string | null;
   };
   createdAt: string;
 }

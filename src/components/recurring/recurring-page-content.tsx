@@ -14,6 +14,8 @@ import type { KpiData, Column } from "@/components/dashboard";
 import { DeleteConfirmModal } from "@/components/shared/delete-confirm-modal";
 import { useRecurrings, useToggleRecurring, useDeleteRecurring, type SavedRecurring } from "@/hooks/use-recurring";
 import { RecurringModal } from "@/components/recurring/recurring-modal";
+import { useAppearance } from "@/hooks/use-appearance";
+import { formatCurrency } from "@/lib/utils/calculs-facture";
 
 // ─── Types & helpers ──────────────────────────────────────────────────────────
 
@@ -60,16 +62,12 @@ function formatDateFR(iso: string | null): string {
   return new Date(iso).toLocaleDateString("fr-FR");
 }
 
-function formatAmountFR(amount: number): string {
-  return amount.toLocaleString("fr-FR", { minimumFractionDigits: 2 }) + " €";
-}
-
-function toRow(recurring: SavedRecurring): RecurringRow {
+function toRow(recurring: SavedRecurring, currency: string): RecurringRow {
   return {
     id: recurring.id,
     label: recurring.label ?? "Sans nom",
     client: getClientName(recurring.client),
-    totalAmount: formatAmountFR(recurring.totalAmount),
+    totalAmount: formatCurrency(recurring.totalAmount, currency),
     frequency: FREQUENCY_LABELS[recurring.frequency] ?? recurring.frequency,
     frequencyKey: recurring.frequency,
     nextDate: formatDateFR(recurring.nextDate),
@@ -183,12 +181,13 @@ export function RecurringPageContent() {
   const [modalOpen, setModalOpen] = useState(false);
 
   // Donnees
+  const { currency } = useAppearance();
   const { data: recurrings = [] } = useRecurrings();
   const toggleMutation = useToggleRecurring();
   const deleteMutation = useDeleteRecurring();
 
   // Mapper en lignes de tableau
-  const rows: RecurringRow[] = useMemo(() => recurrings.map(toRow), [recurrings]);
+  const rows: RecurringRow[] = useMemo(() => recurrings.map((r) => toRow(r, currency)), [recurrings, currency]);
 
   // ─── KPIs dynamiques ──────────────────────────────────────────────────────
 
@@ -223,7 +222,7 @@ export function RecurringPageContent() {
       },
       {
         label: "CA récurrent / mois",
-        value: formatAmountFR(monthlyRevenue),
+        value: formatCurrency(monthlyRevenue, currency),
         change: `${activeCount} source${activeCount > 1 ? "s" : ""}`,
         changeType: "up",
         icon: "trend-up",
@@ -261,7 +260,7 @@ export function RecurringPageContent() {
         darkGradientTo: "#1e3a5f",
       },
     ] satisfies KpiData[];
-  }, [recurrings]);
+  }, [recurrings, currency]);
 
   // ─── Filtrage par recherche ──────────────────────────────────────────────────
 

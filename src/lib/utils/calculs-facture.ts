@@ -117,12 +117,28 @@ export function calcInvoiceTotals(opts: CalcOptions): InvoiceTotals {
 	};
 }
 
-/** Formate un nombre en devise française */
-export function formatCurrency(n: number): string {
-	return n.toLocaleString("fr-FR", {
+/** Symboles et labels des devises supportées */
+export const CURRENCIES = {
+	EUR: { symbol: "€",  label: "Euro (€)",              flag: "🇪🇺" },
+	USD: { symbol: "$",  label: "Dollar américain ($)",   flag: "🇺🇸" },
+	GBP: { symbol: "£",  label: "Livre sterling (£)",     flag: "🇬🇧" },
+	MAD: { symbol: "DH", label: "Dirham marocain (DH)",   flag: "🇲🇦" },
+} as const;
+
+export type CurrencyCode = keyof typeof CURRENCIES;
+
+/** Formate un nombre dans la devise indiquée (défaut EUR) */
+export function formatCurrency(n: number, currency?: string | null): string {
+	const formatted = n.toLocaleString("fr-FR", {
 		minimumFractionDigits: 2,
 		maximumFractionDigits: 2,
-	}) + " €";
+	});
+	switch (currency) {
+		case "USD": return formatted + " $";
+		case "GBP": return formatted + " £";
+		case "MAD": return formatted + " DH";
+		default:    return formatted + " €";
+	}
 }
 
 // ─── Interne ──────────────────────────────────────────────────────────────────

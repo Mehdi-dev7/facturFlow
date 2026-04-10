@@ -37,6 +37,8 @@ const BcImportDialog = dynamic(
 import { useInvoices, useDeleteInvoice, type SavedInvoice } from "@/hooks/use-invoices";
 import { SkeletonTable } from "@/components/ui/skeleton-table";
 import { StatusDropdown } from "@/components/dashboard/status-dropdown";
+import { useAppearance } from "@/hooks/use-appearance";
+import { formatCurrency } from "@/lib/utils/calculs-facture";
 
 // ─── Types & helpers ──────────────────────────────────────────────────────────
 
@@ -85,18 +87,14 @@ function formatDateFR(dateStr: string | null): string {
   return new Date(dateStr).toLocaleDateString("fr-FR");
 }
 
-function formatAmountFR(amount: number): string {
-  return amount.toLocaleString("fr-FR", { minimumFractionDigits: 2 }) + " €";
-}
-
-function toRow(inv: SavedInvoice): InvoiceRow {
+function toRow(inv: SavedInvoice, currency: string): InvoiceRow {
   return {
     id: inv.id,
     number: inv.number,
     client: getClientName(inv.client),
     date: formatDateFR(inv.date),
     echeance: formatDateFR(inv.dueDate),
-    amount: formatAmountFR(inv.total),
+    amount: formatCurrency(inv.total, currency),
     status: mapDocStatus(inv.status),
     dbStatus: inv.status,
   };
@@ -122,6 +120,9 @@ function InvoicesPageContent() {
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [bcImportOpen, setBcImportOpen] = useState(false);
   const [upgradeOpen, setUpgradeOpen] = useState(false);
+
+  // Devise de l'utilisateur
+  const { currency } = useAppearance();
 
   // Fetch real data
   const { data: allInvoices = [], isLoading } = useInvoices();
@@ -216,7 +217,7 @@ function InvoicesPageContent() {
   }, [selectedMonth]);
 
   // Conversion en lignes de tableau
-  const allRows = useMemo(() => allInvoices.map(toRow), [allInvoices]);
+  const allRows = useMemo(() => allInvoices.map((inv) => toRow(inv, currency)), [allInvoices, currency]);
 
   // Filtrage par mois
   const monthRows = useMemo(
@@ -254,8 +255,8 @@ function InvoicesPageContent() {
       .reduce((s, r) => s + (invoiceMap.get(r.id)?.total ?? 0), 0);
 
     const paidPct = total > 0 ? ((paid / total) * 100).toFixed(1) + "%" : "0%";
-    const fmtPending = formatAmountFR(pendingAmount);
-    const fmtUnpaid = formatAmountFR(unpaidAmount);
+    const fmtPending = formatCurrency(pendingAmount, currency);
+    const fmtUnpaid = formatCurrency(unpaidAmount, currency);
 
     return [
       {

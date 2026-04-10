@@ -17,10 +17,11 @@ export function useAppearance() {
   });
 
   return {
-    themeColor:   data?.themeColor   ?? DEFAULT_THEME.primary,
-    companyFont:  data?.companyFont  ?? DEFAULT_FONT.id,
-    companyLogo:  data?.companyLogo  ?? null,
-    companyName:  data?.companyName  ?? "",
+    themeColor:    data?.themeColor    ?? DEFAULT_THEME.primary,
+    companyFont:   data?.companyFont   ?? DEFAULT_FONT.id,
+    companyLogo:   data?.companyLogo   ?? null,
+    companyName:   data?.companyName   ?? "",
     invoiceFooter: data?.invoiceFooter ?? "",
+    currency:      data?.currency      ?? "EUR",
   };
 }

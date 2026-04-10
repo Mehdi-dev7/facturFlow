@@ -38,6 +38,8 @@ import {
 	type SavedProforma,
 } from "@/hooks/use-proformas";
 import { SkeletonTable } from "@/components/ui/skeleton-table";
+import { useAppearance } from "@/hooks/use-appearance";
+import { formatCurrency } from "@/lib/utils/calculs-facture";
 
 // ─── Types & helpers ──────────────────────────────────────────────────────────
 
@@ -77,17 +79,13 @@ function formatDateFR(dateStr: string | null): string {
 	return new Date(dateStr).toLocaleDateString("fr-FR");
 }
 
-function formatAmountFR(amount: number): string {
-	return amount.toLocaleString("fr-FR", { minimumFractionDigits: 2 }) + " €";
-}
-
-function toRow(p: SavedProforma): ProformaRow {
+function toRow(p: SavedProforma, currency: string): ProformaRow {
 	return {
 		id: p.id,
 		number: p.number,
 		client: getClientName(p.client),
 		date: formatDateFR(p.date),
-		amount: formatAmountFR(p.total),
+		amount: formatCurrency(p.total, currency),
 		status: mapDocStatus(p.status),
 		dbStatus: p.status,
 		convertedInvoiceNumber: p.convertedInvoiceNumber ?? null,
@@ -118,6 +116,7 @@ function ProformasPageContent() {
 	const [previewOpen, setPreviewOpen] = useState(false);
 	const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
 
+	const { currency } = useAppearance();
 	const { data: allProformas = [], isLoading } = useProformas();
 	const deleteMutation = useDeleteProforma();
 
@@ -195,8 +194,8 @@ function ProformasPageContent() {
 	}, [selectedMonth]);
 
 	const allRows = useMemo(
-		() => allProformas.map(toRow),
-		[allProformas],
+		() => allProformas.map((p) => toRow(p, currency)),
+		[allProformas, currency],
 	);
 
 	const monthRows = useMemo(
@@ -271,11 +270,7 @@ function ProformasPageContent() {
 			},
 			{
 				label: "Montant proformas",
-				value:
-					totalAmount.toLocaleString("fr-FR", {
-						minimumFractionDigits: 0,
-						maximumFractionDigits: 0,
-					}) + " €",
+				value: formatCurrency(totalAmount, currency),
 				change: "TTC ce mois",
 				changeType: "up",
 				icon: "euro",

@@ -24,6 +24,17 @@ function fmtN(n: number) {
   });
 }
 
+// Formate un montant avec la bonne devise
+function fmtC(n: number, currency: string | null | undefined): string {
+  const formatted = n.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  switch (currency) {
+    case "USD": return formatted + " $";
+    case "GBP": return formatted + " £";
+    case "MAD": return formatted + " DH";
+    default:    return formatted + " €";
+  }
+}
+
 function fmtDate(dateStr: string | null) {
   if (!dateStr) return "—";
   return new Date(dateStr).toLocaleDateString("fr-FR", {
@@ -271,15 +282,15 @@ export default function DepositPdfDocument({ deposit }: DepositPdfDocumentProps)
             <View style={[S.totalBox, totalBoxStyle]}>
               <View style={S.totalRow}>
                 <Text style={S.totalLabel}>Montant HT :</Text>
-                <Text style={S.totalValue}>{fmtN(deposit.amount)} €</Text>
+                <Text style={S.totalValue}>{fmtC(deposit.amount, deposit.user.currency)}</Text>
               </View>
               <View style={S.totalRow}>
                 <Text style={S.totalLabel}>TVA ({deposit.vatRate}%) :</Text>
-                <Text style={S.totalValue}>{fmtN(deposit.taxTotal)} €</Text>
+                <Text style={S.totalValue}>{fmtC(deposit.taxTotal, deposit.user.currency)}</Text>
               </View>
               <View style={S.totalFinalRow}>
                 <Text style={[S.totalFinalLabel, totalFinalColor]}>Total TTC :</Text>
-                <Text style={[S.totalFinalValue, totalFinalColor]}>{fmtN(deposit.total)} €</Text>
+                <Text style={[S.totalFinalValue, totalFinalColor]}>{fmtC(deposit.total, deposit.user.currency)}</Text>
               </View>
             </View>
           </View>

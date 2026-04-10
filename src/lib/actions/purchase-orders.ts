@@ -64,6 +64,7 @@ export interface SavedPurchaseOrder {
 		companyFont: string | null;
 		companyLogo: string | null;
 		invoiceFooter: string | null;
+		currency: string | null;
 	};
 }
 
@@ -96,6 +97,7 @@ const purchaseOrderInclude = {
 			companyFont: true,
 			companyLogo: true,
 			invoiceFooter: true,
+			currency: true,
 		},
 	},
 } as const;

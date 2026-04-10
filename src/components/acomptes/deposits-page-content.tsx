@@ -19,6 +19,8 @@ import { DeleteConfirmModal } from "@/components/shared/delete-confirm-modal";
 import { useDeposits, useDeleteDeposit, type SavedDeposit } from "@/hooks/use-deposits";
 import { SkeletonTable } from "@/components/ui/skeleton-table";
 import { DepositPreviewModal } from "@/components/acomptes/deposit-preview-modal";
+import { useAppearance } from "@/hooks/use-appearance";
+import { formatCurrency } from "@/lib/utils/calculs-facture";
 
 // ─── Types & helpers ──────────────────────────────────────────────────────────
 
@@ -56,19 +58,15 @@ function formatDateFR(iso: string | null): string {
   return new Date(iso).toLocaleDateString("fr-FR");
 }
 
-function formatAmountFR(amount: number): string {
-  return amount.toLocaleString("fr-FR", { minimumFractionDigits: 2 }) + " \u20AC";
-}
-
 // Mapper SavedDeposit → DepositRow
-function toRow(deposit: SavedDeposit): DepositRow {
+function toRow(deposit: SavedDeposit, currency: string): DepositRow {
   return {
     id: deposit.id,
     number: deposit.number,
     client: getClientName(deposit.client),
     date: formatDateFR(deposit.date),
     echeance: formatDateFR(deposit.dueDate),
-    amount: formatAmountFR(deposit.total),
+    amount: formatCurrency(deposit.total, currency),
     status: mapStatus(deposit.status),
     dbStatus: deposit.status,
     _raw: deposit,
@@ -173,6 +171,7 @@ export function DepositsPageContent() {
   // }, [selectedMonth]);
 
   // ─── Hooks pour les données réelles ─────────────────────────────────────────
+  const { currency } = useAppearance();
   const { data: deposits = [], isLoading } = useDeposits();
 
   // IDs des acomptes récemment modifiés (PAID/OVERDUE depuis <7j) → highlight 3.5s une seule fois
@@ -198,7 +197,7 @@ export function DepositsPageContent() {
   const deleteDepositMutation = useDeleteDeposit();
 
   // Mapper en DepositRow
-  const rows: DepositRow[] = useMemo(() => deposits.map(toRow), [deposits]);
+  const rows: DepositRow[] = useMemo(() => deposits.map((d) => toRow(d, currency)), [deposits, currency]);
 
   // ─── KPIs dynamiques ──────────────────────────────────────────────────────
   const kpis: KpiData[] = useMemo(() => {
@@ -244,7 +243,7 @@ export function DepositsPageContent() {
       {
         label: "En attente",
         value: String(sent),
-        change: formatAmountFR(sentAmount),
+        change: formatCurrency(sentAmount, currency),
         changeType: "neutral",
         icon: "clock",
         iconBg: "bg-amber-500",
@@ -257,7 +256,7 @@ export function DepositsPageContent() {
       {
         label: "Impayés",
         value: String(overdue),
-        change: formatAmountFR(overdueAmount),
+        change: formatCurrency(overdueAmount, currency),
         changeType: overdue > 0 ? "down" : "neutral",
         icon: "alert",
         iconBg: "bg-red-500",
@@ -268,7 +267,7 @@ export function DepositsPageContent() {
         darkGradientTo: "#7f1d1d",
       },
     ] satisfies KpiData[];
-  }, [rows, deposits]);
+  }, [rows, deposits, currency]);
 
   // ─── Filtrage + tri ────────────────────────────────────────────────────────
   const filteredRows = useMemo(() => {

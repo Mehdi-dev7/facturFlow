@@ -1,6 +1,8 @@
 "use client";
 
 import type { MonthlyStats } from "@/lib/actions/statistics";
+import { useAppearance } from "@/hooks/use-appearance";
+import { formatCurrency } from "@/lib/utils/calculs-facture";
 
 interface StatsMonthlyTableProps {
   data: MonthlyStats[];
@@ -11,11 +13,8 @@ const MONTH_LABELS = [
   "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre",
 ];
 
-function fmt(val: number) {
-  return val.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
-}
-
 export function StatsMonthlyTable({ data }: StatsMonthlyTableProps) {
+  const { currency } = useAppearance();
   // Totaux
   const totals = data.reduce(
     (acc, row) => ({
@@ -66,16 +65,16 @@ export function StatsMonthlyTable({ data }: StatsMonthlyTableProps) {
                   {MONTH_LABELS[row.month]}
                 </td>
                 <td className="p-2 sm:p-3 text-right text-emerald-600 dark:text-emerald-400 font-medium">
-                  {row.invoicesPaid > 0 ? fmt(row.invoicesPaid) : "—"}
+                  {row.invoicesPaid > 0 ? formatCurrency(row.invoicesPaid, currency) : "—"}
                 </td>
                 <td className="p-2 sm:p-3 text-right text-amber-600 dark:text-amber-400">
-                  {row.invoicesSent > 0 ? fmt(row.invoicesSent) : "—"}
+                  {row.invoicesSent > 0 ? formatCurrency(row.invoicesSent, currency) : "—"}
                 </td>
                 <td className="p-2 sm:p-3 text-right text-blue-600 dark:text-blue-400">
-                  {row.quotesTotal > 0 ? fmt(row.quotesTotal) : "—"}
+                  {row.quotesTotal > 0 ? formatCurrency(row.quotesTotal, currency) : "—"}
                 </td>
                 <td className="p-2 sm:p-3 text-right text-violet-600 dark:text-violet-400">
-                  {row.depositsTotal > 0 ? fmt(row.depositsTotal) : "—"}
+                  {row.depositsTotal > 0 ? formatCurrency(row.depositsTotal, currency) : "—"}
                 </td>
               </tr>
             );
@@ -88,16 +87,16 @@ export function StatsMonthlyTable({ data }: StatsMonthlyTableProps) {
               Total
             </td>
             <td className="p-2 sm:p-3 text-right font-bold text-emerald-700 dark:text-emerald-300">
-              {fmt(totals.invoicesPaid)}
+              {formatCurrency(totals.invoicesPaid, currency)}
             </td>
             <td className="p-2 sm:p-3 text-right font-bold text-amber-700 dark:text-amber-300">
-              {fmt(totals.invoicesSent)}
+              {formatCurrency(totals.invoicesSent, currency)}
             </td>
             <td className="p-2 sm:p-3 text-right font-bold text-blue-700 dark:text-blue-300">
-              {fmt(totals.quotesTotal)}
+              {formatCurrency(totals.quotesTotal, currency)}
             </td>
             <td className="p-2 sm:p-3 text-right font-bold text-violet-700 dark:text-violet-300">
-              {fmt(totals.depositsTotal)}
+              {formatCurrency(totals.depositsTotal, currency)}
             </td>
           </tr>
         </tfoot>

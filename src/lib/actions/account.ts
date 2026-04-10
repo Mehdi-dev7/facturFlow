@@ -84,6 +84,25 @@ export async function changePassword(formData: {
   }
 }
 
+// ─── Sauvegarder la devise ────────────────────────────────────────────────────
+
+export async function saveCurrency(currency: string) {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session) return { success: false, error: "Non authentifié" } as const;
+
+  try {
+    await prisma.user.update({
+      where: { id: session.user.id },
+      data: { currency },
+    });
+
+    revalidatePath("/dashboard");
+    return { success: true } as const;
+  } catch {
+    return { success: false, error: "Impossible de sauvegarder la devise" } as const;
+  }
+}
+
 // ─── Supprimer le compte et toutes les données associées ──────────────────────
 
 export async function deleteAccount() {

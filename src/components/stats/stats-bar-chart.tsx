@@ -11,6 +11,8 @@ import {
   Legend,
 } from "recharts";
 import type { MonthlyStats } from "@/lib/actions/statistics";
+import { useAppearance } from "@/hooks/use-appearance";
+import { formatCurrency } from "@/lib/utils/calculs-facture";
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -41,6 +43,7 @@ function CustomTooltip({
   payload?: { name: string; value: number; color: string }[];
   label?: string;
 }) {
+  const { currency } = useAppearance();
   if (!active || !payload?.length) return null;
 
   return (
@@ -50,7 +53,7 @@ function CustomTooltip({
         <p key={entry.name} style={{ color: entry.color }} className="flex justify-between gap-3">
           <span>{entry.name}</span>
           <span className="font-medium">
-            {entry.value.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €
+            {formatCurrency(entry.value, currency)}
           </span>
         </p>
       ))}

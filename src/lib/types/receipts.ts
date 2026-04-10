@@ -45,6 +45,7 @@ export interface SavedReceipt {
     themeColor: string | null;
     companyFont: string | null;
     companyLogo: string | null;
+    currency: string | null;
   };
   createdAt: string;
 }

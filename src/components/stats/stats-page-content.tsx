@@ -42,6 +42,7 @@ import { UpgradeModal } from "@/components/subscription/upgrade-modal";
 import { useStatistics } from "@/hooks/use-statistics";
 import { useAppearance } from "@/hooks/use-appearance";
 import { exportCsv, type CsvExportType } from "@/lib/actions/statistics";
+import { formatCurrency } from "@/lib/utils/calculs-facture";
 
 // ─── Props ───────────────────────────────────────────────────────────────────
 
@@ -52,9 +53,6 @@ interface StatsPageContentProps {
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-function fmt(val: number) {
-  return val.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
-}
 
 function getYearOptions() {
   const current = new Date().getFullYear();
@@ -100,7 +98,7 @@ export function StatsPageContent({ plan, effectivePlan }: StatsPageContentProps)
   const canExportCsv = canUseFeature({ plan: effectivePlan, trialEndsAt: null }, "csv_export");
 
   const { data, isLoading, error } = useStatistics(year);
-  const { themeColor } = useAppearance();
+  const { themeColor, currency } = useAppearance();
 
   // ─── Export CSV handler ──────────────────────────────────────────────────────
 
@@ -138,7 +136,7 @@ export function StatsPageContent({ plan, effectivePlan }: StatsPageContentProps)
     ? [
         {
           label: "CA encaissé",
-          value: fmt(data.kpis.caTTC),
+          value: formatCurrency(data.kpis.caTTC, currency),
           change: "Factures payées",
           changeType: "up",
           icon: "chart",
@@ -151,7 +149,7 @@ export function StatsPageContent({ plan, effectivePlan }: StatsPageContentProps)
         },
         {
           label: "En attente",
-          value: fmt(data.kpis.enAttente),
+          value: formatCurrency(data.kpis.enAttente, currency),
           change: "À encaisser",
           changeType: "neutral",
           icon: "clock",
@@ -164,7 +162,7 @@ export function StatsPageContent({ plan, effectivePlan }: StatsPageContentProps)
         },
         {
           label: "TVA collectée",
-          value: fmt(data.kpis.tva),
+          value: formatCurrency(data.kpis.tva, currency),
           change: "Sur factures PAID",
           changeType: "neutral",
           icon: "file",

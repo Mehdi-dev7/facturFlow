@@ -17,6 +17,8 @@ import type { InvoiceStatus } from "@/components/dashboard/status-badge";
 import { StatusDropdown } from "@/components/dashboard/status-dropdown";
 import { useInvoices, type SavedInvoice } from "@/hooks/use-invoices";
 import { SkeletonTable } from "@/components/ui/skeleton-table";
+import { useAppearance } from "@/hooks/use-appearance";
+import { formatCurrency } from "@/lib/utils/calculs-facture";
 // Lazy load : chargé seulement au premier clic sur une ligne de facture
 import dynamic from "next/dynamic";
 const InvoicePreviewModal = dynamic(
@@ -48,9 +50,6 @@ function formatDateFR(dateStr: string | null): string {
   return new Date(dateStr).toLocaleDateString("fr-FR");
 }
 
-function formatAmountFR(amount: number): string {
-  return amount.toLocaleString("fr-FR", { minimumFractionDigits: 2 }) + " €";
-}
 
 interface InvoiceRow {
   id: string;
@@ -68,14 +67,14 @@ const statusOrder: Record<InvoiceStatus, number> = {
   relancée: 0, impayée: 1, "sepa en cours": 2, envoyée: 3, "en attente": 4, "à envoyer": 5, payée: 6,
 };
 
-function toRow(inv: SavedInvoice): InvoiceRow {
+function toRow(inv: SavedInvoice, currency: string): InvoiceRow {
   return {
     id: inv.id,
     number: inv.number,
     client: getClientName(inv.client),
     date: formatDateFR(inv.date),
     echeance: formatDateFR(inv.dueDate),
-    amount: formatAmountFR(inv.total),
+    amount: formatCurrency(inv.total, currency),
     rawDate: inv.date ? new Date(inv.date).getTime() : 0,
     status: mapDocStatus(inv.status),
     dbStatus: inv.status,
@@ -89,6 +88,8 @@ export default function DashboardPage() {
   const [previewInvoice, setPreviewInvoice] = useState<SavedInvoice | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
   const { data: session } = useSession();
+
+  const { currency } = useAppearance();
 
   // Vraies données
   const { data: allInvoices = [], isLoading } = useInvoices();
@@ -119,10 +120,10 @@ export default function DashboardPage() {
 
   // 10 factures les plus récentes
   const recentRows = useMemo(() => {
-    const rows = allInvoices.map(toRow);
+    const rows = allInvoices.map((inv) => toRow(inv, currency));
     // Trier par date desc pour afficher les plus récentes d'abord
     return rows.sort((a, b) => b.rawDate - a.rawDate).slice(0, 10);
-  }, [allInvoices]);
+  }, [allInvoices, currency]);
 
   // Colonnes identiques à la page /dashboard/invoices
   const columns = useMemo((): Column<InvoiceRow>[] => [
@@ -211,10 +212,10 @@ export default function DashboardPage() {
     return [
       { label: "Factures ce mois", value: String(total), change: `${total} facture${total > 1 ? "s" : ""}`, changeType: "up", icon: "file", iconBg: "bg-blue-500", borderAccent: "border-blue-500/30", gradientFrom: "#eff6ff", gradientTo: "#bfdbfe", darkGradientFrom: "#1e1b4b", darkGradientTo: "#1e3a5f" },
       { label: "Payées", value: String(paid), change: paidPct, changeType: "up", icon: "check", iconBg: "bg-emerald-500", borderAccent: "border-emerald-500/30", gradientFrom: "#ecfdf5", gradientTo: "#a7f3d0", darkGradientFrom: "#1e1b4b", darkGradientTo: "#064e3b" },
-      { label: "En attente", value: String(pending), change: formatAmountFR(pendingAmount), changeType: "neutral", icon: "clock", iconBg: "bg-amber-500", borderAccent: "border-amber-500/30", gradientFrom: "#fffbeb", gradientTo: "#fde68a", darkGradientFrom: "#1e1b4b", darkGradientTo: "#78350f" },
-      { label: "Impayées", value: String(unpaid), change: formatAmountFR(unpaidAmount), changeType: "down", icon: "alert", iconBg: "bg-red-500", borderAccent: "border-red-500/30", gradientFrom: "#fef2f2", gradientTo: "#fecaca", darkGradientFrom: "#1e1b4b", darkGradientTo: "#7f1d1d" },
+      { label: "En attente", value: String(pending), change: formatCurrency(pendingAmount, currency), changeType: "neutral", icon: "clock", iconBg: "bg-amber-500", borderAccent: "border-amber-500/30", gradientFrom: "#fffbeb", gradientTo: "#fde68a", darkGradientFrom: "#1e1b4b", darkGradientTo: "#78350f" },
+      { label: "Impayées", value: String(unpaid), change: formatCurrency(unpaidAmount, currency), changeType: "down", icon: "alert", iconBg: "bg-red-500", borderAccent: "border-red-500/30", gradientFrom: "#fef2f2", gradientTo: "#fecaca", darkGradientFrom: "#1e1b4b", darkGradientTo: "#7f1d1d" },
     ];
-  }, [allInvoices, currentYear, currentMonth]);
+  }, [allInvoices, currentYear, currentMonth, currency]);
 
   // CA annuel = somme des factures payées de l'année en cours
   const caAnnuel = useMemo(() => {
@@ -262,7 +263,7 @@ export default function DashboardPage() {
                   <div className="h-8 w-40 bg-slate-200 dark:bg-violet-800/40 rounded-lg animate-pulse" />
                 ) : (
                   <p className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
-                    {formatAmountFR(caAnnuel)}
+                    {formatCurrency(caAnnuel, currency)}
                   </p>
                 )}
               </div>

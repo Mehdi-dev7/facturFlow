@@ -8,8 +8,15 @@ import { CREDIT_NOTE_REASONS } from "@/lib/types/credit-notes";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-function fmtAmount(n: number) {
-  return n.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
+// Formate un montant avec la bonne devise
+function fmtAmount(n: number, currency?: string | null): string {
+  const formatted = n.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  switch (currency) {
+    case "USD": return formatted + " $";
+    case "GBP": return formatted + " £";
+    case "MAD": return formatted + " DH";
+    default:    return formatted + " €";
+  }
 }
 
 function fmtDate(iso: string) {
@@ -280,7 +287,7 @@ export function CreditNotePdfDocument({ creditNote }: { creditNote: SavedCreditN
             <Text style={[S.totalLabel, totalLabelColor]}>Net a deduire</Text>
             <View style={{ flexDirection: "row", alignItems: "baseline" }}>
               <Text style={S.totalAmountPrefix}>- </Text>
-              <Text style={S.totalAmount}>{fmtAmount(creditNote.total)}</Text>
+              <Text style={S.totalAmount}>{fmtAmount(creditNote.total, creditNote.user.currency)}</Text>
             </View>
           </View>
         </View>

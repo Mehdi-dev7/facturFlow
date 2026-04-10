@@ -12,7 +12,6 @@ import { FontPicker } from "./font-picker";
 import { LogoUpload } from "./logo-upload";
 import { DEFAULT_THEME, DEFAULT_FONT } from "./theme-config";
 import { saveAppearance } from "@/lib/actions/appearance";
-
 // ─── Props (données initiales depuis le serveur) ──────────────────────────────
 
 interface AppearancePageContentProps {

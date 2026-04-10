@@ -27,6 +27,8 @@ const QuotePreviewModal = dynamic(
 import { useQuotes, useDeleteQuote, type SavedQuote } from "@/hooks/use-quotes";
 import { StatusDropdownQuote } from "@/components/dashboard/status-dropdown-quote";
 import { SkeletonTable } from "@/components/ui/skeleton-table";
+import { useAppearance } from "@/hooks/use-appearance";
+import { formatCurrency } from "@/lib/utils/calculs-facture";
 
 // ─── Types & helpers ──────────────────────────────────────────────────────────
 
@@ -73,18 +75,14 @@ function formatDateFR(dateStr: string | null): string {
   return new Date(dateStr).toLocaleDateString("fr-FR");
 }
 
-function formatAmountFR(amount: number): string {
-  return amount.toLocaleString("fr-FR", { minimumFractionDigits: 2 }) + " \u20AC";
-}
-
-function toRow(q: SavedQuote): QuoteRow {
+function toRow(q: SavedQuote, currency: string): QuoteRow {
   return {
     id: q.id,
     number: q.number,
     client: getClientName(q.client),
     date: formatDateFR(q.date),
     validUntil: formatDateFR(q.validUntil),
-    amount: formatAmountFR(q.total),
+    amount: formatCurrency(q.total, currency),
     status: mapDocStatus(q.status),
     dbStatus: q.status,
   };
@@ -108,6 +106,8 @@ function QuotesPageContent() {
   const [previewQuote, setPreviewQuote] = useState<SavedQuote | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+
+  const { currency } = useAppearance();
 
   // Fetch real data
   const { data: allQuotes = [], isLoading } = useQuotes();
@@ -172,7 +172,7 @@ function QuotesPageContent() {
   }, [selectedMonth]);
 
   // Conversion en lignes de tableau
-  const allRows = useMemo(() => allQuotes.map(toRow), [allQuotes]);
+  const allRows = useMemo(() => allQuotes.map((q) => toRow(q, currency)), [allQuotes, currency]);
 
   // Filtrage par mois
   const monthRows = useMemo(

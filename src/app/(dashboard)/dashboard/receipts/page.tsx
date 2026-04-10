@@ -30,6 +30,8 @@ import { ReceiptPreviewModal } from "@/components/receipts/receipt-preview-modal
 import { RECEIPT_PAYMENT_METHODS } from "@/lib/types/receipts";
 import { ReceiptPdfDocument } from "@/lib/pdf/receipt-pdf-document";
 import { sendReceiptFromInvoice } from "@/lib/actions/send-receipt-email";
+import { useAppearance } from "@/hooks/use-appearance";
+import { formatCurrency } from "@/lib/utils/calculs-facture";
 
 // PDFDownloadLink chargé côté client uniquement (utilise des APIs navigateur)
 const PDFDownloadLink = dynamic(
@@ -59,15 +61,11 @@ function formatDateFR(iso: string) {
   return new Date(iso).toLocaleDateString("fr-FR");
 }
 
-function formatAmount(n: number) {
-  return n.toLocaleString("fr-FR", { minimumFractionDigits: 2 }) + " €";
-}
-
 function getPaymentLabel(method: string) {
   return RECEIPT_PAYMENT_METHODS.find((m) => m.value === method)?.label ?? method;
 }
 
-function toRow(r: SavedReceipt): ReceiptRow {
+function toRow(r: SavedReceipt, currency: string): ReceiptRow {
   return {
     id: r.id,
     number: r.number,
@@ -75,13 +73,13 @@ function toRow(r: SavedReceipt): ReceiptRow {
     date: formatDateFR(r.date),
     description: r.description,
     paymentMethod: getPaymentLabel(r.paymentMethod),
-    amount: formatAmount(r.total),
+    amount: formatCurrency(r.total, currency),
   };
 }
 
 // ─── KPIs ────────────────────────────────────────────────────────────────────
 
-function buildKpis(receipts: SavedReceipt[]): KpiData[] {
+function buildKpis(receipts: SavedReceipt[], currency: string): KpiData[] {
   const total = receipts.length;
   const totalAmount = receipts.reduce((s, r) => s + r.total, 0);
   const cashCount = receipts.filter((r) => r.paymentMethod === "CASH").length;
@@ -103,7 +101,7 @@ function buildKpis(receipts: SavedReceipt[]): KpiData[] {
     },
     {
       label: "Total encaissé",
-      value: formatAmount(totalAmount),
+      value: formatCurrency(totalAmount, currency),
       change: "Tous reçus confondus",
       changeType: "up",
       icon: "check",
@@ -299,6 +297,7 @@ function ReceiptsPageContent() {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
 
+  const { currency } = useAppearance();
   const { data: allReceipts = [], isLoading } = useReceipts();
   const deleteMutation = useDeleteReceipt();
 
@@ -312,7 +311,7 @@ function ReceiptsPageContent() {
   const handleSearch = useCallback((v: string) => setSearch(v), []);
 
   // Lignes filtrées par recherche
-  const allRows = useMemo(() => allReceipts.map(toRow), [allReceipts]);
+  const allRows = useMemo(() => allReceipts.map((r) => toRow(r, currency)), [allReceipts, currency]);
   const filteredRows = useMemo(() => {
     if (!search.trim()) return allRows;
     const q = search.toLowerCase();
@@ -324,7 +323,7 @@ function ReceiptsPageContent() {
     );
   }, [allRows, search]);
 
-  const kpis = useMemo(() => buildKpis(allReceipts), [allReceipts]);
+  const kpis = useMemo(() => buildKpis(allReceipts, currency), [allReceipts, currency]);
 
   // Colonnes du tableau
   const columns = useMemo(

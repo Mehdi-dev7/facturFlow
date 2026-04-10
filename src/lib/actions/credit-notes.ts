@@ -55,6 +55,7 @@ const creditNoteInclude = {
       companyLogo: true,
       iban: true,
       bic: true,
+      currency: true,
     },
   },
 } as const;

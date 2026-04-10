@@ -35,6 +35,8 @@ import { sendCreditNoteEmail } from "@/lib/actions/send-credit-note-email";
 import { CreditNotePreviewModal } from "@/components/avoirs/credit-note-preview-modal";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
+import { useAppearance } from "@/hooks/use-appearance";
+import { formatCurrency } from "@/lib/utils/calculs-facture";
 
 // ─── Types & Helpers ──────────────────────────────────────────────────────────
 
@@ -62,31 +64,27 @@ function formatDateFR(iso: string) {
   return new Date(iso).toLocaleDateString("fr-FR");
 }
 
-function formatAmount(n: number) {
-  return n.toLocaleString("fr-FR", { minimumFractionDigits: 2 }) + " €";
-}
-
 // Retourne "YYYY-MM" à partir d'une date ISO
 function getMonthKey(dateStr: string): string {
   const d = new Date(dateStr);
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
 }
 
-function toRow(cn: SavedCreditNote): CreditNoteRow {
+function toRow(cn: SavedCreditNote, currency: string): CreditNoteRow {
   return {
     id: cn.id,
     number: cn.number,
     client: getClientName(cn.client),
     invoiceNumber: cn.invoiceNumber,
     date: formatDateFR(cn.date),
-    amount: formatAmount(cn.total),
+    amount: formatCurrency(cn.total, currency),
     reason: getReasonLabel(cn.reason),
   };
 }
 
 // ─── KPIs ─────────────────────────────────────────────────────────────────────
 
-function buildKpis(creditNotes: SavedCreditNote[]): KpiData[] {
+function buildKpis(creditNotes: SavedCreditNote[], currency: string): KpiData[] {
   const total = creditNotes.length;
   const totalAmount = creditNotes.reduce((s, cn) => s + cn.total, 0);
 
@@ -106,7 +104,7 @@ function buildKpis(creditNotes: SavedCreditNote[]): KpiData[] {
     },
     {
       label: "Montant total crédité",
-      value: formatAmount(totalAmount),
+      value: formatCurrency(totalAmount, currency),
       change: "Tous avoirs confondus",
       changeType: "neutral",
       icon: "check",
@@ -160,7 +158,7 @@ function InvoiceCreditNoteGenerator() {
     if (type === "partial") {
       const parsed = parseFloat(amount.replace(",", "."));
       if (!parsed || parsed <= 0 || parsed > selectedInvoice.total) {
-        toast.error("Montant invalide (doit être entre 0 et " + formatAmount(selectedInvoice.total) + ")");
+        toast.error("Montant invalide (doit être entre 0 et " + formatCurrency(selectedInvoice.total, currency) + ")");
         return;
       }
     }
@@ -230,7 +228,7 @@ function InvoiceCreditNoteGenerator() {
                 onChange={() => setType("full")}
                 className="accent-rose-600 cursor-pointer"
               />
-              Total ({formatAmount(selectedInvoice.total)})
+              Total ({formatCurrency(selectedInvoice.total, currency)})
             </label>
             <label className="flex items-center gap-1.5 cursor-pointer text-xs xs:text-sm text-slate-700 dark:text-slate-300">
               <input
@@ -251,7 +249,7 @@ function InvoiceCreditNoteGenerator() {
               type="number"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              placeholder={`Montant (max ${formatAmount(selectedInvoice.total)})`}
+              placeholder={`Montant (max ${formatCurrency(selectedInvoice.total, currency)})`}
               min={0.01}
               max={selectedInvoice.total}
               step={0.01}
@@ -315,6 +313,7 @@ function AvoirsPageContent() {
   const [previewCreditNote, setPreviewCreditNote] = useState<SavedCreditNote | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
+  const { currency } = useAppearance();
   const { data: allCreditNotes = [], isLoading } = useCreditNotes();
   const deleteMutation = useDeleteCreditNote();
 
@@ -338,7 +337,7 @@ function AvoirsPageContent() {
   // Clé du mois sélectionné au format "YYYY-MM"
   const selectedMonthKey = useMemo(() => getMonthKey(selectedMonth.toISOString()), [selectedMonth]);
 
-  const allRows = useMemo(() => allCreditNotes.map(toRow), [allCreditNotes]);
+  const allRows = useMemo(() => allCreditNotes.map((cn) => toRow(cn, currency)), [allCreditNotes, currency]);
 
   // Filtre par mois
   const monthRows = useMemo(
@@ -397,8 +396,9 @@ function AvoirsPageContent() {
 
   // KPIs calculés sur le mois sélectionné
   const kpis = useMemo(() => buildKpis(
-    allCreditNotes.filter((cn) => getMonthKey(cn.date) === selectedMonthKey)
-  ), [allCreditNotes, selectedMonthKey]);
+    allCreditNotes.filter((cn) => getMonthKey(cn.date) === selectedMonthKey),
+    currency
+  ), [allCreditNotes, selectedMonthKey, currency]);
 
   const columns = useMemo(
     (): Column<CreditNoteRow>[] => [
