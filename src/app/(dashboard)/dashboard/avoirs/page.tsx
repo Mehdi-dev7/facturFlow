@@ -122,6 +122,7 @@ function buildKpis(creditNotes: SavedCreditNote[], currency: string): KpiData[] 
 
 function InvoiceCreditNoteGenerator() {
   const queryClient = useQueryClient();
+  const { currency } = useAppearance();
   const { data: allInvoices = [] } = useInvoices();
 
   const [selectedInvoiceId, setSelectedInvoiceId] = useState("");
