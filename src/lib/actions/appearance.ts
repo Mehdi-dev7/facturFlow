@@ -24,7 +24,8 @@ export interface AppearanceData {
 export interface AppearanceSettings extends AppearanceData {
   /** true si le user est en plan FREE — les champs Pro-gated retournent leurs valeurs par défaut */
   isCustomAppearanceLocked: boolean;
-  // currency est hérité de AppearanceData (accessible en FREE)
+  /** Devise choisie par l'utilisateur (gérée depuis Mon Profil) */
+  currency: string;
 }
 
 // ─── Sauvegarder les réglages d'apparence ────────────────────────────────────
