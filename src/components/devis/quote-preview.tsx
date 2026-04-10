@@ -6,7 +6,8 @@ import { CheckCircle2, XCircle, Lock } from "lucide-react";
 import type { QuoteFormData, CompanyInfo, InvoiceType } from "@/lib/validations/quote";
 import { INVOICE_TYPE_LABELS, INVOICE_TYPE_CONFIG } from "@/lib/validations/quote";
 import { useClients } from "@/hooks/use-clients";
-import { calcInvoiceTotals } from "@/lib/utils/calculs-facture";
+import { calcInvoiceTotals, formatCurrency } from "@/lib/utils/calculs-facture";
+import { useAppearance } from "@/hooks/use-appearance";
 import { getFontFamily, getFontWeight, DEFAULT_THEME, DEFAULT_FONT } from "@/components/appearance/theme-config";
 
 // ─── Props ─────────────────────────────────────────────────────────────────────
@@ -85,6 +86,7 @@ export function QuotePreview({
 	// ── Apparence ─────────────────────────────────────────────────────────
 	const fontFamily = getFontFamily(companyFont);
 	const fontWeight = getFontWeight(companyFont);
+	const { currency } = useAppearance();
 
 	const safeLines  = lines || [];
 	const typeConfig = INVOICE_TYPE_CONFIG[quoteType] ?? INVOICE_TYPE_CONFIG["basic"];
@@ -104,6 +106,7 @@ export function QuotePreview({
 
 	const fmt = (n: number) =>
 		n.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+	const fmtC = (n: number) => formatCurrency(n, currency);
 
 	const formatDate = (dateStr: string) => {
 		if (!dateStr) return "—";
@@ -175,7 +178,7 @@ export function QuotePreview({
 								<span className="text-slate-700 dark:text-slate-300 break-words min-w-0 flex-1">
 									{line.description || <span className="italic text-slate-300">Ligne {i + 1}</span>}
 								</span>
-								<span className="text-slate-500 dark:text-slate-400 shrink-0">{fmt(ht)} €</span>
+								<span className="text-slate-500 dark:text-slate-400 shrink-0">{fmtC(ht)}</span>
 							</div>
 						);
 					})}
@@ -186,26 +189,26 @@ export function QuotePreview({
 				<div className="space-y-1">
 					<div className="flex justify-between text-slate-500 dark:text-slate-400">
 						<span>Sous-total HT</span>
-						<span>{fmt(totals.subtotal)} €</span>
+						<span>{fmtC(totals.subtotal)}</span>
 					</div>
 					{totals.discountAmount > 0 && (
 						<div className="flex justify-between text-rose-500">
 							<span>Réduction</span>
-							<span>−{fmt(totals.discountAmount)} €</span>
+							<span>−{fmtC(totals.discountAmount)}</span>
 						</div>
 					)}
 					<div className="flex justify-between text-slate-500 dark:text-slate-400">
 						<span>TVA ({vatRate ?? 0}%)</span>
-						<span>{fmt(totals.taxTotal)} €</span>
+						<span>{fmtC(totals.taxTotal)}</span>
 					</div>
 					<div className="flex justify-between font-bold text-slate-800 dark:text-slate-100 pt-1 border-t border-slate-200 dark:border-violet-500/20">
 						<span>Total TTC</span>
-						<span className="truncate ml-2" style={{ color: themeColor }}>{fmt(totals.totalTTC)} €</span>
+						<span className="truncate ml-2" style={{ color: themeColor }}>{fmtC(totals.totalTTC)}</span>
 					</div>
 					{depositAmt > 0 && (
 						<div className="flex justify-between pt-1 border-t border-slate-100 dark:border-violet-500/20">
 							<span className="font-medium" style={{ color: themeColor }}>Acompte à verser</span>
-							<span className="font-bold" style={{ color: themeColor }}>{fmt(depositAmt)} €</span>
+							<span className="font-bold" style={{ color: themeColor }}>{fmtC(depositAmt)}</span>
 						</div>
 					)}
 				</div>
@@ -312,13 +315,13 @@ export function QuotePreview({
 				{/* Lignes */}
 				{isArtisan ? (
 					<div className="space-y-4">
-						<LinesTable title="Main d'œuvre" lines={mainOeuvreLines} isForfait={false} typeConfig={typeConfig} fmt={fmt} themeColor={themeColor} />
+						<LinesTable title="Main d'œuvre" lines={mainOeuvreLines} isForfait={false} typeConfig={typeConfig} fmt={fmtC} themeColor={themeColor} />
 						{materiauLines.length > 0 && (
-							<LinesTable title="Matériaux" lines={materiauLines} isForfait={false} typeConfig={typeConfig} fmt={fmt} themeColor={themeColor} />
+							<LinesTable title="Matériaux" lines={materiauLines} isForfait={false} typeConfig={typeConfig} fmt={fmtC} themeColor={themeColor} />
 						)}
 					</div>
 				) : (
-					<LinesTable lines={safeLines} isForfait={isForfait} typeConfig={typeConfig} fmt={fmt} themeColor={themeColor} />
+					<LinesTable lines={safeLines} isForfait={isForfait} typeConfig={typeConfig} fmt={fmtC} themeColor={themeColor} />
 				)}
 
 				{/* Totaux */}
@@ -329,7 +332,7 @@ export function QuotePreview({
 					>
 						<div className="flex justify-between text-sm">
 							<span className="shrink-0" style={{ color: themeColor }}>Sous-total HT</span>
-							<span className="text-slate-800 font-medium truncate ml-2">{fmt(totals.subtotal)} €</span>
+							<span className="text-slate-800 font-medium truncate ml-2">{fmtC(totals.subtotal)}</span>
 						</div>
 
 						{totals.discountAmount > 0 && (
@@ -338,30 +341,30 @@ export function QuotePreview({
 									<span style={{ color: themeColor }}>
 										Réduction{discountType === "pourcentage" ? ` (${discountValue}%)` : ""}
 									</span>
-									<span className="text-rose-600 font-medium truncate ml-2">−{fmt(totals.discountAmount)} €</span>
+									<span className="text-rose-600 font-medium truncate ml-2">−{fmtC(totals.discountAmount)}</span>
 								</div>
 								<div className="flex justify-between text-sm" style={{ borderTop: `1px solid ${themeColor}33`, paddingTop: "4px" }}>
 									<span className="text-slate-600 font-medium shrink-0">Net HT</span>
-									<span className="text-slate-800 font-medium truncate ml-2">{fmt(totals.netHT)} €</span>
+									<span className="text-slate-800 font-medium truncate ml-2">{fmtC(totals.netHT)}</span>
 								</div>
 							</>
 						)}
 
 						<div className="flex justify-between text-sm">
 							<span style={{ color: themeColor }}>TVA ({vatRate ?? 0}%)</span>
-							<span className="text-slate-800 font-medium truncate ml-2">{fmt(totals.taxTotal)} €</span>
+							<span className="text-slate-800 font-medium truncate ml-2">{fmtC(totals.taxTotal)}</span>
 						</div>
 
 						<div className="flex justify-between text-base font-bold pt-2" style={{ borderTop: `1px solid ${themeColor}33` }}>
 							<span className="text-slate-900 shrink-0">Total TTC</span>
-							<span className="truncate ml-2" style={{ color: themeColor }}>{fmt(totals.totalTTC)} €</span>
+							<span className="truncate ml-2" style={{ color: themeColor }}>{fmtC(totals.totalTTC)}</span>
 						</div>
 
 						{totals.discountAmount > 0 && (
 							<div className="flex justify-between items-center pt-2 mt-1" style={{ borderTop: `2px solid ${themeColor}66` }}>
 								<span className="text-sm font-extrabold text-slate-900 tracking-tight shrink-0">NET À PAYER</span>
 								<span className="text-base font-extrabold truncate ml-2" style={{ color: themeColor }}>
-									{fmt(totals.netAPayer)} €
+									{fmtC(totals.netAPayer)}
 								</span>
 							</div>
 						)}
@@ -391,7 +394,7 @@ export function QuotePreview({
 							</p>
 						</div>
 						<span className="text-base font-bold shrink-0" style={{ color: themeColor }}>
-							{fmt(depositAmt)} €
+							{fmtC(depositAmt)}
 						</span>
 					</div>
 				)}

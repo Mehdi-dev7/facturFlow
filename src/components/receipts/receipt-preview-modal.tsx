@@ -18,6 +18,7 @@ import type { SavedReceipt } from "@/lib/types/receipts";
 import { RECEIPT_PAYMENT_METHODS } from "@/lib/types/receipts";
 import { useDeleteReceipt } from "@/hooks/use-receipts";
 import { sendSavedReceiptEmail } from "@/lib/actions/send-receipt-email";
+import { formatCurrency } from "@/lib/utils/calculs-facture";
 
 // PDFDownloadLink chargé côté client uniquement (browser APIs pour Blob URL)
 const PDFDownloadLink = dynamic(
@@ -52,8 +53,9 @@ function fmtDateShort(iso: string): string {
   return new Date(iso).toLocaleDateString("fr-FR");
 }
 
-function fmtAmount(n: number): string {
-  return n.toLocaleString("fr-FR", { minimumFractionDigits: 2 }) + " €";
+// Formate un montant avec la devise de l'utilisateur (depuis receipt.user.currency)
+function fmtAmount(n: number, currency?: string | null): string {
+  return formatCurrency(n, currency);
 }
 
 function getPaymentLabel(method: string): string {
@@ -207,7 +209,7 @@ function ReceiptPreviewContent({ receipt }: { receipt: SavedReceipt }) {
               Montant encaissé
             </span>
             <span className="text-md lg:text-base font-bold" style={{ color: themeColor }}>
-              {fmtAmount(receipt.total)}
+              {fmtAmount(receipt.total, receipt.user.currency)}
             </span>
           </div>
         </div>

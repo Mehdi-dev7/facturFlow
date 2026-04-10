@@ -11,11 +11,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { profileSchema, type ProfileFormData } from "@/lib/validations/account";
-import { updateProfile, saveCurrency } from "@/lib/actions/account";
+import { updateProfile } from "@/lib/actions/account";
 import { ChangePasswordModal } from "@/components/account/change-password-modal";
 import { DeleteAccountModal } from "@/components/account/delete-account-modal";
-import { CURRENCIES } from "@/lib/utils/calculs-facture";
-import { useQueryClient } from "@tanstack/react-query";
 
 // ─── Types ──────────────────────────────────────────────────────────────────────
 
@@ -26,7 +24,6 @@ interface AccountPageContentProps {
     image: string | null;
     phone: string | null;
   };
-  currency: string;
   hasCredentials: boolean;
   oauthProviders: string[];
 }
@@ -41,14 +38,11 @@ const OAUTH_LABELS: Record<string, { label: string; color: string }> = {
 
 // ─── Composant ──────────────────────────────────────────────────────────────────
 
-export function AccountPageContent({ user, currency: initialCurrency, hasCredentials, oauthProviders }: AccountPageContentProps) {
+export function AccountPageContent({ user, hasCredentials, oauthProviders }: AccountPageContentProps) {
   const [imagePreview, setImagePreview] = useState<string | null>(user.image);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [selectedCurrency, setSelectedCurrency] = useState(initialCurrency ?? "EUR");
-  const [isSavingCurrency, setIsSavingCurrency] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const queryClient = useQueryClient();
 
   const {
     register,
@@ -94,20 +88,6 @@ export function AccountPageContent({ user, currency: initialCurrency, hasCredent
     .join("")
     .toUpperCase()
     .slice(0, 2);
-
-  // ── Sauvegarde devise ───────────────────────────────────────────────────────
-  const handleSaveCurrency = async () => {
-    setIsSavingCurrency(true);
-    const result = await saveCurrency(selectedCurrency);
-    if (result.success) {
-      // Invalider le cache useAppearance pour que la devise se propage partout
-      queryClient.invalidateQueries({ queryKey: ["appearance"] });
-      toast.success("Devise mise à jour !");
-    } else {
-      toast.error(result.error ?? "Erreur lors de la sauvegarde");
-    }
-    setIsSavingCurrency(false);
-  };
 
   // ── Submit ──────────────────────────────────────────────────────────────────
   const onSubmit = async (data: ProfileFormData) => {
@@ -308,54 +288,6 @@ export function AccountPageContent({ user, currency: initialCurrency, hasCredent
               </div>
             </div>
           )}
-        </section>
-
-        {/* ── Divider ────────────────────────────────────────────────────── */}
-        <div className="h-px bg-linear-to-r from-transparent via-primary/30 dark:via-violet-300/30 to-transparent" />
-
-        {/* ── Section Devise ─────────────────────────────────────────────── */}
-        <section className="space-y-4">
-          <div>
-            <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-2 mb-0.5">
-              <span className="text-base">💱</span>
-              Devise
-            </h3>
-            <p className="text-[11px] xs:text-xs text-slate-500 dark:text-slate-400">
-              Utilisée sur toutes vos factures, devis, acomptes et documents PDF.
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {(Object.entries(CURRENCIES) as [string, { symbol: string; label: string; flag: string }][]).map(([code, { label, flag }]) => (
-              <button
-                key={code}
-                type="button"
-                onClick={() => setSelectedCurrency(code)}
-                className={`inline-flex items-center gap-2 px-3 py-2 rounded-xl border text-sm font-medium transition-all cursor-pointer ${
-                  selectedCurrency === code
-                    ? "border-violet-500 bg-violet-50 text-violet-700 dark:bg-violet-500/20 dark:text-violet-300 dark:border-violet-400"
-                    : "border-slate-200 dark:border-violet-400/25 text-slate-600 dark:text-slate-400 hover:border-violet-300 hover:bg-violet-50/50 dark:hover:bg-violet-900/30"
-                }`}
-              >
-                <span className="text-base">{flag}</span>
-                <span>{label}</span>
-              </button>
-            ))}
-          </div>
-          <div className="flex justify-end">
-            <Button
-              type="button"
-              onClick={handleSaveCurrency}
-              disabled={isSavingCurrency}
-              className="bg-violet-600 hover:bg-violet-700 text-white rounded-xl gap-2 text-xs xs:text-sm cursor-pointer"
-            >
-              {isSavingCurrency ? (
-                <Loader2 className="size-4 animate-spin" />
-              ) : (
-                <Save className="size-4" />
-              )}
-              Enregistrer
-            </Button>
-          </div>
         </section>
 
         {/* ── Divider ────────────────────────────────────────────────────── */}

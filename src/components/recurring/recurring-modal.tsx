@@ -27,6 +27,8 @@ import {
 import { ClientSearch } from "@/components/factures/client-search";
 import { recurringSchema, type RecurringFormData } from "@/lib/validations/recurring";
 import { useCreateRecurring } from "@/hooks/use-recurring";
+import { useAppearance } from "@/hooks/use-appearance";
+import { formatCurrency } from "@/lib/utils/calculs-facture";
 
 // ─── Props ──────────────────────────────────────────────────────────────────
 
@@ -69,6 +71,7 @@ export function RecurringModal({ open, onOpenChange }: RecurringModalProps) {
 
   // Total TTC en temps réel
   const watchedLines = form.watch("lines");
+  const { currency } = useAppearance();
   const totalTTC = useMemo(() => {
     return watchedLines.reduce((sum, line) => {
       const qty = Number(line.quantity) || 0;
@@ -324,7 +327,7 @@ export function RecurringModal({ open, onOpenChange }: RecurringModalProps) {
                   Total TTC par échéance
                 </span>
                 <span className="text-lg font-bold text-violet-600 dark:text-violet-400">
-                  {totalTTC.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €
+                  {formatCurrency(totalTTC, currency)}
                 </span>
               </div>
             </div>

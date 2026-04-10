@@ -49,7 +49,8 @@ import {
 	type QuickClientData,
 	type InvoiceType,
 } from "@/lib/validations/invoice";
-import { calcInvoiceTotals } from "@/lib/utils/calculs-facture";
+import { calcInvoiceTotals, formatCurrency } from "@/lib/utils/calculs-facture";
+import { useAppearance } from "@/hooks/use-appearance";
 
 // ─── Styles partagés ─────────────────────────────────────────────────────────
 
@@ -300,13 +301,10 @@ export function InvoiceForm({
 		});
 	}, [append, invoiceType, isPerLine, vatRate]);
 
+	const { currency } = useAppearance();
 	const fmt = useCallback(
-		(n: number) =>
-			n.toLocaleString("fr-FR", {
-				minimumFractionDigits: 2,
-				maximumFractionDigits: 2,
-			}),
-		[],
+		(n: number) => formatCurrency(n, currency),
+		[currency],
 	);
 
 	// ── Render ─────────────────────────────────────────────────────────────
@@ -757,7 +755,7 @@ export function InvoiceForm({
 												<div className="flex items-center justify-between border-t border-violet-100 dark:border-violet-400/20 pt-2 mt-1">
 													<span className="text-xs text-slate-500 dark:text-violet-200">Total HT</span>
 													<span className="text-sm font-bold text-violet-700 dark:text-violet-300">
-														{lineHT.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
+														{formatCurrency(lineHT, currency)}
 													</span>
 												</div>
 											)}
@@ -787,7 +785,7 @@ export function InvoiceForm({
 							<div className="flex justify-between text-xs xs:text-sm">
 								<span className="text-slate-500 dark:text-violet-200">Sous-total HT</span>
 								<span className="font-medium text-slate-800 dark:text-slate-100">
-									{fmt(totals.subtotal)} €
+									{fmt(totals.subtotal)}
 								</span>
 							</div>
 
@@ -843,7 +841,7 @@ export function InvoiceForm({
 									)}
 								</div>
 								<span className="font-medium text-rose-600 dark:text-rose-400">
-									{totals.discountAmount > 0 ? `−${fmt(totals.discountAmount)} €` : "—"}
+									{totals.discountAmount > 0 ? `−${fmt(totals.discountAmount)}` : "—"}
 								</span>
 							</div>
 
@@ -852,7 +850,7 @@ export function InvoiceForm({
 								<div className="flex justify-between text-xs xs:text-sm border-t border-violet-200 dark:border-violet-400/20 pt-2">
 									<span className="text-slate-600 dark:text-violet-200 font-medium">Net HT</span>
 									<span className="font-medium text-slate-800 dark:text-slate-100">
-										{fmt(totals.netHT)} €
+										{fmt(totals.netHT)}
 									</span>
 								</div>
 							)}
@@ -907,7 +905,7 @@ export function InvoiceForm({
 											</Select>
 										</div>
 										<span className="font-medium text-slate-800 dark:text-slate-100">
-											{fmt(totals.taxTotal)} €
+											{fmt(totals.taxTotal)}
 										</span>
 									</div>
 								)}
@@ -916,7 +914,7 @@ export function InvoiceForm({
 								{isPerLine && totals.vatBreakdown && totals.vatBreakdown.map(({ rate, amount }) => (
 									<div key={rate} className="flex justify-between text-xs xs:text-sm">
 										<span className="text-slate-500 dark:text-violet-200">TVA {rate}%</span>
-										<span className="font-medium text-slate-800 dark:text-slate-100">{fmt(amount)} €</span>
+										<span className="font-medium text-slate-800 dark:text-slate-100">{fmt(amount)}</span>
 									</div>
 								))}
 							</div>
@@ -927,7 +925,7 @@ export function InvoiceForm({
 							{/* Total TTC */}
 							<div className="flex justify-between text-xs xs:text-sm font-bold">
 								<span className="text-slate-800 dark:text-slate-50">Total TTC</span>
-								<span className="text-violet-600 dark:text-violet-300">{fmt(totals.totalTTC)} €</span>
+								<span className="text-violet-600 dark:text-violet-300">{fmt(totals.totalTTC)}</span>
 							</div>
 
 							{/* Acompte versé */}
@@ -954,7 +952,7 @@ export function InvoiceForm({
 									/>
 								</div>
 								<span className="font-medium text-rose-600 dark:text-rose-400">
-									{depositAmount > 0 ? `−${fmt(depositAmount)} €` : "—"}
+									{depositAmount > 0 ? `−${fmt(depositAmount)}` : "—"}
 								</span>
 							</div>
 
@@ -964,7 +962,7 @@ export function InvoiceForm({
 									NET À PAYER
 								</span>
 								<span className="text-xl font-bold text-violet-700 dark:text-violet-200">
-									{fmt(totals.netAPayer)} €
+									{fmt(totals.netAPayer)}
 								</span>
 							</div>
 						</section>

@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import type { SavedDeposit } from "@/lib/types/deposits";
 import { sendDepositEmail } from "@/lib/actions/send-deposit-email";
 import { getFontFamily, getFontWeight } from "@/components/appearance/theme-config";
+import { formatCurrency } from "@/lib/utils/calculs-facture";
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -28,12 +29,9 @@ interface DepositPreviewModalProps {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-/** Formate un nombre en style français : "1 234,56" */
-function fmt(n: number) {
-  return n.toLocaleString("fr-FR", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
+/** Formate un montant avec la devise de l'utilisateur */
+function fmt(n: number, currency?: string | null) {
+  return formatCurrency(n, currency);
 }
 
 /** Formate une date ISO en "15/01/2025" */
@@ -446,7 +444,7 @@ export function DepositPreviewModal({
                         {deposit.description}
                       </td>
                       <td className="p-2 lg:p-3 text-xs lg:text-sm text-right font-medium" style={{ color: themeColor }}>
-                        {fmt(deposit.subtotal)} €
+                        {fmt(deposit.subtotal, deposit.user.currency)}
                       </td>
                     </tr>
                   </tbody>
@@ -464,18 +462,18 @@ export function DepositPreviewModal({
               >
                 <div className="flex justify-between text-xs lg:text-sm">
                   <span className="text-slate-500 dark:text-slate-400">Sous-total HT :</span>
-                  <span className="text-slate-900 dark:text-slate-50 font-medium">{fmt(deposit.subtotal)} €</span>
+                  <span className="text-slate-900 dark:text-slate-50 font-medium">{fmt(deposit.subtotal, deposit.user.currency)}</span>
                 </div>
                 <div className="flex justify-between text-xs lg:text-sm">
                   <span className="text-slate-500 dark:text-slate-400">TVA ({deposit.vatRate}%) :</span>
-                  <span className="text-slate-900 dark:text-slate-50 font-medium">{fmt(deposit.taxTotal)} €</span>
+                  <span className="text-slate-900 dark:text-slate-50 font-medium">{fmt(deposit.taxTotal, deposit.user.currency)}</span>
                 </div>
                 <div
                   className="flex justify-between text-sm lg:text-base font-bold pt-2"
                   style={{ borderTop: `1px solid ${themeColor}33` }}
                 >
                   <span className="text-slate-900 dark:text-slate-50">Total TTC :</span>
-                  <span style={{ color: themeColor }}>{fmt(deposit.total)} €</span>
+                  <span style={{ color: themeColor }}>{fmt(deposit.total, deposit.user.currency)}</span>
                 </div>
               </div>
             </div>

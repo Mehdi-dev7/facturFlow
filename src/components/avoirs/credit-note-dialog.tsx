@@ -30,6 +30,8 @@ import { createCreditNote } from "@/lib/actions/credit-notes";
 import { sendCreditNoteEmail } from "@/lib/actions/send-credit-note-email";
 import { CREDIT_NOTE_REASONS } from "@/lib/types/credit-notes";
 import { useQueryClient } from "@tanstack/react-query";
+import { useAppearance } from "@/hooks/use-appearance";
+import { formatCurrency } from "@/lib/utils/calculs-facture";
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -89,6 +91,7 @@ export function CreditNoteDialog({
 }: CreditNoteDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const queryClient = useQueryClient();
+  const { currency } = useAppearance();
 
   const {
     register,
@@ -114,9 +117,9 @@ export function CreditNoteDialog({
   const watchedAmount = watch("amount");
   const displayAmount =
     selectedType === "full"
-      ? invoice.total.toLocaleString("fr-FR", { minimumFractionDigits: 2 }) + " €"
+      ? formatCurrency(invoice.total, currency)
       : watchedAmount
-      ? watchedAmount.toLocaleString("fr-FR", { minimumFractionDigits: 2 }) + " €"
+      ? formatCurrency(watchedAmount, currency)
       : "—";
 
   const handleOpenChange = useCallback(
@@ -187,7 +190,7 @@ export function CreditNoteDialog({
           <p className="font-semibold text-rose-700 dark:text-rose-400">
             {invoice.number}{" "}
             <span className="text-slate-600 dark:text-slate-300 font-normal">
-              — {invoice.total.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €
+              — {formatCurrency(invoice.total, currency)}
             </span>
           </p>
         </div>
@@ -243,7 +246,7 @@ export function CreditNoteDialog({
               <Label htmlFor="credit-amount" className="text-xs xs:text-sm text-slate-700 dark:text-violet-200">
                 Montant de l&apos;avoir *{" "}
                 <span className="text-slate-400 font-normal">
-                  (max {invoice.total.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €)
+                  (max {formatCurrency(invoice.total, currency)})
                 </span>
               </Label>
               <div className="relative">

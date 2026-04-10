@@ -34,6 +34,8 @@ import { canUseFeature } from "@/lib/feature-gate";
 import { UpgradeModal } from "@/components/subscription/upgrade-modal";
 import type { Feature } from "@/lib/feature-gate";
 import { useConnectedProviders } from "@/hooks/use-payment-accounts";
+import { useAppearance } from "@/hooks/use-appearance";
+import { formatCurrency } from "@/lib/utils/calculs-facture";
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
@@ -162,6 +164,7 @@ export function DepositForm({
 		if (customNumber) onNumberChange?.(customNumber);
 	}, [customNumber, onNumberChange]);
 
+	const { currency } = useAppearance();
 	const calculations = useMemo(() => {
 		const subtotal = Number(amount) || 0;
 		// vatRate ?? 20 : gère le cas 0% (exonéré) qui est falsy avec ||
@@ -458,19 +461,19 @@ export function DepositForm({
 										<div className="flex justify-between">
 											<span className="text-slate-600 dark:text-slate-300">Montant HT :</span>
 											<span className="font-medium text-slate-900 dark:text-slate-50">
-												{calculations.subtotal > 0 ? calculations.subtotal.toFixed(2) : "0,00"} €
+												{formatCurrency(calculations.subtotal > 0 ? calculations.subtotal : 0, currency)}
 											</span>
 										</div>
 										<div className="flex justify-between">
 											<span className="text-slate-600 dark:text-slate-300">TVA ({vatRate ?? 20}%) :</span>
 											<span className="font-medium text-slate-900 dark:text-slate-50">
-												{calculations.taxAmount > 0 ? calculations.taxAmount.toFixed(2) : "0,00"} €
+												{formatCurrency(calculations.taxAmount > 0 ? calculations.taxAmount : 0, currency)}
 											</span>
 										</div>
 										<div className="flex justify-between border-t border-slate-300 dark:border-slate-600 pt-1 font-semibold">
 											<span className="text-slate-600 dark:text-slate-300">Total TTC :</span>
 											<span className="text-violet-600 dark:text-violet-400">
-												{calculations.total > 0 ? calculations.total.toFixed(2) : "0,00"} €
+												{formatCurrency(calculations.total > 0 ? calculations.total : 0, currency)}
 											</span>
 										</div>
 									</div>

@@ -23,6 +23,7 @@ import {
   type InvoiceType,
 } from "@/lib/validations/invoice";
 import { getFontFamily, getFontWeight } from "@/components/appearance/theme-config";
+import { formatCurrency } from "@/lib/utils/calculs-facture";
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -34,11 +35,8 @@ interface QuotePreviewModalProps {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function fmt(n: number) {
-  return n.toLocaleString("fr-FR", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
+function fmt(n: number, currency?: string | null) {
+  return formatCurrency(n, currency);
 }
 
 function formatDate(dateStr: string | null) {
@@ -64,9 +62,10 @@ interface StaticLinesTableProps {
   isForfait: boolean;
   typeConfig: { descriptionLabel: string; quantityLabel: string | null; priceLabel: string };
   themeColor: string;
+  currency?: string | null;
 }
 
-function StaticLinesTable({ title, lines, isForfait, typeConfig, themeColor }: StaticLinesTableProps) {
+function StaticLinesTable({ title, lines, isForfait, typeConfig, themeColor, currency }: StaticLinesTableProps) {
   return (
     <div>
       {title && (
@@ -108,11 +107,11 @@ function StaticLinesTable({ title, lines, isForfait, typeConfig, themeColor }: S
                   </td>
                 )}
                 <td className="p-2 lg:p-3 text-xs lg:text-sm text-right text-slate-900 dark:text-slate-50">
-                  {fmt(line.unitPrice)} €
+                  {fmt(line.unitPrice, currency)}
                 </td>
                 {!isForfait && (
                   <td className="p-2 lg:p-3 text-xs lg:text-sm text-right font-medium" style={{ color: themeColor }}>
-                    {fmt(line.subtotal)} €
+                    {fmt(line.subtotal, currency)}
                   </td>
                 )}
               </tr>
@@ -338,7 +337,7 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
             <div className="flex justify-between text-xs lg:text-sm">
               <span className="text-slate-500 dark:text-slate-400">Sous-total HT</span>
               <span className="text-slate-800 dark:text-slate-100 font-medium">
-                {fmt(quote.subtotal)} €
+                {fmt(quote.subtotal, quote.user.currency)}
               </span>
             </div>
 
@@ -346,7 +345,7 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
             {discount > 0 && (
               <div className="flex justify-between text-xs lg:text-sm">
                 <span className="text-slate-500 dark:text-slate-400">Réduction</span>
-                <span className="text-rose-600 font-medium">−{fmt(discount)} €</span>
+                <span className="text-rose-600 font-medium">−{fmt(discount, quote.user.currency)}</span>
               </div>
             )}
 
@@ -354,7 +353,7 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
             <div className="flex justify-between text-xs lg:text-sm">
               <span className="text-slate-500 dark:text-slate-400">TVA ({vatRate}%)</span>
               <span className="text-slate-800 dark:text-slate-100 font-medium">
-                {fmt(quote.taxTotal)} €
+                {fmt(quote.taxTotal, quote.user.currency)}
               </span>
             </div>
 
@@ -364,7 +363,7 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
             <div className="flex justify-between text-sm lg:text-base font-bold">
               <span className="text-slate-900 dark:text-slate-50">Total TTC</span>
               <span style={{ color: themeColor }}>
-                {fmt(quote.total)} €
+                {fmt(quote.total, quote.user.currency)}
               </span>
             </div>
 
@@ -378,7 +377,7 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
                   Acompte à verser
                 </span>
                 <span className="font-bold" style={{ color: themeColor }}>
-                  {fmt(deposit)} €
+                  {fmt(deposit, quote.user.currency)}
                 </span>
               </div>
             )}

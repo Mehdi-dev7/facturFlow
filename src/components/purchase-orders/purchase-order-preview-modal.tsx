@@ -19,6 +19,7 @@ import {
   type InvoiceType,
 } from "@/lib/validations/purchase-order";
 import { getFontFamily, getFontWeight } from "@/components/appearance/theme-config";
+import { formatCurrency } from "@/lib/utils/calculs-facture";
 import type { SavedPurchaseOrder } from "@/lib/pdf/purchase-order-pdf-document";
 
 // Couleur teal fixe pour les bons de commande
@@ -38,11 +39,8 @@ interface PurchaseOrderPreviewModalProps {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function fmt(n: number) {
-  return n.toLocaleString("fr-FR", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
+function fmt(n: number, currency?: string | null) {
+  return formatCurrency(n, currency);
 }
 
 function formatDate(dateStr: string | null) {
@@ -77,9 +75,10 @@ interface StaticLinesTableProps {
   lines: SavedPurchaseOrder["lineItems"];
   isForfait: boolean;
   typeConfig: { descriptionLabel: string; quantityLabel: string | null; priceLabel: string };
+  currency?: string | null;
 }
 
-function StaticLinesTable({ title, lines, isForfait, typeConfig }: StaticLinesTableProps) {
+function StaticLinesTable({ title, lines, isForfait, typeConfig, currency }: StaticLinesTableProps) {
   return (
     <div>
       {title && (
@@ -121,11 +120,11 @@ function StaticLinesTable({ title, lines, isForfait, typeConfig }: StaticLinesTa
                   </td>
                 )}
                 <td className="p-2 lg:p-3 text-xs lg:text-sm text-right text-slate-900 dark:text-slate-50">
-                  {fmt(line.unitPrice)} €
+                  {fmt(line.unitPrice, currency)}
                 </td>
                 {!isForfait && (
                   <td className="p-2 lg:p-3 text-xs lg:text-sm text-right font-medium" style={{ color: TEAL_COLOR }}>
-                    {fmt(line.subtotal)} €
+                    {fmt(line.subtotal, currency)}
                   </td>
                 )}
               </tr>
@@ -332,6 +331,7 @@ function PurchaseOrderPreviewStatic({ purchaseOrder }: { purchaseOrder: SavedPur
             lines={mainOeuvreLines}
             isForfait={false}
             typeConfig={typeConfig}
+            currency={purchaseOrder.user.currency}
           />
           {materiauLines.length > 0 && (
             <StaticLinesTable
@@ -339,6 +339,7 @@ function PurchaseOrderPreviewStatic({ purchaseOrder }: { purchaseOrder: SavedPur
               lines={materiauLines}
               isForfait={false}
               typeConfig={typeConfig}
+              currency={purchaseOrder.user.currency}
             />
           )}
         </div>
@@ -347,6 +348,7 @@ function PurchaseOrderPreviewStatic({ purchaseOrder }: { purchaseOrder: SavedPur
           lines={sortedLines}
           isForfait={isForfait}
           typeConfig={typeConfig}
+          currency={purchaseOrder.user.currency}
         />
       )}
 
@@ -361,21 +363,21 @@ function PurchaseOrderPreviewStatic({ purchaseOrder }: { purchaseOrder: SavedPur
           <div className="flex justify-between text-xs lg:text-sm">
             <span className="text-slate-500 dark:text-slate-400">Sous-total HT</span>
             <span className="text-slate-800 dark:text-slate-100 font-medium">
-              {fmt(purchaseOrder.subtotal)} €
+              {fmt(purchaseOrder.subtotal, purchaseOrder.user.currency)}
             </span>
           </div>
 
           {discount > 0 && (
             <div className="flex justify-between text-xs lg:text-sm">
               <span className="text-slate-500 dark:text-slate-400">Réduction</span>
-              <span className="text-rose-600 font-medium">−{fmt(discount)} €</span>
+              <span className="text-rose-600 font-medium">−{fmt(discount, purchaseOrder.user.currency)}</span>
             </div>
           )}
 
           <div className="flex justify-between text-xs lg:text-sm">
             <span className="text-slate-500 dark:text-slate-400">TVA ({vatRate}%)</span>
             <span className="text-slate-800 dark:text-slate-100 font-medium">
-              {fmt(purchaseOrder.taxTotal)} €
+              {fmt(purchaseOrder.taxTotal, purchaseOrder.user.currency)}
             </span>
           </div>
 
@@ -384,7 +386,7 @@ function PurchaseOrderPreviewStatic({ purchaseOrder }: { purchaseOrder: SavedPur
           <div className="flex justify-between text-sm lg:text-base font-bold">
             <span className="text-slate-900 dark:text-slate-50">Total TTC</span>
             <span style={{ color: TEAL_COLOR }}>
-              {fmt(purchaseOrder.total)} €
+              {fmt(purchaseOrder.total, purchaseOrder.user.currency)}
             </span>
           </div>
         </div>

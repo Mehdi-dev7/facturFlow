@@ -23,6 +23,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Loader2 } from "lucide-react";
 import { ClientSearch } from "@/components/factures/client-search";
 import { useCreateDeposit } from "@/hooks/use-deposits";
+import { useAppearance } from "@/hooks/use-appearance";
+import { formatCurrency } from "@/lib/utils/calculs-facture";
 import { depositSchema, type DepositFormData } from "@/lib/types/deposits";
 
 // ─── Props ──────────────────────────────────────────────────────────────────
@@ -36,6 +38,7 @@ interface DepositModalProps {
 
 export function DepositModal({ open, onOpenChange }: DepositModalProps) {
   const createMutation = useCreateDeposit();
+  const { currency } = useAppearance();
   const [selectedClientId, setSelectedClientId] = useState<string | undefined>();
 
   const {
@@ -190,7 +193,7 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
               Total TTC
             </span>
             <span className="text-lg font-bold text-violet-700 dark:text-violet-300">
-              {totalTTC.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €
+              {formatCurrency(totalTTC, currency)}
             </span>
           </div>
 

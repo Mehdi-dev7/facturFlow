@@ -497,7 +497,14 @@ function ReceiptsPageContent() {
       </div>
 
       {/* Modal création */}
-      <ReceiptModal open={modalOpen} onOpenChange={setModalOpen} />
+      <ReceiptModal
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        onCreated={(receipt) => {
+          setPreviewReceipt(receipt);
+          setPreviewOpen(true);
+        }}
+      />
 
       {/* Modal aperçu */}
       <ReceiptPreviewModal

@@ -38,6 +38,7 @@ import {
 	getFontFamily,
 	getFontWeight,
 } from "@/components/appearance/theme-config";
+import { formatCurrency } from "@/lib/utils/calculs-facture";
 
 // Couleur orange dédiée aux proformas
 const PROFORMA_COLOR = "#ea580c";
@@ -52,11 +53,8 @@ interface ProformaPreviewModalProps {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function fmt(n: number) {
-	return n.toLocaleString("fr-FR", {
-		minimumFractionDigits: 2,
-		maximumFractionDigits: 2,
-	});
+function fmt(n: number, currency?: string | null) {
+	return formatCurrency(n, currency);
 }
 
 function formatDate(dateStr: string | null) {
@@ -309,14 +307,14 @@ function ProformaPreviewStatic({ proforma }: { proforma: SavedProforma }) {
 									</td>
 								)}
 								<td className="p-2 lg:p-3 text-xs lg:text-sm text-right text-slate-900 dark:text-slate-50 whitespace-nowrap overflow-hidden">
-									{fmt(line.unitPrice)} €
+									{fmt(line.unitPrice, proforma.user.currency)}
 								</td>
 								{!isForfait && (
 									<td
 										className="p-2 lg:p-3 text-xs lg:text-sm text-right font-medium whitespace-nowrap overflow-hidden"
 										style={{ color: themeColor }}
 									>
-										{fmt(line.subtotal)} €
+										{fmt(line.subtotal, proforma.user.currency)}
 									</td>
 								)}
 							</tr>
@@ -351,7 +349,7 @@ function ProformaPreviewStatic({ proforma }: { proforma: SavedProforma }) {
 							Sous-total HT
 						</span>
 						<span className="text-slate-800 dark:text-slate-100 font-medium truncate ml-2">
-							{fmt(proforma.subtotal)} €
+							{fmt(proforma.subtotal, proforma.user.currency)}
 						</span>
 					</div>
 					{discount > 0 && (
@@ -360,7 +358,7 @@ function ProformaPreviewStatic({ proforma }: { proforma: SavedProforma }) {
 								Réduction
 							</span>
 							<span className="text-rose-600 font-medium truncate ml-2">
-								−{fmt(discount)} €
+								−{fmt(discount, proforma.user.currency)}
 							</span>
 						</div>
 					)}
@@ -369,7 +367,7 @@ function ProformaPreviewStatic({ proforma }: { proforma: SavedProforma }) {
 							TVA ({vatRate}%)
 						</span>
 						<span className="text-slate-800 dark:text-slate-100 font-medium truncate ml-2">
-							{fmt(proforma.taxTotal)} €
+							{fmt(proforma.taxTotal, proforma.user.currency)}
 						</span>
 					</div>
 					<div className="h-px bg-slate-200 dark:bg-slate-700 my-1" />
@@ -378,7 +376,7 @@ function ProformaPreviewStatic({ proforma }: { proforma: SavedProforma }) {
 							Total TTC
 						</span>
 						<span className="truncate ml-2" style={{ color: themeColor }}>
-							{fmt(proforma.total)} €
+							{fmt(proforma.total, proforma.user.currency)}
 						</span>
 					</div>
 				</div>

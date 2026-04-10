@@ -23,7 +23,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Loader2 } from "lucide-react";
 import { ClientSearch } from "@/components/factures/client-search";
 import { useCreateReceipt } from "@/hooks/use-receipts";
+import { useAppearance } from "@/hooks/use-appearance";
+import { formatCurrency } from "@/lib/utils/calculs-facture";
 import { receiptSchema, RECEIPT_PAYMENT_METHODS, type ReceiptFormData } from "@/lib/types/receipts";
+import type { SavedReceipt } from "@/lib/types/receipts";
 import type { QuickClientData } from "@/lib/validations/invoice";
 
 // ─── Props ───────────────────────────────────────────────────────────────────
@@ -31,6 +34,8 @@ import type { QuickClientData } from "@/lib/validations/invoice";
 interface ReceiptModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** Appelé avec le reçu créé pour ouvrir la preview directement */
+  onCreated?: (receipt: SavedReceipt) => void;
 }
 
 // ─── Constantes de style ─────────────────────────────────────────────────────
@@ -49,8 +54,9 @@ const selectItemClass =
 
 // ─── Composant ───────────────────────────────────────────────────────────────
 
-export function ReceiptModal({ open, onOpenChange }: ReceiptModalProps) {
+export function ReceiptModal({ open, onOpenChange, onCreated }: ReceiptModalProps) {
   const createMutation = useCreateReceipt();
+  const { currency } = useAppearance();
 
   const {
     register,
@@ -79,8 +85,8 @@ export function ReceiptModal({ open, onOpenChange }: ReceiptModalProps) {
   // Aperçu du montant
   const amountDisplay = useMemo(() => {
     const n = Number(amount) || 0;
-    return n.toLocaleString("fr-FR", { minimumFractionDigits: 2 }) + " €";
-  }, [amount]);
+    return formatCurrency(n, currency);
+  }, [amount, currency]);
 
   const handleSelectClient = useCallback(
     (clientId: string, clientData?: QuickClientData) => {
@@ -107,11 +113,15 @@ export function ReceiptModal({ open, onOpenChange }: ReceiptModalProps) {
           if (result.success) {
             reset();
             onOpenChange(false);
+            // Ouvrir la preview directement après création
+            if (onCreated && result.data) {
+              onCreated(result.data as SavedReceipt);
+            }
           }
         },
       });
     },
-    [createMutation, reset, onOpenChange],
+    [createMutation, reset, onOpenChange, onCreated],
   );
 
   const handleOpenChange = useCallback(

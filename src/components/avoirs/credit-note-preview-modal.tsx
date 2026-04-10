@@ -18,6 +18,7 @@ import type { SavedCreditNote } from "@/lib/types/credit-notes";
 import { CREDIT_NOTE_REASONS } from "@/lib/types/credit-notes";
 import { useDeleteCreditNote } from "@/hooks/use-credit-notes";
 import { sendCreditNoteEmail } from "@/lib/actions/send-credit-note-email";
+import { formatCurrency } from "@/lib/utils/calculs-facture";
 
 // PDFDownloadLink chargé côté client uniquement
 const PDFDownloadLink = dynamic(
@@ -48,8 +49,9 @@ function fmtDate(iso: string): string {
   });
 }
 
-function fmtAmount(n: number): string {
-  return n.toLocaleString("fr-FR", { minimumFractionDigits: 2 }) + " €";
+// Formate un montant avec la devise de l'utilisateur (depuis creditNote.user.currency)
+function fmtAmount(n: number, currency?: string | null): string {
+  return formatCurrency(n, currency);
 }
 
 function getReasonLabel(value: string): string {
@@ -175,7 +177,7 @@ function CreditNotePreviewContent({ creditNote }: { creditNote: SavedCreditNote 
               Montant crédité
             </span>
             <span className="text-sm lg:text-base font-bold" style={{ color: themeColor }}>
-              − {fmtAmount(creditNote.total)}
+              − {fmtAmount(creditNote.total, creditNote.user.currency)}
             </span>
           </div>
         </div>

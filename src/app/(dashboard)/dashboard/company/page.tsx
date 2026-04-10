@@ -1,16 +1,21 @@
 "use client";
 
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Building2, Save, AlertCircle, Landmark } from "lucide-react";
+import { Building2, Save, AlertCircle, Landmark, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useCompanyInfo, useUpdateCompanyInfo } from "@/hooks/use-company";
+import { useAppearance } from "@/hooks/use-appearance";
 import { SiretLookupInput } from "@/components/shared/siret-lookup-input";
+import { saveCurrency } from "@/lib/actions/account";
+import { CURRENCIES } from "@/lib/utils/calculs-facture";
 import type { SiretData } from "@/types/siret";
 
 // ─── Schema de validation ─────────────────────────────────────────────────────
@@ -42,6 +47,27 @@ type CompanyFormData = z.infer<typeof companySchema>;
 export default function CompanyPage() {
   const { data: companyInfo, isLoading } = useCompanyInfo();
   const updateMutation = useUpdateCompanyInfo();
+  const { currency: currentCurrency } = useAppearance();
+  const [selectedCurrency, setSelectedCurrency] = useState("EUR");
+  const [isSavingCurrency, setIsSavingCurrency] = useState(false);
+  const queryClient = useQueryClient();
+
+  // Synchroniser avec la devise réelle une fois chargée
+  useEffect(() => {
+    if (currentCurrency) setSelectedCurrency(currentCurrency);
+  }, [currentCurrency]);
+
+  const handleSaveCurrency = async () => {
+    setIsSavingCurrency(true);
+    const result = await saveCurrency(selectedCurrency);
+    if (result.success) {
+      queryClient.invalidateQueries({ queryKey: ["appearance"] });
+      toast.success("Devise mise à jour !");
+    } else {
+      toast.error(result.error ?? "Erreur lors de la sauvegarde");
+    }
+    setIsSavingCurrency(false);
+  };
 
   const form = useForm<CompanyFormData>({
     resolver: zodResolver(companySchema),
@@ -404,6 +430,47 @@ export default function CompanyPage() {
           <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
             Ces informations sont affichées sur vos factures pour le paiement par virement bancaire.
           </p>
+        </section>
+
+        <div className={dividerClass} />
+
+        {/* ── Devise ──────────────────────────────────────────────── */}
+        <section className="space-y-4">
+          <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+            <span className="text-base">💱</span>
+            Devise
+          </h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400 -mt-2">
+            Utilisée sur toutes vos factures, devis, acomptes et documents PDF.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {(Object.entries(CURRENCIES) as [string, { symbol: string; label: string; flag: string }][]).map(([code, { label, flag }]) => (
+              <button
+                key={code}
+                type="button"
+                onClick={() => setSelectedCurrency(code)}
+                className={`inline-flex items-center gap-2 px-3 py-2 rounded-xl border text-sm font-medium transition-all cursor-pointer ${
+                  selectedCurrency === code
+                    ? "border-violet-500 bg-violet-50 text-violet-700 dark:bg-violet-500/20 dark:text-violet-300 dark:border-violet-400"
+                    : "border-slate-200 dark:border-violet-400/25 text-slate-600 dark:text-slate-400 hover:border-violet-300 hover:bg-violet-50/50 dark:hover:bg-violet-900/30"
+                }`}
+              >
+                <span className="text-base">{flag}</span>
+                <span>{label}</span>
+              </button>
+            ))}
+          </div>
+          <div className="flex justify-end">
+            <Button
+              type="button"
+              onClick={handleSaveCurrency}
+              disabled={isSavingCurrency}
+              className="bg-violet-600 hover:bg-violet-700 text-white rounded-xl gap-2 text-sm cursor-pointer"
+            >
+              {isSavingCurrency ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}
+              Enregistrer la devise
+            </Button>
+          </div>
         </section>
 
         <div className={dividerClass} />

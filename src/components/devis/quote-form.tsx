@@ -53,7 +53,8 @@ import {
 	type CompanyInfo,
 	type QuickClientData,
 } from "@/lib/validations/quote";
-import { calcInvoiceTotals } from "@/lib/utils/calculs-facture";
+import { calcInvoiceTotals , formatCurrency } from "@/lib/utils/calculs-facture";
+import { useAppearance } from "@/hooks/use-appearance";
 
 // ─── Styles partagés ─────────────────────────────────────────────────────────
 
@@ -141,9 +142,10 @@ export function QuoteForm({
 	const isForfait  = typeConfig.quantityLabel === null;
 	const isArtisan  = quoteType === "artisan";
 
+	const { currency } = useAppearance();
 	const fmt = useCallback(
-		(n: number) => n.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-		[],
+		(n: number) => formatCurrency(n, currency),
+		[currency],
 	);
 
 	const totals = useMemo(
@@ -671,14 +673,14 @@ export function QuoteForm({
 												<div className="flex items-center justify-between border-t border-violet-100 dark:border-violet-400/20 pt-2 mt-1">
 													<span className="text-xs text-slate-500 dark:text-violet-200">Total HT</span>
 													<span className="text-sm font-bold text-violet-700 dark:text-violet-300">
-														{fmt(lineHT)} €
+														{fmt(lineHT)}
 													</span>
 												</div>
 											) : (
 												<div className="flex items-center justify-between">
 													<span className="text-xs text-slate-500 dark:text-violet-200">Total HT</span>
 													<span className="text-xs xs:text-sm font-bold text-violet-700 dark:text-violet-300">
-														{fmt(lineHT)} €
+														{fmt(lineHT)}
 													</span>
 												</div>
 											)}
@@ -723,7 +725,7 @@ export function QuoteForm({
 										}}
 										className="text-base font-bold text-emerald-700 dark:text-emerald-400 hover:underline cursor-pointer"
 									>
-										{fmt(depositAmount)} €
+										{fmt(depositAmount)}
 									</button>
 									<button
 										type="button"
@@ -758,7 +760,7 @@ export function QuoteForm({
 							<div className="flex justify-between text-xs xs:text-sm">
 								<span className="text-slate-500 dark:text-violet-200">Sous-total HT</span>
 								<span className="font-medium text-slate-800 dark:text-slate-100">
-									{fmt(totals.subtotal)} €
+									{fmt(totals.subtotal)}
 								</span>
 							</div>
 
@@ -819,7 +821,7 @@ export function QuoteForm({
 									)}
 								</div>
 								<span className="font-medium text-rose-600 dark:text-rose-400">
-									{totals.discountAmount > 0 ? `−${fmt(totals.discountAmount)} €` : "—"}
+									{totals.discountAmount > 0 ? `−${fmt(totals.discountAmount)}` : "—"}
 								</span>
 							</div>
 
@@ -828,7 +830,7 @@ export function QuoteForm({
 								<div className="flex justify-between text-xs xs:text-sm border-t border-violet-200 dark:border-violet-400/20 pt-2">
 									<span className="text-slate-600 dark:text-violet-200 font-medium">Net HT</span>
 									<span className="font-medium text-slate-800 dark:text-slate-100">
-										{fmt(totals.netHT)} €
+										{fmt(totals.netHT)}
 									</span>
 								</div>
 							)}
@@ -859,7 +861,7 @@ export function QuoteForm({
 									</Select>
 								</div>
 								<span className="font-medium text-slate-800 dark:text-slate-100">
-									{fmt(totals.taxTotal)} €
+									{fmt(totals.taxTotal)}
 								</span>
 							</div>
 
@@ -869,7 +871,7 @@ export function QuoteForm({
 							<div className="flex justify-between text-xs xs:text-sm font-bold">
 								<span className="text-slate-800 dark:text-slate-50">Total TTC</span>
 								<span className="text-emerald-600 dark:text-emerald-400">
-									{fmt(totals.totalTTC)} €
+									{fmt(totals.totalTTC)}
 								</span>
 							</div>
 
@@ -880,7 +882,7 @@ export function QuoteForm({
 										NET À PAYER
 									</span>
 									<span className="text-base font-extrabold text-emerald-600 dark:text-emerald-400">
-										{fmt(totals.netAPayer)} €
+										{fmt(totals.netAPayer)}
 									</span>
 								</div>
 							)}

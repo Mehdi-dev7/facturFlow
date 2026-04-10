@@ -6,6 +6,8 @@ import { SiStripe, SiPaypal } from "react-icons/si";
 import type { CompanyInfo } from "@/lib/validations/invoice";
 import { useClients } from "@/hooks/use-clients";
 import { getFontFamily, getFontWeight, DEFAULT_THEME, DEFAULT_FONT } from "@/components/appearance/theme-config";
+import { useAppearance } from "@/hooks/use-appearance";
+import { formatCurrency } from "@/lib/utils/calculs-facture";
 
 // ─── Types locaux ──────────────────────────────────────────────────────────────
 
@@ -70,6 +72,8 @@ export function DepositPreview({
 	// ── Apparence ─────────────────────────────────────────────────────────
 	const fontFamily = getFontFamily(companyFont);
 	const fontWeight = getFontWeight(companyFont);
+	const { currency } = useAppearance();
+	const fmtC = (n: number) => formatCurrency(n, currency);
 
 	// ── Calculs ────────────────────────────────────────────────────────────
 	const calc = useMemo(() => {
@@ -149,15 +153,15 @@ export function DepositPreview({
 				>
 					<div className="flex justify-between text-xs text-slate-600">
 						<span>Sous-total HT</span>
-						<span>{fmtMoney(calc.subtotal)} €</span>
+						<span>{fmtC(calc.subtotal)}</span>
 					</div>
 					<div className="flex justify-between text-xs text-slate-600">
 						<span>TVA ({formData.vatRate ?? 20}%)</span>
-						<span>{fmtMoney(calc.taxAmount)} €</span>
+						<span>{fmtC(calc.taxAmount)}</span>
 					</div>
 					<div className="flex justify-between text-sm font-bold pt-1.5 mt-1" style={{ borderTop: `1px solid ${themeColor}33` }}>
 						<span className="text-slate-900">Total TTC</span>
-						<span className="truncate ml-2" style={{ color: themeColor }}>{fmtMoney(calc.total)} €</span>
+						<span className="truncate ml-2" style={{ color: themeColor }}>{fmtC(calc.total)}</span>
 					</div>
 				</div>
 
@@ -315,13 +319,13 @@ export function DepositPreview({
 											{formData.description || "Description de l'acompte"}
 										</td>
 										<td className="p-2 lg:p-3 text-xs lg:text-sm text-right text-slate-900 whitespace-nowrap">
-											{fmtMoney(calc.subtotal)} €
+											{fmtC(calc.subtotal)}
 										</td>
 										<td className="p-2 lg:p-3 text-xs lg:text-sm text-right text-slate-900 whitespace-nowrap">
-											{fmtMoney(calc.taxAmount)} €
+											{fmtC(calc.taxAmount)}
 										</td>
 										<td className="p-2 lg:p-3 text-xs lg:text-sm text-right font-medium whitespace-nowrap" style={{ color: themeColor }}>
-											{fmtMoney(calc.total)} €
+											{fmtC(calc.total)}
 										</td>
 									</tr>
 								</tbody>
@@ -337,18 +341,18 @@ export function DepositPreview({
 						>
 							<div className="flex justify-between text-xs lg:text-sm">
 								<span style={{ color: themeColor }}>Sous-total HT :</span>
-								<span className="text-slate-900 font-medium truncate ml-2">{fmtMoney(calc.subtotal)} €</span>
+								<span className="text-slate-900 font-medium truncate ml-2">{fmtC(calc.subtotal)}</span>
 							</div>
 							<div className="flex justify-between text-xs lg:text-sm">
 								<span style={{ color: themeColor }}>TVA ({formData.vatRate ?? 20}%) :</span>
-								<span className="text-slate-900 font-medium truncate ml-2">{fmtMoney(calc.taxAmount)} €</span>
+								<span className="text-slate-900 font-medium truncate ml-2">{fmtC(calc.taxAmount)}</span>
 							</div>
 							<div
 								className="flex justify-between text-sm lg:text-base font-bold pt-2"
 								style={{ borderTop: `1px solid ${themeColor}33` }}
 							>
 								<span className="text-slate-900">Total TTC :</span>
-								<span className="truncate ml-2" style={{ color: themeColor }}>{fmtMoney(calc.total)} €</span>
+								<span className="truncate ml-2" style={{ color: themeColor }}>{fmtC(calc.total)}</span>
 							</div>
 						</div>
 					</div>

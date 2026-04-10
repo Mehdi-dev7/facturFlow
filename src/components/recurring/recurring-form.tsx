@@ -19,6 +19,8 @@ import {
 } from "@/components/ui/select";
 import { ClientSearch } from "@/components/factures/client-search";
 import { type RecurringFormData } from "@/lib/validations/recurring";
+import { useAppearance } from "@/hooks/use-appearance";
+import { formatCurrency } from "@/lib/utils/calculs-facture";
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -53,6 +55,7 @@ export function RecurringForm({
 
   // Total TTC calculé en temps réel depuis les lignes surveillées
   const watchedLines = form.watch("lines");
+  const { currency } = useAppearance();
   const totalTTC = useMemo(() => {
     return watchedLines.reduce((sum, line) => {
       const qty = Number(line.quantity) || 0;
@@ -281,7 +284,7 @@ export function RecurringForm({
               Total TTC par échéance
             </span>
             <span className="text-lg font-bold text-violet-600 dark:text-violet-400">
-              {totalTTC.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €
+              {formatCurrency(totalTTC, currency)}
             </span>
           </div>
         </div>

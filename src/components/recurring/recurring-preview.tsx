@@ -8,6 +8,8 @@ import {
   getFontFamily,
   getFontWeight,
 } from "@/components/appearance/theme-config";
+import { useAppearance } from "@/hooks/use-appearance";
+import { formatCurrency } from "@/lib/utils/calculs-facture";
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -53,12 +55,9 @@ function formatDateFR(iso: string): string {
   return d.toLocaleDateString("fr-FR");
 }
 
-/** Formate un montant en euros */
-function formatEuro(value: number): string {
-  return value.toLocaleString("fr-FR", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }) + " €";
+/** Formate un montant (devise injectée depuis le hook useAppearance) */
+function makeFormatEuro(currency: string) {
+  return (value: number): string => formatCurrency(value, currency);
 }
 
 // ─── Composant ────────────────────────────────────────────────────────────────
@@ -105,6 +104,8 @@ export function RecurringPreview({
   // Styles dynamiques basés sur themeColor
   const fontFamily = getFontFamily(companyFont);
   const fontWeight = getFontWeight(companyFont);
+  const { currency } = useAppearance();
+  const formatEuro = makeFormatEuro(currency);
   const badgeColor = FREQUENCY_BADGE_COLORS[frequency] ?? themeColor;
   const freqLabel = FREQUENCY_LABELS[frequency] ?? frequency;
 

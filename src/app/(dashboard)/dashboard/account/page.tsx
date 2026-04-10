@@ -15,7 +15,7 @@ export default async function AccountPage() {
   // Charger le phone (pas dans la session Better Auth)
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { name: true, email: true, image: true, phone: true, currency: true },
+    select: { name: true, email: true, image: true, phone: true },
   });
 
   // Vérifier si l'user a un compte credential (pour afficher section MDP)
@@ -38,7 +38,6 @@ export default async function AccountPage() {
         image: user?.image ?? session.user.image ?? null,
         phone: user?.phone ?? null,
       }}
-      currency={user?.currency ?? "EUR"}
       hasCredentials={!!credentialAccount}
       oauthProviders={oauthAccounts.map((a) => a.providerId)}
     />

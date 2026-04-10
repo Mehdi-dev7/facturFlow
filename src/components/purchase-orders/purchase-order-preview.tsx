@@ -7,7 +7,8 @@ import { useWatch, type UseFormReturn } from "react-hook-form";
 import type { PurchaseOrderFormData, CompanyInfo, InvoiceType } from "@/lib/validations/purchase-order";
 import { INVOICE_TYPE_LABELS, INVOICE_TYPE_CONFIG } from "@/lib/validations/purchase-order";
 import { useClients } from "@/hooks/use-clients";
-import { calcInvoiceTotals } from "@/lib/utils/calculs-facture";
+import { calcInvoiceTotals, formatCurrency } from "@/lib/utils/calculs-facture";
+import { useAppearance } from "@/hooks/use-appearance";
 import { getFontFamily, getFontWeight, DEFAULT_FONT, DEFAULT_THEME } from "@/components/appearance/theme-config";
 
 // ─── Props ─────────────────────────────────────────────────────────────────────
@@ -163,6 +164,7 @@ export function PurchaseOrderPreview({
   // Apparence (couleur thème user + police user)
   const fontFamily = getFontFamily(companyFont);
   const fontWeight = getFontWeight(companyFont);
+  const { currency } = useAppearance();
 
   const safeLines  = lines || [];
   const typeConfig = INVOICE_TYPE_CONFIG[orderType] ?? INVOICE_TYPE_CONFIG["basic"];
@@ -182,6 +184,7 @@ export function PurchaseOrderPreview({
 
   const fmt = (n: number) =>
     n.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const fmtC = (n: number) => formatCurrency(n, currency);
 
   const formatDate = (dateStr: string | undefined) => {
     if (!dateStr) return "—";
