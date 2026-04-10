@@ -20,7 +20,6 @@ import {
 import { getProforma } from "@/lib/actions/proformas";
 import {
 	useUpdateProforma,
-	useCreateProforma,
 	type SavedProforma,
 } from "@/hooks/use-proformas";
 import { useAppearance } from "@/hooks/use-appearance";
@@ -109,8 +108,6 @@ export default function EditProformaPage() {
 	const [loadError, setLoadError] = useState<string | null>(null);
 
 	const updateMutation = useUpdateProforma();
-	// Utilisé pour convertir un brouillon en proforma officielle
-	const createMutation = useCreateProforma();
 
 	const form = useForm<InvoiceFormData>({
 		resolver: zodResolver(invoiceFormSchema),
@@ -158,29 +155,22 @@ export default function EditProformaPage() {
 		return <InvoicePdfDocument invoice={mock} documentLabel="PROFORMA" />;
 	}, [form, proforma, companyInfo, themeColor, companyFont, companyLogo, clients]);
 
-	// Brouillon temporaire → créer avec numéro officiel ; sinon mettre à jour
-	const isDraft = proforma?.status === "DRAFT";
-
+	// Toujours updateProforma — peu importe le statut
 	const onSubmit = useCallback(
 		(data: InvoiceFormData) => {
 			if (!id) return;
-
-			if (isDraft) {
-				createMutation.mutate({ data, draftId: id });
-			} else {
-				updateMutation.mutate(
-					{ id, data },
-					{
-						onSuccess: (result) => {
-							if (result.success) {
-								router.push(`/dashboard/proformas?preview=${id}`);
-							}
-						},
+			updateMutation.mutate(
+				{ id, data },
+				{
+					onSuccess: (result) => {
+						if (result.success) {
+							router.push(`/dashboard/proformas?preview=${id}`);
+						}
 					},
-				);
-			}
+				},
+			);
 		},
-		[id, isDraft, createMutation, updateMutation, router],
+		[id, updateMutation, router],
 	);
 
 	// ─── Skeleton ─────────────────────────────────────────────────────────────
@@ -239,10 +229,8 @@ export default function EditProformaPage() {
 							invoiceNumber={proforma?.number ?? ""}
 							companyInfo={companyInfo}
 							onCompanyChange={handleCompanyChange}
-							isSubmitting={
-								updateMutation.isPending || createMutation.isPending
-							}
-							submitLabel={isDraft ? "Créer la proforma" : "Sauvegarder"}
+							isSubmitting={updateMutation.isPending}
+							submitLabel="Modifier la proforma"
 							effectivePlan={effectivePlan}
 							onPdfPreview={() => setIsPdfPreviewOpen(true)}
 						/>
@@ -270,7 +258,7 @@ export default function EditProformaPage() {
 					invoiceNumber={proforma?.number ?? ""}
 					companyInfo={companyInfo}
 					onCompanyChange={handleCompanyChange}
-					submitLabel={isDraft ? "Créer la proforma" : "Sauvegarder"}
+					submitLabel="Modifier la proforma"
 					effectivePlan={effectivePlan}
 					themeColor={themeColor}
 					companyFont={companyFont}

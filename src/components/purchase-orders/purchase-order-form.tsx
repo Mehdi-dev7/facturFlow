@@ -71,6 +71,7 @@ interface PurchaseOrderFormProps {
   companyInfo: CompanyInfo | null;
   onCompanyChange: (data: CompanyInfo) => void;
   isSubmitting?: boolean;
+  submitLabel?: string;
   /** Quand défini, n'affiche que les sections de cette étape (stepper mobile) */
   visibleStep?: 1 | 2 | 3;
   /** Cache le bouton de soumission (le stepper gère sa propre navigation) */
@@ -90,6 +91,7 @@ export function PurchaseOrderForm({
   companyInfo,
   onCompanyChange,
   isSubmitting,
+  submitLabel = "Créer le bon de commande",
   visibleStep,
   hideSubmit = false,
   onPdfPreview,
@@ -806,7 +808,7 @@ export function PurchaseOrderForm({
               disabled={isSubmitting}
               className="flex-1 lg:flex-none lg:min-w-44 h-11 cursor-pointer transition-all duration-300 hover:scale-101 disabled:opacity-70 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? "En cours…" : "Créer le bon de commande"}
+              {isSubmitting ? "En cours…" : submitLabel}
             </Button>
           </div>
         )}

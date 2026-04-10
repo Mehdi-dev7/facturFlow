@@ -18,7 +18,7 @@ import {
 	VAT_RATES,
 } from "@/lib/validations/invoice";
 import { getInvoice } from "@/lib/actions/invoices";
-import { useUpdateInvoice, useCreateInvoice, type SavedInvoice } from "@/hooks/use-invoices";
+import { useUpdateInvoice, type SavedInvoice } from "@/hooks/use-invoices";
 import { useAppearance } from "@/hooks/use-appearance";
 import { useQuery } from "@tanstack/react-query";
 import { getCurrentSubscription } from "@/lib/actions/subscription";
@@ -116,7 +116,6 @@ export default function EditInvoicePage() {
 	const [loadError, setLoadError] = useState<string | null>(null);
 
 	const updateMutation = useUpdateInvoice();
-	const createMutation = useCreateInvoice(); // utilisé pour convertir un brouillon en facture officielle
 
 	const form = useForm<InvoiceFormData>({
 		resolver: zodResolver(invoiceFormSchema),
@@ -172,30 +171,22 @@ export default function EditInvoicePage() {
 	}, [form, invoice, companyInfo, themeColor, companyFont, companyLogo, clients]);
 
 	// ─── Submit ──────────────────────────────────────────────────────────────
-	// Brouillon → créer avec numéro officiel ; facture existante → mettre à jour
-	const isDraft = invoice?.status === "DRAFT";
-
+	// Toujours updateInvoice — peu importe le statut (DRAFT, SENT, PAID...)
 	const onSubmit = useCallback(
 		(data: InvoiceFormData) => {
 			if (!id) return;
-
-			if (isDraft) {
-				// Convertit le brouillon en facture officielle avec un nouveau numéro
-				createMutation.mutate({ data, draftId: id });
-			} else {
-				updateMutation.mutate(
-					{ id, data },
-					{
-						onSuccess: (result) => {
-							if (result.success) {
-								router.push(`/dashboard/invoices?preview=${id}`);
-							}
-						},
+			updateMutation.mutate(
+				{ id, data },
+				{
+					onSuccess: (result) => {
+						if (result.success) {
+							router.push(`/dashboard/invoices?preview=${id}`);
+						}
 					},
-				);
-			}
+				},
+			);
 		},
-		[id, isDraft, createMutation, updateMutation, router],
+		[id, updateMutation, router],
 	);
 
 	// ─── Skeleton ─────────────────────────────────────────────────────────────
@@ -254,8 +245,8 @@ export default function EditInvoicePage() {
 							invoiceNumber={displayNumber || invoice?.number || ""}
 							companyInfo={companyInfo}
 							onCompanyChange={handleCompanyChange}
-							isSubmitting={updateMutation.isPending || createMutation.isPending}
-							submitLabel={isDraft ? "Créer la facture" : "Sauvegarder"}
+							isSubmitting={updateMutation.isPending}
+							submitLabel="Modifier la facture"
 							effectivePlan={effectivePlan}
 							onPdfPreview={() => setIsPdfPreviewOpen(true)}
 							onNumberChange={(n) => setDisplayNumber(n)}
@@ -285,7 +276,7 @@ export default function EditInvoicePage() {
 					invoiceNumber={displayNumber || invoice?.number || ""}
 					companyInfo={companyInfo}
 					onCompanyChange={handleCompanyChange}
-					submitLabel={isDraft ? "Créer la facture" : "Sauvegarder"}
+					submitLabel="Modifier la facture"
 					effectivePlan={effectivePlan}
 					themeColor={themeColor}
 					companyFont={companyFont}

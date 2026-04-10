@@ -23,11 +23,8 @@ import { useClients } from "@/hooks/use-clients";
 import { PdfPreviewModal } from "@/components/shared/pdf-preview-modal";
 import { buildPreviewPurchaseOrder } from "@/lib/utils/pdf-preview-helpers";
 import PurchaseOrderPdfDocument from "@/lib/pdf/purchase-order-pdf-document";
-import type { SavedPurchaseOrder } from "@/lib/pdf/purchase-order-pdf-document";
-
-// TODO: brancher sur les hooks et actions backend une fois l'agent backend terminé
-// import { getPurchaseOrder } from "@/lib/actions/purchase-orders";
-// import { useUpdatePurchaseOrder } from "@/hooks/use-purchase-orders";
+import { getPurchaseOrder, type SavedPurchaseOrder } from "@/lib/actions/purchase-orders";
+import { useUpdatePurchaseOrder } from "@/hooks/use-purchase-orders";
 
 // ─── Mapping DB → valeurs du formulaire ───────────────────────────────────────
 
@@ -94,7 +91,6 @@ export default function EditPurchaseOrderPage() {
   const router = useRouter();
 
   const [mounted, setMounted] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPdfPreviewOpen, setIsPdfPreviewOpen] = useState(false);
   const { themeColor, companyFont, companyLogo, companyName } = useAppearance();
   const { data: clients = [] } = useClients();
@@ -102,6 +98,8 @@ export default function EditPurchaseOrderPage() {
   const [displayNumber, setDisplayNumber] = useState(""); // Suit le numéro éditable
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
+
+  const updateMutation = useUpdatePurchaseOrder();
 
   const form = useForm<PurchaseOrderFormData>({
     resolver: zodResolver(purchaseOrderFormSchema),
@@ -124,12 +122,18 @@ export default function EditPurchaseOrderPage() {
   useEffect(() => {
     if (!id) return;
 
-    // TODO: remplacer par getPurchaseOrder(id) une fois le backend créé
-    // getPurchaseOrder(id).then((result) => { ... })
-
-    // Simulation de chargement pour l'instant
-    console.log("[EditPurchaseOrder] TODO: charger le BC avec id:", id);
-    setLoadError("Backend en attente — hook use-purchase-orders à créer.");
+    getPurchaseOrder(id).then((result) => {
+      if (result.success && result.data) {
+        const po = result.data;
+        setPurchaseOrder(po);
+        form.reset(toFormValues(po));
+        setDisplayNumber(po.number);
+        const dbCompany = toCompanyInfo(po.user);
+        if (dbCompany) setCompanyInfo(dbCompany);
+      } else {
+        setLoadError(result.error ?? "Bon de commande introuvable");
+      }
+    });
 
     setMounted(true);
   }, [id, form]);
@@ -146,15 +150,20 @@ export default function EditPurchaseOrderPage() {
 
   // ─── Submit : mettre à jour le BC ─────────────────────────────────────────
   const onSubmit = useCallback(
-    async (data: PurchaseOrderFormData) => {
+    (data: PurchaseOrderFormData) => {
       if (!id) return;
-      setIsSubmitting(true);
-      // TODO: brancher sur updateMutation.mutate({ id, data })
-      console.log("[EditPurchaseOrder] Submit:", data);
-      router.push(`/dashboard/purchase-orders?preview=${id}`);
-      setIsSubmitting(false);
+      updateMutation.mutate(
+        { id, data },
+        {
+          onSuccess: (result) => {
+            if (result.success) {
+              router.push(`/dashboard/purchase-orders?preview=${id}`);
+            }
+          },
+        },
+      );
     },
-    [id, router],
+    [id, updateMutation, router],
   );
 
   // ─── Skeleton ─────────────────────────────────────────────────────────────
@@ -214,7 +223,8 @@ export default function EditPurchaseOrderPage() {
               orderNumber={displayNumber || purchaseOrder?.number || ""}
               companyInfo={companyInfo}
               onCompanyChange={handleCompanyChange}
-              isSubmitting={isSubmitting}
+              isSubmitting={updateMutation.isPending}
+              submitLabel="Modifier le bon de commande"
               onPdfPreview={() => setIsPdfPreviewOpen(true)}
             />
           </div>
@@ -240,7 +250,7 @@ export default function EditPurchaseOrderPage() {
           orderNumber={displayNumber || purchaseOrder?.number || ""}
           companyInfo={companyInfo}
           onCompanyChange={handleCompanyChange}
-          submitLabel="Sauvegarder"
+          submitLabel="Modifier le bon de commande"
           themeColor={themeColor}
           companyFont={companyFont}
           companyLogo={companyLogo}

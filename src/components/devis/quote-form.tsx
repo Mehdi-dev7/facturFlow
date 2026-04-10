@@ -75,6 +75,7 @@ interface QuoteFormProps {
 	companyInfo: CompanyInfo | null;
 	onCompanyChange: (data: CompanyInfo) => void;
 	isSubmitting?: boolean;
+	submitLabel?: string;
 	/** Quand défini, n'affiche que les sections de cette étape (stepper) */
 	visibleStep?: 1 | 2 | 3;
 	/** Cache le bouton de soumission (le stepper gère sa propre navigation) */
@@ -92,6 +93,7 @@ export function QuoteForm({
 	companyInfo,
 	onCompanyChange,
 	isSubmitting,
+	submitLabel = "Créer le devis",
 	visibleStep,
 	hideSubmit = false,
 	onPdfPreview,
@@ -933,7 +935,7 @@ export function QuoteForm({
 							disabled={isSubmitting}
 							className="flex-1 lg:flex-none lg:min-w-44 h-11 cursor-pointer transition-all duration-300 hover:scale-101"
 						>
-							{isSubmitting ? "En cours…" : "Créer le devis"}
+							{isSubmitting ? "En cours…" : submitLabel}
 						</Button>
 					</div>
 				)}

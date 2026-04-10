@@ -231,7 +231,7 @@ export default function EditDepositPage() {
               companyInfo={companyInfo}
               onCompanyChange={handleCompanyChange}
               isSubmitting={updateMutation.isPending}
-              submitLabel="Sauvegarder"
+              submitLabel="Modifier l'acompte"
               effectivePlan={effectivePlan}
               onPdfPreview={() => setIsPdfPreviewOpen(true)}
               onNumberChange={(n) => setDisplayNumber(n)}

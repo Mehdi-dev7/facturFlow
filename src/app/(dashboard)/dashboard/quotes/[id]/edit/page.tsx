@@ -224,6 +224,7 @@ export default function EditQuotePage() {
 							onCompanyChange={handleCompanyChange}
 							onPdfPreview={() => setIsPdfPreviewOpen(true)}
 							onNumberChange={(n) => setDisplayNumber(n)}
+							submitLabel="Modifier le devis"
 						/>
 					</div>
 				</div>
@@ -249,11 +250,11 @@ export default function EditQuotePage() {
 					quoteNumber={displayNumber || quote?.number || ""}
 					companyInfo={companyInfo}
 					onCompanyChange={handleCompanyChange}
-				
+					submitLabel="Modifier le devis"
 					themeColor={themeColor}
 					companyFont={companyFont}
 					companyLogo={companyLogo}
-				companyName={companyName}
+					companyName={companyName}
 				/>
 			</div>
 
