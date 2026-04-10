@@ -7,10 +7,17 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { z } from "zod";
 import {
 	quickClientSchema,
 	type QuickClientData,
 } from "@/lib/validations/invoice";
+// Schema allégé pour les reçus : email et adresse optionnels
+// Pas de validation min() sur ces champs → ils peuvent être vides
+const relaxedClientSchema = quickClientSchema.extend({
+	email: z.string().optional().default(""),
+	address: z.string().optional().default(""),
+});
 import { useClients, type SavedClient } from "@/hooks/use-clients";
 import { SiretLookupInput } from "@/components/shared/siret-lookup-input";
 import type { SiretData } from "@/types/siret";
@@ -20,6 +27,8 @@ interface ClientSearchProps {
 	onSelectClient: (clientId: string, clientData?: QuickClientData) => void;
 	onClear: () => void;
 	error?: string;
+	/** Si true, email et adresse deviennent optionnels dans le formulaire "Nouveau client" */
+	relaxedValidation?: boolean;
 }
 
 export function ClientSearch({
@@ -27,6 +36,7 @@ export function ClientSearch({
 	onSelectClient,
 	onClear,
 	error,
+	relaxedValidation = false,
 }: ClientSearchProps) {
 	const [query, setQuery] = useState("");
 	const [isOpen, setIsOpen] = useState(false);
@@ -83,7 +93,11 @@ export function ClientSearch({
 		formState: { errors: newErrors },
 		reset: resetNew,
 	} = useForm<QuickClientData>({
-		resolver: zodResolver(quickClientSchema),
+		// On cast vers le schema strict pour satisfaire TypeScript.
+		// En mode relaxed, le resolver valide sans exiger email/adresse.
+		resolver: zodResolver(
+			(relaxedValidation ? relaxedClientSchema : quickClientSchema) as typeof quickClientSchema,
+		),
 	});
 
 	// Pré-remplit le formulaire quand une entreprise est trouvée via SIRET
@@ -310,7 +324,7 @@ export function ClientSearch({
 								htmlFor="newClientEmail"
 								className="text-xs xs:text-sm text-slate-700 dark:text-violet-200"
 							>
-								Email *
+								Email {relaxedValidation ? "" : "*"}
 							</Label>
 							<Input
 								id="newClientEmail"
@@ -330,7 +344,7 @@ export function ClientSearch({
 								htmlFor="newClientAddress"
 								className="text-xs xs:text-sm text-slate-700 dark:text-violet-200"
 							>
-								Adresse *
+								Adresse {relaxedValidation ? "" : "*"}
 							</Label>
 							<Input
 								id="newClientAddress"

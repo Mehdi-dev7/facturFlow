@@ -68,8 +68,32 @@ export function PdfPreviewModal({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     if (!pdfUrl) return;
+
+    // File System Access API — permet à l'utilisateur de choisir le dossier de destination
+    // Supporté sur Chrome/Edge ; fallback <a download> sur Firefox/Safari
+    if ("showSaveFilePicker" in window) {
+      try {
+        const fileHandle = await (window as Window & typeof globalThis & {
+          showSaveFilePicker: (opts?: unknown) => Promise<FileSystemFileHandle>;
+        }).showSaveFilePicker({
+          suggestedName: filename,
+          types: [{ description: "PDF", accept: { "application/pdf": [".pdf"] } }],
+        });
+        const blob = await fetch(pdfUrl).then((r) => r.blob());
+        const writable = await fileHandle.createWritable();
+        await writable.write(blob);
+        await writable.close();
+        return;
+      } catch (err) {
+        // L'utilisateur a annulé la boîte de dialogue → ne rien faire
+        if ((err as Error).name === "AbortError") return;
+        // Autre erreur → fallback ci-dessous
+      }
+    }
+
+    // Fallback : téléchargement direct dans le dossier par défaut du navigateur
     const a = document.createElement("a");
     a.href = pdfUrl;
     a.download = filename;

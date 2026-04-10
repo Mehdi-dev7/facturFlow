@@ -143,6 +143,7 @@ export function ReceiptModal({ open, onOpenChange }: ReceiptModalProps) {
               onSelectClient={handleSelectClient}
               onClear={handleClearClient}
               error={errors.clientId?.message}
+              relaxedValidation
             />
           </div>
 

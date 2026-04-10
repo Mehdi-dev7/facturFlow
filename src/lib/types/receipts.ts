@@ -51,11 +51,12 @@ export interface SavedReceipt {
 
 // ─── Schema Zod du formulaire ────────────────────────────────────────────────
 
-// Sous-schema pour un nouveau client créé à la volée
+// Sous-schema pour un nouveau client créé à la volée depuis un reçu
+// Email et adresse sont optionnels : certains reçus sont émis sans facture associée
 const newClientSchema = z.object({
   name:    z.string().min(2),
-  email:   z.string().email(),
-  address: z.string().min(5),
+  email:   z.string().email().optional().or(z.literal("")),
+  address: z.string().optional(),
   zipCode: z.string().optional(),
   city:    z.string().min(2),
   siret:   z.string().optional(),

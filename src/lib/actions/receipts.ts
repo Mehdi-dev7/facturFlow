@@ -81,11 +81,16 @@ async function resolveClient(data: z.infer<typeof receiptSchema>, userId: string
     const nc = data.newClient;
     const hasSiret = !!nc.siret?.trim();
 
-    // Réutiliser le client s'il existe déjà (même email + userId)
-    const existing = await prisma.client.findFirst({
-      where: { email: nc.email, userId },
-    });
-    if (existing) return existing;
+    const email = nc.email?.trim() || null;
+    const address = nc.address?.trim() || null;
+
+    // Réutiliser le client s'il existe déjà (même email + userId, seulement si email fourni)
+    if (email) {
+      const existing = await prisma.client.findFirst({
+        where: { email, userId },
+      });
+      if (existing) return existing;
+    }
 
     return prisma.client.create({
       data: {
@@ -96,8 +101,8 @@ async function resolveClient(data: z.infer<typeof receiptSchema>, userId: string
         companySiren: hasSiret ? nc.siret!.substring(0, 9) : null,
         firstName: hasSiret ? null : (nc.name.split(" ")[0] ?? nc.name),
         lastName: hasSiret ? null : (nc.name.split(" ").slice(1).join(" ") || null),
-        email: nc.email,
-        address: nc.address,
+        email: email ?? `noreply-${Date.now()}@receipt.local`,
+        address,
         postalCode: nc.zipCode ?? null,
         city: nc.city,
       },
