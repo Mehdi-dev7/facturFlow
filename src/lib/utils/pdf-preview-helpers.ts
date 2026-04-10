@@ -19,6 +19,7 @@ interface AppearanceCtx {
   companyFont: string;
   companyLogo: string | null;
   invoiceFooter?: string | null;
+  currency?: string | null;
 }
 
 // ─── Helpers internes ─────────────────────────────────────────────────────────
@@ -85,6 +86,7 @@ function buildUser(companyInfo: CompanyInfo | null, appearance: AppearanceCtx) {
     iban: null,  // non disponible hors DB
     bic: null,
     invoiceFooter: appearance.invoiceFooter ?? null,
+    currency: appearance.currency ?? null,
   };
 }
 

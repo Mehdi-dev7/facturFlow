@@ -52,6 +52,7 @@ export async function sendDeliveryNoteEmail(deliveryNoteId: string) {
             companyFont: true,
             companyLogo: true,
             invoiceFooter: true,
+            currency: true,
           },
         },
         lineItems: {

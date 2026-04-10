@@ -55,6 +55,7 @@ export async function sendQuoteEmail(
 						companyFont: true,
 						companyLogo: true,
 						invoiceFooter: true,
+					currency: true,
 					},
 				},
 			},
@@ -168,6 +169,7 @@ export async function sendQuoteEmail(
 				companyFont: doc.user.companyFont ?? null,
 				companyLogo: doc.user.companyLogo ?? null,
 				invoiceFooter: doc.user.invoiceFooter ?? null,
+				currency: doc.user.currency ?? null,
 			},
 		};
 		const pdfBuffer = await renderToBuffer(QuotePdfDocument({ quote }));

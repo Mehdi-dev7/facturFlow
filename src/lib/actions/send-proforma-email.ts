@@ -39,6 +39,7 @@ export async function sendProformaEmail(proformaId: string) {
 						themeColor: true,
 						companyFont: true,
 						companyLogo: true,
+						currency: true,
 					},
 				},
 			},

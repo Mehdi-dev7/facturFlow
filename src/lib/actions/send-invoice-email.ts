@@ -60,6 +60,7 @@ export async function sendInvoiceEmail(
             // Pour afficher le bloc virement dans l'email
             iban: true,
             bic: true,
+            currency: true,
           },
         },
       },
@@ -126,6 +127,7 @@ export async function sendInvoiceEmail(
         invoiceFooter: doc.user.invoiceFooter ?? null,
         iban: doc.user.iban ?? null,
         bic: doc.user.bic ?? null,
+        currency: doc.user.currency ?? null,
       },
     };
 

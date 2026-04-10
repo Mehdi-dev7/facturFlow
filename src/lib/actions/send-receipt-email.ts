@@ -39,6 +39,7 @@ const receiptUserSelect = {
   themeColor: true,
   companyFont: true,
   companyLogo: true,
+  currency: true,
 } as const;
 
 // ─── Helper : label de mode de paiement ──────────────────────────────────────
@@ -176,6 +177,7 @@ export async function sendReceiptFromInvoice(
         themeColor: doc.user.themeColor ?? null,
         companyFont: doc.user.companyFont ?? null,
         companyLogo: doc.user.companyLogo ?? null,
+        currency: doc.user.currency ?? null,
       },
       createdAt: new Date().toISOString(),
     };
@@ -300,6 +302,7 @@ export async function sendSavedReceiptEmail(
         themeColor: doc.user.themeColor ?? null,
         companyFont: doc.user.companyFont ?? null,
         companyLogo: doc.user.companyLogo ?? null,
+        currency: doc.user.currency ?? null,
       },
       createdAt: doc.createdAt.toISOString(),
     };

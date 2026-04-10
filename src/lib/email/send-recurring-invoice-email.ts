@@ -49,6 +49,7 @@ export async function sendRecurringInvoiceEmail(opts: SendRecurringEmailOptions)
           invoiceFooter: true,
           iban: true,
           bic: true,
+          currency: true,
         },
       },
     },
@@ -113,6 +114,7 @@ export async function sendRecurringInvoiceEmail(opts: SendRecurringEmailOptions)
       invoiceFooter: doc.user.invoiceFooter ?? null,
       iban: doc.user.iban ?? null,
       bic: doc.user.bic ?? null,
+      currency: doc.user.currency ?? null,
     },
   }
 

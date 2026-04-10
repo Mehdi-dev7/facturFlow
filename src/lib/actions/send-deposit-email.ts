@@ -56,6 +56,7 @@ export async function sendDepositEmail(depositId: string, userId?: string) {
             invoiceFooter: true,
             iban: true,
             bic: true,
+            currency: true,
           },
         },
       },
@@ -191,6 +192,7 @@ export async function sendDepositEmail(depositId: string, userId?: string) {
         companyFont: doc.user.companyFont ?? null,
         companyLogo: doc.user.companyLogo ?? null,
         invoiceFooter: doc.user.invoiceFooter ?? null,
+        currency: doc.user.currency ?? null,
       },
     };
     const pdfBuffer = await renderToBuffer(DepositPdfDocument({ deposit: depositForPdf }));

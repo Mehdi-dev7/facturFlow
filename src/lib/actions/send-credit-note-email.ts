@@ -61,6 +61,7 @@ export async function sendCreditNoteEmail(creditNoteId: string) {
             invoiceFooter: true,
             iban: true,
             bic: true,
+            currency: true,
           },
         },
       },
@@ -133,6 +134,7 @@ export async function sendCreditNoteEmail(creditNoteId: string) {
         invoiceFooter: doc.user.invoiceFooter,
         iban: doc.user.iban,
         bic: doc.user.bic,
+        currency: doc.user.currency,
       },
       createdAt: doc.createdAt.toISOString(),
     };

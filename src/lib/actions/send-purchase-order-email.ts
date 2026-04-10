@@ -55,6 +55,7 @@ export async function sendPurchaseOrderEmail(
 						companyFont: true,
 						companyLogo: true,
 						invoiceFooter: true,
+						currency: true,
 					},
 				},
 			},
@@ -168,6 +169,7 @@ export async function sendPurchaseOrderEmail(
 				companyFont: doc.user.companyFont ?? null,
 				companyLogo: doc.user.companyLogo ?? null,
 				invoiceFooter: doc.user.invoiceFooter ?? null,
+				currency: doc.user.currency ?? null,
 			},
 		};
 
