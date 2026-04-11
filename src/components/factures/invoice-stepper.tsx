@@ -36,6 +36,7 @@ interface InvoiceStepperProps {
 	companyLogo?: string | null;
 	companyName?: string;
 	invoiceFooter?: string;
+	documentLabel?: string;
 }
 
 export function InvoiceStepper({
@@ -51,6 +52,7 @@ export function InvoiceStepper({
 	companyLogo,
 	companyName,
 	invoiceFooter,
+	documentLabel,
 }: InvoiceStepperProps) {
 	const [step, setStep] = useState(1);
 
@@ -158,6 +160,7 @@ export function InvoiceStepper({
 							companyLogo={companyLogo}
 							companyName={companyName}
 							invoiceFooter={invoiceFooter}
+							documentLabel={documentLabel}
 							compact
 						/>
 					</div>
@@ -217,7 +220,7 @@ export function InvoiceStepper({
 								<SheetTitle className="text-slate-900 dark:text-slate-100">Aperçu de la facture</SheetTitle>
 							</SheetHeader>
 							<div className="px-4 pb-4">
-								<InvoicePreview form={form} invoiceNumber={invoiceNumber} companyInfo={companyInfo} themeColor={themeColor} companyFont={companyFont} companyLogo={companyLogo} invoiceFooter={invoiceFooter} compact />
+								<InvoicePreview form={form} invoiceNumber={invoiceNumber} companyInfo={companyInfo} themeColor={themeColor} companyFont={companyFont} companyLogo={companyLogo} invoiceFooter={invoiceFooter} documentLabel={documentLabel} compact />
 							</div>
 						</SheetContent>
 					</Sheet>
