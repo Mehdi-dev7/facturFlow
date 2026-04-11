@@ -13,6 +13,7 @@ import {
 import type { SavedQuote } from "@/hooks/use-quotes";
 
 import { registerPdfFonts, getPdfFontFamily } from "./pdf-fonts";
+import { resolveHeaderTextColor } from "@/components/appearance/theme-config";
 registerPdfFonts();
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -169,6 +170,7 @@ interface QuotePdfDocumentProps {
 export default function QuotePdfDocument({ quote }: QuotePdfDocumentProps) {
   const clientName = getClientName(quote.client);
   const themeColor = quote.user.themeColor ?? "#7c3aed";
+  const textColor = resolveHeaderTextColor(themeColor, (quote.user as Record<string, unknown>).headerTextColor as string | null ?? null);
   const logo = quote.user.companyLogo;
   const displayName = quote.user.companyName ?? "";
   const companyFontFamily = getPdfFontFamily(quote.user.companyFont);
@@ -192,8 +194,8 @@ export default function QuotePdfDocument({ quote }: QuotePdfDocumentProps) {
           <View style={S.headerRow}>
             {/* Gauche : DEVIS + N° */}
             <View style={S.headerLeft}>
-              <Text style={S.headerTitle}>DEVIS</Text>
-              <Text style={S.headerNumber}>{quote.number}</Text>
+              <Text style={[S.headerTitle, { color: textColor }]}>DEVIS</Text>
+              <Text style={[S.headerNumber, { color: textColor, opacity: 0.9 }]}>{quote.number}</Text>
             </View>
 
             {/* Centre : Logo circulaire + nom entreprise */}
@@ -204,7 +206,7 @@ export default function QuotePdfDocument({ quote }: QuotePdfDocumentProps) {
                 </View>
               ) : null}
               {displayName ? (
-                <Text style={[S.headerCompanyName, { fontFamily: companyFontFamily }]}>
+                <Text style={[S.headerCompanyName, { color: textColor, opacity: 0.9, fontFamily: companyFontFamily }]}>
                   {displayName}
                 </Text>
               ) : null}
@@ -212,18 +214,18 @@ export default function QuotePdfDocument({ quote }: QuotePdfDocumentProps) {
 
             {/* Droite : dates */}
             <View style={S.headerRight}>
-              <Text style={S.headerDateLabel}>Date d&apos;émission</Text>
-              <Text style={S.headerDateValue}>{fmtDate(quote.date)}</Text>
+              <Text style={[S.headerDateLabel, { color: textColor, opacity: 0.75 }]}>Date d&apos;émission</Text>
+              <Text style={[S.headerDateValue, { color: textColor, opacity: 0.95 }]}>{fmtDate(quote.date)}</Text>
               {quote.validUntil && (
                 <>
-                  <Text style={S.headerDateLabel}>Validité</Text>
-                  <Text style={S.headerDateValue}>{fmtDate(quote.validUntil)}</Text>
+                  <Text style={[S.headerDateLabel, { color: textColor, opacity: 0.75 }]}>Validité</Text>
+                  <Text style={[S.headerDateValue, { color: textColor, opacity: 0.95 }]}>{fmtDate(quote.validUntil)}</Text>
                 </>
               )}
               {(quote.businessMetadata?.deliveryDate as string | null) ? (
                 <>
-                  <Text style={S.headerDateLabel}>Livraison</Text>
-                  <Text style={S.headerDateValue}>
+                  <Text style={[S.headerDateLabel, { color: textColor, opacity: 0.75 }]}>Livraison</Text>
+                  <Text style={[S.headerDateValue, { color: textColor, opacity: 0.95 }]}>
                     {fmtDate(quote.businessMetadata!.deliveryDate as string)}
                   </Text>
                 </>

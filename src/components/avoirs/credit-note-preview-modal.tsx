@@ -19,6 +19,7 @@ import { CREDIT_NOTE_REASONS } from "@/lib/types/credit-notes";
 import { useDeleteCreditNote } from "@/hooks/use-credit-notes";
 import { sendCreditNoteEmail } from "@/lib/actions/send-credit-note-email";
 import { formatCurrency } from "@/lib/utils/calculs-facture";
+import { resolveHeaderTextColor , resolveContentColor } from "@/components/appearance/theme-config";
 
 // PDFDownloadLink chargé côté client uniquement
 const PDFDownloadLink = dynamic(
@@ -64,17 +65,19 @@ function CreditNotePreviewContent({ creditNote }: { creditNote: SavedCreditNote 
   const clientName = getClientName(creditNote.client);
   const emitterName = creditNote.user.companyName ?? creditNote.user.name;
   const themeColor = creditNote.user.themeColor ?? "#dc2626";
+  const textColor  = resolveHeaderTextColor(themeColor, "auto");
+  const contentColor = resolveContentColor(themeColor);
   const logo = creditNote.user.companyLogo;
   const displayName = creditNote.user.companyName ?? "";
 
   return (
     <div className="bg-white dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 p-2 xs:p-3 md:p-5 space-y-6 shadow-sm">
       {/* En-tête */}
-      <div className="rounded-lg p-4 text-white" style={{ backgroundColor: themeColor }}>
+      <div className="rounded-lg p-4" style={{ backgroundColor: themeColor }}>
         <div className="flex items-start gap-4">
           <div className="flex-1">
-            <h1 className="text-lg md:text-xl font-bold mb-1">AVOIR</h1>
-            <p className="text-white/90 text-xs md:text-sm">N° {creditNote.number}</p>
+            <h1 className="text-lg md:text-xl font-bold mb-1" style={{ color: textColor }}>AVOIR</h1>
+            <p className="text-xs md:text-sm" style={{ color: textColor, opacity: 0.9 }}>N° {creditNote.number}</p>
           </div>
           <div className="flex-1 flex flex-col items-center gap-1.5">
             {logo && (
@@ -83,11 +86,11 @@ function CreditNotePreviewContent({ creditNote }: { creditNote: SavedCreditNote 
               </div>
             )}
             {displayName && (
-              <p className="text-white/90 text-xs text-center font-medium">{displayName}</p>
+              <p className="text-xs text-center font-medium" style={{ color: textColor }}>{displayName}</p>
             )}
           </div>
           <div className="flex-1 flex flex-col items-end text-right text-xs md:text-sm">
-            <p className="text-white/90">Date : {fmtDate(creditNote.date)}</p>
+            <p style={{ color: textColor, opacity: 0.9 }}>Date : {fmtDate(creditNote.date)}</p>
             <span className="mt-2 inline-block bg-white/20 px-2 py-0.5 rounded-full text-[10px] font-semibold tracking-wide">
               NOTE DE CRÉDIT
             </span>
@@ -98,7 +101,7 @@ function CreditNotePreviewContent({ creditNote }: { creditNote: SavedCreditNote 
       {/* Émetteur + Destinataire */}
       <div className="grid grid-cols-2 gap-6">
         <div>
-          <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: themeColor }}>
+          <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: contentColor }}>
             Émis par
           </h3>
           <div className="space-y-0.5">
@@ -121,7 +124,7 @@ function CreditNotePreviewContent({ creditNote }: { creditNote: SavedCreditNote 
         </div>
 
         <div>
-          <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: themeColor }}>
+          <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: contentColor }}>
             Destinataire
           </h3>
           <div className="space-y-0.5">
@@ -145,7 +148,7 @@ function CreditNotePreviewContent({ creditNote }: { creditNote: SavedCreditNote 
 
       {/* Détails de l'avoir */}
       <div>
-        <h3 className="font-semibold mb-3 text-xs uppercase tracking-wide" style={{ color: themeColor }}>
+        <h3 className="font-semibold mb-3 text-xs uppercase tracking-wide" style={{ color: contentColor }}>
           Détails de l'avoir
         </h3>
         <div
@@ -153,17 +156,17 @@ function CreditNotePreviewContent({ creditNote }: { creditNote: SavedCreditNote 
           style={{ backgroundColor: themeColor + "0d", borderColor: themeColor + "33" }}
         >
           <div className="flex justify-between text-xs lg:text-sm">
-            <span style={{ color: themeColor }}>Facture d'origine</span>
+            <span style={{ color: contentColor }}>Facture d'origine</span>
             <span className="text-slate-900 dark:text-slate-50 font-semibold">{creditNote.invoiceNumber}</span>
           </div>
           <div className="flex justify-between text-xs lg:text-sm">
-            <span style={{ color: themeColor }}>Type d'avoir</span>
+            <span style={{ color: contentColor }}>Type d'avoir</span>
             <span className="text-slate-900 dark:text-slate-50">
               {creditNote.type === "full" ? "Total" : "Partiel"}
             </span>
           </div>
           <div className="flex justify-between text-xs lg:text-sm">
-            <span style={{ color: themeColor }}>Motif</span>
+            <span style={{ color: contentColor }}>Motif</span>
             <span className="text-slate-900 dark:text-slate-50 text-right max-w-[60%]">
               {getReasonLabel(creditNote.reason)}
             </span>
@@ -173,10 +176,10 @@ function CreditNotePreviewContent({ creditNote }: { creditNote: SavedCreditNote 
             className="flex justify-between items-center pt-3 mt-1"
             style={{ borderTop: `1px solid ${themeColor}33` }}
           >
-            <span className="text-sm lg:text-base font-bold" style={{ color: themeColor }}>
+            <span className="text-sm lg:text-base font-bold" style={{ color: contentColor }}>
               Montant crédité
             </span>
-            <span className="text-sm lg:text-base font-bold" style={{ color: themeColor }}>
+            <span className="text-sm lg:text-base font-bold" style={{ color: contentColor }}>
               − {fmtAmount(creditNote.total, creditNote.user.currency)}
             </span>
           </div>
@@ -186,7 +189,7 @@ function CreditNotePreviewContent({ creditNote }: { creditNote: SavedCreditNote 
       {/* Notes */}
       {creditNote.notes && (
         <div>
-          <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: themeColor }}>
+          <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: contentColor }}>
             Notes
           </h3>
           <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3">

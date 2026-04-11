@@ -5,6 +5,7 @@
 import { Document, Page, Text, View, StyleSheet, Image } from "@react-pdf/renderer";
 import type { SavedCreditNote } from "@/lib/types/credit-notes";
 import { CREDIT_NOTE_REASONS } from "@/lib/types/credit-notes";
+import { resolveHeaderTextColor } from "@/components/appearance/theme-config";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -168,6 +169,7 @@ export function CreditNotePdfDocument({ creditNote }: { creditNote: SavedCreditN
   const clientName = getClientName(creditNote.client);
   const issuerName = creditNote.user.companyName || creditNote.user.name;
   const themeColor = creditNote.user.themeColor ?? "#7c3aed";
+  const textColor = resolveHeaderTextColor(themeColor, (creditNote.user as Record<string, unknown>).headerTextColor as string | null ?? null);
   const logo = creditNote.user.companyLogo;
   const displayName = creditNote.user.companyName ?? "";
 
@@ -191,8 +193,8 @@ export function CreditNotePdfDocument({ creditNote }: { creditNote: SavedCreditN
           <View style={S.headerRow}>
             {/* Gauche : FACTURE D'AVOIR + N° */}
             <View style={S.headerLeft}>
-              <Text style={S.headerTitle}>FACTURE D&apos;AVOIR</Text>
-              <Text style={S.headerNumber}>{creditNote.number}</Text>
+              <Text style={[S.headerTitle, { color: textColor }]}>FACTURE D&apos;AVOIR</Text>
+              <Text style={[S.headerNumber, { color: textColor, opacity: 0.9 }]}>{creditNote.number}</Text>
             </View>
 
             {/* Centre : Logo circulaire + nom entreprise */}
@@ -202,13 +204,13 @@ export function CreditNotePdfDocument({ creditNote }: { creditNote: SavedCreditN
                   <Image src={logo} style={S.headerLogo} />
                 </View>
               )}
-              {displayName ? <Text style={S.headerCompanyName}>{displayName}</Text> : null}
+              {displayName ? <Text style={[S.headerCompanyName, { color: textColor, opacity: 0.9 }]}>{displayName}</Text> : null}
             </View>
 
             {/* Droite : date + badge rouge */}
             <View style={S.headerRight}>
-              <Text style={S.headerDateLabel}>Émis le</Text>
-              <Text style={S.headerDateValue}>{fmtDate(creditNote.date)}</Text>
+              <Text style={[S.headerDateLabel, { color: textColor, opacity: 0.75 }]}>Émis le</Text>
+              <Text style={[S.headerDateValue, { color: textColor, opacity: 0.95 }]}>{fmtDate(creditNote.date)}</Text>
               {/* Badge rouge distinctif */}
               <View style={S.headerBadge}>
                 <Text style={S.headerBadgeText}>CREDIT ACCORDE</Text>

@@ -124,9 +124,10 @@ model User {
   accountantEmail String? // Email du comptable (envoi auto FEC + journal mensuel)
 
   // Appearance
-  themeColor      String?  // hex ex: "#7c3aed"
-  companyFont     String?  // id: "inter" | "playfair" | "script" | "orbitron" | "bebas"
-  invoiceFooter   String?  // texte libre affiché en bas de chaque PDF (mentions, IBAN, message...)
+  themeColor       String?  // hex ex: "#7c3aed"
+  companyFont      String?  // id: "inter" | "playfair" | "script" | "orbitron" | "bebas"
+  invoiceFooter    String?  // texte libre affiché en bas de chaque PDF (mentions, IBAN, message...)
+  headerTextColor  String   @default("auto")  // "auto" | "white" | "black"
 
   // Settings
   currency String @default("EUR")

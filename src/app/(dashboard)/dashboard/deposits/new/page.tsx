@@ -72,7 +72,7 @@ export default function NewDepositPage() {
   const { data: companyInfoDB } = useCompanyInfoForForms();
   const companyInfo = companyInfoLocal ?? companyInfoDB ?? null;
 
-  	const { themeColor, companyFont, companyLogo, companyName } = useAppearance();
+  	const { themeColor, companyFont, companyLogo, companyName, currency, headerTextColor} = useAppearance();
   const { data: subData } = useQuery({ queryKey: ["subscription"], queryFn: getCurrentSubscription, staleTime: 5 * 60 * 1000 });
   const effectivePlan = subData?.success ? subData.data.effectivePlan : "FREE";
 
@@ -140,7 +140,7 @@ export default function NewDepositPage() {
   // Génère le document PDF à la volée pour la prévisualisation
   const getDocumentForPreview = useCallback(() => {
     const values = form.getValues();
-    const mock = buildPreviewDeposit(values as Parameters<typeof buildPreviewDeposit>[0], depositNumber, companyInfo, { themeColor, companyFont, companyLogo }, clients);
+    const mock = buildPreviewDeposit(values as Parameters<typeof buildPreviewDeposit>[0], depositNumber, companyInfo, { themeColor, companyFont, companyLogo , currency, headerTextColor}, clients);
     return <DepositPdfDocument deposit={mock} />;
   }, [form, depositNumber, companyInfo, themeColor, companyFont, companyLogo, clients]);
 

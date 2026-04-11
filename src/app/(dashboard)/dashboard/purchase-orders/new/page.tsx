@@ -42,7 +42,7 @@ export default function NewPurchaseOrderPage() {
   const companyInfo = companyInfoLocal ?? companyInfoDB ?? null;
 
   // Apparence
-  const { themeColor, companyFont, companyLogo, companyName } = useAppearance();
+  const { themeColor, companyFont, companyLogo, companyName, currency, headerTextColor} = useAppearance();
 
   const { data: clients = [] } = useClients();
   const [isPdfPreviewOpen, setIsPdfPreviewOpen] = useState(false);
@@ -92,7 +92,7 @@ export default function NewPurchaseOrderPage() {
   // Génère le document PDF à la volée pour la prévisualisation
   const getDocumentForPreview = useCallback(() => {
     const values = form.getValues();
-    const mock = buildPreviewPurchaseOrder(values, orderNumber, companyInfo, { themeColor, companyFont, companyLogo }, clients);
+    const mock = buildPreviewPurchaseOrder(values, orderNumber, companyInfo, { themeColor, companyFont, companyLogo , currency, headerTextColor}, clients);
     return <PurchaseOrderPdfDocument purchaseOrder={mock} />;
   }, [form, orderNumber, companyInfo, themeColor, companyFont, companyLogo, clients]);
 

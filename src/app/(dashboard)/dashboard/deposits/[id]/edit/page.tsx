@@ -83,7 +83,7 @@ export default function EditDepositPage() {
 
   const [mounted, setMounted] = useState(false);
   const [displayNumber, setDisplayNumber] = useState(""); // Suit le numéro éditable
-  const { themeColor, companyFont, companyLogo, invoiceFooter } = useAppearance();
+  const { themeColor, companyFont, companyLogo, invoiceFooter, currency, headerTextColor} = useAppearance();
   const [isPdfPreviewOpen, setIsPdfPreviewOpen] = useState(false);
   const { data: subData } = useQuery({ queryKey: ["subscription"], queryFn: getCurrentSubscription, staleTime: 5 * 60 * 1000 });
   const effectivePlan = subData?.success ? subData.data.effectivePlan : "FREE";
@@ -165,7 +165,7 @@ export default function EditDepositPage() {
 
   const getDocumentForPreview = useCallback(() => {
     const values = form.getValues();
-    const mock = buildPreviewDeposit(values, deposit?.number ?? "", companyInfo, { themeColor, companyFont, companyLogo, invoiceFooter }, []);
+    const mock = buildPreviewDeposit(values, deposit?.number ?? "", companyInfo, { themeColor, companyFont, companyLogo, invoiceFooter , currency, headerTextColor}, []);
     return <DepositPdfDocument deposit={mock} />;
   }, [form, deposit, companyInfo, themeColor, companyFont, companyLogo, invoiceFooter]);
 

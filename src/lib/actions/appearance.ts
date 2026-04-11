@@ -19,6 +19,7 @@ export interface AppearanceData {
   companyName: string;
   companyLogo: string | null;
   invoiceFooter: string;
+  headerTextColor: string;
 }
 
 export interface AppearanceSettings extends AppearanceData {
@@ -43,6 +44,7 @@ export async function saveAppearance(data: AppearanceData) {
         companyName: data.companyName,
         companyLogo: data.companyLogo,
         invoiceFooter: data.invoiceFooter || null,
+        headerTextColor: data.headerTextColor ?? "auto",
       },
     });
 
@@ -68,6 +70,7 @@ export async function getAppearanceSettings(): Promise<AppearanceSettings | null
       companyName: true,
       companyLogo: true,
       invoiceFooter: true,
+      headerTextColor: true,
       currency: true,
       // Champs pour le calcul du plan effectif
       plan: true,
@@ -97,6 +100,7 @@ export async function getAppearanceSettings(): Promise<AppearanceSettings | null
     companyName: user.companyName ?? "",
     companyLogo: isCustomAppearanceLocked ? null : (user.companyLogo ?? null),
     invoiceFooter: user.invoiceFooter ?? "",
+    headerTextColor: user.headerTextColor ?? "auto",
     currency: user.currency ?? "EUR",
     isCustomAppearanceLocked,
   };

@@ -108,6 +108,47 @@ export function getFontWeight(fontId: string): number {
   return FONT_OPTIONS.find((f) => f.id === fontId)?.weight ?? 700;
 }
 
+/**
+ * Résout la couleur du texte du header selon le réglage et la couleur de fond.
+ * "auto" → détection automatique par luminosité (noir si fond clair, blanc si fond foncé)
+ * "white" → force blanc
+ * "black" → force noir
+ */
+export function resolveHeaderTextColor(
+  themeColor: string,
+  setting: string | null | undefined,
+): string {
+  if (setting === "white") return "#ffffff";
+  if (setting === "black") return "#000000";
+  // Auto : calcul de luminosité relative (formule WCAG)
+  const hex = themeColor.replace("#", "");
+  const r = parseInt(hex.slice(0, 2), 16) / 255;
+  const g = parseInt(hex.slice(2, 4), 16) / 255;
+  const b = parseInt(hex.slice(4, 6), 16) / 255;
+  const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
+  return luminance > 0.45 ? "#000000" : "#ffffff";
+}
+
+/**
+ * Assure qu'une couleur est assez sombre pour être lisible sur fond blanc.
+ * Utilisé pour les textes dans la zone de contenu (tableau, totaux, titres de section).
+ * Si la luminosité dépasse 0.45, la couleur est assombrie proportionnellement.
+ */
+export function resolveContentColor(themeColor: string): string {
+  const hex = themeColor.replace("#", "");
+  const r = parseInt(hex.slice(0, 2), 16);
+  const g = parseInt(hex.slice(2, 4), 16);
+  const b = parseInt(hex.slice(4, 6), 16);
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  if (luminance <= 0.45) return themeColor; // déjà assez sombre
+  // Assombrir pour atteindre une luminance cible de 0.35
+  const factor = 0.35 / luminance;
+  const dr = Math.round(r * factor).toString(16).padStart(2, "0");
+  const dg = Math.round(g * factor).toString(16).padStart(2, "0");
+  const db = Math.round(b * factor).toString(16).padStart(2, "0");
+  return `#${dr}${dg}${db}`;
+}
+
 /** Calcule le gradient CSS à partir d'une couleur hex (pour le mode custom) */
 export function colorToGradient(hex: string): string {
   // Chercher si c'est un thème prédéfini

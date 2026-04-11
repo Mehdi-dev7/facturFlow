@@ -14,7 +14,7 @@ import {
 } from "@/lib/validations/invoice";
 import { calcInvoiceTotals, formatCurrency } from "@/lib/utils/calculs-facture";
 import { SiStripe, SiPaypal } from "react-icons/si";
-import { getFontFamily, getFontWeight, DEFAULT_THEME, DEFAULT_FONT } from "@/components/appearance/theme-config";
+import { getFontFamily, getFontWeight, DEFAULT_THEME, DEFAULT_FONT, resolveHeaderTextColor, resolveContentColor } from "@/components/appearance/theme-config";
 import { useAppearance } from "@/hooks/use-appearance";
 
 // ─── Props ─────────────────────────────────────────────────────────────────────
@@ -29,6 +29,7 @@ interface InvoicePreviewProps {
 	companyLogo?: string | null;
 	companyName?: string;
 	invoiceFooter?: string;
+	documentLabel?: string;
 }
 
 // ─── Composant principal ───────────────────────────────────────────────────────
@@ -43,6 +44,7 @@ export function InvoicePreview({
 	companyLogo,
 	companyName = "",
 	invoiceFooter = "",
+	documentLabel = "FACTURE",
 }: InvoicePreviewProps) {
 	const clientId = useWatch({ control: form.control, name: "clientId" });
 	const newClient = useWatch({ control: form.control, name: "newClient" });
@@ -94,7 +96,9 @@ export function InvoicePreview({
 	// ── Apparence ─────────────────────────────────────────────────────────
 	const fontFamily = getFontFamily(companyFont);
 	const fontWeight = getFontWeight(companyFont);
-	const { currency } = useAppearance();
+	const { currency, headerTextColor } = useAppearance();
+	const resolvedTextColor = resolveHeaderTextColor(themeColor, headerTextColor);
+	const contentColor = resolveContentColor(themeColor);
 
 	// ── Calculs ────────────────────────────────────────────────────────────
 	const safeLines = lines || [];
@@ -131,12 +135,12 @@ export function InvoicePreview({
 		return (
 			<div className="space-y-3 text-xs">
 				<div className="flex items-center justify-between text-[10px] text-slate-400 dark:text-violet-400/70 border-b border-slate-100 dark:border-violet-500/20 pb-2">
-					<span className="font-semibold" style={{ color: themeColor }}>{invoiceNumber}</span>
+					<span className="font-semibold" style={{ color: contentColor }}>{invoiceNumber}</span>
 					<span>{formatDate(date)} · éch. {formatDate(dueDate)}</span>
 				</div>
 
 				<div>
-					<p className="text-[10px] uppercase tracking-wider mb-0.5 font-semibold" style={{ color: themeColor }}>Émetteur</p>
+					<p className="text-[10px] uppercase tracking-wider mb-0.5 font-semibold" style={{ color: contentColor }}>Émetteur</p>
 					{companyInfo ? (
 						<div className="text-xs space-y-0.5 text-slate-700 dark:text-slate-300">
 							<p className="font-semibold">{companyInfo.name}</p>
@@ -154,7 +158,7 @@ export function InvoicePreview({
 				</div>
 
 				<div>
-					<p className="text-[10px] uppercase tracking-wider mb-0.5 font-semibold" style={{ color: themeColor }}>Destinataire</p>
+					<p className="text-[10px] uppercase tracking-wider mb-0.5 font-semibold" style={{ color: contentColor }}>Destinataire</p>
 					{client ? (
 						<div className="text-xs space-y-0.5 text-slate-700 dark:text-slate-300">
 							<p className="font-semibold">{client.name}</p>
@@ -224,7 +228,7 @@ export function InvoicePreview({
 					)}
 					<div className="flex justify-between font-bold text-slate-800 dark:text-slate-100 pt-1 border-t border-slate-200 dark:border-violet-500/20">
 						<span>Total TTC</span>
-						<span className="truncate ml-2" style={{ color: themeColor }}>{fmtC(totals.totalTTC)}</span>
+						<span className="truncate ml-2" style={{ color: contentColor }}>{fmtC(totals.totalTTC)}</span>
 					</div>
 					{totals.depositAmount > 0 && (
 						<div className="flex justify-between text-rose-500">
@@ -235,7 +239,7 @@ export function InvoicePreview({
 					{(totals.depositAmount > 0 || totals.discountAmount > 0) && (
 						<div className="flex justify-between font-extrabold text-slate-900 dark:text-slate-50 pt-1 border-t-2 border-slate-200 dark:border-violet-400/40">
 							<span>NET À PAYER</span>
-							<span style={{ color: themeColor }}>{fmtC(totals.netAPayer)}</span>
+							<span style={{ color: contentColor }}>{fmtC(totals.netAPayer)}</span>
 						</div>
 					)}
 				</div>
@@ -254,7 +258,7 @@ export function InvoicePreview({
 		<div className="rounded-2xl border border-slate-300/80 dark:border-violet-500/20 shadow-lg shadow-slate-200/50 dark:shadow-violet-950/40 bg-white/75 dark:bg-[#1a1438] backdrop-blur-lg overflow-hidden">
 			{/* Bandeau "Aperçu temps réel" */}
 			<div className="p-3 px-4" style={{ backgroundColor: themeColor }}>
-				<p className="text-xs font-semibold text-white/90 uppercase tracking-wide">Aperçu temps réel</p>
+				<p className="text-xs font-semibold uppercase tracking-wide" style={{ color: resolvedTextColor, opacity: 0.9 }}>Aperçu temps réel</p>
 			</div>
 
 			{/* Contenu du document */}
@@ -262,12 +266,12 @@ export function InvoicePreview({
 			<div className="bg-white rounded-lg border border-slate-200 p-3 md:p-6 space-y-6 shadow-sm">
 
 			{/* Header 3 colonnes : type+N° | logo+nom | dates */}
-			<div className="rounded-lg px-6 py-5 text-white" style={{ backgroundColor: themeColor }}>
+			<div className="rounded-lg px-6 py-5" style={{ backgroundColor: themeColor }}>
 				<div className="flex items-start gap-4">
 					{/* Gauche : FACTURE + N° */}
 					<div className="flex-1">
-						<h2 className="text-lg font-bold tracking-tight">FACTURE</h2>
-						<p className="text-white/90 text-xs mt-0.5">{invoiceNumber}</p>
+						<h2 className="text-lg font-bold tracking-tight" style={{ color: resolvedTextColor }}>{documentLabel}</h2>
+						<p className="text-xs mt-0.5" style={{ color: resolvedTextColor, opacity: 0.9 }}>{invoiceNumber}</p>
 						{invoiceType !== "basic" && (
 							<span className="inline-block mt-1.5 text-[10px] bg-white/20 px-2 py-0.5 rounded-full font-medium tracking-wide">
 								{INVOICE_TYPE_LABELS[invoiceType]}
@@ -282,16 +286,16 @@ export function InvoicePreview({
 							</div>
 						)}
 						{companyName && (
-							<p className="text-white/90 text-base font-bold text-center" style={{ fontFamily, fontWeight }}>
+							<p className="text-base font-bold text-center" style={{ fontFamily, fontWeight, color: resolvedTextColor }}>
 								{companyName}
 							</p>
 						)}
 					</div>
 					{/* Droite : dates */}
 					<div className="flex-1 text-right text-xs">
-						<p className="text-white/90">Date : {formatDate(date)}</p>
-						<p className="text-white/90">Échéance : {formatDate(dueDate)}</p>
-						{deliveryDate && <p className="text-white/90">Livraison : {formatDate(deliveryDate)}</p>}
+						<p style={{ color: resolvedTextColor, opacity: 0.9 }}>Date : {formatDate(date)}</p>
+						<p style={{ color: resolvedTextColor, opacity: 0.9 }}>Échéance : {formatDate(dueDate)}</p>
+						{deliveryDate && <p style={{ color: resolvedTextColor, opacity: 0.9 }}>Livraison : {formatDate(deliveryDate)}</p>}
 					</div>
 				</div>
 			</div>
@@ -299,7 +303,7 @@ export function InvoicePreview({
 			{/* Émetteur & Destinataire */}
 				<div className="grid grid-cols-2 gap-6">
 					<div>
-						<p className="text-[10px] uppercase tracking-wider mb-1 font-semibold" style={{ color: themeColor }}>
+						<p className="text-[10px] uppercase tracking-wider mb-1 font-semibold" style={{ color: contentColor }}>
 							Émetteur
 						</p>
 						{companyInfo ? (
@@ -320,7 +324,7 @@ export function InvoicePreview({
 						)}
 					</div>
 					<div>
-						<p className="text-[10px] uppercase tracking-wider mb-1 font-semibold" style={{ color: themeColor }}>
+						<p className="text-[10px] uppercase tracking-wider mb-1 font-semibold" style={{ color: contentColor }}>
 							Destinataire
 						</p>
 						{client ? (
@@ -346,13 +350,13 @@ export function InvoicePreview({
 				{/* Lignes */}
 				{isArtisan ? (
 					<div className="space-y-4">
-						<LinesTable title="Main d'œuvre" lines={mainOeuvreLines} isForfait={false} showVatColumn={isPerLine} globalVatRate={vatRate ?? 20} typeConfig={typeConfig} fmt={fmtC} themeColor={themeColor} />
+						<LinesTable title="Main d'œuvre" lines={mainOeuvreLines} isForfait={false} showVatColumn={isPerLine} globalVatRate={vatRate ?? 20} typeConfig={typeConfig} fmt={fmtC} themeColor={themeColor} contentColor={contentColor} />
 						{materiauLines.length > 0 && (
-							<LinesTable title="Matériaux" lines={materiauLines} isForfait={false} showVatColumn={isPerLine} globalVatRate={vatRate ?? 20} typeConfig={typeConfig} fmt={fmtC} themeColor={themeColor} />
+							<LinesTable title="Matériaux" lines={materiauLines} isForfait={false} showVatColumn={isPerLine} globalVatRate={vatRate ?? 20} typeConfig={typeConfig} fmt={fmtC} themeColor={themeColor} contentColor={contentColor} />
 						)}
 					</div>
 				) : (
-					<LinesTable lines={safeLines} isForfait={isForfait} showVatColumn={isPerLine} globalVatRate={vatRate ?? 20} typeConfig={typeConfig} fmt={fmtC} themeColor={themeColor} />
+					<LinesTable lines={safeLines} isForfait={isForfait} showVatColumn={isPerLine} globalVatRate={vatRate ?? 20} typeConfig={typeConfig} fmt={fmtC} themeColor={themeColor} contentColor={contentColor} />
 				)}
 
 				<div className="flex-1" />
@@ -364,14 +368,14 @@ export function InvoicePreview({
 						style={{ backgroundColor: themeColor + "0d", borderColor: themeColor + "33" }}
 					>
 						<div className="flex justify-between text-sm">
-							<span className="shrink-0" style={{ color: themeColor }}>Sous-total HT</span>
+							<span className="shrink-0" style={{ color: contentColor }}>Sous-total HT</span>
 							<span className="text-slate-800 font-medium truncate ml-2">{fmtC(totals.subtotal)}</span>
 						</div>
 
 						{totals.discountAmount > 0 && (
 							<>
 								<div className="flex justify-between text-sm">
-									<span style={{ color: themeColor }}>
+									<span style={{ color: contentColor }}>
 										Réduction{discountType === "pourcentage" ? ` (${discountValue}%)` : ""}
 									</span>
 									<span className="text-rose-600 font-medium truncate ml-2">−{fmtC(totals.discountAmount)}</span>
@@ -392,26 +396,26 @@ export function InvoicePreview({
 										<span className="text-slate-700 font-medium truncate ml-2">{fmtC(baseHT)}</span>
 									</div>
 									<div className="flex justify-between text-sm">
-										<span style={{ color: themeColor }}>TVA {rate}%</span>
+										<span style={{ color: contentColor }}>TVA {rate}%</span>
 										<span className="text-slate-800 font-medium truncate ml-2">{fmtC(amount)}</span>
 									</div>
 								</Fragment>
 							))
 						) : (
 							<div className="flex justify-between text-sm">
-								<span style={{ color: themeColor }}>TVA ({vatRate ?? 0}%)</span>
+								<span style={{ color: contentColor }}>TVA ({vatRate ?? 0}%)</span>
 								<span className="text-slate-800 font-medium truncate ml-2">{fmtC(totals.taxTotal)}</span>
 							</div>
 						)}
 
 						<div className="flex justify-between text-base font-bold pt-2" style={{ borderTop: `1px solid ${themeColor}33` }}>
 							<span className="text-slate-900 shrink-0">Total TTC</span>
-							<span className="truncate ml-2" style={{ color: themeColor }}>{fmtC(totals.totalTTC)}</span>
+							<span className="truncate ml-2" style={{ color: contentColor }}>{fmtC(totals.totalTTC)}</span>
 						</div>
 
 						{totals.depositAmount > 0 && (
 							<div className="flex justify-between text-sm" style={{ borderTop: `1px solid ${themeColor}33`, paddingTop: "4px" }}>
-								<span style={{ color: themeColor }}>Acompte versé</span>
+								<span style={{ color: contentColor }}>Acompte versé</span>
 								<span className="text-rose-600 font-medium truncate ml-2">−{fmtC(totals.depositAmount)}</span>
 							</div>
 						)}
@@ -419,7 +423,7 @@ export function InvoicePreview({
 						{(totals.depositAmount > 0 || totals.discountAmount > 0) && (
 							<div className="flex justify-between items-center pt-2 mt-1" style={{ borderTop: `2px solid ${themeColor}66` }}>
 								<span className="text-sm font-extrabold text-slate-900 tracking-tight shrink-0">NET À PAYER</span>
-								<span className="text-base font-extrabold truncate ml-2" style={{ color: themeColor }}>
+								<span className="text-base font-extrabold truncate ml-2" style={{ color: contentColor }}>
 									{fmtC(totals.netAPayer)}
 								</span>
 							</div>
@@ -430,7 +434,7 @@ export function InvoicePreview({
 				{/* Notes */}
 				{notes && (
 					<div className="rounded-lg bg-slate-50 border border-slate-100 p-3 text-xs text-slate-600">
-						<p className="font-medium mb-1" style={{ color: themeColor }}>Notes</p>
+						<p className="font-medium mb-1" style={{ color: contentColor }}>Notes</p>
 						<p className="whitespace-pre-line text-slate-700">{notes}</p>
 					</div>
 				)}
@@ -438,7 +442,7 @@ export function InvoicePreview({
 				{/* Liens de paiement */}
 				{paymentLinks && (paymentLinks.stripe || paymentLinks.paypal || paymentLinks.gocardless) && (
 					<div className="space-y-1.5">
-						<p className="text-[10px] font-medium uppercase tracking-wider" style={{ color: themeColor }}>
+						<p className="text-[10px] font-medium uppercase tracking-wider" style={{ color: contentColor }}>
 							Payer par
 						</p>
 						<div className="flex flex-wrap gap-2">
@@ -483,13 +487,14 @@ interface LinesTableProps {
 	typeConfig: { descriptionLabel: string; quantityLabel: string | null; priceLabel: string };
 	fmt: (n: number) => string;
 	themeColor: string;
+	contentColor: string;
 }
 
-function LinesTable({ title, lines, isForfait, showVatColumn = false, globalVatRate = 20, typeConfig, fmt, themeColor }: LinesTableProps) {
+function LinesTable({ title, lines, isForfait, showVatColumn = false, globalVatRate = 20, typeConfig, fmt, themeColor, contentColor }: LinesTableProps) {
 	return (
 		<div>
 			{title && (
-				<p className="text-[10px] uppercase tracking-wider font-semibold mb-1.5" style={{ color: themeColor }}>
+				<p className="text-[10px] uppercase tracking-wider font-semibold mb-1.5" style={{ color: contentColor }}>
 					{title}
 				</p>
 			)}
@@ -505,24 +510,24 @@ function LinesTable({ title, lines, isForfait, showVatColumn = false, globalVatR
 					</colgroup>
 					<thead style={{ backgroundColor: themeColor + "1a" }}>
 						<tr>
-							<th className="text-left p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: themeColor }}>
+							<th className="text-left p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: contentColor }}>
 								{typeConfig.descriptionLabel}
 							</th>
 							{!isForfait && (
-								<th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide whitespace-nowrap" style={{ color: themeColor }}>
+								<th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide whitespace-nowrap" style={{ color: contentColor }}>
 									{typeConfig.quantityLabel}
 								</th>
 							)}
-							<th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide whitespace-nowrap" style={{ color: themeColor }}>
+							<th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide whitespace-nowrap" style={{ color: contentColor }}>
 								{isForfait ? "Montant" : "Prix unit."}
 							</th>
 							{showVatColumn && (
-								<th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide whitespace-nowrap" style={{ color: themeColor }}>
+								<th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide whitespace-nowrap" style={{ color: contentColor }}>
 									TVA
 								</th>
 							)}
 							{!isForfait && (
-								<th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide whitespace-nowrap" style={{ color: themeColor }}>
+								<th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide whitespace-nowrap" style={{ color: contentColor }}>
 									Total HT
 								</th>
 							)}
@@ -551,7 +556,7 @@ function LinesTable({ title, lines, isForfait, showVatColumn = false, globalVatR
 										</td>
 									)}
 									{!isForfait && (
-										<td className="p-2 lg:p-3 text-xs lg:text-sm text-right font-medium whitespace-nowrap" style={{ color: themeColor }}>
+										<td className="p-2 lg:p-3 text-xs lg:text-sm text-right font-medium whitespace-nowrap" style={{ color: contentColor }}>
 											{fmt(ht)}
 										</td>
 									)}

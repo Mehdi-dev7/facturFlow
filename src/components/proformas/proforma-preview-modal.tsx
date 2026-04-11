@@ -37,6 +37,8 @@ import {
 import {
 	getFontFamily,
 	getFontWeight,
+	resolveHeaderTextColor,
+	resolveContentColor,
 } from "@/components/appearance/theme-config";
 import { formatCurrency } from "@/lib/utils/calculs-facture";
 
@@ -115,6 +117,8 @@ function ProformaPreviewStatic({ proforma }: { proforma: SavedProforma }) {
 	);
 
 	const themeColor = proforma.user.themeColor ?? PROFORMA_COLOR;
+  const textColor  = resolveHeaderTextColor(themeColor, "auto");
+  const contentColor = resolveContentColor(themeColor);
 	const logo = proforma.user.companyLogo;
 	const displayName = proforma.user.companyName ?? "";
 	const companyFont = proforma.user.companyFont ?? "inter";
@@ -125,14 +129,14 @@ function ProformaPreviewStatic({ proforma }: { proforma: SavedProforma }) {
 		<div className="bg-white dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 p-3 md:p-6 space-y-6 shadow-sm">
 			{/* En-tête */}
 			<div
-				className="rounded-lg p-4 text-white mb-6"
+				className="rounded-lg p-4 mb-6"
 				style={{ backgroundColor: themeColor }}
 			>
 				<div className="flex items-start gap-4">
 					{/* Gauche : PROFORMA + N° */}
 					<div className="flex-1">
-						<h1 className="text-lg md:text-xl font-bold mb-1">PROFORMA</h1>
-						<p className="text-white/90 text-xs md:text-sm">
+						<h1 className="text-lg md:text-xl font-bold mb-1" style={{ color: textColor }}>PROFORMA</h1>
+						<p className="text-xs md:text-sm" style={{ color: textColor, opacity: 0.9 }}>
 							N° {proforma.number}
 						</p>
 						{invoiceType !== "basic" && (
@@ -154,8 +158,8 @@ function ProformaPreviewStatic({ proforma }: { proforma: SavedProforma }) {
 						)}
 						{displayName && (
 							<p
-								className="text-white/90 text-sm font-bold text-center"
-								style={{ fontFamily, fontWeight }}
+								className="text-sm font-bold text-center"
+								style={{ fontFamily, fontWeight, color: textColor }}
 							>
 								{displayName}
 							</p>
@@ -163,11 +167,11 @@ function ProformaPreviewStatic({ proforma }: { proforma: SavedProforma }) {
 					</div>
 					{/* Droite : dates */}
 					<div className="flex-1 flex flex-col items-end text-right text-xs md:text-sm">
-						<p className="text-white/90">
+						<p style={{ color: textColor, opacity: 0.9 }}>
 							Date : {formatDate(proforma.date)}
 						</p>
 						{proforma.dueDate && (
-							<p className="text-white/90">
+							<p style={{ color: textColor, opacity: 0.9 }}>
 								Échéance : {formatDate(proforma.dueDate)}
 							</p>
 						)}
@@ -180,7 +184,7 @@ function ProformaPreviewStatic({ proforma }: { proforma: SavedProforma }) {
 				<div>
 					<h3
 						className="font-semibold mb-2 text-xs uppercase tracking-wide"
-						style={{ color: themeColor }}
+						style={{ color: contentColor }}
 					>
 						Émetteur
 					</h3>
@@ -222,7 +226,7 @@ function ProformaPreviewStatic({ proforma }: { proforma: SavedProforma }) {
 				<div>
 					<h3
 						className="font-semibold mb-2 text-xs uppercase tracking-wide"
-						style={{ color: themeColor }}
+						style={{ color: contentColor }}
 					>
 						Destinataire
 					</h3>
@@ -264,28 +268,28 @@ function ProformaPreviewStatic({ proforma }: { proforma: SavedProforma }) {
 						<tr>
 							<th
 								className="text-left p-2 lg:p-3 text-xs font-medium uppercase tracking-wide"
-								style={{ color: themeColor }}
+								style={{ color: contentColor }}
 							>
 								{typeConfig.descriptionLabel}
 							</th>
 							{!isForfait && (
 								<th
 									className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide whitespace-nowrap"
-									style={{ color: themeColor }}
+									style={{ color: contentColor }}
 								>
 									{typeConfig.quantityLabel}
 								</th>
 							)}
 							<th
 								className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide whitespace-nowrap"
-								style={{ color: themeColor }}
+								style={{ color: contentColor }}
 							>
 								{isForfait ? "Montant" : "Prix unit."}
 							</th>
 							{!isForfait && (
 								<th
 									className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide whitespace-nowrap"
-									style={{ color: themeColor }}
+									style={{ color: contentColor }}
 								>
 									Total HT
 								</th>
@@ -312,7 +316,7 @@ function ProformaPreviewStatic({ proforma }: { proforma: SavedProforma }) {
 								{!isForfait && (
 									<td
 										className="p-2 lg:p-3 text-xs lg:text-sm text-right font-medium whitespace-nowrap overflow-hidden"
-										style={{ color: themeColor }}
+										style={{ color: contentColor }}
 									>
 										{fmt(line.subtotal, proforma.user.currency)}
 									</td>
@@ -375,7 +379,7 @@ function ProformaPreviewStatic({ proforma }: { proforma: SavedProforma }) {
 						<span className="text-slate-900 dark:text-slate-50 shrink-0">
 							Total TTC
 						</span>
-						<span className="truncate ml-2" style={{ color: themeColor }}>
+						<span className="truncate ml-2" style={{ color: contentColor }}>
 							{fmt(proforma.total, proforma.user.currency)}
 						</span>
 					</div>
@@ -387,7 +391,7 @@ function ProformaPreviewStatic({ proforma }: { proforma: SavedProforma }) {
 				<div className="rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 p-3 text-[11px] lg:text-xs text-slate-600 dark:text-slate-300">
 					<p
 						className="font-medium mb-1 text-xs lg:text-sm"
-						style={{ color: themeColor }}
+						style={{ color: contentColor }}
 					>
 						Notes
 					</p>

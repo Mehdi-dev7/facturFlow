@@ -12,6 +12,7 @@ import {
 } from "@react-pdf/renderer";
 
 import { registerPdfFonts, getPdfFontFamily } from "./pdf-fonts";
+import { resolveHeaderTextColor } from "@/components/appearance/theme-config";
 registerPdfFonts();
 import type { SavedInvoice } from "@/lib/actions/invoices";
 import { INVOICE_TYPE_CONFIG } from "@/lib/validations/invoice";
@@ -357,6 +358,7 @@ export default function InvoicePdfDocument({
 }) {
   // Couleur du thème — fallback violet si non définie
   const themeColor = invoice.user.themeColor ?? "#7c3aed";
+  const textColor  = resolveHeaderTextColor(themeColor, (invoice.user as Record<string, unknown>).headerTextColor as string | null);
   const logo       = invoice.user.companyLogo;
 
   const typeConfig =
@@ -410,8 +412,8 @@ export default function InvoicePdfDocument({
           <View style={S.headerRow}>
             {/* Gauche : titre + numéro */}
             <View style={S.headerLeft}>
-              <Text style={S.headerTitle}>{documentLabel}</Text>
-              <Text style={S.headerNumber}>{invoice.number}</Text>
+              <Text style={[S.headerTitle, { color: textColor }]}>{documentLabel}</Text>
+              <Text style={[S.headerNumber, { color: textColor, opacity: 0.9 }]}>{invoice.number}</Text>
             </View>
 
             {/* Centre : logo + nom entreprise */}
@@ -422,7 +424,7 @@ export default function InvoicePdfDocument({
                 </View>
               ) : null}
               {invoice.user.companyName ? (
-                <Text style={[S.headerCompanyName, { fontFamily: companyFontFamily }]}>
+                <Text style={[S.headerCompanyName, { fontFamily: companyFontFamily, color: textColor, opacity: 0.9 }]}>
                   {invoice.user.companyName}
                 </Text>
               ) : null}
@@ -430,10 +432,10 @@ export default function InvoicePdfDocument({
 
             {/* Droite : dates */}
             <View style={S.headerRight}>
-              <Text style={S.headerDate}>Date : {fmtDate(invoice.date)}</Text>
-              <Text style={S.headerDate}>Échéance : {fmtDate(invoice.dueDate)}</Text>
+              <Text style={[S.headerDate, { color: textColor, opacity: 0.85 }]}>Date : {fmtDate(invoice.date)}</Text>
+              <Text style={[S.headerDate, { color: textColor, opacity: 0.85 }]}>Échéance : {fmtDate(invoice.dueDate)}</Text>
               {invoice.businessMetadata?.deliveryDate ? (
-                <Text style={S.headerDate}>
+                <Text style={[S.headerDate, { color: textColor, opacity: 0.85 }]}>
                   Livraison : {fmtDate(invoice.businessMetadata.deliveryDate as string)}
                 </Text>
               ) : null}

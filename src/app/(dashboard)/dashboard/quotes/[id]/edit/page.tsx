@@ -86,7 +86,7 @@ export default function EditQuotePage() {
 
 	const [mounted, setMounted] = useState(false);
 	const [isPdfPreviewOpen, setIsPdfPreviewOpen] = useState(false);
-	const { themeColor, companyFont, companyLogo, companyName } = useAppearance();
+	const { themeColor, companyFont, companyLogo, companyName, currency, headerTextColor} = useAppearance();
 	const { data: clients = [] } = useClients();
 	const [quote, setQuote] = useState<SavedQuote | null>(null);
 	const [displayNumber, setDisplayNumber] = useState(""); // Suit le numéro éditable
@@ -144,7 +144,7 @@ export default function EditQuotePage() {
 
 	const getDocumentForPreview = useCallback(() => {
 		const values = form.getValues();
-		const mock = buildPreviewQuote(values, quote?.number ?? "", companyInfo, { themeColor, companyFont, companyLogo }, clients);
+		const mock = buildPreviewQuote(values, quote?.number ?? "", companyInfo, { themeColor, companyFont, companyLogo , currency, headerTextColor}, clients);
 		return <QuotePdfDocument quote={mock} />;
 	}, [form, quote, companyInfo, themeColor, companyFont, companyLogo, clients]);
 

@@ -16,7 +16,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import type { SavedDeposit } from "@/lib/types/deposits";
 import { sendDepositEmail } from "@/lib/actions/send-deposit-email";
-import { getFontFamily, getFontWeight } from "@/components/appearance/theme-config";
+import { getFontFamily, getFontWeight, resolveHeaderTextColor , resolveContentColor } from "@/components/appearance/theme-config";
 import { formatCurrency } from "@/lib/utils/calculs-facture";
 
 // ─── Props ────────────────────────────────────────────────────────────────────
@@ -190,6 +190,8 @@ export function DepositPreviewModal({
   if (!deposit) return null;
 
   const themeColor = deposit.user.themeColor ?? "#7c3aed";
+  const textColor  = resolveHeaderTextColor(themeColor, "auto");
+  const contentColor = resolveContentColor(themeColor);
   const logo = deposit.user.companyLogo;
   const displayName = deposit.user.companyName ?? "";
 
@@ -338,12 +340,12 @@ export function DepositPreviewModal({
 
           <div className="bg-white dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 p-2 xs:p-3 md:p-5 space-y-6 shadow-sm">
             {/* En-tête 3 colonnes : type+N° | logo+nom centré | dates à droite */}
-            <div className="rounded-lg p-4 text-white mb-6" style={{ backgroundColor: themeColor }}>
+            <div className="rounded-lg p-4 mb-6" style={{ backgroundColor: themeColor }}>
               <div className="flex items-start gap-4">
                 {/* Gauche : ACOMPTE + N° */}
                 <div className="flex-1">
                   <h1 className="text-lg md:text-xl font-bold mb-1">ACOMPTE</h1>
-                  <p className="text-white/90 text-xs md:text-sm">N° {deposit.number}</p>
+                  <p className="text-xs md:text-sm" style={{ color: textColor, opacity: 0.9 }}>N° {deposit.number}</p>
                 </div>
                 {/* Centre : logo circulaire + nom entreprise */}
                 <div className="flex-1 flex flex-col items-center gap-1.5">
@@ -353,14 +355,14 @@ export function DepositPreviewModal({
                     </div>
                   )}
                   {displayName && (
-                    <p className="text-white/90 text-sm font-bold text-center" style={{ fontFamily, fontWeight }}>{displayName}</p>
+                    <p className="text-sm font-bold text-center" style={{ fontFamily, fontWeight, color: textColor }}>{displayName}</p>
                   )}
                 </div>
                 {/* Droite : dates */}
                 <div className="flex-1 flex flex-col items-end text-right text-xs md:text-sm">
-                  <p className="text-white/90">Date : {formatDateShort(deposit.date)}</p>
+                  <p style={{ color: textColor, opacity: 0.9 }}>Date : {formatDateShort(deposit.date)}</p>
                   {deposit.dueDate && (
-                    <p className="text-white/90">Échéance : {formatDateShort(deposit.dueDate)}</p>
+                    <p style={{ color: textColor, opacity: 0.9 }}>Échéance : {formatDateShort(deposit.dueDate)}</p>
                   )}
                 </div>
               </div>
@@ -370,7 +372,7 @@ export function DepositPreviewModal({
             <div className="grid grid-cols-2 gap-6">
               {/* Émetteur */}
               <div>
-                <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: themeColor }}>
+                <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: contentColor }}>
                   Émetteur
                 </h3>
                 <div className="text-sm space-y-0.5">
@@ -401,7 +403,7 @@ export function DepositPreviewModal({
 
               {/* Destinataire */}
               <div>
-                <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: themeColor }}>
+                <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: contentColor }}>
                   Destinataire
                 </h3>
                 <div className="text-sm space-y-0.5">
@@ -423,17 +425,17 @@ export function DepositPreviewModal({
 
             {/* Détails de l'acompte */}
             <div>
-              <h3 className="font-semibold mb-3 text-xs uppercase tracking-wide" style={{ color: themeColor }}>
+              <h3 className="font-semibold mb-3 text-xs uppercase tracking-wide" style={{ color: contentColor }}>
                 Détails
               </h3>
               <div className="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
                 <table className="w-full">
                   <thead style={{ backgroundColor: themeColor + "1a" }}>
                     <tr>
-                      <th className="text-left p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: themeColor }}>
+                      <th className="text-left p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: contentColor }}>
                         Description
                       </th>
-                      <th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: themeColor }}>
+                      <th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: contentColor }}>
                         Total HT
                       </th>
                     </tr>
@@ -443,7 +445,7 @@ export function DepositPreviewModal({
                       <td className="p-2 lg:p-3 text-xs lg:text-sm text-slate-900 dark:text-slate-50">
                         {deposit.description}
                       </td>
-                      <td className="p-2 lg:p-3 text-xs lg:text-sm text-right font-medium" style={{ color: themeColor }}>
+                      <td className="p-2 lg:p-3 text-xs lg:text-sm text-right font-medium" style={{ color: contentColor }}>
                         {fmt(deposit.subtotal, deposit.user.currency)}
                       </td>
                     </tr>
@@ -473,7 +475,7 @@ export function DepositPreviewModal({
                   style={{ borderTop: `1px solid ${themeColor}33` }}
                 >
                   <span className="text-slate-900 dark:text-slate-50">Total TTC :</span>
-                  <span style={{ color: themeColor }}>{fmt(deposit.total, deposit.user.currency)}</span>
+                  <span style={{ color: contentColor }}>{fmt(deposit.total, deposit.user.currency)}</span>
                 </div>
               </div>
             </div>
@@ -481,7 +483,7 @@ export function DepositPreviewModal({
             {/* Notes */}
             {deposit.notes && deposit.notes.trim() && (
               <div>
-                <h3 className="font-semibold mb-2 text-xs lg:text-sm uppercase tracking-wide" style={{ color: themeColor }}>
+                <h3 className="font-semibold mb-2 text-xs lg:text-sm uppercase tracking-wide" style={{ color: contentColor }}>
                   Notes
                 </h3>
                 <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3">
@@ -494,7 +496,7 @@ export function DepositPreviewModal({
 
             {/* Liens de paiement */}
             <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
-              <h3 className="font-semibold mb-3 text-xs lg:text-sm uppercase tracking-wide" style={{ color: themeColor }}>
+              <h3 className="font-semibold mb-3 text-xs lg:text-sm uppercase tracking-wide" style={{ color: contentColor }}>
                 Modalités de paiement
               </h3>
               <div className="space-y-2 text-[11px] lg:text-xs text-slate-600 dark:text-slate-400">

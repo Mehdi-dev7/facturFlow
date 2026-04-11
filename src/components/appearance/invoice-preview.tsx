@@ -4,7 +4,7 @@
 // Les couleurs violet sont remplacées par le themeColor dynamique
 
 import Image from "next/image";
-import { colorToGradient, getFontFamily, getFontWeight } from "./theme-config";
+import { colorToGradient, getFontFamily, getFontWeight, resolveHeaderTextColor } from "./theme-config";
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -38,6 +38,7 @@ function InvoicePreviewMini({ themeColor, companyFont, companyName, logo }: Omit
   const gradient    = colorToGradient(themeColor);
   const fontFamily  = getFontFamily(companyFont);
   const fontWeight  = getFontWeight(companyFont);
+  const textColor   = resolveHeaderTextColor(themeColor, "auto");
   const displayName = companyName.trim() || "Votre Entreprise";
   const bgTint      = hexAlpha(themeColor, "12"); // ~7%
   const borderTint  = hexAlpha(themeColor, "33"); // ~20%
@@ -46,12 +47,12 @@ function InvoicePreviewMini({ themeColor, companyFont, companyName, logo }: Omit
     <div className="bg-white rounded-xl shadow-md overflow-hidden border border-slate-200 w-full">
 
       {/* Header */}
-      <div style={{ background: gradient }} className="p-2.5 text-white">
+      <div style={{ background: gradient }} className="p-2.5">
         <div className="flex items-center gap-2">
           {/* Gauche : type + numéro */}
           <div className="flex-1">
-            <p className="text-sm font-bold tracking-wide">FACTURE</p>
-            <p className="text-[9px] text-white/80">N° FAC-2025-0042</p>
+            <p className="text-sm font-bold tracking-wide" style={{ color: textColor }}>FACTURE</p>
+            <p className="text-[9px]" style={{ color: textColor, opacity: 0.8 }}>N° FAC-2025-0042</p>
           </div>
 
           {/* Centre : logo + nom entreprise */}
@@ -61,7 +62,7 @@ function InvoicePreviewMini({ themeColor, companyFont, companyName, logo }: Omit
                 <Image src={logo} alt="Logo" fill className="object-contain p-0.5" unoptimized />
               </div>
             )}
-            <p style={{ fontFamily, fontWeight }} className="text-[11px] text-white text-center leading-tight wrap-break-word max-w-25">
+            <p style={{ fontFamily, fontWeight, color: textColor }} className="text-[11px] text-center leading-tight wrap-break-word max-w-25">
               {displayName}
             </p>
           </div>
@@ -117,6 +118,7 @@ function InvoicePreviewFull({ themeColor, companyFont, companyName, logo }: Omit
   const gradient    = colorToGradient(themeColor);
   const fontFamily  = getFontFamily(companyFont);
   const fontWeight  = getFontWeight(companyFont);
+  const textColor   = resolveHeaderTextColor(themeColor, "auto");
   const displayName = companyName.trim() || "Votre Entreprise";
   const bgTint      = hexAlpha(themeColor, "12"); // ~7%
   const bgTint2     = hexAlpha(themeColor, "1a"); // ~10%
@@ -126,12 +128,12 @@ function InvoicePreviewFull({ themeColor, companyFont, companyName, logo }: Omit
     <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-6 2xl:p-10 space-y-7 2xl:space-y-10">
 
       {/* ── Header gradient ── */}
-      <div style={{ background: gradient }} className="rounded-lg p-5 2xl:p-7 text-white">
+      <div style={{ background: gradient }} className="rounded-lg p-5 2xl:p-7">
         <div className="flex items-start gap-4">
           {/* Gauche : type + numéro */}
           <div className="flex-1">
-            <h1 className="text-lg font-bold mb-1">FACTURE</h1>
-            <p className="text-white/90 text-xs">N° FAC-2025-0042</p>
+            <h1 className="text-lg font-bold mb-1" style={{ color: textColor }}>FACTURE</h1>
+            <p className="text-xs" style={{ color: textColor, opacity: 0.9 }}>N° FAC-2025-0042</p>
           </div>
 
           {/* Centre : logo + nom entreprise */}
@@ -141,15 +143,15 @@ function InvoicePreviewFull({ themeColor, companyFont, companyName, logo }: Omit
                 <Image src={logo} alt="Logo" fill className="object-contain p-1" unoptimized />
               </div>
             )}
-            <p style={{ fontFamily, fontWeight }} className="text-sm text-white text-center leading-tight wrap-break-word w-full">
+            <p style={{ fontFamily, fontWeight, color: textColor }} className="text-sm text-center leading-tight wrap-break-word w-full">
               {displayName}
             </p>
           </div>
 
           {/* Droite : dates */}
           <div className="flex-1 flex flex-col items-end space-y-0.5">
-            <p className="text-[10px] text-white/90">Date : 25/02/2025</p>
-            <p className="text-[10px] text-white/90">Échéance : 25/03/2025</p>
+            <p className="text-[10px]" style={{ color: textColor, opacity: 0.9 }}>Date : 25/02/2025</p>
+            <p className="text-[10px]" style={{ color: textColor, opacity: 0.9 }}>Échéance : 25/03/2025</p>
           </div>
         </div>
       </div>

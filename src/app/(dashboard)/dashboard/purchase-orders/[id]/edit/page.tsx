@@ -92,7 +92,7 @@ export default function EditPurchaseOrderPage() {
 
   const [mounted, setMounted] = useState(false);
   const [isPdfPreviewOpen, setIsPdfPreviewOpen] = useState(false);
-  const { themeColor, companyFont, companyLogo, companyName } = useAppearance();
+  const { themeColor, companyFont, companyLogo, companyName, currency, headerTextColor} = useAppearance();
   const { data: clients = [] } = useClients();
   const [purchaseOrder, setPurchaseOrder] = useState<SavedPurchaseOrder | null>(null);
   const [displayNumber, setDisplayNumber] = useState(""); // Suit le numéro éditable
@@ -144,7 +144,7 @@ export default function EditPurchaseOrderPage() {
 
   const getDocumentForPreview = useCallback(() => {
     const values = form.getValues();
-    const mock = buildPreviewPurchaseOrder(values, purchaseOrder?.number ?? "", companyInfo, { themeColor, companyFont, companyLogo }, clients);
+    const mock = buildPreviewPurchaseOrder(values, purchaseOrder?.number ?? "", companyInfo, { themeColor, companyFont, companyLogo , currency, headerTextColor}, clients);
     return <PurchaseOrderPdfDocument purchaseOrder={mock} />;
   }, [form, purchaseOrder, companyInfo, themeColor, companyFont, companyLogo, clients]);
 

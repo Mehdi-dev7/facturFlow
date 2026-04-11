@@ -47,7 +47,7 @@ export default function NewQuotePage() {
 	const companyInfo = companyInfoLocal ?? companyInfoDB ?? null;
 
 	// Mutation de création (gère toast + redirect auto vers /dashboard/quotes?preview=<id>)
-		const { themeColor, companyFont, companyLogo, companyName } = useAppearance();
+		const { themeColor, companyFont, companyLogo, companyName, currency, headerTextColor} = useAppearance();
 
 	const { data: clients = [] } = useClients();
 	const [isPdfPreviewOpen, setIsPdfPreviewOpen] = useState(false);
@@ -101,7 +101,7 @@ export default function NewQuotePage() {
 	// Génère le document PDF à la volée pour la prévisualisation
 	const getDocumentForPreview = useCallback(() => {
 		const values = form.getValues();
-		const mock = buildPreviewQuote(values, quoteNumber, companyInfo, { themeColor, companyFont, companyLogo }, clients);
+		const mock = buildPreviewQuote(values, quoteNumber, companyInfo, { themeColor, companyFont, companyLogo , currency, headerTextColor}, clients);
 		return <QuotePdfDocument quote={mock} />;
 	}, [form, quoteNumber, companyInfo, themeColor, companyFont, companyLogo, clients]);
 

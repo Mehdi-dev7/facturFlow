@@ -5,7 +5,7 @@ import { useWatch, type UseFormReturn } from "react-hook-form";
 import { SiStripe, SiPaypal } from "react-icons/si";
 import type { CompanyInfo } from "@/lib/validations/invoice";
 import { useClients } from "@/hooks/use-clients";
-import { getFontFamily, getFontWeight, DEFAULT_THEME, DEFAULT_FONT } from "@/components/appearance/theme-config";
+import { getFontFamily, getFontWeight, DEFAULT_THEME, DEFAULT_FONT, resolveHeaderTextColor, resolveContentColor } from "@/components/appearance/theme-config";
 import { useAppearance } from "@/hooks/use-appearance";
 import { formatCurrency } from "@/lib/utils/calculs-facture";
 
@@ -72,7 +72,9 @@ export function DepositPreview({
 	// ── Apparence ─────────────────────────────────────────────────────────
 	const fontFamily = getFontFamily(companyFont);
 	const fontWeight = getFontWeight(companyFont);
-	const { currency } = useAppearance();
+	const { currency, headerTextColor } = useAppearance();
+	const resolvedTextColor = resolveHeaderTextColor(themeColor, headerTextColor);
+	const contentColor = resolveContentColor(themeColor);
 	const fmtC = (n: number) => formatCurrency(n, currency);
 
 	// ── Calculs ────────────────────────────────────────────────────────────
@@ -105,7 +107,7 @@ export function DepositPreview({
 				</div>
 
 				<div>
-					<p className="text-[10px] uppercase tracking-wider mb-0.5 font-semibold" style={{ color: themeColor }}>Émetteur</p>
+					<p className="text-[10px] uppercase tracking-wider mb-0.5 font-semibold" style={{ color: contentColor }}>Émetteur</p>
 					{companyInfo ? (
 						<div className="text-xs space-y-0.5 text-slate-700 dark:text-slate-300">
 							<p className="font-semibold">{companyInfo.name}</p>
@@ -123,7 +125,7 @@ export function DepositPreview({
 				</div>
 
 				<div>
-					<p className="text-[10px] uppercase tracking-wider mb-0.5 font-semibold" style={{ color: themeColor }}>Destinataire</p>
+					<p className="text-[10px] uppercase tracking-wider mb-0.5 font-semibold" style={{ color: contentColor }}>Destinataire</p>
 					{selectedClient ? (
 						<div className="text-xs space-y-0.5 text-slate-700 dark:text-slate-300">
 							<p className="font-semibold">{selectedClient.name}</p>
@@ -141,7 +143,7 @@ export function DepositPreview({
 				</div>
 
 				<div className="rounded-lg bg-slate-50 dark:bg-[#251e4d]/40 border border-slate-100 dark:border-violet-500/20 p-2.5">
-					<p className="text-[10px] uppercase tracking-wide mb-1" style={{ color: themeColor }}>Description</p>
+					<p className="text-[10px] uppercase tracking-wide mb-1" style={{ color: contentColor }}>Description</p>
 					<p className="text-xs font-medium text-slate-900 dark:text-slate-100">
 						{formData.description || "—"}
 					</p>
@@ -161,7 +163,7 @@ export function DepositPreview({
 					</div>
 					<div className="flex justify-between text-sm font-bold pt-1.5 mt-1" style={{ borderTop: `1px solid ${themeColor}33` }}>
 						<span className="text-slate-900">Total TTC</span>
-						<span className="truncate ml-2" style={{ color: themeColor }}>{fmtC(calc.total)}</span>
+						<span className="truncate ml-2" style={{ color: contentColor }}>{fmtC(calc.total)}</span>
 					</div>
 				</div>
 
@@ -198,7 +200,7 @@ export function DepositPreview({
 		<div className="rounded-2xl border border-slate-300/80 dark:border-violet-500/20 shadow-lg shadow-slate-200/50 dark:shadow-violet-950/40 bg-white/75 dark:bg-[#1a1438] backdrop-blur-lg overflow-hidden">
 			{/* Bandeau "Aperçu temps réel" */}
 			<div className="p-3 px-4" style={{ backgroundColor: themeColor }}>
-				<p className="text-xs font-semibold text-white/90 uppercase tracking-wide">Aperçu temps réel</p>
+				<p className="text-xs font-semibold uppercase tracking-wide" style={{ color: resolvedTextColor, opacity: 0.9 }}>Aperçu temps réel</p>
 			</div>
 
 			{/* Contenu du document */}
@@ -206,12 +208,12 @@ export function DepositPreview({
 				<div className="bg-white rounded-lg border border-slate-200 p-3 md:p-6 space-y-6 shadow-sm">
 
 					{/* En-tête 3 colonnes : ACOMPTE+N° | logo+nom | dates */}
-					<div className="rounded-lg p-4 text-white" style={{ backgroundColor: themeColor }}>
+					<div className="rounded-lg p-4" style={{ backgroundColor: themeColor }}>
 						<div className="flex items-start gap-4">
 							{/* Gauche : ACOMPTE + N° */}
 							<div className="flex-1">
-								<h1 className="text-lg md:text-xl font-bold mb-1">ACOMPTE</h1>
-								<p className="text-white/90 text-xs md:text-sm">N° {depositNumber}</p>
+								<h1 className="text-lg md:text-xl font-bold mb-1" style={{ color: resolvedTextColor }}>ACOMPTE</h1>
+								<p className="text-xs md:text-sm" style={{ color: resolvedTextColor, opacity: 0.9 }}>N° {depositNumber}</p>
 							</div>
 							{/* Centre : logo circulaire + nom entreprise */}
 							<div className="flex-1 flex flex-col items-center gap-1.5">
@@ -221,16 +223,16 @@ export function DepositPreview({
 									</div>
 								)}
 								{companyName && (
-									<p className="text-white/90 text-sm font-bold text-center" style={{ fontFamily, fontWeight }}>
+									<p className="text-sm font-bold text-center" style={{ fontFamily, fontWeight, color: resolvedTextColor }}>
 										{companyName}
 									</p>
 								)}
 							</div>
 							{/* Droite : dates */}
 							<div className="flex-1 text-right text-xs md:text-sm">
-								<p className="text-white/90">Date : {fmtDate(formData.date)}</p>
-								<p className="text-white/90">Échéance : {fmtDate(formData.dueDate)}</p>
-								{formData.deliveryDate && <p className="text-white/90">Livraison : {fmtDate(formData.deliveryDate)}</p>}
+								<p style={{ color: resolvedTextColor, opacity: 0.9 }}>Date : {fmtDate(formData.date)}</p>
+								<p style={{ color: resolvedTextColor, opacity: 0.9 }}>Échéance : {fmtDate(formData.dueDate)}</p>
+								{formData.deliveryDate && <p style={{ color: resolvedTextColor, opacity: 0.9 }}>Livraison : {fmtDate(formData.deliveryDate)}</p>}
 							</div>
 						</div>
 					</div>
@@ -238,7 +240,7 @@ export function DepositPreview({
 					{/* Émetteur et destinataire */}
 					<div className="grid grid-cols-2 gap-6">
 						<div>
-							<h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: themeColor }}>
+							<h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: contentColor }}>
 								Émetteur
 							</h3>
 							{companyInfo ? (
@@ -264,7 +266,7 @@ export function DepositPreview({
 						</div>
 
 						<div>
-							<h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: themeColor }}>
+							<h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: contentColor }}>
 								Destinataire
 							</h3>
 							{clientName ? (
@@ -292,23 +294,23 @@ export function DepositPreview({
 
 					{/* Tableau de la ligne d'acompte */}
 					<div>
-						<h3 className="font-semibold mb-3 text-xs uppercase tracking-wide" style={{ color: themeColor }}>
+						<h3 className="font-semibold mb-3 text-xs uppercase tracking-wide" style={{ color: contentColor }}>
 							Détails
 						</h3>
 						<div className="border border-slate-200 rounded-lg overflow-hidden">
 							<table className="w-full table-fixed">
 								<thead style={{ backgroundColor: themeColor + "1a" }}>
 									<tr>
-										<th className="text-left p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: themeColor }}>
+										<th className="text-left p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: contentColor }}>
 											Description
 										</th>
-										<th className="w-24 text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide whitespace-nowrap" style={{ color: themeColor }}>
+										<th className="w-24 text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide whitespace-nowrap" style={{ color: contentColor }}>
 											Montant HT
 										</th>
-										<th className="w-16 text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide whitespace-nowrap" style={{ color: themeColor }}>
+										<th className="w-16 text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide whitespace-nowrap" style={{ color: contentColor }}>
 											TVA
 										</th>
-										<th className="w-24 text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide whitespace-nowrap" style={{ color: themeColor }}>
+										<th className="w-24 text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide whitespace-nowrap" style={{ color: contentColor }}>
 											Total TTC
 										</th>
 									</tr>
@@ -324,7 +326,7 @@ export function DepositPreview({
 										<td className="p-2 lg:p-3 text-xs lg:text-sm text-right text-slate-900 whitespace-nowrap">
 											{fmtC(calc.taxAmount)}
 										</td>
-										<td className="p-2 lg:p-3 text-xs lg:text-sm text-right font-medium whitespace-nowrap" style={{ color: themeColor }}>
+										<td className="p-2 lg:p-3 text-xs lg:text-sm text-right font-medium whitespace-nowrap" style={{ color: contentColor }}>
 											{fmtC(calc.total)}
 										</td>
 									</tr>
@@ -340,11 +342,11 @@ export function DepositPreview({
 							style={{ backgroundColor: themeColor + "0d", borderColor: themeColor + "33" }}
 						>
 							<div className="flex justify-between text-xs lg:text-sm">
-								<span style={{ color: themeColor }}>Sous-total HT :</span>
+								<span style={{ color: contentColor }}>Sous-total HT :</span>
 								<span className="text-slate-900 font-medium truncate ml-2">{fmtC(calc.subtotal)}</span>
 							</div>
 							<div className="flex justify-between text-xs lg:text-sm">
-								<span style={{ color: themeColor }}>TVA ({formData.vatRate ?? 20}%) :</span>
+								<span style={{ color: contentColor }}>TVA ({formData.vatRate ?? 20}%) :</span>
 								<span className="text-slate-900 font-medium truncate ml-2">{fmtC(calc.taxAmount)}</span>
 							</div>
 							<div
@@ -352,7 +354,7 @@ export function DepositPreview({
 								style={{ borderTop: `1px solid ${themeColor}33` }}
 							>
 								<span className="text-slate-900">Total TTC :</span>
-								<span className="truncate ml-2" style={{ color: themeColor }}>{fmtC(calc.total)}</span>
+								<span className="truncate ml-2" style={{ color: contentColor }}>{fmtC(calc.total)}</span>
 							</div>
 						</div>
 					</div>
@@ -360,7 +362,7 @@ export function DepositPreview({
 					{/* Notes */}
 					{formData.notes && formData.notes.trim() && (
 						<div className="rounded-lg bg-slate-50 border border-slate-100 p-3">
-							<p className="font-medium mb-1 text-xs lg:text-sm" style={{ color: themeColor }}>Notes</p>
+							<p className="font-medium mb-1 text-xs lg:text-sm" style={{ color: contentColor }}>Notes</p>
 							<p className="text-[11px] lg:text-xs text-slate-600 whitespace-pre-line">
 								{formData.notes}
 							</p>
@@ -369,7 +371,7 @@ export function DepositPreview({
 
 					{/* Modalités de paiement */}
 					<div className="border-t border-slate-200 pt-4">
-						<h3 className="font-semibold mb-3 text-xs uppercase tracking-wide" style={{ color: themeColor }}>
+						<h3 className="font-semibold mb-3 text-xs uppercase tracking-wide" style={{ color: contentColor }}>
 							Modalités de paiement
 						</h3>
 						<div className="space-y-1 text-[11px] lg:text-xs text-slate-600">

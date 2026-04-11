@@ -17,6 +17,7 @@ import { DeliveryNotePdfDocument } from "@/lib/pdf/delivery-note-pdf-document";
 import type { SavedDeliveryNote } from "@/lib/types/delivery-notes";
 import { useDeleteDeliveryNote } from "@/hooks/use-delivery-notes";
 import { sendDeliveryNoteEmail } from "@/lib/actions/send-delivery-note-email";
+import { resolveHeaderTextColor , resolveContentColor } from "@/components/appearance/theme-config";
 
 // PDFDownloadLink chargé côté client uniquement
 const PDFDownloadLink = dynamic(
@@ -57,17 +58,19 @@ function DeliveryNotePreviewContent({ deliveryNote }: { deliveryNote: SavedDeliv
   const clientName = getClientName(deliveryNote.client);
   const emitterName = deliveryNote.user.companyName ?? deliveryNote.user.name;
   const themeColor = deliveryNote.user.themeColor ?? "#0d9488";
+  const textColor  = resolveHeaderTextColor(themeColor, "auto");
+  const contentColor = resolveContentColor(themeColor);
   const logo = deliveryNote.user.companyLogo;
   const displayName = deliveryNote.user.companyName ?? "";
 
   return (
     <div className="bg-white dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 p-2 xs:p-3 md:p-5 space-y-6 shadow-sm">
       {/* En-tête */}
-      <div className="rounded-lg p-4 text-white" style={{ backgroundColor: themeColor }}>
+      <div className="rounded-lg p-4" style={{ backgroundColor: themeColor }}>
         <div className="flex items-start gap-4">
           <div className="flex-1">
-            <h1 className="text-lg md:text-xl font-bold mb-1">BON DE LIVRAISON</h1>
-            <p className="text-white/90 text-xs md:text-sm">N° {deliveryNote.number}</p>
+            <h1 className="text-lg md:text-xl font-bold mb-1" style={{ color: textColor }}>BON DE LIVRAISON</h1>
+            <p className="text-xs md:text-sm" style={{ color: textColor, opacity: 0.9 }}>N° {deliveryNote.number}</p>
           </div>
           <div className="flex-1 flex flex-col items-center gap-1.5">
             {logo && (
@@ -76,11 +79,11 @@ function DeliveryNotePreviewContent({ deliveryNote }: { deliveryNote: SavedDeliv
               </div>
             )}
             {displayName && (
-              <p className="text-white/90 text-xs text-center font-medium">{displayName}</p>
+              <p className="text-xs text-center font-medium" style={{ color: textColor }}>{displayName}</p>
             )}
           </div>
           <div className="flex-1 flex flex-col items-end text-right text-xs md:text-sm">
-            <p className="text-white/90">Livraison : {fmtDate(deliveryNote.deliveryDate)}</p>
+            <p style={{ color: textColor, opacity: 0.9 }}>Livraison : {fmtDate(deliveryNote.deliveryDate)}</p>
             <span className="mt-2 inline-block bg-white/20 px-2 py-0.5 rounded-full text-[10px] font-semibold tracking-wide">
               LIVRAISON
             </span>
@@ -91,7 +94,7 @@ function DeliveryNotePreviewContent({ deliveryNote }: { deliveryNote: SavedDeliv
       {/* Émetteur + Destinataire */}
       <div className="grid grid-cols-2 gap-6">
         <div>
-          <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: themeColor }}>
+          <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: contentColor }}>
             Émis par
           </h3>
           <div className="space-y-0.5">
@@ -114,7 +117,7 @@ function DeliveryNotePreviewContent({ deliveryNote }: { deliveryNote: SavedDeliv
         </div>
 
         <div>
-          <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: themeColor }}>
+          <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: contentColor }}>
             Destinataire
           </h3>
           <div className="space-y-0.5">
@@ -138,7 +141,7 @@ function DeliveryNotePreviewContent({ deliveryNote }: { deliveryNote: SavedDeliv
 
       {/* Récapitulatif livraison */}
       <div>
-        <h3 className="font-semibold mb-3 text-xs uppercase tracking-wide" style={{ color: themeColor }}>
+        <h3 className="font-semibold mb-3 text-xs uppercase tracking-wide" style={{ color: contentColor }}>
           Informations de livraison
         </h3>
         <div
@@ -146,15 +149,15 @@ function DeliveryNotePreviewContent({ deliveryNote }: { deliveryNote: SavedDeliv
           style={{ backgroundColor: themeColor + "0d", borderColor: themeColor + "33" }}
         >
           <div className="flex justify-between text-xs lg:text-sm">
-            <span style={{ color: themeColor }}>Facture d'origine</span>
+            <span style={{ color: contentColor }}>Facture d'origine</span>
             <span className="text-slate-900 dark:text-slate-50 font-semibold">{deliveryNote.invoiceNumber}</span>
           </div>
           <div className="flex justify-between text-xs lg:text-sm">
-            <span style={{ color: themeColor }}>Date de livraison</span>
+            <span style={{ color: contentColor }}>Date de livraison</span>
             <span className="text-slate-900 dark:text-slate-50">{fmtDateShort(deliveryNote.deliveryDate)}</span>
           </div>
           <div className="flex justify-between text-xs lg:text-sm">
-            <span style={{ color: themeColor }}>Nombre d'articles</span>
+            <span style={{ color: contentColor }}>Nombre d'articles</span>
             <span className="text-slate-900 dark:text-slate-50 font-semibold">{deliveryNote.lines.length}</span>
           </div>
         </div>
@@ -163,7 +166,7 @@ function DeliveryNotePreviewContent({ deliveryNote }: { deliveryNote: SavedDeliv
       {/* Articles livrés */}
       {deliveryNote.lines.length > 0 && (
         <div>
-          <h3 className="font-semibold mb-3 text-xs uppercase tracking-wide" style={{ color: themeColor }}>
+          <h3 className="font-semibold mb-3 text-xs uppercase tracking-wide" style={{ color: contentColor }}>
             Articles livrés
           </h3>
           <div className="rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
@@ -189,7 +192,7 @@ function DeliveryNotePreviewContent({ deliveryNote }: { deliveryNote: SavedDeliv
       {/* Notes */}
       {deliveryNote.notes && (
         <div>
-          <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: themeColor }}>
+          <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: contentColor }}>
             Notes
           </h3>
           <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3">

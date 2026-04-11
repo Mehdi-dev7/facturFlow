@@ -18,12 +18,13 @@ import {
   INVOICE_TYPE_LABELS,
   type InvoiceType,
 } from "@/lib/validations/purchase-order";
-import { getFontFamily, getFontWeight } from "@/components/appearance/theme-config";
+import { getFontFamily, getFontWeight, resolveHeaderTextColor , resolveContentColor } from "@/components/appearance/theme-config";
 import { formatCurrency } from "@/lib/utils/calculs-facture";
 import type { SavedPurchaseOrder } from "@/lib/pdf/purchase-order-pdf-document";
 
 // Couleur teal fixe pour les bons de commande
 const TEAL_COLOR = "#0d9488";
+  const contentColor = resolveContentColor(TEAL_COLOR);
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -82,7 +83,7 @@ function StaticLinesTable({ title, lines, isForfait, typeConfig, currency }: Sta
   return (
     <div>
       {title && (
-        <h3 className="font-semibold mb-3 text-xs uppercase tracking-wide" style={{ color: TEAL_COLOR }}>
+        <h3 className="font-semibold mb-3 text-xs uppercase tracking-wide" style={{ color: contentColor }}>
           {title}
         </h3>
       )}
@@ -90,19 +91,19 @@ function StaticLinesTable({ title, lines, isForfait, typeConfig, currency }: Sta
         <table className="w-full">
           <thead style={{ backgroundColor: TEAL_COLOR + "1a" }}>
             <tr>
-              <th className="text-left p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: TEAL_COLOR }}>
+              <th className="text-left p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: contentColor }}>
                 {typeConfig.descriptionLabel}
               </th>
               {!isForfait && (
-                <th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: TEAL_COLOR }}>
+                <th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: contentColor }}>
                   {typeConfig.quantityLabel}
                 </th>
               )}
-              <th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: TEAL_COLOR }}>
+              <th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: contentColor }}>
                 {isForfait ? "Montant" : "Prix unit."}
               </th>
               {!isForfait && (
-                <th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: TEAL_COLOR }}>
+                <th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: contentColor }}>
                   Total HT
                 </th>
               )}
@@ -123,7 +124,7 @@ function StaticLinesTable({ title, lines, isForfait, typeConfig, currency }: Sta
                   {fmt(line.unitPrice, currency)}
                 </td>
                 {!isForfait && (
-                  <td className="p-2 lg:p-3 text-xs lg:text-sm text-right font-medium" style={{ color: TEAL_COLOR }}>
+                  <td className="p-2 lg:p-3 text-xs lg:text-sm text-right font-medium" style={{ color: contentColor }}>
                     {fmt(line.subtotal, currency)}
                   </td>
                 )}
@@ -205,20 +206,21 @@ function PurchaseOrderPreviewStatic({ purchaseOrder }: { purchaseOrder: SavedPur
   const companyFont = purchaseOrder.user.companyFont ?? "inter";
   const fontFamily  = getFontFamily(companyFont);
   const fontWeight  = getFontWeight(companyFont);
+  const textColor   = resolveHeaderTextColor(TEAL_COLOR, "auto");
 
   const statusInfo = getStatusLabel(purchaseOrder.status);
 
   return (
     <div className="bg-white dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 p-3 md:p-6 space-y-6 shadow-sm">
       {/* En-tête */}
-      <div className="rounded-lg p-4 text-white mb-6" style={{ backgroundColor: TEAL_COLOR }}>
+      <div className="rounded-lg p-4 mb-6" style={{ backgroundColor: TEAL_COLOR }}>
         <div className="flex items-start gap-4">
           {/* Gauche : BON DE COMMANDE + N° + réf + badge statut */}
           <div className="flex-1">
-            <h1 className="text-lg md:text-xl font-bold mb-1">BON DE COMMANDE</h1>
-            <p className="text-white/90 text-xs md:text-sm">N° {purchaseOrder.number}</p>
+            <h1 className="text-lg md:text-xl font-bold mb-1" style={{ color: textColor }}>BON DE COMMANDE</h1>
+            <p className="text-xs md:text-sm" style={{ color: textColor, opacity: 0.9 }}>N° {purchaseOrder.number}</p>
             {purchaseOrder.bcReference && (
-              <p className="text-white/70 text-[10px] mt-0.5">Réf. client : {purchaseOrder.bcReference}</p>
+              <p className="text-[10px] mt-0.5" style={{ color: textColor, opacity: 0.7 }}>Réf. client : {purchaseOrder.bcReference}</p>
             )}
             {orderType !== "basic" && (
               <span className="inline-block mt-1.5 text-[10px] bg-white/20 px-2 py-0.5 rounded-full font-medium tracking-wide">
@@ -234,16 +236,16 @@ function PurchaseOrderPreviewStatic({ purchaseOrder }: { purchaseOrder: SavedPur
               </div>
             )}
             {displayName && (
-              <p className="text-white/90 text-sm font-bold text-center" style={{ fontFamily, fontWeight }}>
+              <p className="text-sm font-bold text-center" style={{ fontFamily, fontWeight, color: textColor }}>
                 {displayName}
               </p>
             )}
           </div>
           {/* Droite : dates + statut */}
           <div className="flex-1 flex flex-col items-end text-right text-xs md:text-sm gap-1">
-            <p className="text-white/90">Date : {formatDate(purchaseOrder.date)}</p>
+            <p style={{ color: textColor, opacity: 0.9 }}>Date : {formatDate(purchaseOrder.date)}</p>
             {purchaseOrder.deliveryDate && (
-              <p className="text-white/90">Livraison : {formatDate(purchaseOrder.deliveryDate)}</p>
+              <p style={{ color: textColor, opacity: 0.9 }}>Livraison : {formatDate(purchaseOrder.deliveryDate)}</p>
             )}
             <span className={`inline-block mt-1 text-[10px] px-2 py-0.5 rounded-full font-medium ${statusInfo.color}`}>
               {statusInfo.label}
@@ -255,7 +257,7 @@ function PurchaseOrderPreviewStatic({ purchaseOrder }: { purchaseOrder: SavedPur
       {/* Émetteur et destinataire */}
       <div className="grid grid-cols-2 gap-6">
         <div>
-          <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: TEAL_COLOR }}>
+          <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: contentColor }}>
             Émetteur
           </h3>
           {emitter.companyName ? (
@@ -292,7 +294,7 @@ function PurchaseOrderPreviewStatic({ purchaseOrder }: { purchaseOrder: SavedPur
         </div>
 
         <div>
-          <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: TEAL_COLOR }}>
+          <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: contentColor }}>
             Destinataire
           </h3>
           <div className="text-sm space-y-0.5">
@@ -385,7 +387,7 @@ function PurchaseOrderPreviewStatic({ purchaseOrder }: { purchaseOrder: SavedPur
 
           <div className="flex justify-between text-sm lg:text-base font-bold">
             <span className="text-slate-900 dark:text-slate-50">Total TTC</span>
-            <span style={{ color: TEAL_COLOR }}>
+            <span style={{ color: contentColor }}>
               {fmt(purchaseOrder.total, purchaseOrder.user.currency)}
             </span>
           </div>
@@ -395,7 +397,7 @@ function PurchaseOrderPreviewStatic({ purchaseOrder }: { purchaseOrder: SavedPur
       {/* Notes */}
       {purchaseOrder.notes && (
         <div className="rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 p-3 text-[11px] lg:text-xs text-slate-600 dark:text-slate-300">
-          <p className="font-medium mb-1 text-xs lg:text-sm" style={{ color: TEAL_COLOR }}>Notes</p>
+          <p className="font-medium mb-1 text-xs lg:text-sm" style={{ color: contentColor }}>Notes</p>
           <p className="whitespace-pre-line">{purchaseOrder.notes}</p>
         </div>
       )}

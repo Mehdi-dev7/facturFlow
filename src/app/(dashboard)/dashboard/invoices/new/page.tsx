@@ -55,7 +55,7 @@ function NewInvoicePageContent() {
 	const companyInfo = companyInfoLocal ?? companyInfoDB ?? null;
 
 	// Mutation de création (gère toast + redirect auto vers /dashboard/invoices?preview=<id>)
-		const { themeColor, companyFont, companyLogo, companyName, invoiceFooter } = useAppearance();
+		const { themeColor, companyFont, companyLogo, companyName, invoiceFooter, currency, headerTextColor} = useAppearance();
 
 	const { data: subData } = useQuery({ queryKey: ["subscription"], queryFn: getCurrentSubscription, staleTime: 5 * 60 * 1000 });
 	const effectivePlan = subData?.success ? subData.data.effectivePlan : "FREE";
@@ -158,7 +158,7 @@ function NewInvoicePageContent() {
 	// Génère le document PDF à la volée pour la prévisualisation
 	const getDocumentForPreview = useCallback(() => {
 		const values = form.getValues();
-		const mock = buildPreviewInvoice(values, invoiceNumber, companyInfo, { themeColor, companyFont, companyLogo, invoiceFooter }, clients);
+		const mock = buildPreviewInvoice(values, invoiceNumber, companyInfo, { themeColor, companyFont, companyLogo, invoiceFooter , currency, headerTextColor}, clients);
 		return <InvoicePdfDocument invoice={mock} />;
 	}, [form, invoiceNumber, companyInfo, themeColor, companyFont, companyLogo, clients]);
 

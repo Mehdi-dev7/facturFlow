@@ -99,7 +99,7 @@ export default function EditProformaPage() {
 
 	const [mounted, setMounted] = useState(false);
 	const [isPdfPreviewOpen, setIsPdfPreviewOpen] = useState(false);
-	const { themeColor, companyFont, companyLogo, companyName, invoiceFooter } = useAppearance();
+	const { themeColor, companyFont, companyLogo, companyName, invoiceFooter, currency, headerTextColor} = useAppearance();
 	const { data: subData } = useQuery({ queryKey: ["subscription"], queryFn: getCurrentSubscription, staleTime: 5 * 60 * 1000 });
 	const effectivePlan = subData?.success ? subData.data.effectivePlan : "FREE";
 	const { data: clients = [] } = useClients();
@@ -151,7 +151,7 @@ export default function EditProformaPage() {
 
 	const getDocumentForPreview = useCallback(() => {
 		const values = form.getValues();
-		const mock = buildPreviewInvoice(values, proforma?.number ?? "", companyInfo, { themeColor, companyFont, companyLogo, invoiceFooter }, clients);
+		const mock = buildPreviewInvoice(values, proforma?.number ?? "", companyInfo, { themeColor, companyFont, companyLogo, invoiceFooter , currency, headerTextColor}, clients);
 		return <InvoicePdfDocument invoice={mock} documentLabel="PROFORMA" />;
 	}, [form, proforma, companyInfo, themeColor, companyFont, companyLogo, clients]);
 
@@ -265,6 +265,7 @@ export default function EditProformaPage() {
 					companyLogo={companyLogo}
 					companyName={companyName}
 				invoiceFooter={invoiceFooter}
+				documentLabel="PROFORMA"
 				/>
 			</div>
 

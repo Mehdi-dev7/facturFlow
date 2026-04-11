@@ -13,6 +13,7 @@ import {
 import type { SavedDeposit } from "@/lib/types/deposits";
 
 import { registerPdfFonts, getPdfFontFamily } from "./pdf-fonts";
+import { resolveHeaderTextColor } from "@/components/appearance/theme-config";
 registerPdfFonts();
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -171,6 +172,7 @@ interface DepositPdfDocumentProps {
 export default function DepositPdfDocument({ deposit }: DepositPdfDocumentProps) {
   const clientName = getClientName(deposit.client);
   const themeColor = deposit.user.themeColor ?? "#7c3aed";
+  const textColor = resolveHeaderTextColor(themeColor, (deposit.user as Record<string, unknown>).headerTextColor as string | null ?? null);
   const logo = deposit.user.companyLogo;
   const displayName = deposit.user.companyName ?? "";
   const companyFontFamily = getPdfFontFamily(deposit.user.companyFont);
@@ -192,8 +194,8 @@ export default function DepositPdfDocument({ deposit }: DepositPdfDocumentProps)
           <View style={S.headerRow}>
             {/* Gauche : ACOMPTE + N° */}
             <View style={S.headerLeft}>
-              <Text style={S.headerTitle}>ACOMPTE</Text>
-              <Text style={S.headerNumber}>{deposit.number}</Text>
+              <Text style={[S.headerTitle, { color: textColor }]}>ACOMPTE</Text>
+              <Text style={[S.headerNumber, { color: textColor, opacity: 0.9 }]}>{deposit.number}</Text>
             </View>
 
             {/* Centre : Logo circulaire + nom entreprise */}
@@ -204,7 +206,7 @@ export default function DepositPdfDocument({ deposit }: DepositPdfDocumentProps)
                 </View>
               ) : null}
               {displayName ? (
-                <Text style={[S.headerCompanyName, { fontFamily: companyFontFamily }]}>
+                <Text style={[S.headerCompanyName, { color: textColor, opacity: 0.9, fontFamily: companyFontFamily }]}>
                   {displayName}
                 </Text>
               ) : null}
@@ -212,18 +214,18 @@ export default function DepositPdfDocument({ deposit }: DepositPdfDocumentProps)
 
             {/* Droite : dates */}
             <View style={S.headerRight}>
-              <Text style={S.headerDateLabel}>Date d&apos;émission</Text>
-              <Text style={S.headerDateValue}>{fmtDate(deposit.date)}</Text>
+              <Text style={[S.headerDateLabel, { color: textColor, opacity: 0.75 }]}>Date d&apos;émission</Text>
+              <Text style={[S.headerDateValue, { color: textColor, opacity: 0.95 }]}>{fmtDate(deposit.date)}</Text>
               {deposit.dueDate && (
                 <>
-                  <Text style={S.headerDateLabel}>Échéance</Text>
-                  <Text style={S.headerDateValue}>{fmtDate(deposit.dueDate)}</Text>
+                  <Text style={[S.headerDateLabel, { color: textColor, opacity: 0.75 }]}>Échéance</Text>
+                  <Text style={[S.headerDateValue, { color: textColor, opacity: 0.95 }]}>{fmtDate(deposit.dueDate)}</Text>
                 </>
               )}
               {(deposit.businessMetadata?.deliveryDate as string | null) ? (
                 <>
-                  <Text style={S.headerDateLabel}>Livraison</Text>
-                  <Text style={S.headerDateValue}>
+                  <Text style={[S.headerDateLabel, { color: textColor, opacity: 0.75 }]}>Livraison</Text>
+                  <Text style={[S.headerDateValue, { color: textColor, opacity: 0.95 }]}>
                     {fmtDate(deposit.businessMetadata!.deliveryDate as string)}
                   </Text>
                 </>

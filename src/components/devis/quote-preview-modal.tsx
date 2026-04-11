@@ -22,7 +22,7 @@ import {
   INVOICE_TYPE_LABELS,
   type InvoiceType,
 } from "@/lib/validations/invoice";
-import { getFontFamily, getFontWeight } from "@/components/appearance/theme-config";
+import { getFontFamily, getFontWeight, resolveHeaderTextColor , resolveContentColor } from "@/components/appearance/theme-config";
 import { formatCurrency } from "@/lib/utils/calculs-facture";
 
 // ─── Props ────────────────────────────────────────────────────────────────────
@@ -62,14 +62,15 @@ interface StaticLinesTableProps {
   isForfait: boolean;
   typeConfig: { descriptionLabel: string; quantityLabel: string | null; priceLabel: string };
   themeColor: string;
+  contentColor: string;
   currency?: string | null;
 }
 
-function StaticLinesTable({ title, lines, isForfait, typeConfig, themeColor, currency }: StaticLinesTableProps) {
+function StaticLinesTable({ title, lines, isForfait, typeConfig, themeColor, currency , contentColor }: StaticLinesTableProps) {
   return (
     <div>
       {title && (
-        <h3 className="font-semibold mb-3 text-xs uppercase tracking-wide" style={{ color: themeColor }}>
+        <h3 className="font-semibold mb-3 text-xs uppercase tracking-wide" style={{ color: contentColor }}>
           {title}
         </h3>
       )}
@@ -77,19 +78,19 @@ function StaticLinesTable({ title, lines, isForfait, typeConfig, themeColor, cur
         <table className="w-full">
           <thead style={{ backgroundColor: themeColor + "1a" }}>
             <tr>
-              <th className="text-left p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: themeColor }}>
+              <th className="text-left p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: contentColor }}>
                 {typeConfig.descriptionLabel}
               </th>
               {!isForfait && (
-                <th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: themeColor }}>
+                <th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: contentColor }}>
                   {typeConfig.quantityLabel}
                 </th>
               )}
-              <th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: themeColor }}>
+              <th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: contentColor }}>
                 {isForfait ? "Montant" : "Prix unit."}
               </th>
               {!isForfait && (
-                <th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: themeColor }}>
+                <th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: contentColor }}>
                   Total HT
                 </th>
               )}
@@ -110,7 +111,7 @@ function StaticLinesTable({ title, lines, isForfait, typeConfig, themeColor, cur
                   {fmt(line.unitPrice, currency)}
                 </td>
                 {!isForfait && (
-                  <td className="p-2 lg:p-3 text-xs lg:text-sm text-right font-medium" style={{ color: themeColor }}>
+                  <td className="p-2 lg:p-3 text-xs lg:text-sm text-right font-medium" style={{ color: contentColor }}>
                     {fmt(line.subtotal, currency)}
                   </td>
                 )}
@@ -188,16 +189,18 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
   const companyFont = quote.user.companyFont ?? "inter";
   const fontFamily = getFontFamily(companyFont);
   const fontWeight = getFontWeight(companyFont);
+  const textColor  = resolveHeaderTextColor(themeColor, "auto");
+  const contentColor = resolveContentColor(themeColor);
 
   return (
     <div className="bg-white dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 p-3 md:p-6 space-y-6 shadow-sm">
       {/* En-tête 3 colonnes : type+N° | logo+nom centré | dates à droite */}
-      <div className="rounded-lg p-4 text-white mb-6" style={{ backgroundColor: themeColor }}>
+      <div className="rounded-lg p-4 mb-6" style={{ backgroundColor: themeColor }}>
         <div className="flex items-start gap-4">
           {/* Gauche : DEVIS + N° */}
           <div className="flex-1">
-            <h1 className="text-lg md:text-xl font-bold mb-1">DEVIS</h1>
-            <p className="text-white/90 text-xs md:text-sm">N° {quote.number}</p>
+            <h1 className="text-lg md:text-xl font-bold mb-1" style={{ color: textColor }}>DEVIS</h1>
+            <p className="text-xs md:text-sm" style={{ color: textColor, opacity: 0.9 }}>N° {quote.number}</p>
             {quoteType !== "basic" && (
               <span className="inline-block mt-1.5 text-[10px] bg-white/20 px-2 py-0.5 rounded-full font-medium tracking-wide">
                 {INVOICE_TYPE_LABELS[quoteType]}
@@ -212,13 +215,13 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
               </div>
             )}
             {displayName && (
-              <p className="text-white/90 text-sm font-bold text-center" style={{ fontFamily, fontWeight }}>{displayName}</p>
+              <p className="text-sm font-bold text-center" style={{ fontFamily, fontWeight, color: textColor }}>{displayName}</p>
             )}
           </div>
           {/* Droite : dates */}
           <div className="flex-1 flex flex-col items-end text-right text-xs md:text-sm">
-            <p className="text-white/90">Date : {formatDate(quote.date)}</p>
-            <p className="text-white/90">Validité : {formatDate(quote.validUntil)}</p>
+            <p style={{ color: textColor, opacity: 0.9 }}>Date : {formatDate(quote.date)}</p>
+            <p style={{ color: textColor, opacity: 0.9 }}>Validité : {formatDate(quote.validUntil)}</p>
           </div>
         </div>
       </div>
@@ -227,7 +230,7 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
       <div className="grid grid-cols-2 gap-6">
           {/* Émetteur */}
           <div>
-            <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: themeColor }}>
+            <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: contentColor }}>
               Émetteur
             </h3>
             {emitter.companyName ? (
@@ -267,7 +270,7 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
 
           {/* Destinataire */}
           <div>
-            <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: themeColor }}>
+            <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: contentColor }}>
               Destinataire
             </h3>
             <div className="text-sm space-y-0.5">
@@ -304,6 +307,7 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
               isForfait={false}
               typeConfig={typeConfig}
               themeColor={themeColor}
+            contentColor={contentColor}
             />
             {materiauLines.length > 0 && (
               <StaticLinesTable
@@ -312,6 +316,7 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
                 isForfait={false}
                 typeConfig={typeConfig}
                 themeColor={themeColor}
+            contentColor={contentColor}
               />
             )}
           </div>
@@ -321,6 +326,7 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
             isForfait={isForfait}
             typeConfig={typeConfig}
             themeColor={themeColor}
+            contentColor={contentColor}
           />
         )}
       <div className="h-px bg-slate-200 dark:bg-slate-700 mt-2 mb-5" />
@@ -362,7 +368,7 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
             {/* Total TTC */}
             <div className="flex justify-between text-sm lg:text-base font-bold">
               <span className="text-slate-900 dark:text-slate-50">Total TTC</span>
-              <span style={{ color: themeColor }}>
+              <span style={{ color: contentColor }}>
                 {fmt(quote.total, quote.user.currency)}
               </span>
             </div>
@@ -373,10 +379,10 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
                 className="flex justify-between text-sm pt-1 mt-1"
                 style={{ borderTop: `1px solid ${themeColor}33` }}
               >
-                <span className="font-medium" style={{ color: themeColor }}>
+                <span className="font-medium" style={{ color: contentColor }}>
                   Acompte à verser
                 </span>
-                <span className="font-bold" style={{ color: themeColor }}>
+                <span className="font-bold" style={{ color: contentColor }}>
                   {fmt(deposit, quote.user.currency)}
                 </span>
               </div>
@@ -387,7 +393,7 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
         {/* Notes */}
         {quote.notes && (
           <div className="rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 p-3 text-[11px] lg:text-xs text-slate-600 dark:text-slate-300">
-            <p className="font-medium mb-1 text-xs lg:text-sm" style={{ color: themeColor }}>Notes</p>
+            <p className="font-medium mb-1 text-xs lg:text-sm" style={{ color: contentColor }}>Notes</p>
             <p className="whitespace-pre-line">{quote.notes}</p>
           </div>
         )}

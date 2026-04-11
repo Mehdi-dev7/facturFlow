@@ -19,6 +19,7 @@ import { RECEIPT_PAYMENT_METHODS } from "@/lib/types/receipts";
 import { useDeleteReceipt } from "@/hooks/use-receipts";
 import { sendSavedReceiptEmail } from "@/lib/actions/send-receipt-email";
 import { formatCurrency } from "@/lib/utils/calculs-facture";
+import { resolveHeaderTextColor , resolveContentColor } from "@/components/appearance/theme-config";
 
 // PDFDownloadLink chargé côté client uniquement (browser APIs pour Blob URL)
 const PDFDownloadLink = dynamic(
@@ -68,18 +69,20 @@ function ReceiptPreviewContent({ receipt }: { receipt: SavedReceipt }) {
   const clientName = getClientName(receipt.client);
   const emitterName = receipt.user.companyName ?? receipt.user.name;
   const themeColor = receipt.user.themeColor ?? "#7c3aed";
+  const textColor  = resolveHeaderTextColor(themeColor, "auto");
+  const contentColor = resolveContentColor(themeColor);
   const logo = receipt.user.companyLogo;
   const displayName = receipt.user.companyName ?? "";
 
   return (
     <div className="bg-white dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 p-2 xs:p-3 md:p-5 space-y-6 shadow-sm">
       {/* En-tête 3 colonnes : type+N° | logo+nom centré | date+badge */}
-      <div className="rounded-lg p-4 text-white" style={{ backgroundColor: themeColor }}>
+      <div className="rounded-lg p-4" style={{ backgroundColor: themeColor }}>
         <div className="flex items-start gap-4">
           {/* Gauche : REÇU + N° */}
           <div className="flex-1">
-            <h1 className="text-lg md:text-xl font-bold mb-1">REÇU</h1>
-            <p className="text-white/90 text-xs md:text-sm">N° {receipt.number}</p>
+            <h1 className="text-lg md:text-xl font-bold mb-1" style={{ color: textColor }}>REÇU</h1>
+            <p className="text-xs md:text-sm" style={{ color: textColor, opacity: 0.9 }}>N° {receipt.number}</p>
           </div>
           {/* Centre : logo circulaire + nom entreprise */}
           <div className="flex-1 flex flex-col items-center gap-1.5">
@@ -89,12 +92,12 @@ function ReceiptPreviewContent({ receipt }: { receipt: SavedReceipt }) {
               </div>
             )}
             {displayName && (
-              <p className="text-white/90 text-xs text-center font-medium">{displayName}</p>
+              <p className="text-xs text-center font-medium" style={{ color: textColor }}>{displayName}</p>
             )}
           </div>
           {/* Droite : date + badge */}
           <div className="flex-1 flex flex-col items-end text-right text-xs md:text-sm">
-            <p className="text-white/90">Date : {fmtDate(receipt.date)}</p>
+            <p style={{ color: textColor, opacity: 0.9 }}>Date : {fmtDate(receipt.date)}</p>
             <span className="mt-2 inline-block bg-white/20 px-2 py-0.5 rounded-full text-[10px] font-semibold tracking-wide">
               PAIEMENT REÇU
             </span>
@@ -106,7 +109,7 @@ function ReceiptPreviewContent({ receipt }: { receipt: SavedReceipt }) {
       <div className="grid grid-cols-2 gap-6">
         {/* Émetteur */}
         <div>
-          <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: themeColor }}>
+          <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: contentColor }}>
             Émis par
           </h3>
           <div className="text-sm space-y-0.5">
@@ -140,7 +143,7 @@ function ReceiptPreviewContent({ receipt }: { receipt: SavedReceipt }) {
 
         {/* Destinataire */}
         <div>
-          <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: themeColor }}>
+          <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: contentColor }}>
             Reçu de
           </h3>
           <div className="text-sm space-y-0.5">
@@ -177,7 +180,7 @@ function ReceiptPreviewContent({ receipt }: { receipt: SavedReceipt }) {
 
       {/* Récapitulatif paiement */}
       <div>
-        <h3 className="font-semibold mb-3 text-xs uppercase tracking-wide" style={{ color: themeColor }}>
+        <h3 className="font-semibold mb-3 text-xs uppercase tracking-wide" style={{ color: contentColor }}>
           Récapitulatif du paiement
         </h3>
         <div
@@ -185,17 +188,17 @@ function ReceiptPreviewContent({ receipt }: { receipt: SavedReceipt }) {
           style={{ backgroundColor: themeColor + "0d", borderColor: themeColor + "33" }}
         >
           <div className="flex justify-between text-xs lg:text-sm">
-            <span style={{ color: themeColor }}>Objet</span>
+            <span style={{ color: contentColor }}>Objet</span>
             <span className="text-slate-900 dark:text-slate-50 text-right max-w-[60%]">
               {receipt.description}
             </span>
           </div>
           <div className="flex justify-between text-xs lg:text-sm">
-            <span style={{ color: themeColor }}>Date du paiement</span>
+            <span style={{ color: contentColor }}>Date du paiement</span>
             <span className="text-slate-900 dark:text-slate-50">{fmtDateShort(receipt.date)}</span>
           </div>
           <div className="flex justify-between text-xs lg:text-sm">
-            <span style={{ color: themeColor }}>Mode de paiement</span>
+            <span style={{ color: contentColor }}>Mode de paiement</span>
             <span className="text-slate-900 dark:text-slate-50">
               {getPaymentLabel(receipt.paymentMethod)}
             </span>
@@ -205,10 +208,10 @@ function ReceiptPreviewContent({ receipt }: { receipt: SavedReceipt }) {
             className="flex justify-between items-center pt-3 mt-1"
             style={{ borderTop: `1px solid ${themeColor}33` }}
           >
-            <span className="text-sm lg:text-base font-bold" style={{ color: themeColor }}>
+            <span className="text-sm lg:text-base font-bold" style={{ color: contentColor }}>
               Montant encaissé
             </span>
-            <span className="text-md lg:text-base font-bold" style={{ color: themeColor }}>
+            <span className="text-md lg:text-base font-bold" style={{ color: contentColor }}>
               {fmtAmount(receipt.total, receipt.user.currency)}
             </span>
           </div>
@@ -218,7 +221,7 @@ function ReceiptPreviewContent({ receipt }: { receipt: SavedReceipt }) {
       {/* Notes */}
       {receipt.notes && (
         <div>
-          <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: themeColor }}>
+          <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: contentColor }}>
             Notes
           </h3>
           <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3">

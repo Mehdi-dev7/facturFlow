@@ -25,7 +25,7 @@ import {
   INVOICE_TYPE_LABELS,
   type InvoiceType,
 } from "@/lib/validations/invoice";
-import { getFontFamily, getFontWeight } from "@/components/appearance/theme-config";
+import { getFontFamily, getFontWeight, resolveHeaderTextColor , resolveContentColor } from "@/components/appearance/theme-config";
 import { formatCurrency } from "@/lib/utils/calculs-facture";
 
 // ─── Props ────────────────────────────────────────────────────────────────────
@@ -68,14 +68,15 @@ interface StaticLinesTableProps {
   isForfait: boolean;
   typeConfig: { descriptionLabel: string; quantityLabel: string | null; priceLabel: string };
   themeColor: string;
+  contentColor: string;
   currency?: string | null;
 }
 
-function StaticLinesTable({ title, lines, isForfait, typeConfig, themeColor, currency }: StaticLinesTableProps) {
+function StaticLinesTable({ title, lines, isForfait, typeConfig, themeColor, currency , contentColor }: StaticLinesTableProps) {
   return (
     <div>
       {title && (
-        <h3 className="font-semibold mb-3 text-xs uppercase tracking-wide" style={{ color: themeColor }}>
+        <h3 className="font-semibold mb-3 text-xs uppercase tracking-wide" style={{ color: contentColor }}>
           {title}
         </h3>
       )}
@@ -83,19 +84,19 @@ function StaticLinesTable({ title, lines, isForfait, typeConfig, themeColor, cur
         <table className="w-full">
           <thead style={{ backgroundColor: themeColor + "1a" }}>
             <tr>
-              <th className="text-left p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: themeColor }}>
+              <th className="text-left p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: contentColor }}>
                 {typeConfig.descriptionLabel}
               </th>
               {!isForfait && (
-                <th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: themeColor }}>
+                <th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: contentColor }}>
                   {typeConfig.quantityLabel}
                 </th>
               )}
-              <th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: themeColor }}>
+              <th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: contentColor }}>
                 {isForfait ? "Montant" : "Prix unit."}
               </th>
               {!isForfait && (
-                <th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: themeColor }}>
+                <th className="text-right p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: contentColor }}>
                   Total HT
                 </th>
               )}
@@ -116,7 +117,7 @@ function StaticLinesTable({ title, lines, isForfait, typeConfig, themeColor, cur
                   {fmt(line.unitPrice, currency)}
                 </td>
                 {!isForfait && (
-                  <td className="p-2 lg:p-3 text-xs lg:text-sm text-right font-medium" style={{ color: themeColor }}>
+                  <td className="p-2 lg:p-3 text-xs lg:text-sm text-right font-medium" style={{ color: contentColor }}>
                     {fmt(line.subtotal, currency)}
                   </td>
                 )}
@@ -195,6 +196,8 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
 
   // Couleur thème dynamique
   const themeColor = invoice.user.themeColor ?? "#7c3aed";
+  const textColor  = resolveHeaderTextColor(themeColor, (invoice.user as Record<string,unknown>).headerTextColor as string | null);
+  const contentColor = resolveContentColor(themeColor);
   const logo = invoice.user.companyLogo;
   const displayName = emitter.companyName ?? "";
   const companyFont = invoice.user.companyFont ?? "inter";
@@ -204,12 +207,12 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
   return (
     <div className="bg-white dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 p-2 xs:p-3 md:p-5 space-y-6 shadow-sm">
       {/* En-tête 3 colonnes : type+N° | logo+nom centré | dates à droite */}
-      <div className="rounded-lg p-4 text-white mb-6" style={{ backgroundColor: themeColor }}>
+      <div className="rounded-lg p-4 mb-6" style={{ backgroundColor: themeColor }}>
         <div className="flex items-start gap-4">
           {/* Gauche : FACTURE + N° */}
           <div className="flex-1">
-            <h1 className="text-lg md:text-xl font-bold mb-1">FACTURE</h1>
-            <p className="text-white/90 text-xs md:text-sm">N° {invoice.number}</p>
+            <h1 className="text-lg md:text-xl font-bold mb-1" style={{ color: textColor }}>FACTURE</h1>
+            <p className="text-xs md:text-sm" style={{ color: textColor, opacity: 0.9 }}>N° {invoice.number}</p>
             {invoiceType !== "basic" && (
               <span className="inline-block mt-1.5 text-[10px] bg-white/20 px-2 py-0.5 rounded-full font-medium tracking-wide">
                 {INVOICE_TYPE_LABELS[invoiceType]}
@@ -224,13 +227,13 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
               </div>
             )}
             {displayName && (
-              <p className="text-white/90 text-sm font-bold text-center" style={{ fontFamily, fontWeight }}>{displayName}</p>
+              <p className="text-sm font-bold text-center" style={{ fontFamily, fontWeight, color: textColor }}>{displayName}</p>
             )}
           </div>
           {/* Droite : dates */}
           <div className="flex-1 flex flex-col items-end text-right text-xs md:text-sm">
-            <p className="text-white/90">Date : {formatDate(invoice.date)}</p>
-            <p className="text-white/90">Échéance : {formatDate(invoice.dueDate)}</p>
+            <p style={{ color: textColor, opacity: 0.9 }}>Date : {formatDate(invoice.date)}</p>
+            <p style={{ color: textColor, opacity: 0.9 }}>Échéance : {formatDate(invoice.dueDate)}</p>
           </div>
         </div>
       </div>
@@ -239,7 +242,7 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
       <div className="grid grid-cols-2 gap-6">
         {/* Émetteur */}
         <div>
-          <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: themeColor }}>
+          <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: contentColor }}>
             Émetteur
           </h3>
           {emitter.companyName ? (
@@ -277,7 +280,7 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
 
         {/* Destinataire */}
         <div>
-          <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: themeColor }}>
+          <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: contentColor }}>
             Destinataire
           </h3>
           <div className="text-sm space-y-0.5">
@@ -319,6 +322,7 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
               isForfait={false}
               typeConfig={typeConfig}
               themeColor={themeColor}
+            contentColor={contentColor}
             />
             {materiauLines.length > 0 && (
               <StaticLinesTable
@@ -327,6 +331,7 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
                 isForfait={false}
                 typeConfig={typeConfig}
                 themeColor={themeColor}
+            contentColor={contentColor}
               />
             )}
           </div>
@@ -337,6 +342,7 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
             isForfait={isForfait}
             typeConfig={typeConfig}
             themeColor={themeColor}
+            contentColor={contentColor}
           />
         )}
       </div>
@@ -349,21 +355,21 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
         >
           {/* Sous-total HT */}
           <div className="flex justify-between text-sm">
-            <span style={{ color: themeColor }}>Sous-total HT :</span>
+            <span style={{ color: contentColor }}>Sous-total HT :</span>
             <span className="text-slate-900 dark:text-slate-50 font-medium">{fmt(invoice.subtotal, invoice.user.currency)}</span>
           </div>
 
           {/* Réduction */}
           {discount > 0 && (
             <div className="flex justify-between text-sm">
-              <span style={{ color: themeColor }}>Réduction :</span>
+              <span style={{ color: contentColor }}>Réduction :</span>
               <span className="text-rose-600 font-medium">−{fmt(discount, invoice.user.currency)}</span>
             </div>
           )}
 
           {/* TVA */}
           <div className="flex justify-between text-sm">
-            <span style={{ color: themeColor }}>TVA ({vatRate}%) :</span>
+            <span style={{ color: contentColor }}>TVA ({vatRate}%) :</span>
             <span className="text-slate-900 dark:text-slate-50 font-medium">{fmt(invoice.taxTotal, invoice.user.currency)}</span>
           </div>
 
@@ -373,7 +379,7 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
             style={{ borderTop: `1px solid ${themeColor}33` }}
           >
             <span className="text-slate-900 dark:text-slate-50 text-sm sm:text-base">Total TTC :</span>
-            <span className="text-sm lg:text-base" style={{ color: themeColor }}>{fmt(invoice.total, invoice.user.currency)}</span>
+            <span className="text-sm lg:text-base" style={{ color: contentColor }}>{fmt(invoice.total, invoice.user.currency)}</span>
           </div>
 
           {/* Acompte + NET À PAYER */}
@@ -383,7 +389,7 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
                 className="flex justify-between text-sm pt-2"
                 style={{ borderTop: `1px solid ${themeColor}33` }}
               >
-                <span className="text-sm lg:text-md" style={{ color: themeColor }}>Acompte versé :</span>
+                <span className="text-sm lg:text-md" style={{ color: contentColor }}>Acompte versé :</span>
                 <span className="text-rose-600 font-medium text-sm lg:text-md">−{fmt(deposit, invoice.user.currency)}</span>
               </div>
               <div
@@ -393,7 +399,7 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
                 <span className="text-base lg:text-lg font-bold text-slate-900 dark:text-slate-50 tracking-tight">
                   NET À PAYER
                 </span>
-                <span className="text-base lg:text-lg font-bold" style={{ color: themeColor }}>
+                <span className="text-base lg:text-lg font-bold" style={{ color: contentColor }}>
                   {fmt(netAPayer, invoice.user.currency)}
                 </span>
               </div>
@@ -405,7 +411,7 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
       {/* Notes */}
       {invoice.notes && invoice.notes.trim() && (
         <div>
-          <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: themeColor }}>
+          <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: contentColor }}>
             Notes
           </h3>
           <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3">
@@ -418,7 +424,7 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
 
       {/* Liens de paiement */}
       <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
-        <h3 className="font-semibold mb-3 text-xs uppercase tracking-wide" style={{ color: themeColor }}>
+        <h3 className="font-semibold mb-3 text-xs uppercase tracking-wide" style={{ color: contentColor }}>
           Modalités de paiement
         </h3>
         <div className="space-y-2 text-xs md:text-sm text-slate-600 dark:text-slate-400">

@@ -12,6 +12,7 @@ import {
 import type { Style } from "@react-pdf/types";
 
 import { registerPdfFonts, getPdfFontFamily } from "./pdf-fonts";
+import { resolveHeaderTextColor } from "@/components/appearance/theme-config";
 registerPdfFonts();
 
 // ─── Type local SavedPurchaseOrder ───────────────────────────────────────────
@@ -135,14 +136,14 @@ const S = StyleSheet.create({
   headerRow: { flexDirection: "row", alignItems: "flex-start" },
   headerLeft: { flex: 1 },
   headerTitle: {
-    fontSize: 22,
+    fontSize: 16,
     fontFamily: "Helvetica-Bold",
     color: "#ffffff",
     marginBottom: 4,
   },
   headerNumber: { fontSize: 12, color: "#ffffffcc" },
   headerBcRef: { fontSize: 9, color: "#ffffffaa", marginTop: 4 },
-  headerCenter: { flex: 1, flexDirection: "column", alignItems: "center", justifyContent: "center" },
+  headerCenter: { flex: 1, flexDirection: "column", alignItems: "center", justifyContent: "center", alignSelf: "stretch" },
   headerLogoWrapper: { width: 48, height: 48, borderRadius: 24, overflow: "hidden" },
   headerLogo: { width: 48, height: 48 },
   headerCompanyName: { fontSize: 13, fontFamily: "Helvetica-Bold", color: "#ffffff", textAlign: "center", marginTop: 6 },
@@ -242,6 +243,7 @@ export default function PurchaseOrderPdfDocument({ purchaseOrder }: PurchaseOrde
   const clientName = getClientName(purchaseOrder.client);
   // Les BC utilisent toujours la couleur teal (indépendant du thème user)
   const themeColor = TEAL_COLOR;
+  const textColor = resolveHeaderTextColor(themeColor, (purchaseOrder.user as Record<string, unknown>).headerTextColor as string | null ?? null);
   const logo = purchaseOrder.user.companyLogo;
   const displayName = purchaseOrder.user.companyName ?? "";
   const companyFontFamily = getPdfFontFamily(purchaseOrder.user.companyFont);
@@ -279,8 +281,9 @@ export default function PurchaseOrderPdfDocument({ purchaseOrder }: PurchaseOrde
           <View style={S.headerRow}>
             {/* Gauche : BON DE COMMANDE + N° */}
             <View style={S.headerLeft}>
-              <Text style={S.headerTitle}>BON DE COMMANDE</Text>
-              <Text style={S.headerNumber}>{purchaseOrder.number}</Text>
+              <Text style={[S.headerTitle, { color: textColor }]}>BON DE</Text>
+              <Text style={[S.headerTitle, { color: textColor }]}>COMMANDE</Text>
+              <Text style={[S.headerNumber, { color: textColor, opacity: 0.9 }]}>{purchaseOrder.number}</Text>
               {/* Référence client optionnelle */}
               {purchaseOrder.bcReference && (
                 <Text style={S.headerBcRef}>Réf. client : {purchaseOrder.bcReference}</Text>
@@ -295,7 +298,7 @@ export default function PurchaseOrderPdfDocument({ purchaseOrder }: PurchaseOrde
                 </View>
               ) : null}
               {displayName ? (
-                <Text style={[S.headerCompanyName, { fontFamily: companyFontFamily }]}>
+                <Text style={[S.headerCompanyName, { color: textColor, opacity: 0.9, fontFamily: companyFontFamily }]}>
                   {displayName}
                 </Text>
               ) : null}
@@ -303,12 +306,12 @@ export default function PurchaseOrderPdfDocument({ purchaseOrder }: PurchaseOrde
 
             {/* Droite : dates */}
             <View style={S.headerRight}>
-              <Text style={S.headerDateLabel}>Date d&apos;émission</Text>
-              <Text style={S.headerDateValue}>{fmtDate(purchaseOrder.date)}</Text>
+              <Text style={[S.headerDateLabel, { color: textColor, opacity: 0.75 }]}>Date d&apos;émission</Text>
+              <Text style={[S.headerDateValue, { color: textColor, opacity: 0.95 }]}>{fmtDate(purchaseOrder.date)}</Text>
               {purchaseOrder.deliveryDate && (
                 <>
-                  <Text style={S.headerDateLabel}>Date de livraison</Text>
-                  <Text style={S.headerDateValue}>{fmtDate(purchaseOrder.deliveryDate)}</Text>
+                  <Text style={[S.headerDateLabel, { color: textColor, opacity: 0.75 }]}>Date de livraison</Text>
+                  <Text style={[S.headerDateValue, { color: textColor, opacity: 0.95 }]}>{fmtDate(purchaseOrder.deliveryDate)}</Text>
                 </>
               )}
             </View>

@@ -39,7 +39,7 @@ export function AppearancePageContent({ initial }: AppearancePageContentProps) {
 
   const handleSave = useCallback(async () => {
     setIsSaving(true);
-    const result = await saveAppearance({ themeColor, companyFont, companyName, companyLogo: logo, invoiceFooter });
+    const result = await saveAppearance({ themeColor, companyFont, companyName, companyLogo: logo, invoiceFooter, headerTextColor: "auto" });
     if (result.success) {
       toast.success("Apparence sauvegardée !");
     } else {

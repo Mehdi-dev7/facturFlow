@@ -20,6 +20,7 @@ interface AppearanceCtx {
   companyLogo: string | null;
   invoiceFooter?: string | null;
   currency?: string | null;
+  headerTextColor?: string | null;
 }
 
 // ─── Helpers internes ─────────────────────────────────────────────────────────
@@ -87,6 +88,7 @@ function buildUser(companyInfo: CompanyInfo | null, appearance: AppearanceCtx) {
     bic: null,
     invoiceFooter: appearance.invoiceFooter ?? null,
     currency: appearance.currency ?? null,
+    headerTextColor: appearance.headerTextColor ?? "auto",
   };
 }
 

@@ -49,7 +49,7 @@ import {
 	type QuickClientData,
 	type InvoiceType,
 } from "@/lib/validations/invoice";
-import { calcInvoiceTotals, formatCurrency } from "@/lib/utils/calculs-facture";
+import { calcInvoiceTotals, formatCurrency, CURRENCIES } from "@/lib/utils/calculs-facture";
 import { useAppearance } from "@/hooks/use-appearance";
 
 // ─── Styles partagés ─────────────────────────────────────────────────────────
@@ -741,11 +741,7 @@ export function InvoiceForm({
 															Total HT
 														</Label>
 														<div className="h-9 flex items-center text-sm font-bold text-violet-700 dark:text-violet-300">
-															{lineHT.toLocaleString("fr-FR", {
-																minimumFractionDigits: 2,
-																maximumFractionDigits: 2,
-															})}{" "}
-															€
+																{formatCurrency(lineHT, currency)}
 														</div>
 													</div>
 												)}
@@ -812,7 +808,7 @@ export function InvoiceForm({
 														Pourcentage (%)
 													</SelectItem>
 													<SelectItem value="montant" className={selectItemClass}>
-														Montant fixe (€)
+														Montant fixe
 													</SelectItem>
 												</SelectContent>
 											</Select>
@@ -828,7 +824,7 @@ export function InvoiceForm({
 													min={0}
 													step={discountType === "pourcentage" ? 1 : 0.01}
 													max={discountType === "pourcentage" ? 100 : undefined}
-													placeholder={discountType === "pourcentage" ? "%" : "€"}
+													placeholder={discountType === "pourcentage" ? "%" : (CURRENCIES[currency as keyof typeof CURRENCIES]?.symbol ?? "€")}
 													value={f.value || ""}
 													onChange={(e) => {
 														const v = e.target.value;

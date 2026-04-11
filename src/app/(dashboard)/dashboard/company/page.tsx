@@ -57,6 +57,7 @@ export default function CompanyPage() {
     if (currentCurrency) setSelectedCurrency(currentCurrency);
   }, [currentCurrency]);
 
+
   const handleSaveCurrency = async () => {
     setIsSavingCurrency(true);
     const result = await saveCurrency(selectedCurrency);
@@ -449,13 +450,13 @@ export default function CompanyPage() {
                 key={code}
                 type="button"
                 onClick={() => setSelectedCurrency(code)}
-                className={`inline-flex items-center gap-2 px-3 py-2 rounded-xl border text-sm font-medium transition-all cursor-pointer ${
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-medium transition-all cursor-pointer ${
                   selectedCurrency === code
                     ? "border-violet-500 bg-violet-50 text-violet-700 dark:bg-violet-500/20 dark:text-violet-300 dark:border-violet-400"
-                    : "border-slate-200 dark:border-violet-400/25 text-slate-600 dark:text-slate-400 hover:border-violet-300 hover:bg-violet-50/50 dark:hover:bg-violet-900/30"
+                    : "border-slate-200 dark:border-violet-400/25 text-slate-500 dark:text-slate-500 hover:border-violet-300 hover:bg-violet-50/50 dark:hover:bg-violet-900/30"
                 }`}
               >
-                <span className="text-base">{flag}</span>
+                <span className="text-sm">{flag}</span>
                 <span>{label}</span>
               </button>
             ))}
@@ -472,6 +473,7 @@ export default function CompanyPage() {
             </Button>
           </div>
         </section>
+
 
         <div className={dividerClass} />
 
