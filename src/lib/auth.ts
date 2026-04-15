@@ -3,6 +3,7 @@ import { prismaAdapter } from "better-auth/adapters/prisma"
 import { emailOTP } from "better-auth/plugins"
 import { prisma } from "@/lib/prisma"
 import { resend } from "@/lib/email/resend"
+import { sendWelcomeEmail } from "@/lib/email/send-welcome-email"
 import bcrypt from "bcryptjs"
 import { addDays, subDays } from "date-fns"
 
@@ -228,6 +229,9 @@ export const auth = betterAuth({
               })
               console.log(`[auth] Trial non accordé pour ${user.email} — IP ${ip} déjà utilisée`)
             }
+
+            // Email de bienvenue — envoyé pour tous les nouveaux inscrits
+            await sendWelcomeEmail({ to: user.email, name: user.name ?? user.email })
           } catch (err) {
             // Ne pas bloquer la création du compte si le hook échoue
             console.error("[auth] Erreur hook after user create :", err)
