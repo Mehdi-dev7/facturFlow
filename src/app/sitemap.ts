@@ -98,6 +98,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.8,
     },
+    {
+      url: `${BASE_URL}/blog/facture-recurrente-automatiser-revenus`,
+      lastModified: new Date("2026-04-21"),
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
     // ─── Pages légales — indexées pour la confiance et la conformité RGPD ─────
     // Leur présence dans le sitemap rassure Google sur la légitimité du site
     {

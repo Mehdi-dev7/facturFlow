@@ -910,6 +910,228 @@ export const blogPosts: BlogPost[] = [
       },
     ],
   },
+
+  // ── Article 6 : Facture récurrente & revenus mensuels automatisés ─────────
+
+  {
+    slug: "facture-recurrente-automatiser-revenus",
+    title: "Facture Récurrente : Automatiser ses Revenus Mensuels en Freelance",
+    description:
+      "Arrêtez de refacturer manuellement chaque mois. Découvrez comment la facturation récurrente transforme votre activité freelance en revenus prévisibles et automatisés.",
+    publishedAt: "2026-04-21",
+    category: "Productivité",
+    readingTime: 7,
+    keywords: [
+      "facture récurrente freelance",
+      "facturation automatique mensuelle",
+      "abonnement freelance facturation",
+      "facture automatique auto-entrepreneur",
+      "logiciel facturation récurrente",
+      "automatiser factures mensuelles",
+      "revenus récurrents freelance",
+      "MRR freelance",
+    ],
+    content: [
+      {
+        type: "intro",
+        text: "Chaque début de mois, c'est le même rituel : rouvrir la facture du mois précédent, changer la date, modifier le numéro, renvoyer l'email. Multiplié par 5, 10 ou 20 clients récurrents, c'est une heure perdue chaque mois — et surtout un risque d'oubli, de retard, ou d'erreur. La facturation récurrente résout ce problème en 5 minutes de configuration. Voici comment transformer vos missions au forfait en revenus 100% automatisés.",
+      },
+      {
+        type: "h2",
+        heading: "Qu'est-ce qu'une facture récurrente ?",
+        text: "Une facture récurrente (ou facture automatique) est une facture émise à intervalle régulier — hebdomadaire, mensuel, trimestriel ou annuel — sans intervention manuelle. Vous définissez une fois le modèle (client, lignes, montant, TVA), la fréquence et la date de démarrage, puis le logiciel s'occupe de générer et d'envoyer la facture à chaque échéance.",
+      },
+      {
+        type: "paragraph",
+        text: "Ce mécanisme, longtemps réservé aux grandes entreprises et aux SaaS, est aujourd'hui accessible à tous les freelances et auto-entrepreneurs. Il change radicalement la nature de votre activité : vous passez d'un modèle à la mission (facturation ponctuelle) à un modèle à revenus récurrents (MRR), plus prévisible et plus scalable.",
+      },
+      {
+        type: "h2",
+        heading: "Pourquoi les freelances ont besoin de factures récurrentes",
+        text: "Si vous travaillez avec ne serait-ce qu'un seul client au forfait mensuel, vous perdez du temps chaque mois à refacturer manuellement. Et chaque client supplémentaire multiplie le problème. Voici les raisons concrètes de passer à la facturation récurrente :",
+      },
+      {
+        type: "list",
+        items: [
+          "Gain de temps direct : 5 à 10 minutes par client et par mois, soit plusieurs heures par an",
+          "Zéro oubli : la facture est émise pile à la bonne date, même si vous êtes en vacances",
+          "Numérotation toujours correcte : pas de risque de sauter un numéro ou d'en dupliquer un",
+          "Revenus prévisibles : vous savez à l'avance combien vous allez encaisser chaque mois",
+          "Meilleure image professionnelle : le client reçoit sa facture au jour près, toujours bien formatée",
+          "Compta simplifiée : les écritures comptables suivent une fréquence régulière et propre",
+        ],
+      },
+      {
+        type: "h2",
+        heading: "Les types de missions qui se prêtent à la facturation récurrente",
+        text: "La facturation récurrente n'est pas réservée aux SaaS. De nombreux types de prestations freelance s'y prêtent parfaitement, dès lors qu'il y a un engagement dans la durée :",
+      },
+      {
+        type: "list",
+        items: [
+          "Maintenance web / hébergement : contrat mensuel ou annuel avec un montant fixe",
+          "Community management : forfait mensuel de gestion des réseaux sociaux",
+          "Rédaction éditoriale : x articles par mois à prix forfaitaire",
+          "Consultant en retainer : x heures d'accompagnement mensuel garanti",
+          "Coaching / formation : abonnement mensuel à une série de sessions",
+          "SEO / marketing digital : audit mensuel + optimisations récurrentes",
+          "Photographe en contrat annuel : prestations mensuelles sur un événement récurrent",
+          "Développeur en maintenance applicative : forfait mensuel de support et évolutions",
+        ],
+      },
+      {
+        type: "h2",
+        heading: "Les fréquences disponibles : choisir la bonne cadence",
+        text: "Selon la nature de la prestation, plusieurs fréquences sont possibles. FacturNow gère les quatre principales :",
+      },
+      {
+        type: "list",
+        items: [
+          "Hebdomadaire : utile pour des prestations très ponctuelles et régulières (ex. streaming live, coaching intensif)",
+          "Mensuelle : la plus fréquente pour les freelances — forfaits, retainers, abonnements",
+          "Trimestrielle : idéale pour les consultants facturant par cycle de projet (audit + recommandations)",
+          "Annuelle : hébergement, licences, maintenance logicielle, contrats cadre",
+        ],
+      },
+      {
+        type: "paragraph",
+        text: "Vous pouvez aussi définir une date de fin pour limiter la récurrence à une durée précise (ex : 12 mois pour un contrat annuel), ou laisser la récurrence illimitée tant que le client ne résilie pas. La flexibilité est totale.",
+      },
+      {
+        type: "h2",
+        heading: "Le combo imbattable : récurrence + prélèvement SEPA",
+        text: "La facturation récurrente élimine la génération manuelle. Le prélèvement SEPA élimine l'encaissement manuel. Combinez les deux, et vous obtenez un flux 100% automatisé : la facture est émise à la date prévue, envoyée par email au client, puis prélevée automatiquement sur son compte bancaire quelques jours plus tard. Aucune action de votre part. Aucun oubli possible du client.",
+      },
+      {
+        type: "list",
+        items: [
+          "Mois 1 : vous configurez la récurrence + envoyez le mandat SEPA au client (5 minutes, une seule fois)",
+          "Mois 2 et suivants : facture générée, envoyée et prélevée automatiquement",
+          "Notification instantanée à chaque paiement confirmé sur votre tableau de bord",
+          "Aucune relance nécessaire — le paiement est initié de votre côté, pas du sien",
+          "Revenus mensuels garantis, prévisibles, sans effort",
+        ],
+      },
+      {
+        type: "h2",
+        heading: "Comment configurer une récurrence dans FacturNow",
+        text: "La mise en place d'une facturation récurrente dans FacturNow est volontairement simple. Voici le parcours complet :",
+      },
+      {
+        type: "list",
+        items: [
+          "Étape 1 — Accédez à Tableau de bord → Récurrences → Nouvelle récurrence",
+          "Étape 2 — Sélectionnez le client concerné (ou créez-le en ligne si besoin)",
+          "Étape 3 — Ajoutez les lignes de facturation (produits/services, quantités, prix)",
+          "Étape 4 — Choisissez la fréquence (hebdo, mensuelle, trimestrielle, annuelle)",
+          "Étape 5 — Définissez la date de démarrage et, si nécessaire, la date de fin",
+          "Étape 6 — Choisissez le mode de paiement (SEPA recommandé pour automatisation totale)",
+          "Étape 7 — Activez la récurrence. C'est terminé — tout est désormais automatique.",
+        ],
+      },
+      {
+        type: "h2",
+        heading: "Ce qui se passe automatiquement à chaque échéance",
+        text: "Une fois la récurrence active, FacturNow exécute en coulisses toutes les étapes qu'un freelance ferait normalement à la main :",
+      },
+      {
+        type: "list",
+        items: [
+          "Génération du PDF de la facture avec un nouveau numéro séquentiel",
+          "Application automatique des mentions légales, TVA et pénalités de retard",
+          "Envoi d'un email au client avec la facture en pièce jointe et le lien de paiement",
+          "Si SEPA actif : initiation automatique du prélèvement à la date d'échéance",
+          "Mise à jour du statut de la facture (envoyée → payée) sans action de votre part",
+          "Enregistrement dans la comptabilité pour les exports FEC et URSSAF",
+        ],
+      },
+      {
+        type: "h2",
+        heading: "Modifier ou suspendre une récurrence en cours",
+        text: "Les contrats évoluent : changement de tarif, augmentation du périmètre, pause estivale, résiliation. FacturNow permet de tout gérer depuis la page Récurrences sans interrompre vos autres clients.",
+      },
+      {
+        type: "list",
+        items: [
+          "Suspendre temporairement : la récurrence reste active mais aucune facture n'est générée tant qu'elle est en pause",
+          "Modifier le montant ou les lignes : s'applique à la prochaine facture sans toucher aux précédentes",
+          "Changer la date de fin : prolongation ou arrêt anticipé du contrat",
+          "Annuler définitivement : la récurrence passe en statut 'archivée', les factures passées restent accessibles",
+        ],
+      },
+      {
+        type: "h2",
+        heading: "Le passage au modèle MRR : un changement de mindset",
+        text: "Au-delà de l'outil, la facturation récurrente change la façon dont vous vendez vos services. Plutôt que de chiffrer mission par mission, vous proposez des forfaits mensuels avec un engagement minimum (3, 6 ou 12 mois). Votre client paie un montant stable chaque mois, vous avez un revenu prévisible, et la relation s'installe dans la durée.",
+      },
+      {
+        type: "paragraph",
+        text: "C'est le modèle qu'ont adopté des milliers de freelances ces dernières années — consultants, community managers, développeurs en maintenance, coachs. Le résultat est presque toujours le même : moins de stress commercial, moins de temps perdu en prospection, plus de temps pour le travail à forte valeur ajoutée.",
+      },
+      {
+        type: "h2",
+        heading: "Les erreurs à éviter en passant à la récurrence",
+        text: "Quelques pièges classiques à anticiper pour que la transition se passe sans accroc :",
+      },
+      {
+        type: "list",
+        items: [
+          "Ne pas activer de récurrence sans avoir signé un contrat ou un devis clair qui mentionne la durée et les conditions de résiliation",
+          "Ne pas oublier d'informer le client avant chaque hausse de tarif (préavis de 1 à 3 mois recommandé)",
+          "Vérifier que le mandat SEPA reste actif (expiration automatique après 36 mois sans prélèvement)",
+          "Prévoir une clause de pause estivale dans vos contrats pour les métiers saisonniers",
+          "Garder un œil sur les rejets de prélèvement (provision insuffisante) pour relancer rapidement",
+        ],
+      },
+      {
+        type: "cta_box",
+        heading: "Automatisez vos revenus dès cette semaine",
+        text: "Récurrences + SEPA inclus dans le plan Pro. 7 jours d'essai gratuit, sans carte bancaire.",
+      },
+    ],
+    faq: [
+      {
+        question: "Combien de récurrences puis-je créer simultanément ?",
+        answer:
+          "Le nombre de récurrences est illimité sur le plan Pro et Business. Sur le plan gratuit, vous êtes limité par le quota mensuel de 10 documents (toutes factures confondues, y compris celles générées par les récurrences).",
+      },
+      {
+        question: "Puis-je personnaliser l'email envoyé automatiquement au client ?",
+        answer:
+          "Oui. Dans les paramètres de la récurrence, vous pouvez rédiger un modèle d'email personnalisé avec des variables dynamiques (numéro de facture, montant, date d'échéance). Le même email sera envoyé à chaque occurrence.",
+      },
+      {
+        question: "Que se passe-t-il si mon client résilie en cours de mois ?",
+        answer:
+          "Vous pouvez suspendre ou annuler la récurrence en un clic depuis FacturNow. La facture du mois en cours, si elle a déjà été émise, reste valable. Les prochaines ne seront plus générées.",
+      },
+      {
+        question: "Dois-je obligatoirement utiliser le SEPA avec une récurrence ?",
+        answer:
+          "Non, ce n'est pas obligatoire. Vous pouvez combiner la récurrence avec n'importe quel mode de paiement : virement bancaire, carte via Stripe, PayPal ou SEPA. Le SEPA reste toutefois le plus pertinent pour automatiser aussi l'encaissement.",
+      },
+      {
+        question: "La TVA est-elle recalculée à chaque facture récurrente ?",
+        answer:
+          "Oui, la TVA est automatiquement calculée selon les taux applicables au moment de l'émission de chaque facture. Si votre statut TVA change (ex : dépassement du seuil de franchise), les prochaines factures appliqueront le nouveau régime.",
+      },
+      {
+        question: "Puis-je avoir des récurrences avec des montants variables ?",
+        answer:
+          "Par défaut, une récurrence génère un montant fixe. Pour facturer un montant variable chaque mois (ex : facturation à l'usage), vous pouvez modifier la récurrence avant chaque échéance, ou utiliser des factures classiques avec un modèle réutilisable.",
+      },
+      {
+        question: "Les factures récurrentes sont-elles conformes à la réforme e-facturation 2026 ?",
+        answer:
+          "Oui. Chaque facture générée par une récurrence est une facture conforme au même titre qu'une facture manuelle. Elle peut être transmise au format Factur-X via SuperPDP en un clic, ou automatiquement si vous activez l'envoi électronique dans la récurrence.",
+      },
+      {
+        question: "Y a-t-il un suivi pour savoir quelles récurrences ont généré des factures impayées ?",
+        answer:
+          "Oui. Le tableau de bord Récurrences affiche pour chaque abonnement le taux de paiement, la date de la dernière facture émise et les impayés en cours. Si une facture récurrente n'est pas payée, les relances automatiques se déclenchent exactement comme pour une facture classique.",
+      },
+    ],
+  },
 ]
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
