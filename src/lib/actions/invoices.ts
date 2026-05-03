@@ -637,21 +637,31 @@ export async function updateInvoice(id: string, data: InvoiceFormData) {
       return { success: false, error: "Facture introuvable" } as const;
     }
 
-    // Vérifier si le numéro personnalisé est unique (si changé)
-    const newNumber = data.customNumber?.trim();
-    if (newNumber && newNumber !== existing.number) {
+    // Numéro custom saisi par l'user (peut être vide ou égal au BROUILLON- existant)
+    const rawCustomNumber = data.customNumber?.trim();
+    // On considère que l'user a fourni un vrai numéro custom seulement
+    // s'il est non vide, différent de l'existant, et pas un BROUILLON-
+    const customNumber =
+      rawCustomNumber &&
+      rawCustomNumber !== existing.number &&
+      !rawCustomNumber.startsWith("BROUILLON-")
+        ? rawCustomNumber
+        : undefined;
+
+    // Vérifier l'unicité du numéro custom
+    if (customNumber) {
       const duplicate = await prisma.document.findFirst({
-        where: { userId, number: newNumber, id: { not: id } },
+        where: { userId, number: customNumber, id: { not: id } },
       });
       if (duplicate) {
-        return { success: false, error: `Le numéro "${newNumber}" est déjà utilisé par un autre document.` } as const;
+        return { success: false, error: `Le numéro "${customNumber}" est déjà utilisé par un autre document.` } as const;
       }
     }
 
-    // Si on édite un brouillon (BROUILLON-…) et qu'aucun numéro custom n'est fourni,
-    // on attribue un vrai numéro de facture (incrément + format FAC-AAAA-XXXX)
+    // Finaliser un brouillon : si le doc est encore un BROUILLON- et que l'user
+    // n'a pas saisi de vrai numéro custom → générer un vrai numéro (FAC-AAAA-XXXX)
     let finalizedNumber: string | undefined;
-    if (existing.number.startsWith("BROUILLON-") && !newNumber) {
+    if (existing.number.startsWith("BROUILLON-") && !customNumber) {
       const updatedUser = await prisma.user.update({
         where: { id: userId },
         data: { nextInvoiceNumber: { increment: 1 } },
@@ -687,8 +697,8 @@ export async function updateInvoice(id: string, data: InvoiceFormData) {
         where: { id },
         data: {
           // Priorité : numéro custom user > finalisation auto brouillon > numéro existant
-          ...(newNumber && newNumber !== existing.number
-            ? { number: newNumber }
+          ...(customNumber
+            ? { number: customNumber }
             : finalizedNumber
             ? { number: finalizedNumber }
             : {}),

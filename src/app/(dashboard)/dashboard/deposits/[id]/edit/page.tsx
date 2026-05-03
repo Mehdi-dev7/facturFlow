@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { DepositForm } from "@/components/acomptes/deposit-form";
 import { DepositPreview } from "@/components/acomptes/deposit-preview";
 import { z } from "zod";
-import { getDeposit } from "@/lib/actions/deposits";
+import { getDeposit, getNextDepositNumber } from "@/lib/actions/deposits";
 import { useUpdateDeposit, type SavedDeposit } from "@/hooks/use-deposits";
 import type { CompanyInfo } from "@/lib/validations/invoice";
 import { useCompanyInfoForForms } from "@/hooks/use-company";
@@ -55,10 +55,15 @@ function extractVatRate(vatRate: number): VatRate {
   return 20;
 }
 
-function toFormValues(d: SavedDeposit): Partial<DepositFormData> {
+function isDraftNumber(n: string): boolean {
+  return n.startsWith("BROUILLON-");
+}
+
+function toFormValues(d: SavedDeposit, nextRealNumber?: string): Partial<DepositFormData> {
+  const displayNumber = isDraftNumber(d.number) && nextRealNumber ? nextRealNumber : d.number;
   return {
     clientId: d.clientId,
-    customNumber: d.number, // Pré-remplir avec le numéro existant (éditable)
+    customNumber: displayNumber,
     amount: d.amount,
     vatRate: extractVatRate(d.vatRate),
     date: d.date.split("T")[0],
@@ -133,9 +138,16 @@ export default function EditDepositPage() {
         const depositData = result.data;
         setDeposit(depositData);
 
+        // Si brouillon, récupérer le prochain vrai numéro pour l'afficher
+        let nextRealNumber: string | undefined;
+        if (isDraftNumber(depositData.number)) {
+          const nextRes = await getNextDepositNumber();
+          if (nextRes.success && nextRes.data) nextRealNumber = nextRes.data;
+        }
+
         // Pré-remplir le formulaire
-        const formValues = toFormValues(depositData);
-        setDisplayNumber(depositData.number);
+        const formValues = toFormValues(depositData, nextRealNumber);
+        setDisplayNumber(nextRealNumber ?? depositData.number);
         Object.entries(formValues).forEach(([key, value]) => {
           if (value !== undefined) {
             form.setValue(key as keyof DepositFormData, value as any, {
@@ -158,6 +170,10 @@ export default function EditDepositPage() {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const isDraft = deposit ? isDraftNumber(deposit.number) : false;
+  const submitLabel = isDraft ? "Créer l'acompte" : "Modifier l'acompte";
+  const pageTitle = isDraft ? "Poursuivre le brouillon" : "Modifier l'acompte";
 
   const handleCompanyChange = useCallback((data: CompanyInfo) => {
     setCompanyInfoLocal(data);
@@ -212,10 +228,10 @@ export default function EditDepositPage() {
         </Button>
         <div>
           <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
-            Modifier l&apos;acompte
+            {pageTitle}
           </h1>
           <p className="text-sm text-slate-500 dark:text-violet-400/60">
-            {deposit.number}
+            {displayNumber || deposit.number}
           </p>
         </div>
       </div>
@@ -231,7 +247,7 @@ export default function EditDepositPage() {
               companyInfo={companyInfo}
               onCompanyChange={handleCompanyChange}
               isSubmitting={updateMutation.isPending}
-              submitLabel="Modifier l'acompte"
+              submitLabel={submitLabel}
               effectivePlan={effectivePlan}
               onPdfPreview={() => setIsPdfPreviewOpen(true)}
               onNumberChange={(n) => setDisplayNumber(n)}
@@ -256,7 +272,7 @@ export default function EditDepositPage() {
           companyInfo={companyInfo}
           onCompanyChange={handleCompanyChange}
           isSubmitting={updateMutation.isPending}
-          submitLabel="Sauvegarder"
+          submitLabel={submitLabel}
           effectivePlan={effectivePlan}
           onPdfPreview={() => setIsPdfPreviewOpen(true)}
           onNumberChange={(n) => setDisplayNumber(n)}

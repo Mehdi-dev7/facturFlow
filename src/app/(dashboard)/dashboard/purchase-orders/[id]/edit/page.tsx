@@ -23,7 +23,7 @@ import { useClients } from "@/hooks/use-clients";
 import { PdfPreviewModal } from "@/components/shared/pdf-preview-modal";
 import { buildPreviewPurchaseOrder } from "@/lib/utils/pdf-preview-helpers";
 import PurchaseOrderPdfDocument from "@/lib/pdf/purchase-order-pdf-document";
-import { getPurchaseOrder, type SavedPurchaseOrder } from "@/lib/actions/purchase-orders";
+import { getPurchaseOrder, getNextPurchaseOrderNumber, type SavedPurchaseOrder } from "@/lib/actions/purchase-orders";
 import { useUpdatePurchaseOrder } from "@/hooks/use-purchase-orders";
 
 // ─── Mapping DB → valeurs du formulaire ───────────────────────────────────────
@@ -39,7 +39,11 @@ function extractVatRate(meta: Record<string, unknown> | null): VatRate {
   return 20;
 }
 
-function toFormValues(po: SavedPurchaseOrder): Partial<PurchaseOrderFormData> {
+function isDraftNumber(n: string): boolean {
+  return n.startsWith("BROUILLON-");
+}
+
+function toFormValues(po: SavedPurchaseOrder, nextRealNumber?: string): Partial<PurchaseOrderFormData> {
   const rawOrderType = po.invoiceType ?? "basic";
   const orderType = (
     INVOICE_TYPES.includes(rawOrderType as (typeof INVOICE_TYPES)[number])
@@ -49,9 +53,11 @@ function toFormValues(po: SavedPurchaseOrder): Partial<PurchaseOrderFormData> {
 
   const sortedLines = [...po.lineItems].sort((a, b) => a.order - b.order);
 
+  const displayNumber = isDraftNumber(po.number) && nextRealNumber ? nextRealNumber : po.number;
+
   return {
     clientId: po.client.id,
-    customNumber: po.number, // Pré-remplir avec le numéro existant (éditable)
+    customNumber: displayNumber,
     date: po.date.split("T")[0],
     deliveryDate: po.deliveryDate ? po.deliveryDate.split("T")[0] : "",
     bcReference: po.bcReference ?? "",
@@ -122,12 +128,20 @@ export default function EditPurchaseOrderPage() {
   useEffect(() => {
     if (!id) return;
 
-    getPurchaseOrder(id).then((result) => {
+    getPurchaseOrder(id).then(async (result) => {
       if (result.success && result.data) {
         const po = result.data;
         setPurchaseOrder(po);
-        form.reset(toFormValues(po));
-        setDisplayNumber(po.number);
+
+        let nextRealNumber: string | undefined;
+        if (isDraftNumber(po.number)) {
+          const nextRes = await getNextPurchaseOrderNumber();
+          if (nextRes.success && nextRes.data) nextRealNumber = nextRes.data.number;
+        }
+
+        form.reset(toFormValues(po, nextRealNumber));
+        setDisplayNumber(nextRealNumber ?? po.number);
+
         const dbCompany = toCompanyInfo(po.user);
         if (dbCompany) setCompanyInfo(dbCompany);
       } else {
@@ -137,6 +151,10 @@ export default function EditPurchaseOrderPage() {
 
     setMounted(true);
   }, [id, form]);
+
+  const isDraft = purchaseOrder ? isDraftNumber(purchaseOrder.number) : false;
+  const submitLabel = isDraft ? "Créer le bon de commande" : "Modifier le bon de commande";
+  const pageTitle = isDraft ? "Poursuivre le brouillon" : "Modifier le bon de commande";
 
   const handleCompanyChange = useCallback((data: CompanyInfo) => {
     setCompanyInfo(data);
@@ -204,10 +222,10 @@ export default function EditPurchaseOrderPage() {
         </Button>
         <div>
           <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
-            Modifier le bon de commande
+            {pageTitle}
           </h1>
           <p className="text-sm text-slate-500 dark:text-violet-400/60">
-            {purchaseOrder?.number}
+            {displayNumber || purchaseOrder?.number}
           </p>
         </div>
       </div>
@@ -224,7 +242,7 @@ export default function EditPurchaseOrderPage() {
               companyInfo={companyInfo}
               onCompanyChange={handleCompanyChange}
               isSubmitting={updateMutation.isPending}
-              submitLabel="Modifier le bon de commande"
+              submitLabel={submitLabel}
               onPdfPreview={() => setIsPdfPreviewOpen(true)}
             />
           </div>
@@ -250,7 +268,7 @@ export default function EditPurchaseOrderPage() {
           orderNumber={displayNumber || purchaseOrder?.number || ""}
           companyInfo={companyInfo}
           onCompanyChange={handleCompanyChange}
-          submitLabel="Modifier le bon de commande"
+          submitLabel={submitLabel}
           themeColor={themeColor}
           companyFont={companyFont}
           companyLogo={companyLogo}

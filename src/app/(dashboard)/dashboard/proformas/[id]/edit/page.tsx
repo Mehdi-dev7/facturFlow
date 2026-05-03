@@ -17,7 +17,7 @@ import {
 	INVOICE_TYPES,
 	VAT_RATES,
 } from "@/lib/validations/invoice";
-import { getProforma } from "@/lib/actions/proformas";
+import { getProforma, getNextProformaNumber } from "@/lib/actions/proformas";
 import {
 	useUpdateProforma,
 	type SavedProforma,
@@ -32,7 +32,11 @@ import { getCurrentSubscription } from "@/lib/actions/subscription";
 
 // ─── Mapping DB → valeurs du formulaire ───────────────────────────────────────
 
-function toFormValues(p: SavedProforma): Partial<InvoiceFormData> {
+function isDraftNumber(n: string): boolean {
+	return n.startsWith("BROUILLON-");
+}
+
+function toFormValues(p: SavedProforma, nextRealNumber?: string): Partial<InvoiceFormData> {
 	const meta = p.businessMetadata ?? {};
 	const rawVatRate = (meta.vatRate as number) ?? 20;
 	const vatRate = (
@@ -50,8 +54,11 @@ function toFormValues(p: SavedProforma): Partial<InvoiceFormData> {
 
 	const sortedLines = [...p.lineItems].sort((a, b) => a.order - b.order);
 
+	const displayNumber = isDraftNumber(p.number) && nextRealNumber ? nextRealNumber : p.number;
+
 	return {
 		clientId: p.client.id,
+		customNumber: displayNumber,
 		date: p.date.split("T")[0],
 		dueDate: p.dueDate ? p.dueDate.split("T")[0] : "",
 		invoiceType,
@@ -104,6 +111,7 @@ export default function EditProformaPage() {
 	const effectivePlan = subData?.success ? subData.data.effectivePlan : "FREE";
 	const { data: clients = [] } = useClients();
 	const [proforma, setProforma] = useState<SavedProforma | null>(null);
+	const [displayNumber, setDisplayNumber] = useState("");
 	const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
 	const [loadError, setLoadError] = useState<string | null>(null);
 
@@ -130,11 +138,20 @@ export default function EditProformaPage() {
 	useEffect(() => {
 		if (!id) return;
 
-		getProforma(id).then((result) => {
+		getProforma(id).then(async (result) => {
 			if (result.success && result.data) {
 				const p = result.data;
 				setProforma(p);
-				form.reset(toFormValues(p));
+
+				let nextRealNumber: string | undefined;
+				if (isDraftNumber(p.number)) {
+					const nextRes = await getNextProformaNumber();
+					if (nextRes.success && nextRes.data) nextRealNumber = nextRes.data.number;
+				}
+
+				form.reset(toFormValues(p, nextRealNumber));
+				setDisplayNumber(nextRealNumber ?? p.number);
+
 				const dbCompany = toCompanyInfo(p.user);
 				if (dbCompany) setCompanyInfo(dbCompany);
 			} else {
@@ -144,6 +161,10 @@ export default function EditProformaPage() {
 
 		setMounted(true);
 	}, [id, form]);
+
+	const isDraft = proforma ? isDraftNumber(proforma.number) : false;
+	const submitLabel = isDraft ? "Créer la proforma" : "Modifier la proforma";
+	const pageTitle = isDraft ? "Poursuivre le brouillon" : "Modifier la proforma";
 
 	const handleCompanyChange = useCallback((data: CompanyInfo) => {
 		setCompanyInfo(data);
@@ -211,10 +232,10 @@ export default function EditProformaPage() {
 				</Button>
 				<div>
 					<h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
-						Modifier la proforma
+						{pageTitle}
 					</h1>
 					<p className="text-sm text-slate-500 dark:text-violet-400/60">
-						{proforma?.number}
+						{displayNumber || proforma?.number}
 					</p>
 				</div>
 			</div>
@@ -226,11 +247,11 @@ export default function EditProformaPage() {
 						<InvoiceForm
 							form={form}
 							onSubmit={onSubmit}
-							invoiceNumber={proforma?.number ?? ""}
+							invoiceNumber={displayNumber || proforma?.number || ""}
 							companyInfo={companyInfo}
 							onCompanyChange={handleCompanyChange}
 							isSubmitting={updateMutation.isPending}
-							submitLabel="Modifier la proforma"
+							submitLabel={submitLabel}
 							effectivePlan={effectivePlan}
 							onPdfPreview={() => setIsPdfPreviewOpen(true)}
 						/>
@@ -239,7 +260,7 @@ export default function EditProformaPage() {
 				<div className="sticky top-6 self-start">
 					<InvoicePreview
 						form={form}
-						invoiceNumber={proforma?.number ?? ""}
+						invoiceNumber={displayNumber || proforma?.number || ""}
 						companyInfo={companyInfo}
 						themeColor={themeColor}
 						companyFont={companyFont}
@@ -255,10 +276,10 @@ export default function EditProformaPage() {
 				<InvoiceStepper
 					form={form}
 					onSubmit={onSubmit}
-					invoiceNumber={proforma?.number ?? ""}
+					invoiceNumber={displayNumber || proforma?.number || ""}
 					companyInfo={companyInfo}
 					onCompanyChange={handleCompanyChange}
-					submitLabel="Modifier la proforma"
+					submitLabel={submitLabel}
 					effectivePlan={effectivePlan}
 					themeColor={themeColor}
 					companyFont={companyFont}

@@ -735,21 +735,28 @@ export async function updateQuote(id: string, data: QuoteFormData) {
 			return { success: false, error: "Devis introuvable" } as const;
 		}
 
-		// Vérifier si le numéro personnalisé est unique (si changé)
-		const newNumber = data.customNumber?.trim();
-		if (newNumber && newNumber !== existing.number) {
+		// Numéro custom saisi par l'user (vrai custom seulement si non vide,
+		// différent de l'existant et pas un BROUILLON-)
+		const rawCustomNumber = data.customNumber?.trim();
+		const customNumber =
+			rawCustomNumber &&
+			rawCustomNumber !== existing.number &&
+			!rawCustomNumber.startsWith("BROUILLON-")
+				? rawCustomNumber
+				: undefined;
+
+		if (customNumber) {
 			const duplicate = await prisma.document.findFirst({
-				where: { userId, number: newNumber, id: { not: id } },
+				where: { userId, number: customNumber, id: { not: id } },
 			});
 			if (duplicate) {
-				return { success: false, error: `Le numéro "${newNumber}" est déjà utilisé par un autre document.` } as const;
+				return { success: false, error: `Le numéro "${customNumber}" est déjà utilisé par un autre document.` } as const;
 			}
 		}
 
-		// Si on édite un brouillon (BROUILLON-…) et qu'aucun numéro custom n'est fourni,
-		// on attribue un vrai numéro de devis (incrément + format QUO-AAAA-XXXX)
+		// Finaliser un brouillon : générer un vrai numéro QUO-AAAA-XXXX
 		let finalizedNumber: string | undefined;
-		if (existing.number.startsWith("BROUILLON-") && !newNumber) {
+		if (existing.number.startsWith("BROUILLON-") && !customNumber) {
 			const updatedUser = await prisma.user.update({
 				where: { id: userId },
 				data: { nextQuoteNumber: { increment: 1 } },
@@ -782,8 +789,8 @@ export async function updateQuote(id: string, data: QuoteFormData) {
 				where: { id },
 				data: {
 					// Priorité : numéro custom user > finalisation auto brouillon > numéro existant
-					...(newNumber && newNumber !== existing.number
-						? { number: newNumber }
+					...(customNumber
+						? { number: customNumber }
 						: finalizedNumber
 						? { number: finalizedNumber }
 						: {}),

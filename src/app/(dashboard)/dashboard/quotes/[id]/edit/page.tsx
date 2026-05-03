@@ -16,7 +16,7 @@ import {
 	type CompanyInfo,
 	INVOICE_TYPES,
 } from "@/lib/validations/quote";
-import { getQuote } from "@/lib/actions/quotes";
+import { getQuote, getNextQuoteNumber } from "@/lib/actions/quotes";
 import { useUpdateQuote, type SavedQuote } from "@/hooks/use-quotes";
 import { useAppearance } from "@/hooks/use-appearance";
 import { useClients } from "@/hooks/use-clients";
@@ -37,7 +37,11 @@ function extractVatRate(meta: Record<string, unknown> | null): VatRate {
 	return 20;
 }
 
-function toFormValues(q: SavedQuote): Partial<QuoteFormData> {
+function isDraftNumber(n: string): boolean {
+	return n.startsWith("BROUILLON-");
+}
+
+function toFormValues(q: SavedQuote, nextRealNumber?: string): Partial<QuoteFormData> {
 	const rawQuoteType = q.invoiceType ?? "basic";
 	const quoteType = (INVOICE_TYPES.includes(rawQuoteType as (typeof INVOICE_TYPES)[number])
 		? rawQuoteType
@@ -45,9 +49,11 @@ function toFormValues(q: SavedQuote): Partial<QuoteFormData> {
 
 	const sortedLines = [...q.lineItems].sort((a, b) => a.order - b.order);
 
+	const displayNumber = isDraftNumber(q.number) && nextRealNumber ? nextRealNumber : q.number;
+
 	return {
 		clientId: q.client.id,
-		customNumber: q.number, // Pré-remplir avec le numéro existant (éditable)
+		customNumber: displayNumber,
 		date: q.date.split("T")[0],
 		validUntil: q.validUntil ? q.validUntil.split("T")[0] : "",
 		quoteType,
@@ -116,16 +122,20 @@ export default function EditQuotePage() {
 	useEffect(() => {
 		if (!id) return;
 
-		getQuote(id).then((result) => {
+		getQuote(id).then(async (result) => {
 			if (result.success && result.data) {
 				const q = result.data;
 				setQuote(q);
 
-				// Pre-remplir le formulaire avec les donnees du devis
-				form.reset(toFormValues(q));
-				setDisplayNumber(q.number);
+				let nextRealNumber: string | undefined;
+				if (isDraftNumber(q.number)) {
+					const nextRes = await getNextQuoteNumber();
+					if (nextRes.success && nextRes.data) nextRealNumber = nextRes.data.number;
+				}
 
-				// Company info depuis le devis en DB
+				form.reset(toFormValues(q, nextRealNumber));
+				setDisplayNumber(nextRealNumber ?? q.number);
+
 				const dbCompany = toCompanyInfo(q.user);
 				if (dbCompany) {
 					setCompanyInfo(dbCompany);
@@ -137,6 +147,10 @@ export default function EditQuotePage() {
 
 		setMounted(true);
 	}, [id, form]);
+
+	const isDraft = quote ? isDraftNumber(quote.number) : false;
+	const submitLabel = isDraft ? "Créer le devis" : "Modifier le devis";
+	const pageTitle = isDraft ? "Poursuivre le brouillon" : "Modifier le devis";
 
 	const handleCompanyChange = useCallback((data: CompanyInfo) => {
 		setCompanyInfo(data);
@@ -204,7 +218,7 @@ export default function EditQuotePage() {
 				</Button>
 				<div>
 					<h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
-						Modifier le devis
+						{pageTitle}
 					</h1>
 					<p className="text-sm text-slate-500 dark:text-violet-400/60">
 						{displayNumber || quote?.number}
@@ -224,7 +238,7 @@ export default function EditQuotePage() {
 							onCompanyChange={handleCompanyChange}
 							onPdfPreview={() => setIsPdfPreviewOpen(true)}
 							onNumberChange={(n) => setDisplayNumber(n)}
-							submitLabel="Modifier le devis"
+							submitLabel={submitLabel}
 						/>
 					</div>
 				</div>
@@ -250,7 +264,7 @@ export default function EditQuotePage() {
 					quoteNumber={displayNumber || quote?.number || ""}
 					companyInfo={companyInfo}
 					onCompanyChange={handleCompanyChange}
-					submitLabel="Modifier le devis"
+					submitLabel={submitLabel}
 					themeColor={themeColor}
 					companyFont={companyFont}
 					companyLogo={companyLogo}

@@ -573,21 +573,28 @@ export async function updateDeposit(id: string, data: DepositFormData) {
       return { success: false, error: "Acompte introuvable" } as const;
     }
 
-    // Vérifier si le numéro personnalisé est unique (si changé)
-    const newNumber = data.customNumber?.trim();
-    if (newNumber && newNumber !== existingDeposit.number) {
+    // Numéro custom saisi par l'user (vrai custom seulement si non vide,
+    // différent de l'existant et pas un BROUILLON-)
+    const rawCustomNumber = data.customNumber?.trim();
+    const customNumber =
+      rawCustomNumber &&
+      rawCustomNumber !== existingDeposit.number &&
+      !rawCustomNumber.startsWith("BROUILLON-")
+        ? rawCustomNumber
+        : undefined;
+
+    if (customNumber) {
       const duplicate = await prisma.document.findFirst({
-        where: { userId: session.user.id, number: newNumber, id: { not: id } },
+        where: { userId: session.user.id, number: customNumber, id: { not: id } },
       });
       if (duplicate) {
-        return { success: false, error: `Le numéro "${newNumber}" est déjà utilisé par un autre document.` } as const;
+        return { success: false, error: `Le numéro "${customNumber}" est déjà utilisé par un autre document.` } as const;
       }
     }
 
-    // Si on édite un brouillon (BROUILLON-…) et qu'aucun numéro custom n'est fourni,
-    // on attribue un vrai numéro d'acompte (incrément + format DEP-AAAA-XXXX)
+    // Finaliser un brouillon : générer un vrai numéro DEP-AAAA-XXXX
     let finalizedNumber: string | undefined;
-    if (existingDeposit.number.startsWith("BROUILLON-") && !newNumber) {
+    if (existingDeposit.number.startsWith("BROUILLON-") && !customNumber) {
       const updatedUser = await prisma.user.update({
         where: { id: session.user.id },
         data: { nextDepositNumber: { increment: 1 } },
@@ -608,8 +615,8 @@ export async function updateDeposit(id: string, data: DepositFormData) {
       where: { id },
       data: {
         // Priorité : numéro custom user > finalisation auto brouillon > numéro existant
-        ...(newNumber && newNumber !== existingDeposit.number
-          ? { number: newNumber }
+        ...(customNumber
+          ? { number: customNumber }
           : finalizedNumber
           ? { number: finalizedNumber }
           : {}),

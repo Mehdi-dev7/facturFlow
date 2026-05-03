@@ -17,7 +17,7 @@ import {
 	INVOICE_TYPES,
 	VAT_RATES,
 } from "@/lib/validations/invoice";
-import { getInvoice } from "@/lib/actions/invoices";
+import { getInvoice, getNextInvoiceNumber } from "@/lib/actions/invoices";
 import { useUpdateInvoice, type SavedInvoice } from "@/hooks/use-invoices";
 import { useAppearance } from "@/hooks/use-appearance";
 import { useQuery } from "@tanstack/react-query";
@@ -29,7 +29,11 @@ import InvoicePdfDocument from "@/lib/pdf/invoice-pdf-document";
 
 // ─── Mapping DB → valeurs du formulaire ───────────────────────────────────────
 
-function toFormValues(inv: SavedInvoice): Partial<InvoiceFormData> {
+function isDraftNumber(n: string): boolean {
+	return n.startsWith("BROUILLON-");
+}
+
+function toFormValues(inv: SavedInvoice, nextRealNumber?: string): Partial<InvoiceFormData> {
 	const meta = inv.businessMetadata ?? {};
 	const rawVatRate = (meta.vatRate as number) ?? 20;
 	// S'assurer que le vatRate est une valeur autorisée
@@ -58,9 +62,13 @@ function toFormValues(inv: SavedInvoice): Partial<InvoiceFormData> {
 		  }
 		: undefined;
 
+	// Brouillon → afficher le prochain vrai numéro (qui sera attribué au save)
+	// Sinon → garder le numéro existant (éditable)
+	const displayNumber = isDraftNumber(inv.number) && nextRealNumber ? nextRealNumber : inv.number;
+
 	return {
 		clientId: inv.client.id,
-		customNumber: inv.number, // Pré-remplir avec le numéro existant (éditable)
+		customNumber: displayNumber,
 		date: inv.date.split("T")[0], // ISO → YYYY-MM-DD
 		dueDate: inv.dueDate ? inv.dueDate.split("T")[0] : "",
 		invoiceType,
@@ -138,14 +146,21 @@ export default function EditInvoicePage() {
 	useEffect(() => {
 		if (!id) return;
 
-		getInvoice(id).then((result) => {
+		getInvoice(id).then(async (result) => {
 			if (result.success && result.data) {
 				const inv = result.data;
 				setInvoice(inv);
 
-				// Pré-remplir le formulaire avec les données de la facture
-				form.reset(toFormValues(inv));
-				setDisplayNumber(inv.number);
+				// Si c'est un brouillon, on récupère le prochain vrai numéro
+				// pour l'afficher (l'attribution réelle se fait au save)
+				let nextRealNumber: string | undefined;
+				if (isDraftNumber(inv.number)) {
+					const nextRes = await getNextInvoiceNumber();
+					if (nextRes.success && nextRes.data) nextRealNumber = nextRes.data.number;
+				}
+
+				form.reset(toFormValues(inv, nextRealNumber));
+				setDisplayNumber(nextRealNumber ?? inv.number);
 
 				// Company info depuis la facture en DB
 				const dbCompany = toCompanyInfo(inv.user);
@@ -159,6 +174,10 @@ export default function EditInvoicePage() {
 
 		setMounted(true);
 	}, [id, form]);
+
+	const isDraft = invoice ? isDraftNumber(invoice.number) : false;
+	const submitLabel = isDraft ? "Créer la facture" : "Modifier la facture";
+	const pageTitle = isDraft ? "Poursuivre le brouillon" : "Modifier la facture";
 
 	const handleCompanyChange = useCallback((data: CompanyInfo) => {
 		setCompanyInfo(data);
@@ -227,7 +246,7 @@ export default function EditInvoicePage() {
 				</Button>
 				<div>
 					<h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
-						Modifier la facture
+						{pageTitle}
 					</h1>
 					<p className="text-sm text-slate-500 dark:text-violet-400/60">
 						{displayNumber || invoice?.number}
@@ -246,7 +265,7 @@ export default function EditInvoicePage() {
 							companyInfo={companyInfo}
 							onCompanyChange={handleCompanyChange}
 							isSubmitting={updateMutation.isPending}
-							submitLabel="Modifier la facture"
+							submitLabel={submitLabel}
 							effectivePlan={effectivePlan}
 							onPdfPreview={() => setIsPdfPreviewOpen(true)}
 							onNumberChange={(n) => setDisplayNumber(n)}
@@ -276,7 +295,7 @@ export default function EditInvoicePage() {
 					invoiceNumber={displayNumber || invoice?.number || ""}
 					companyInfo={companyInfo}
 					onCompanyChange={handleCompanyChange}
-					submitLabel="Modifier la facture"
+					submitLabel={submitLabel}
 					effectivePlan={effectivePlan}
 					themeColor={themeColor}
 					companyFont={companyFont}
