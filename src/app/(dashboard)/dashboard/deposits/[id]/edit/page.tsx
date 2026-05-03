@@ -178,7 +178,7 @@ export default function EditDepositPage() {
         ...data,
       });
 
-      router.push("/dashboard/deposits");
+      router.push(`/dashboard/deposits?preview=${deposit.id}`);
     },
     [deposit, updateMutation, router]
   );

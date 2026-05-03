@@ -584,6 +584,20 @@ export async function updateDeposit(id: string, data: DepositFormData) {
       }
     }
 
+    // Si on édite un brouillon (BROUILLON-…) et qu'aucun numéro custom n'est fourni,
+    // on attribue un vrai numéro d'acompte (incrément + format DEP-AAAA-XXXX)
+    let finalizedNumber: string | undefined;
+    if (existingDeposit.number.startsWith("BROUILLON-") && !newNumber) {
+      const updatedUser = await prisma.user.update({
+        where: { id: session.user.id },
+        data: { nextDepositNumber: { increment: 1 } },
+        select: { nextDepositNumber: true },
+      });
+      const year = new Date().getFullYear();
+      const usedNumber = updatedUser.nextDepositNumber - 1;
+      finalizedNumber = `DEP-${year}-${String(usedNumber).padStart(4, "0")}`;
+    }
+
     // Calculer les totaux
     const subtotal = data.amount;
     const taxTotal = (subtotal * data.vatRate) / 100;
@@ -593,8 +607,12 @@ export async function updateDeposit(id: string, data: DepositFormData) {
     const updatedDoc = await prisma.document.update({
       where: { id },
       data: {
-        // Mettre à jour le numéro si l'user l'a modifié
-        ...(newNumber && newNumber !== existingDeposit.number ? { number: newNumber } : {}),
+        // Priorité : numéro custom user > finalisation auto brouillon > numéro existant
+        ...(newNumber && newNumber !== existingDeposit.number
+          ? { number: newNumber }
+          : finalizedNumber
+          ? { number: finalizedNumber }
+          : {}),
         clientId: data.clientId,
         date: new Date(data.date ?? new Date().toISOString().split("T")[0]),
         dueDate: new Date(data.dueDate),

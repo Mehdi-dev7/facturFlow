@@ -599,11 +599,36 @@ export async function updateProforma(id: string, data: InvoiceFormData) {
 	try {
 		const existing = await prisma.document.findFirst({
 			where: { id, userId, type: "PROFORMA" },
-			select: { id: true },
+			select: { id: true, number: true },
 		});
 
 		if (!existing) {
 			return { success: false, error: "Proforma introuvable" } as const;
+		}
+
+		// Vérifier si le numéro personnalisé est unique (si changé)
+		const newNumber = data.customNumber?.trim();
+		if (newNumber && newNumber !== existing.number) {
+			const duplicate = await prisma.document.findFirst({
+				where: { userId, number: newNumber, id: { not: id } },
+			});
+			if (duplicate) {
+				return { success: false, error: `Le numéro "${newNumber}" est déjà utilisé par un autre document.` } as const;
+			}
+		}
+
+		// Si on édite un brouillon (BROUILLON-…) et qu'aucun numéro custom n'est fourni,
+		// on attribue un vrai numéro de proforma (incrément + format PRF-AAAA-XXXX)
+		let finalizedNumber: string | undefined;
+		if (existing.number.startsWith("BROUILLON-") && !newNumber) {
+			const updatedUser = await prisma.user.update({
+				where: { id: userId },
+				data: { nextProformaNumber: { increment: 1 } },
+				select: { nextProformaNumber: true, proformaPrefix: true },
+			});
+			const year = new Date().getFullYear();
+			const usedNumber = updatedUser.nextProformaNumber - 1;
+			finalizedNumber = `${updatedUser.proformaPrefix}-${year}-${String(usedNumber).padStart(4, "0")}`;
 		}
 
 		const client = await resolveClient(data, userId);
@@ -624,6 +649,12 @@ export async function updateProforma(id: string, data: InvoiceFormData) {
 			prisma.document.update({
 				where: { id },
 				data: {
+					// Priorité : numéro custom user > finalisation auto brouillon > numéro existant
+					...(newNumber && newNumber !== existing.number
+						? { number: newNumber }
+						: finalizedNumber
+						? { number: finalizedNumber }
+						: {}),
 					clientId: client.id,
 					date: new Date(data.date),
 					dueDate: data.dueDate ? new Date(data.dueDate) : null,

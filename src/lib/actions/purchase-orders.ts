@@ -675,6 +675,20 @@ export async function updatePurchaseOrder(id: string, data: PurchaseOrderFormDat
 			}
 		}
 
+		// Si on édite un brouillon (BROUILLON-…) et qu'aucun numéro custom n'est fourni,
+		// on attribue un vrai numéro de bon de commande (incrément + format BC-AAAA-XXXX)
+		let finalizedNumber: string | undefined;
+		if (existing.number.startsWith("BROUILLON-") && !newNumber) {
+			const updatedUser = await prisma.user.update({
+				where: { id: userId },
+				data: { nextPurchaseOrderNumber: { increment: 1 } },
+				select: { nextPurchaseOrderNumber: true, purchaseOrderPrefix: true },
+			});
+			const year = new Date().getFullYear();
+			const usedNumber = updatedUser.nextPurchaseOrderNumber - 1;
+			finalizedNumber = `${updatedUser.purchaseOrderPrefix}-${year}-${String(usedNumber).padStart(4, "0")}`;
+		}
+
 		const client = await resolveClient(data, userId);
 		if (!client) {
 			return { success: false, error: "Client introuvable" } as const;
@@ -694,8 +708,12 @@ export async function updatePurchaseOrder(id: string, data: PurchaseOrderFormDat
 			prisma.document.update({
 				where: { id },
 				data: {
-					// Mettre à jour le numéro si l'user l'a modifié
-					...(newNumber && newNumber !== existing.number ? { number: newNumber } : {}),
+					// Priorité : numéro custom user > finalisation auto brouillon > numéro existant
+					...(newNumber && newNumber !== existing.number
+						? { number: newNumber }
+						: finalizedNumber
+						? { number: finalizedNumber }
+						: {}),
 					clientId: client.id,
 					date: new Date(data.date),
 					validUntil: data.deliveryDate ? new Date(data.deliveryDate) : null,

@@ -746,6 +746,20 @@ export async function updateQuote(id: string, data: QuoteFormData) {
 			}
 		}
 
+		// Si on édite un brouillon (BROUILLON-…) et qu'aucun numéro custom n'est fourni,
+		// on attribue un vrai numéro de devis (incrément + format QUO-AAAA-XXXX)
+		let finalizedNumber: string | undefined;
+		if (existing.number.startsWith("BROUILLON-") && !newNumber) {
+			const updatedUser = await prisma.user.update({
+				where: { id: userId },
+				data: { nextQuoteNumber: { increment: 1 } },
+				select: { nextQuoteNumber: true, quotePrefix: true },
+			});
+			const year = new Date().getFullYear();
+			const usedNumber = updatedUser.nextQuoteNumber - 1;
+			finalizedNumber = `${updatedUser.quotePrefix}-${year}-${String(usedNumber).padStart(4, "0")}`;
+		}
+
 		// Résoudre le client
 		const client = await resolveClient(data, userId);
 		if (!client) {
@@ -767,8 +781,12 @@ export async function updateQuote(id: string, data: QuoteFormData) {
 			prisma.document.update({
 				where: { id },
 				data: {
-					// Mettre à jour le numéro si l'user l'a modifié
-					...(newNumber && newNumber !== existing.number ? { number: newNumber } : {}),
+					// Priorité : numéro custom user > finalisation auto brouillon > numéro existant
+					...(newNumber && newNumber !== existing.number
+						? { number: newNumber }
+						: finalizedNumber
+						? { number: finalizedNumber }
+						: {}),
 					clientId: client.id,
 					date: new Date(data.date),
 					validUntil: new Date(data.validUntil),
