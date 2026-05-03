@@ -130,54 +130,68 @@ export function DataTable<T>({
           return (
             <div
               key={id}
-              className="px-4 py-2 hover:bg-violet-200/30 dark:hover:bg-violet-500/10 transition-colors cursor-pointer"
-              onClick={() => onRowClick?.(item)}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  onRowClick?.(item);
-                }
-              }}
+              className={`flex items-center px-4 py-2 hover:bg-violet-200/30 dark:hover:bg-violet-500/10 transition-colors ${getRowClassName?.(item) ?? ""}`}
             >
-              {/* Ligne 1 : n° facture (gauche) + statut (droite) */}
-              <div className="flex items-center justify-between mb-2.5">
-                {mobileCols[0] && (
-                  <span className="text-xs font-semibold text-violet-600 dark:text-violet-400 truncate max-w-[55%]">
-                    {mobileCols[0].render
-                      ? mobileCols[0].render(item)
-                      : String((item as Record<string, unknown>)[mobileCols[0].key] ?? "")}
-                  </span>
-                )}
-                {mobileStatusCol && (
-                  <div onClick={(e) => e.stopPropagation()}>
-                    {mobileStatusCol.render
-                      ? mobileStatusCol.render(item)
-                      : (
-                        <span className="text-xs text-slate-700 dark:text-slate-300">
-                          {String((item as Record<string, unknown>)[mobileStatusCol.key] ?? "")}
-                        </span>
-                      )}
-                  </div>
-                )}
+              <div
+                className="flex-1 min-w-0 cursor-pointer"
+                onClick={() => onRowClick?.(item)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    onRowClick?.(item);
+                  }
+                }}
+              >
+                {/* Ligne 1 : n° facture (gauche) + statut (droite) */}
+                <div className="flex items-center justify-between mb-2.5">
+                  {mobileCols[0] && (
+                    <span className="text-xs font-semibold text-violet-600 dark:text-violet-400 truncate max-w-[55%]">
+                      {mobileCols[0].render
+                        ? mobileCols[0].render(item)
+                        : String((item as Record<string, unknown>)[mobileCols[0].key] ?? "")}
+                    </span>
+                  )}
+                  {mobileStatusCol && (
+                    <div onClick={(e) => e.stopPropagation()}>
+                      {mobileStatusCol.render
+                        ? mobileStatusCol.render(item)
+                        : (
+                          <span className="text-xs text-slate-700 dark:text-slate-300">
+                            {String((item as Record<string, unknown>)[mobileStatusCol.key] ?? "")}
+                          </span>
+                        )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Ligne 2 : client (gauche) + montant (droite) */}
+                <div className="flex items-center justify-between">
+                  {mobileCols[1] && (
+                    <span className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-[60%]">
+                      {mobileCols[1].render
+                        ? mobileCols[1].render(item)
+                        : String((item as Record<string, unknown>)[mobileCols[1].key] ?? "")}
+                    </span>
+                  )}
+                  {mobileAmountCol && (
+                    <span className="text-xs font-semibold text-slate-800 dark:text-slate-100 shrink-0">
+                      {String((item as Record<string, unknown>)[mobileAmountCol.key] ?? "")}
+                    </span>
+                  )}
+                </div>
               </div>
 
-              {/* Ligne 2 : client (gauche) + montant (droite) */}
-              <div className="flex items-center justify-between">
-                {mobileCols[1] && (
-                  <span className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-[60%]">
-                    {mobileCols[1].render
-                      ? mobileCols[1].render(item)
-                      : String((item as Record<string, unknown>)[mobileCols[1].key] ?? "")}
-                  </span>
-                )}
-                {mobileAmountCol && (
-                  <span className="text-xs font-semibold text-slate-800 dark:text-slate-100 shrink-0">
-                    {String((item as Record<string, unknown>)[mobileAmountCol.key] ?? "")}
-                  </span>
-                )}
-              </div>
+              {/* Actions (poubelle / éditer) — mobile uniquement, séparé du clic ligne */}
+              {actions && (
+                <div
+                  className="ml-2 shrink-0 flex items-center"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {actions(item)}
+                </div>
+              )}
             </div>
           );
         })}

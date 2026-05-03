@@ -128,26 +128,31 @@ export default function EditPurchaseOrderPage() {
   useEffect(() => {
     if (!id) return;
 
-    getPurchaseOrder(id).then(async (result) => {
-      if (result.success && result.data) {
-        const po = result.data;
-        setPurchaseOrder(po);
+    getPurchaseOrder(id)
+      .then(async (result) => {
+        if (result.success && result.data) {
+          const po = result.data;
+          setPurchaseOrder(po);
 
-        let nextRealNumber: string | undefined;
-        if (isDraftNumber(po.number)) {
-          const nextRes = await getNextPurchaseOrderNumber();
-          if (nextRes.success && nextRes.data) nextRealNumber = nextRes.data.number;
+          let nextRealNumber: string | undefined;
+          if (isDraftNumber(po.number)) {
+            const nextRes = await getNextPurchaseOrderNumber();
+            if (nextRes.success && nextRes.data) nextRealNumber = nextRes.data.number;
+          }
+
+          form.reset(toFormValues(po, nextRealNumber));
+          setDisplayNumber(nextRealNumber ?? po.number);
+
+          const dbCompany = toCompanyInfo(po.user);
+          if (dbCompany) setCompanyInfo(dbCompany);
+        } else {
+          setLoadError(result.error ?? "Bon de commande introuvable");
         }
-
-        form.reset(toFormValues(po, nextRealNumber));
-        setDisplayNumber(nextRealNumber ?? po.number);
-
-        const dbCompany = toCompanyInfo(po.user);
-        if (dbCompany) setCompanyInfo(dbCompany);
-      } else {
-        setLoadError(result.error ?? "Bon de commande introuvable");
-      }
-    });
+      })
+      .catch((error) => {
+        console.error("[edit purchase-order] Erreur de chargement:", error);
+        setLoadError("Erreur lors du chargement du bon de commande");
+      });
 
     setMounted(true);
   }, [id, form]);

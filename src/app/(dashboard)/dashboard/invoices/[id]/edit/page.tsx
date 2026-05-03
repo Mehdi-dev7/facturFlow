@@ -146,31 +146,36 @@ export default function EditInvoicePage() {
 	useEffect(() => {
 		if (!id) return;
 
-		getInvoice(id).then(async (result) => {
-			if (result.success && result.data) {
-				const inv = result.data;
-				setInvoice(inv);
+		getInvoice(id)
+			.then(async (result) => {
+				if (result.success && result.data) {
+					const inv = result.data;
+					setInvoice(inv);
 
-				// Si c'est un brouillon, on récupère le prochain vrai numéro
-				// pour l'afficher (l'attribution réelle se fait au save)
-				let nextRealNumber: string | undefined;
-				if (isDraftNumber(inv.number)) {
-					const nextRes = await getNextInvoiceNumber();
-					if (nextRes.success && nextRes.data) nextRealNumber = nextRes.data.number;
+					// Si c'est un brouillon, on récupère le prochain vrai numéro
+					// pour l'afficher (l'attribution réelle se fait au save)
+					let nextRealNumber: string | undefined;
+					if (isDraftNumber(inv.number)) {
+						const nextRes = await getNextInvoiceNumber();
+						if (nextRes.success && nextRes.data) nextRealNumber = nextRes.data.number;
+					}
+
+					form.reset(toFormValues(inv, nextRealNumber));
+					setDisplayNumber(nextRealNumber ?? inv.number);
+
+					// Company info depuis la facture en DB
+					const dbCompany = toCompanyInfo(inv.user);
+					if (dbCompany) {
+						setCompanyInfo(dbCompany);
+					}
+				} else {
+					setLoadError(result.error ?? "Facture introuvable");
 				}
-
-				form.reset(toFormValues(inv, nextRealNumber));
-				setDisplayNumber(nextRealNumber ?? inv.number);
-
-				// Company info depuis la facture en DB
-				const dbCompany = toCompanyInfo(inv.user);
-				if (dbCompany) {
-					setCompanyInfo(dbCompany);
-				}
-			} else {
-				setLoadError(result.error ?? "Facture introuvable");
-			}
-		});
+			})
+			.catch((error) => {
+				console.error("[edit invoice] Erreur de chargement:", error);
+				setLoadError("Erreur lors du chargement de la facture");
+			});
 
 		setMounted(true);
 	}, [id, form]);

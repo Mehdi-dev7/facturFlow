@@ -3,7 +3,7 @@
 // Modale de confirmation de suppression générique
 // Utilisée pour factures, devis, acomptes, reçus
 
-import { AlertTriangle, Trash2 } from "lucide-react";
+import { AlertTriangle, Loader2, Trash2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -84,12 +84,25 @@ export function DeleteConfirmModal({
 
           {/* Confirmer */}
           <AlertDialogAction
-            onClick={onConfirm}
+            onClick={(e) => {
+              // Empêche AlertDialog de se fermer pendant la suppression
+              if (isDeleting) e.preventDefault();
+              else onConfirm();
+            }}
             disabled={isDeleting}
-            className="w-full sm:w-auto bg-red-600 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700 text-white border-0 cursor-pointer disabled:opacity-50"
+            className="w-full sm:w-auto bg-red-600 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700 text-white border-0 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
           >
-            <Trash2 size={14} className="mr-1.5" />
-            {isDeleting ? "Suppression..." : "Supprimer définitivement"}
+            {isDeleting ? (
+              <>
+                <Loader2 size={14} className="mr-1.5 animate-spin" />
+                Suppression...
+              </>
+            ) : (
+              <>
+                <Trash2 size={14} className="mr-1.5" />
+                Supprimer définitivement
+              </>
+            )}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

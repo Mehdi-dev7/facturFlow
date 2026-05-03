@@ -138,26 +138,31 @@ export default function EditProformaPage() {
 	useEffect(() => {
 		if (!id) return;
 
-		getProforma(id).then(async (result) => {
-			if (result.success && result.data) {
-				const p = result.data;
-				setProforma(p);
+		getProforma(id)
+			.then(async (result) => {
+				if (result.success && result.data) {
+					const p = result.data;
+					setProforma(p);
 
-				let nextRealNumber: string | undefined;
-				if (isDraftNumber(p.number)) {
-					const nextRes = await getNextProformaNumber();
-					if (nextRes.success && nextRes.data) nextRealNumber = nextRes.data.number;
+					let nextRealNumber: string | undefined;
+					if (isDraftNumber(p.number)) {
+						const nextRes = await getNextProformaNumber();
+						if (nextRes.success && nextRes.data) nextRealNumber = nextRes.data.number;
+					}
+
+					form.reset(toFormValues(p, nextRealNumber));
+					setDisplayNumber(nextRealNumber ?? p.number);
+
+					const dbCompany = toCompanyInfo(p.user);
+					if (dbCompany) setCompanyInfo(dbCompany);
+				} else {
+					setLoadError(result.error ?? "Proforma introuvable");
 				}
-
-				form.reset(toFormValues(p, nextRealNumber));
-				setDisplayNumber(nextRealNumber ?? p.number);
-
-				const dbCompany = toCompanyInfo(p.user);
-				if (dbCompany) setCompanyInfo(dbCompany);
-			} else {
-				setLoadError(result.error ?? "Proforma introuvable");
-			}
-		});
+			})
+			.catch((error) => {
+				console.error("[edit proforma] Erreur de chargement:", error);
+				setLoadError("Erreur lors du chargement de la proforma");
+			});
 
 		setMounted(true);
 	}, [id, form]);

@@ -122,28 +122,33 @@ export default function EditQuotePage() {
 	useEffect(() => {
 		if (!id) return;
 
-		getQuote(id).then(async (result) => {
-			if (result.success && result.data) {
-				const q = result.data;
-				setQuote(q);
+		getQuote(id)
+			.then(async (result) => {
+				if (result.success && result.data) {
+					const q = result.data;
+					setQuote(q);
 
-				let nextRealNumber: string | undefined;
-				if (isDraftNumber(q.number)) {
-					const nextRes = await getNextQuoteNumber();
-					if (nextRes.success && nextRes.data) nextRealNumber = nextRes.data.number;
+					let nextRealNumber: string | undefined;
+					if (isDraftNumber(q.number)) {
+						const nextRes = await getNextQuoteNumber();
+						if (nextRes.success && nextRes.data) nextRealNumber = nextRes.data.number;
+					}
+
+					form.reset(toFormValues(q, nextRealNumber));
+					setDisplayNumber(nextRealNumber ?? q.number);
+
+					const dbCompany = toCompanyInfo(q.user);
+					if (dbCompany) {
+						setCompanyInfo(dbCompany);
+					}
+				} else {
+					setLoadError(result.error ?? "Devis introuvable");
 				}
-
-				form.reset(toFormValues(q, nextRealNumber));
-				setDisplayNumber(nextRealNumber ?? q.number);
-
-				const dbCompany = toCompanyInfo(q.user);
-				if (dbCompany) {
-					setCompanyInfo(dbCompany);
-				}
-			} else {
-				setLoadError(result.error ?? "Devis introuvable");
-			}
-		});
+			})
+			.catch((error) => {
+				console.error("[edit quote] Erreur de chargement:", error);
+				setLoadError("Erreur lors du chargement du devis");
+			});
 
 		setMounted(true);
 	}, [id, form]);
