@@ -54,14 +54,14 @@ export function ActionMenuMobile({ onEdit, onDelete }: ActionMenuProps) {
   );
 }
 
-/* ─── Desktop: Inline icons ─── */
+/* ─── Desktop: Inline icons (pencil + trash) | Mobile: trash only ─── */
 export function ActionButtons({ onEdit, onDelete }: ActionMenuProps) {
   return (
-    <div className="flex flex-col lg:flex-row items-center justify-center gap-0.5 lg:gap-1">
+    <div className="flex items-center justify-center gap-1">
       {onEdit && (
         <button
           onClick={(e) => { e.stopPropagation(); onEdit(); }}
-          className="p-1.5 rounded-md text-slate-400 hover:text-primary hover:bg-primary/20 dark:text-violet-400 dark:hover:text-violet-300 dark:hover:bg-primary/80 transition-all duration-300 cursor-pointer"
+          className="hidden lg:inline-flex p-1.5 rounded-md text-slate-400 hover:text-primary hover:bg-primary/20 dark:text-violet-400 dark:hover:text-violet-300 dark:hover:bg-primary/80 transition-all duration-300 cursor-pointer"
           aria-label="Modifier"
         >
           <Pencil className="h-3.5 w-3.5" />
