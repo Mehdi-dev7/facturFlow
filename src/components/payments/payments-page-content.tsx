@@ -136,7 +136,7 @@ function ProviderCard({
 
         {/* Formulaire de connexion (dépliable) */}
         {formOpen && !connected && (
-          <div className="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-4">
+          <div className="pt-3 border-t border-slate-200 dark:border-slate-800 space-y-4">
             {children}
           </div>
         )}

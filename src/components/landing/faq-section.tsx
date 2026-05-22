@@ -117,7 +117,7 @@ export function FaqSection() {
                 {/* Answer */}
                 <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
                   <div className="px-6 pb-5">
-                    <div className="pt-2 border-t border-slate-100">
+                    <div className="pt-2 border-t border-slate-200">
                       <p className="text-slate-600 text-sm sm:text-base leading-relaxed mt-3">
                         {faq.answer}
                       </p>

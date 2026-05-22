@@ -146,7 +146,7 @@ function DeliveryNotePreviewContent({ deliveryNote }: { deliveryNote: SavedDeliv
         </h3>
         <div
           className="rounded-lg p-3 border space-y-2"
-          style={{ backgroundColor: themeColor + "0d", borderColor: themeColor + "33" }}
+          style={{ backgroundColor: themeColor + "1f", borderColor: themeColor + "66" }}
         >
           <div className="flex justify-between text-xs lg:text-sm">
             <span style={{ color: contentColor }}>Facture d'origine</span>
@@ -175,7 +175,7 @@ function DeliveryNotePreviewContent({ deliveryNote }: { deliveryNote: SavedDeliv
                 key={line.id}
                 className={`flex items-center justify-between px-3 py-2.5 text-xs lg:text-sm ${
                   i < deliveryNote.lines.length - 1
-                    ? "border-b border-slate-100 dark:border-slate-700/50"
+                    ? "border-b border-slate-200 dark:border-slate-700/50"
                     : ""
                 }`}
               >
@@ -264,11 +264,11 @@ export function DeliveryNotePreviewModal({
     <>
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent
-          className="w-[95vw] sm:w-[90vw] sm:max-w-2xl md:max-w-3xl max-h-[90dvh] bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25 shadow-lg dark:shadow-violet-950/40 rounded-xl overflow-hidden p-0"
+          className="w-[95vw] sm:w-[90vw] sm:max-w-2xl md:max-w-3xl max-h-[90dvh] bg-violet-50 dark:bg-linear-to-b dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/30 dark:border-slate-600 shadow-lg dark:shadow-violet-950/40 rounded-xl overflow-hidden p-0"
           showCloseButton={false}
         >
           {/* ── Header : numéro + badges + boutons d'action ─────────────── */}
-          <DialogHeader className="px-4 md:px-6 pt-4 md:pt-5 pb-3 md:pb-4 border-b border-slate-200 dark:border-violet-500/20">
+          <DialogHeader className="px-4 md:px-6 pt-4 md:pt-5 pb-3 md:pb-4 border-b border-slate-200 dark:border-slate-600">
             {/* Ligne 1 : numéro + badge + bouton fermer */}
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2 min-w-0">
@@ -279,7 +279,7 @@ export function DeliveryNotePreviewModal({
                   BL
                 </span>
                 {wasSent && (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-violet-100 text-violet-700 dark:bg-violet-500/20 dark:text-violet-300 border border-violet-300 dark:border-violet-500/40 shrink-0">
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-violet-100 text-violet-700 dark:bg-violet-500/30 dark:text-violet-300 border border-violet-300 dark:border-violet-500/40 shrink-0">
                     <CheckCircle2 size={11} />
                     Envoyé
                   </span>

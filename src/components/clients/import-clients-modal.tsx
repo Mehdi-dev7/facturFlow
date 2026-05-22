@@ -260,7 +260,7 @@ export function ImportClientsModal({ open, onOpenChange, onImported }: ImportCli
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent
-        className="sm:max-w-2xl max-h-[90dvh] overflow-y-auto bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#1e1845] dark:to-[#1a1438] border border-primary/20 dark:border-violet-400/30 shadow-lg dark:shadow-violet-950/50 rounded-xl"
+        className="sm:max-w-2xl max-h-[90dvh] overflow-y-auto bg-violet-50 dark:bg-linear-to-b dark:from-[#2a2254] dark:via-[#1e1845] dark:to-[#1a1438] border border-primary/30 dark:border-slate-600 shadow-lg dark:shadow-violet-950/50 rounded-xl"
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <DialogHeader>
@@ -286,8 +286,8 @@ export function ImportClientsModal({ open, onOpenChange, onImported }: ImportCli
               onClick={() => fileInputRef.current?.click()}
               className={`relative flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-8 cursor-pointer transition-all duration-200 ${
                 isDragging
-                  ? "border-violet-400 bg-violet-50 dark:bg-violet-500/10"
-                  : "border-violet-200 dark:border-violet-500/30 hover:border-violet-400 hover:bg-violet-50/50 dark:hover:bg-violet-500/5"
+                  ? "border-violet-400 bg-violet-50 dark:bg-violet-500/20"
+                  : "border-violet-200 dark:border-slate-700 hover:border-violet-400 hover:bg-violet-50/50 dark:hover:bg-violet-500/5"
               }`}
             >
               {isLoading ? (
@@ -312,13 +312,13 @@ export function ImportClientsModal({ open, onOpenChange, onImported }: ImportCli
             </div>
 
             {/* Colonnes supportées */}
-            <div className="rounded-xl border border-violet-100 dark:border-violet-500/20 bg-violet-50/50 dark:bg-violet-900/10 p-3 space-y-2">
+            <div className="rounded-xl border border-violet-100 dark:border-slate-700 bg-violet-50/50 dark:bg-violet-900/10 p-3 space-y-2">
               <p className="text-xs font-semibold text-violet-700 dark:text-violet-400">
                 Colonnes reconnues automatiquement
               </p>
               <div className="flex flex-wrap gap-1.5">
                 {["Nom / Société", "Email ✱", "Téléphone", "SIRET", "SIREN", "Adresse", "Ville", "Code Postal", "TVA", "Notes"].map((col) => (
-                  <span key={col} className="text-[10px] px-2 py-0.5 rounded-full bg-white dark:bg-violet-900/30 border border-violet-200 dark:border-violet-500/30 text-slate-600 dark:text-slate-300">
+                  <span key={col} className="text-[10px] px-2 py-0.5 rounded-full bg-white dark:bg-violet-900/30 border border-violet-200 dark:border-slate-700 text-slate-600 dark:text-slate-300">
                     {col}
                   </span>
                 ))}
@@ -330,7 +330,7 @@ export function ImportClientsModal({ open, onOpenChange, onImported }: ImportCli
             <Button
               variant="outline"
               size="sm"
-              className="w-full border-violet-200 dark:border-violet-500/30 text-violet-600 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-500/10 cursor-pointer"
+              className="w-full border-violet-200 dark:border-slate-700 text-violet-600 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-500/30 cursor-pointer"
               onClick={() => downloadTemplate()}
             >
               <Download className="size-3.5 mr-2" />
@@ -350,7 +350,7 @@ export function ImportClientsModal({ open, onOpenChange, onImported }: ImportCli
             </div>
 
             {/* Tableau preview — max 10 lignes affichées */}
-            <div className="rounded-xl border border-slate-200 dark:border-violet-500/20 overflow-hidden">
+            <div className="rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
               <div className="overflow-x-auto max-h-64 overflow-y-auto">
                 <table className="w-full text-xs">
                   <thead className="bg-slate-50 dark:bg-violet-900/30 sticky top-0">
@@ -362,7 +362,7 @@ export function ImportClientsModal({ open, onOpenChange, onImported }: ImportCli
                       <th className="text-left px-3 py-2 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">Ville</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-violet-500/10">
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-600">
                     {rows.map((row) => (
                       <tr
                         key={row._rowIndex}
@@ -419,7 +419,7 @@ export function ImportClientsModal({ open, onOpenChange, onImported }: ImportCli
                 variant="outline"
                 size="sm"
                 onClick={() => { setStep("upload"); setRows([]); }}
-                className="cursor-pointer border-slate-200 dark:border-violet-500/30"
+                className="cursor-pointer border-slate-200 dark:border-slate-700"
               >
                 Changer de fichier
               </Button>

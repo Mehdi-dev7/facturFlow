@@ -82,7 +82,7 @@ function StaticLinesTable({ title, lines, isForfait, typeConfig, themeColor, cur
       )}
       <div className="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
         <table className="w-full">
-          <thead style={{ backgroundColor: themeColor + "1a" }}>
+          <thead style={{ backgroundColor: themeColor + "66" }}>
             <tr>
               <th className="text-left p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: contentColor }}>
                 {typeConfig.descriptionLabel}
@@ -104,7 +104,7 @@ function StaticLinesTable({ title, lines, isForfait, typeConfig, themeColor, cur
           </thead>
           <tbody>
             {lines.map((line) => (
-              <tr key={line.id} className="border-t border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30">
+              <tr key={line.id} className="border-t border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800/40">
                 <td className="p-2 lg:p-3 text-xs lg:text-sm text-slate-900 dark:text-slate-50">
                   {line.description}
                 </td>
@@ -351,7 +351,7 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
       <div className="flex justify-end">
         <div
           className="w-64 space-y-2 rounded-lg p-3 border"
-          style={{ backgroundColor: themeColor + "0d", borderColor: themeColor + "33" }}
+          style={{ backgroundColor: themeColor + "1f", borderColor: themeColor + "66" }}
         >
           {/* Sous-total HT */}
           <div className="flex justify-between text-sm">
@@ -394,7 +394,7 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
               </div>
               <div
                 className="flex justify-between items-center pt-2 mt-1"
-                style={{ borderTop: `2px solid ${themeColor}66` }}
+                style={{ borderTop: `2px solid ${themeColor}aa` }}
               >
                 <span className="text-base lg:text-lg font-bold text-slate-900 dark:text-slate-50 tracking-tight">
                   NET À PAYER
@@ -414,7 +414,7 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
           <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: contentColor }}>
             Notes
           </h3>
-          <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3">
+          <div className="bg-slate-100 dark:bg-slate-800/50 rounded-lg p-3">
             <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap">
               {invoice.notes}
             </p>
@@ -677,12 +677,12 @@ export function InvoicePreviewModal({
     <>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="w-[95vw] h-[90vh] sm:w-[90vw] sm:h-auto sm:max-w-2xl md:max-w-3xl lg:max-w-5xl bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25 shadow-lg dark:shadow-violet-950/40 rounded-xl overflow-hidden p-0"
+        className="w-[95vw] h-[90vh] sm:w-[90vw] sm:h-auto sm:max-w-2xl md:max-w-3xl lg:max-w-5xl bg-violet-50 dark:bg-linear-to-b dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/30 dark:border-slate-600 shadow-lg dark:shadow-violet-950/40 rounded-xl overflow-hidden p-0"
         // On désactive le bouton de fermeture par défaut pour en mettre un custom dans le header
         showCloseButton={false}
       >
         {/* ── Header du modal : titre + bouton fermer + 5 actions ─────── */}
-        <DialogHeader data-print-hide className="px-2 sm:px-4 md:px-6 pt-2 sm:pt-3 md:pt-5 pb-2 sm:pb-3 md:pb-4 border-b border-slate-200 dark:border-violet-500/20">
+        <DialogHeader data-print-hide className="px-2 sm:px-4 md:px-6 pt-2 sm:pt-3 md:pt-5 pb-2 sm:pb-3 md:pb-4 border-b border-slate-200 dark:border-slate-600">
           {/* Première ligne : numéro de facture + croix */}
           <div className="flex items-center justify-between">
             <DialogTitle className="text-slate-900 dark:text-slate-100 text-base font-semibold mx-2 md:mx-0">

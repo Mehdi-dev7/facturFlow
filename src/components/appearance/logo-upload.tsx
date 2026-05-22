@@ -81,7 +81,7 @@ export function LogoUpload({ value, onChange }: LogoUploadProps) {
       {value ? (
         /* ── Aperçu du logo uploadé ── */
         <div className="flex items-center gap-4">
-          <div className="relative w-20 h-20 rounded-xl border-2 border-slate-200 dark:border-violet-500/30 bg-white dark:bg-slate-800 overflow-hidden flex items-center justify-center">
+          <div className="relative w-20 h-20 rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 overflow-hidden flex items-center justify-center">
             <Image
               src={value}
               alt="Logo"
@@ -126,11 +126,11 @@ export function LogoUpload({ value, onChange }: LogoUploadProps) {
           onClick={() => inputRef.current?.click()}
           className={`relative flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed py-8 px-4 cursor-pointer transition-all ${
             isDragging
-              ? "border-violet-500 bg-violet-50 dark:bg-violet-500/10 scale-[1.01]"
-              : "border-slate-300 dark:border-violet-500/30 hover:border-violet-400 dark:hover:border-violet-500/50 bg-slate-50/50 dark:bg-[#1a1438]"
+              ? "border-violet-500 bg-violet-50 dark:bg-violet-500/20 scale-[1.01]"
+              : "border-slate-300 dark:border-slate-700 hover:border-violet-400 dark:hover:border-violet-500/50 bg-slate-50 dark:bg-[#1a1438]"
           }`}
         >
-          <div className="flex items-center justify-center w-10 h-10 rounded-full bg-violet-100 dark:bg-violet-500/20">
+          <div className="flex items-center justify-center w-10 h-10 rounded-full bg-violet-100 dark:bg-violet-500/30">
             {isDragging ? (
               <ImageIcon size={20} className="text-violet-600 dark:text-violet-400" />
             ) : (

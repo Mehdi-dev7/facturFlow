@@ -197,7 +197,7 @@ function InvoiceDeliveryNoteGenerator() {
               type="date"
               value={deliveryDate}
               onChange={(e) => setDeliveryDate(e.target.value)}
-              className="w-full max-w-xs rounded-xl border border-slate-300 dark:border-violet-400/30 bg-white/90 dark:bg-[#2a2254]/80 px-3 py-1.5 text-xs xs:text-sm text-slate-900 dark:text-violet-100 focus:outline-none focus:ring-2 focus:ring-teal-500/50 cursor-pointer"
+              className="w-full max-w-xs rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-[#2a2254]/80 px-3 py-1.5 text-xs xs:text-sm text-slate-900 dark:text-violet-100 focus:outline-none focus:ring-2 focus:ring-teal-500/50 cursor-pointer"
             />
           </div>
 
@@ -211,7 +211,7 @@ function InvoiceDeliveryNoteGenerator() {
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Instructions de livraison, remarques..."
               rows={2}
-              className="w-full max-w-md rounded-xl border border-slate-300 dark:border-violet-400/30 bg-white/90 dark:bg-[#2a2254]/80 px-3 py-1.5 text-xs xs:text-sm text-slate-900 dark:text-violet-100 focus:outline-none focus:ring-2 focus:ring-teal-500/50 resize-none"
+              className="w-full max-w-md rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-[#2a2254]/80 px-3 py-1.5 text-xs xs:text-sm text-slate-900 dark:text-violet-100 focus:outline-none focus:ring-2 focus:ring-teal-500/50 resize-none"
             />
           </div>
 
@@ -422,7 +422,7 @@ function LivraisonsPageContent() {
       </div>
 
       {/* Générateur de BL depuis une facture */}
-      <div className="rounded-2xl border border-slate-300/80 dark:border-violet-500/20 shadow-md shadow-slate-200/50 dark:shadow-violet-950/30 bg-white/75 dark:bg-[#1a1438] backdrop-blur-lg p-2.5 lg:p-3 mb-6">
+      <div className="rounded-2xl border border-slate-300 dark:border-slate-700 shadow-md shadow-slate-300/70 dark:shadow-violet-950/30 bg-white dark:bg-[#1a1438] backdrop-blur-lg p-2.5 lg:p-3 mb-6">
         <div className="flex items-center gap-2 mb-4">
           <div className="p-1.5 rounded-lg bg-teal-100 dark:bg-teal-500/20">
             <Truck className="size-4 text-teal-600 dark:text-teal-400" />
@@ -451,8 +451,8 @@ function LivraisonsPageContent() {
       </div>
 
       {/* Tableau des bons de livraison */}
-      <div className="rounded-2xl border border-slate-300/80 dark:border-violet-500/20 shadow-lg shadow-slate-200/50 dark:shadow-violet-950/40 bg-white/75 dark:bg-[#1a1438] backdrop-blur-lg overflow-hidden">
-        <div className="flex items-center gap-3 px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-200 dark:border-violet-500/20">
+      <div className="rounded-2xl border border-slate-300 dark:border-slate-700 shadow-lg shadow-slate-300/70 dark:shadow-violet-950/40 bg-white dark:bg-[#1a1438] backdrop-blur-lg overflow-hidden">
+        <div className="flex items-center gap-3 px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-200 dark:border-slate-600">
           <div className="p-1.5 rounded-lg bg-teal-100 dark:bg-teal-500/20 shrink-0">
             <Truck className="size-4 text-teal-600 dark:text-teal-400" />
           </div>

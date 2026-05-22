@@ -155,7 +155,7 @@ export function PricingSection() {
       : <div className="flex items-center justify-center w-4 h-4 rounded-full bg-emerald-100 shrink-0"><Check className="w-2.5 h-2.5 text-emerald-600" /></div>
 
     return (
-      <div key={feature.name} className="flex items-center gap-2 py-1.5 border-b border-slate-100/60 last:border-0">
+      <div key={feature.name} className="flex items-center gap-2 py-1.5 border-b border-slate-200/60 last:border-0">
         {icon}
         <span className={`text-sm flex-1 leading-tight ${value === false ? "text-slate-400" : "text-slate-700"}`}>
           {feature.name}

@@ -110,7 +110,7 @@ export function RecurringPreview({
   const freqLabel = FREQUENCY_LABELS[frequency] ?? frequency;
 
   return (
-    <div className="rounded-2xl border border-slate-300/80 dark:border-violet-500/20 shadow-lg shadow-slate-200/50 dark:shadow-violet-950/40 bg-white/75 dark:bg-[#1a1438] backdrop-blur-lg overflow-hidden">
+    <div className="rounded-2xl border border-slate-300 dark:border-slate-700 shadow-lg shadow-slate-300/70 dark:shadow-violet-950/40 bg-white dark:bg-[#1a1438] backdrop-blur-lg overflow-hidden">
       {/* Bandeau "Aperçu temps réel" */}
       <div
         className="flex items-center justify-between px-4 py-2 text-white text-xs font-medium"
@@ -239,7 +239,7 @@ export function RecurringPreview({
         {/* ─── Planification ────────────────────────────────────────────── */}
         <div
           className="rounded-lg p-3 grid grid-cols-2 gap-2"
-          style={{ backgroundColor: themeColor + "0d" }}
+          style={{ backgroundColor: themeColor + "1f" }}
         >
           <div>
             <p className="text-[10px] text-slate-500 dark:text-slate-400">Début</p>
@@ -256,12 +256,12 @@ export function RecurringPreview({
         </div>
 
         {/* ─── Tableau des lignes ────────────────────────────────────────── */}
-        <div className="rounded-lg overflow-hidden border border-slate-200 dark:border-violet-400/20">
+        <div className="rounded-lg overflow-hidden border border-slate-200 dark:border-slate-600">
           {/* Header tableau */}
           <div
             className="grid grid-cols-12 gap-1 px-3 py-2 text-[10px] font-semibold uppercase tracking-wide"
             style={{
-              backgroundColor: themeColor + "1a",
+              backgroundColor: themeColor + "66",
               color: themeColor,
             }}
           >
@@ -281,7 +281,7 @@ export function RecurringPreview({
                 return (
                   <div
                     key={i}
-                    className="grid grid-cols-12 gap-1 px-3 py-2 text-[11px] border-t border-slate-100 dark:border-violet-400/10"
+                    className="grid grid-cols-12 gap-1 px-3 py-2 text-[11px] border-t border-slate-200 dark:border-slate-700"
                   >
                     <span className="col-span-5 text-slate-700 dark:text-slate-300 truncate">
                       {line.description}
@@ -308,7 +308,7 @@ export function RecurringPreview({
         {/* ─── Totaux ───────────────────────────────────────────────────── */}
         <div
           className="rounded-lg p-3 space-y-1.5"
-          style={{ backgroundColor: themeColor + "0d" }}
+          style={{ backgroundColor: themeColor + "1f" }}
         >
           <div className="flex justify-between text-xs text-slate-600 dark:text-slate-400">
             <span>Sous-total HT</span>
@@ -327,7 +327,7 @@ export function RecurringPreview({
 
         {/* ─── Notes ────────────────────────────────────────────────────── */}
         {notes && (
-          <div className="rounded-lg p-3 border border-slate-100 dark:border-violet-400/15 bg-slate-50/50 dark:bg-[#221c48]/30">
+          <div className="rounded-lg p-3 border border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-[#221c48]/30">
             <p
               className="text-[10px] font-semibold uppercase tracking-wide mb-1"
               style={{ color: themeColor }}

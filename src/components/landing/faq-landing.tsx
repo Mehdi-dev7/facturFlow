@@ -52,7 +52,7 @@ export function FaqLanding({ faqs }: { faqs: Faq[] }) {
               }`}
             >
               <div className="px-6 pb-5">
-                <div className="pt-2 border-t border-slate-100">
+                <div className="pt-2 border-t border-slate-200">
                   <p className="text-slate-600 text-sm sm:text-base leading-relaxed mt-3">
                     {faq.answer}
                   </p>

@@ -247,7 +247,7 @@ export default function DashboardPage() {
         <div className="mt-5 flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-5">
           {/* CA Annuel */}
           <div
-            className="relative overflow-hidden rounded-2xl border border-violet-200/50 dark:border-violet-800/50 p-4 sm:p-6 w-full lg:w-1/2"
+            className="relative overflow-hidden rounded-2xl border border-violet-200 dark:border-violet-800/50 p-4 sm:p-6 w-full lg:w-1/2"
             style={{ background: "linear-gradient(135deg, rgba(139,92,246,0.08) 0%, rgba(168,85,247,0.05) 50%, rgba(255,255,255,0.8) 100%)", backdropFilter: "blur(16px)" }}
           >
             <div className="absolute -top-12 -right-12 h-32 w-32 rounded-full bg-violet-500 opacity-10 blur-3xl" />
@@ -295,9 +295,9 @@ export default function DashboardPage() {
 
       {/* ── Tableau factures récentes ── */}
       <div
-        className={`rounded-2xl border border-slate-300/80 dark:border-violet-500/20 shadow-lg shadow-slate-200/50 dark:shadow-violet-950/40 bg-white/75 dark:bg-[#1a1438] backdrop-blur-lg overflow-hidden transition-all duration-700 ease-out ${tableVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
+        className={`rounded-2xl border border-slate-300 dark:border-slate-700 shadow-lg shadow-slate-300/70 dark:shadow-violet-950/40 bg-white dark:bg-[#1a1438] backdrop-blur-lg overflow-hidden transition-all duration-700 ease-out ${tableVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
       >
-        <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-200 dark:border-violet-500/20 dark:bg-[#1a1438]">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-200 dark:border-slate-600 dark:bg-[#1a1438]">
           <div>
             <h2 className="text-base sm:text-lg lg:text-2xl font-bold text-slate-900 dark:text-slate-100">Factures récentes</h2>
             <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">
@@ -306,7 +306,7 @@ export default function DashboardPage() {
           </div>
           <Link
             href="/dashboard/invoices"
-            className="text-xs sm:text-sm font-semibold text-violet-600 hover:text-violet-800 dark:text-violet-300 transition-colors px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg hover:bg-violet-500/10 dark:hover:bg-violet-500/20 cursor-pointer"
+            className="text-xs sm:text-sm font-semibold text-violet-600 hover:text-violet-800 dark:text-violet-300 transition-colors px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg hover:bg-violet-500/30 dark:hover:bg-violet-500/30 cursor-pointer"
           >
             Voir tout →
           </Link>

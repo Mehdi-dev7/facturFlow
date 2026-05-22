@@ -67,7 +67,7 @@ export function DeleteAccountModal({ open, onClose }: DeleteAccountModalProps) {
         <AlertDialogFooter className="flex flex-col-reverse sm:flex-row gap-2 mt-4">
           <AlertDialogCancel
             onClick={onClose}
-            className="rounded-xl border-slate-300 dark:border-violet-400/30 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+            className="rounded-xl border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
           >
             Annuler
           </AlertDialogCancel>

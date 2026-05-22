@@ -199,11 +199,11 @@ export function DepositPreviewModal({
     <>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="w-[95vw] h-[90vh] sm:w-[90vw] sm:h-auto sm:max-w-2xl md:max-w-3xl lg:max-w-5xl bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25 shadow-lg dark:shadow-violet-950/40 rounded-xl overflow-hidden p-0"
+        className="w-[95vw] h-[90vh] sm:w-[90vw] sm:h-auto sm:max-w-2xl md:max-w-3xl lg:max-w-5xl bg-violet-50 dark:bg-linear-to-b dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/30 dark:border-slate-600 shadow-lg dark:shadow-violet-950/40 rounded-xl overflow-hidden p-0"
         showCloseButton={false}
       >
         {/* ── Header du modal : titre + bouton fermer + 5 actions ─────── */}
-        <DialogHeader data-print-hide className="px-2 sm:px-4 md:px-6 pt-2 sm:pt-3 md:pt-5 pb-2 sm:pb-3 md:pb-4 border-b border-slate-200 dark:border-violet-500/20 mx-2 md:mx-0">
+        <DialogHeader data-print-hide className="px-2 sm:px-4 md:px-6 pt-2 sm:pt-3 md:pt-5 pb-2 sm:pb-3 md:pb-4 border-b border-slate-200 dark:border-slate-600 mx-2 md:mx-0">
           {/* Première ligne : numéro d'acompte + croix */}
           <div className="flex items-center justify-between">
             <DialogTitle className="text-slate-900 dark:text-slate-100 text-base font-semibold mx-2 md:mx-0">
@@ -394,7 +394,7 @@ export function DepositPreviewModal({
                     <p className="text-slate-600 dark:text-slate-400 text-[11px] lg:text-xs">{deposit.user.companyPhone}</p>
                   )}
                   {deposit.user.companySiret && (
-                    <p className="text-[11px] lg:text-xs text-slate-500 dark:text-slate-500 mt-1">
+                    <p className="text-[11px] lg:text-xs text-slate-500 dark:text-slate-400 mt-1">
                       SIRET : {deposit.user.companySiret}
                     </p>
                   )}
@@ -430,7 +430,7 @@ export function DepositPreviewModal({
               </h3>
               <div className="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
                 <table className="w-full">
-                  <thead style={{ backgroundColor: themeColor + "1a" }}>
+                  <thead style={{ backgroundColor: themeColor + "66" }}>
                     <tr>
                       <th className="text-left p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: contentColor }}>
                         Description
@@ -441,7 +441,7 @@ export function DepositPreviewModal({
                     </tr>
                   </thead>
                   <tbody>
-                    <tr className="border-t border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30">
+                    <tr className="border-t border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800/40">
                       <td className="p-2 lg:p-3 text-xs lg:text-sm text-slate-900 dark:text-slate-50">
                         {deposit.description}
                       </td>
@@ -460,7 +460,7 @@ export function DepositPreviewModal({
             <div className="flex justify-end">
               <div
                 className="w-64 space-y-2 rounded-lg p-3 border"
-                style={{ backgroundColor: themeColor + "0d", borderColor: themeColor + "33" }}
+                style={{ backgroundColor: themeColor + "1f", borderColor: themeColor + "66" }}
               >
                 <div className="flex justify-between text-xs lg:text-sm">
                   <span className="text-slate-500 dark:text-slate-400">Sous-total HT :</span>
@@ -486,7 +486,7 @@ export function DepositPreviewModal({
                 <h3 className="font-semibold mb-2 text-xs lg:text-sm uppercase tracking-wide" style={{ color: contentColor }}>
                   Notes
                 </h3>
-                <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3">
+                <div className="bg-slate-100 dark:bg-slate-800/50 rounded-lg p-3">
                   <p className="text-[11px] lg:text-xs text-slate-700 dark:text-slate-300 whitespace-pre-wrap">
                     {deposit.notes}
                   </p>

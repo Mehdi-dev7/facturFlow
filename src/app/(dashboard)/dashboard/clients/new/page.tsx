@@ -28,7 +28,7 @@ export default function NewClientPage() {
 
 				{/* Titre + icône */}
 				<div className="flex items-center gap-3">
-					<div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 dark:bg-violet-500/20">
+					<div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 dark:bg-violet-500/30">
 						<UserPlus className="size-5 text-primary dark:text-violet-400" />
 					</div>
 					<div>
@@ -43,7 +43,7 @@ export default function NewClientPage() {
 			</div>
 
 			{/* ─── Formulaire dans une card ─── */}
-			<div className="rounded-2xl border border-primary/15 dark:border-violet-400/20 bg-white dark:bg-[#1e1a42] shadow-sm backdrop-blur-sm p-6">
+			<div className="rounded-2xl border border-primary/15 dark:border-slate-600 bg-white dark:bg-[#1e1a42] shadow-sm backdrop-blur-sm p-6">
 				<ClientForm />
 			</div>
 		</div>

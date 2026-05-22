@@ -89,7 +89,7 @@ export function StatusDropdown({ invoiceId, dbStatus }: StatusDropdownProps) {
             side="bottom"
             sideOffset={6}
             // Style identique aux modales du projet (company-info-modal, etc.)
-            className="z-50 w-52 origin-(--radix-dropdown-menu-content-transform-origin) rounded-xl border border-primary/20 dark:border-violet-400/25 bg-gradient-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] shadow-lg dark:shadow-violet-950/40 p-1.5 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2"
+            className="z-50 w-52 origin-(--radix-dropdown-menu-content-transform-origin) rounded-xl border border-primary/30 dark:border-slate-600 bg-violet-50 dark:bg-linear-to-b dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] shadow-lg dark:shadow-violet-950/40 p-1.5 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2"
           >
             <p className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-violet-400 mb-1">
               Changer le statut
@@ -100,7 +100,7 @@ export function StatusDropdown({ invoiceId, dbStatus }: StatusDropdownProps) {
                 key={t.status}
                 onSelect={() => updateStatus.mutate({ id: invoiceId, status: t.status })}
                 disabled={updateStatus.isPending}
-                className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-violet-100/60 dark:hover:bg-violet-500/10 focus:bg-violet-100/60 dark:focus:bg-violet-500/10 focus:outline-none cursor-pointer select-none disabled:opacity-50 disabled:cursor-wait"
+                className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-violet-100 dark:hover:bg-violet-500/30 focus:bg-violet-100 dark:focus:bg-violet-500/10 focus:outline-none cursor-pointer select-none disabled:opacity-50 disabled:cursor-wait"
               >
                 <Check className={`h-3.5 w-3.5 shrink-0 ${t.color}`} />
                 {t.label}

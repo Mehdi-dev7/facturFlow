@@ -63,7 +63,7 @@ export default async function SubscriptionPage({
 
       {/* ── Card Trial actif ── */}
       {isTrial && trialDaysLeft != null && (
-        <div className="flex items-start gap-4 bg-violet-50 dark:bg-violet-950/40 border border-violet-300 dark:border-violet-600 rounded-2xl p-5">
+        <div className="flex items-start gap-4 bg-violet-50 dark:bg-violet-900/60 border border-violet-300 dark:border-violet-600 rounded-2xl p-5">
           <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-violet-100 dark:bg-violet-900/40 shrink-0">
             <Clock className="h-5 w-5 text-violet-600 dark:text-violet-300" />
           </div>

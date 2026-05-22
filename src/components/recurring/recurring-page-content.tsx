@@ -83,7 +83,7 @@ function toRow(recurring: SavedRecurring, currency: string): RecurringRow {
 const FREQUENCY_COLORS: Record<string, string> = {
   WEEKLY: "bg-orange-100 text-orange-700 dark:bg-orange-500/15 dark:text-orange-400",
   BIWEEKLY: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400",
-  MONTHLY: "bg-violet-100 text-violet-700 dark:bg-violet-500/15 dark:text-violet-400",
+  MONTHLY: "bg-violet-100 text-violet-700 dark:bg-violet-500/25 dark:text-violet-400",
   QUARTERLY: "bg-blue-100 text-blue-700 dark:bg-blue-500/15 dark:text-blue-400",
   SEMIYEARLY: "bg-teal-100 text-teal-700 dark:bg-teal-500/15 dark:text-teal-400",
   YEARLY: "bg-indigo-100 text-indigo-700 dark:bg-indigo-500/15 dark:text-indigo-400",
@@ -91,7 +91,7 @@ const FREQUENCY_COLORS: Record<string, string> = {
 
 const PAYMENT_COLORS: Record<string, string> = {
   BANK_TRANSFER: "bg-slate-100 text-slate-700 dark:bg-slate-500/15 dark:text-slate-400",
-  STRIPE: "bg-violet-100 text-violet-700 dark:bg-violet-500/15 dark:text-violet-400",
+  STRIPE: "bg-violet-100 text-violet-700 dark:bg-violet-500/25 dark:text-violet-400",
   PAYPAL: "bg-blue-100 text-blue-700 dark:bg-blue-500/15 dark:text-blue-400",
   SEPA: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400",
 };
@@ -316,7 +316,7 @@ export function RecurringPageContent() {
       </div>
 
       {/* Tableau */}
-      <div className="rounded-2xl border border-slate-300/80 dark:border-violet-500/20 shadow-lg shadow-slate-200/50 dark:shadow-violet-950/40 bg-white/75 dark:bg-[#1a1438] backdrop-blur-lg overflow-hidden mb-8">
+      <div className="rounded-2xl border border-slate-300 dark:border-slate-700 shadow-lg shadow-slate-300/70 dark:shadow-violet-950/40 bg-white dark:bg-[#1a1438] backdrop-blur-lg overflow-hidden mb-8">
         <DataTable<RecurringRow>
           columns={columns}
           data={filteredRows}

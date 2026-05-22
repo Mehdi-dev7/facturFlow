@@ -16,7 +16,7 @@ export function EmptyState({ icon, title, description, ctaLabel, ctaHref }: Empt
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4">
       {icon && (
-        <div className="h-14 w-14 rounded-full bg-slate-100 dark:bg-violet-500/10 flex items-center justify-center mb-4 text-slate-400 dark:text-violet-400">
+        <div className="h-14 w-14 rounded-full bg-slate-100 dark:bg-violet-500/20 flex items-center justify-center mb-4 text-slate-400 dark:text-violet-400">
           {icon}
         </div>
       )}

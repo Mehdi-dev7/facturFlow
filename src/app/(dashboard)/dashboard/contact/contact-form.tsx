@@ -111,7 +111,7 @@ export default function ContactForm({ defaultName, defaultEmail }: ContactFormPr
       <div className="p-2 xs:p-4 sm:p-6">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
-          <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 dark:bg-primary/20 border border-primary/20 dark:border-primary/30">
+          <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 dark:bg-primary/20 border border-primary/30 dark:border-primary/30">
             <Mail className="h-5 w-5 text-primary" />
           </div>
           <div>
@@ -171,7 +171,7 @@ export default function ContactForm({ defaultName, defaultEmail }: ContactFormPr
               >
                 <SelectValue placeholder="Choisir un sujet..." />
               </SelectTrigger>
-              <SelectContent className="bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#1e1845] dark:to-[#1a1438] text-sm border border-primary/20 dark:border-violet-400/30 shadow-lg dark:shadow-violet-950/50 rounded-xl">
+              <SelectContent className="bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#1e1845] dark:to-[#1a1438] text-sm border border-primary/30 dark:border-slate-600 shadow-lg dark:shadow-violet-950/50 rounded-xl">
                 {SUBJECTS.map(({ value, label, icon: Icon }) => (
                   <SelectItem
                     key={value}
@@ -210,7 +210,7 @@ export default function ContactForm({ defaultName, defaultEmail }: ContactFormPr
           </div>
 
           {/* Footer du form */}
-          <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
+          <div className="pt-2 border-t border-slate-200 dark:border-slate-800">
             <Button type="submit" disabled={isSubmitting} className="gap-2 shadow-sm cursor-pointer hover:scale-102 transition-all duration-300">
               {isSubmitting ? (
                 <>

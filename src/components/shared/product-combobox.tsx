@@ -23,10 +23,10 @@ interface ProductComboboxProps {
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
 const dropdownClass =
-  "absolute top-full left-0 right-0 z-50 mt-1 overflow-hidden rounded-xl border border-violet-200 dark:border-violet-400/30 bg-white dark:bg-[#1e1845] shadow-lg";
+  "absolute top-full left-0 right-0 z-50 mt-1 overflow-hidden rounded-xl border border-violet-200 dark:border-slate-600 bg-white dark:bg-[#1e1845] shadow-lg";
 
 const itemClass =
-  "flex items-center justify-between px-3 py-2 text-xs xs:text-sm text-slate-700 dark:text-slate-200 hover:bg-violet-50 dark:hover:bg-violet-500/10 cursor-pointer rounded-lg transition-colors";
+  "flex items-center justify-between px-3 py-2 text-xs xs:text-sm text-slate-700 dark:text-slate-200 hover:bg-violet-50 dark:hover:bg-violet-500/20 cursor-pointer rounded-lg transition-colors";
 
 // ─── Composant ────────────────────────────────────────────────────────────────
 
@@ -133,8 +133,8 @@ export function ProductCombobox({
         aria-invalid={ariaInvalid}
         className={[
           "flex h-9 w-full rounded-xl border px-3 py-1 shadow-sm transition-colors",
-          "bg-white/90 dark:bg-[#2a2254]",
-          "border-slate-300 dark:border-violet-400/30",
+          "bg-white dark:bg-[#2a2254]",
+          "border-slate-300 dark:border-slate-600",
           "text-xs xs:text-sm text-slate-900 dark:text-slate-50",
           "placeholder:text-slate-400 dark:placeholder:text-violet-300/50",
           "focus:outline-none focus:ring-2 focus:ring-violet-400/50 dark:focus:ring-violet-400/40",

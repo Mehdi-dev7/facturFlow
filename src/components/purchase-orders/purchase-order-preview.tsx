@@ -47,7 +47,7 @@ function LinesTable({ title, lines, isForfait, typeConfig, fmt, themeColor, cont
       {/* Pas de dark: ici — le papier est toujours blanc */}
       <div className="border border-slate-200 rounded-lg overflow-hidden">
         <table className="w-full">
-          <thead style={{ backgroundColor: themeColor + "1a" }}>
+          <thead style={{ backgroundColor: themeColor + "66" }}>
             <tr>
               <th className="text-left p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: contentColor }}>
                 {typeConfig.descriptionLabel}
@@ -79,7 +79,7 @@ function LinesTable({ title, lines, isForfait, typeConfig, fmt, themeColor, cont
                 const qty = isForfait ? 1 : (line.quantity || 0);
                 const ht  = qty * (line.unitPrice || 0);
                 return (
-                  <tr key={i} className="border-t border-slate-200 bg-slate-50/50">
+                  <tr key={i} className="border-t border-slate-200 bg-slate-100">
                     <td className="p-2 lg:p-3 text-xs text-slate-800 break-words">
                       {line.description || <span className="italic text-slate-400">Ligne {i + 1}</span>}
                     </td>
@@ -207,7 +207,7 @@ export function PurchaseOrderPreview({
     return (
       <div className="space-y-3 text-xs">
         {/* En-tête compact */}
-        <div className="flex items-center justify-between text-[10px] text-slate-400 dark:text-violet-400/70 border-b border-slate-100 dark:border-violet-500/20 pb-2">
+        <div className="flex items-center justify-between text-[10px] text-slate-400 dark:text-violet-400/70 border-b border-slate-200 dark:border-slate-600 pb-2">
           <span className="font-semibold" style={{ color: contentColor }}>{orderNumber}</span>
           <span>{formatDate(date)}{deliveryDate ? ` · Livraison : ${formatDate(deliveryDate)}` : ""}</span>
         </div>
@@ -257,7 +257,7 @@ export function PurchaseOrderPreview({
           )}
         </div>
 
-        <div className="h-px bg-slate-100 dark:bg-violet-500/20" />
+        <div className="h-px bg-slate-200 dark:bg-slate-700" />
 
         {/* Lignes compactes */}
         <div className="space-y-1">
@@ -277,7 +277,7 @@ export function PurchaseOrderPreview({
           })}
         </div>
 
-        <div className="h-px bg-slate-100 dark:bg-violet-500/20" />
+        <div className="h-px bg-slate-200 dark:bg-slate-700" />
 
         {/* Totaux compacts */}
         <div className="space-y-1">
@@ -295,14 +295,14 @@ export function PurchaseOrderPreview({
             <span>TVA ({vatRate ?? 0}%)</span>
             <span>{fmtC(totals.taxTotal)}</span>
           </div>
-          <div className="flex justify-between font-bold text-slate-800 dark:text-slate-100 pt-1 border-t border-slate-200 dark:border-violet-500/20">
+          <div className="flex justify-between font-bold text-slate-800 dark:text-slate-100 pt-1 border-t border-slate-200 dark:border-slate-600">
             <span>Total TTC</span>
             <span style={{ color: contentColor }}>{fmtC(totals.totalTTC)}</span>
           </div>
         </div>
 
         {notes && (
-          <p className="text-[10px] text-slate-500 dark:text-slate-400 italic border-t border-slate-100 dark:border-violet-500/20 pt-2">{notes}</p>
+          <p className="text-[10px] text-slate-500 dark:text-slate-400 italic border-t border-slate-200 dark:border-slate-600 pt-2">{notes}</p>
         )}
       </div>
     );
@@ -310,7 +310,7 @@ export function PurchaseOrderPreview({
 
   // ── Mode normal (desktop preview A4) ──────────────────────────────────
   return (
-    <div className="rounded-2xl border border-slate-300/80 dark:border-violet-500/20 shadow-lg shadow-slate-200/50 dark:shadow-violet-950/40 bg-white/75 dark:bg-[#1a1438] backdrop-blur-lg overflow-hidden">
+    <div className="rounded-2xl border border-slate-300 dark:border-slate-700 shadow-lg shadow-slate-300/70 dark:shadow-violet-950/40 bg-white dark:bg-[#1a1438] backdrop-blur-lg overflow-hidden">
       {/* Bandeau "Aperçu temps réel" */}
       <div className="p-3 px-4" style={{ backgroundColor: themeColor }}>
         <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: resolvedTextColor, opacity: 0.9 }}>Aperçu temps réel</p>
@@ -436,7 +436,7 @@ export function PurchaseOrderPreview({
           <div className="flex justify-end">
             <div
               className="w-64 space-y-1.5 rounded-lg p-3 border"
-              style={{ backgroundColor: themeColor + "0d", borderColor: themeColor + "33" }}
+              style={{ backgroundColor: themeColor + "1f", borderColor: themeColor + "66" }}
             >
               <div className="flex justify-between text-sm">
                 <span style={{ color: contentColor }}>Sous-total HT</span>
@@ -470,7 +470,7 @@ export function PurchaseOrderPreview({
 
               {/* NET À PAYER si réduction */}
               {totals.discountAmount > 0 && (
-                <div className="flex justify-between items-center pt-2 mt-1" style={{ borderTop: `2px solid ${themeColor}66` }}>
+                <div className="flex justify-between items-center pt-2 mt-1" style={{ borderTop: `2px solid ${themeColor}aa` }}>
                   <span className="text-sm font-extrabold text-slate-900 tracking-tight">NET À PAYER</span>
                   <span className="text-base font-extrabold" style={{ color: contentColor }}>
                     {fmtC(totals.netAPayer)}
@@ -482,14 +482,14 @@ export function PurchaseOrderPreview({
 
           {/* Notes */}
           {notes && (
-            <div className="rounded-lg bg-slate-50 border border-slate-100 p-3 text-xs text-slate-600">
+            <div className="rounded-lg bg-slate-50 border border-slate-200 p-3 text-xs text-slate-600">
               <p className="font-medium mb-1" style={{ color: contentColor }}>Notes</p>
               <p className="whitespace-pre-line text-slate-700">{notes}</p>
             </div>
           )}
 
           {/* Footer */}
-          <div className="text-center text-[10px] text-slate-400 pt-4 border-t border-slate-100">
+          <div className="text-center text-[10px] text-slate-400 pt-4 border-t border-slate-200">
             <p>Document généré par FacturNow</p>
           </div>
         </div>

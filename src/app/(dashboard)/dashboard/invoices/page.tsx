@@ -504,7 +504,7 @@ function InvoicesPageContent() {
       </div>
 
       {/* Data Table */}
-      <div className="rounded-2xl border border-slate-300/80 dark:border-violet-500/20 shadow-lg shadow-slate-200/50 dark:shadow-violet-950/40 bg-white/75 dark:bg-[#1a1438] backdrop-blur-lg overflow-hidden mb-8">
+      <div className="rounded-2xl border border-slate-300 dark:border-slate-700 shadow-lg shadow-slate-300/70 dark:shadow-violet-950/40 bg-white dark:bg-[#1a1438] backdrop-blur-lg overflow-hidden mb-8">
         <DataTable<InvoiceRow>
           data={filteredRows}
           columns={columns}

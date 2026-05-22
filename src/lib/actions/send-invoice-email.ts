@@ -211,6 +211,9 @@ export async function sendInvoiceEmail(
 
     const emitterName = invoice.user.companyName ?? "FacturNow";
 
+    // Couleur thème pour l'email (fallback violet FacturNow)
+    const tc = invoice.user.themeColor ?? "#7c3aed";
+
     // 7. Envoyer l'email via Resend
     const fromEmail = process.env.RESEND_FROM_EMAIL ?? "FacturNow <noreply@facturnow.fr>"
     const { error } = await resend.emails.send({
@@ -218,7 +221,7 @@ export async function sendInvoiceEmail(
       to: [doc.client.email],
       subject: `Facture ${doc.number} – PDF ci-joint`,
       html: wrapEmail(`
-        ${emailHeader("linear-gradient(135deg, #7c3aed, #4f46e5)", "", `Facture ${doc.number}`)}
+        ${emailHeader(`linear-gradient(135deg, ${tc}, ${tc}cc)`, "", `Facture ${doc.number}`)}
 
         <p style="color:#334155;font-size:15px;line-height:1.6;">Bonjour ${clientName},</p>
 
@@ -226,11 +229,11 @@ export async function sendInvoiceEmail(
           Veuillez trouver ci-joint la facture <strong>n°${doc.number}</strong> d'un montant total de <strong>${amount} €</strong>.
         </p>
 
-        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin:20px 0;">
+        <div style="background:#f1f5f9;border:1px solid ${tc}66;border-left:4px solid ${tc};border-radius:8px;padding:16px;margin:20px 0;">
           <table style="width:100%;font-size:14px;color:#475569;">
             <tr>
               <td style="padding:4px 0;">Montant TTC</td>
-              <td style="padding:4px 0;text-align:right;font-weight:600;color:#7c3aed;">${amount} €</td>
+              <td style="padding:4px 0;text-align:right;font-weight:600;color:${tc};">${amount} €</td>
             </tr>
             <tr>
               <td style="padding:4px 0;">Date d'échéance</td>
@@ -272,8 +275,8 @@ export async function sendInvoiceEmail(
         ` : ""}
 
         ${invoice.user.iban ? `
-        <div style="margin:20px 0;padding:16px;background:#f8f7ff;border-left:4px solid #7c3aed;border-radius:4px;">
-          <p style="margin:0 0 8px;font-weight:600;color:#7c3aed;">Paiement par virement bancaire</p>
+        <div style="margin:20px 0;padding:16px;background:#f1f5f9;border-left:4px solid ${tc};border-radius:4px;">
+          <p style="margin:0 0 8px;font-weight:600;color:${tc};">Paiement par virement bancaire</p>
           <p style="margin:0;font-size:14px;color:#374151;">IBAN : ${invoice.user.iban}</p>
           ${invoice.user.bic ? `<p style="margin:4px 0 0;font-size:14px;color:#374151;">BIC : ${invoice.user.bic}</p>` : ""}
           <p style="margin:4px 0 0;font-size:12px;color:#6b7280;">Référence : ${invoice.number ?? ""}</p>

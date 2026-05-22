@@ -111,7 +111,7 @@ function StaticLinesTable({ title, lines, isForfait, typeConfig, currency }: Sta
           </thead>
           <tbody>
             {lines.map((line) => (
-              <tr key={line.id} className="border-t border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30">
+              <tr key={line.id} className="border-t border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800/40">
                 <td className="p-2 lg:p-3 text-xs lg:text-sm text-slate-900 dark:text-slate-50">
                   {line.description}
                 </td>
@@ -396,14 +396,14 @@ function PurchaseOrderPreviewStatic({ purchaseOrder }: { purchaseOrder: SavedPur
 
       {/* Notes */}
       {purchaseOrder.notes && (
-        <div className="rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 p-3 text-[11px] lg:text-xs text-slate-600 dark:text-slate-300">
+        <div className="rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 p-3 text-[11px] lg:text-xs text-slate-600 dark:text-slate-300">
           <p className="font-medium mb-1 text-xs lg:text-sm" style={{ color: contentColor }}>Notes</p>
           <p className="whitespace-pre-line">{purchaseOrder.notes}</p>
         </div>
       )}
 
       {/* Footer */}
-      <div className="text-center text-[10px] lg:text-xs text-slate-400 dark:text-slate-500 pt-4 border-t border-slate-100 dark:border-slate-700">
+      <div className="text-center text-[10px] lg:text-xs text-slate-400 dark:text-slate-500 pt-4 border-t border-slate-200 dark:border-slate-700">
         <p>Document généré par FacturNow</p>
       </div>
     </div>
@@ -574,7 +574,7 @@ export function PurchaseOrderPreviewModal({
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent
-          className="w-[95vw] h-[90vh] sm:w-[90vw] sm:h-auto sm:max-w-2xl md:max-w-3xl lg:max-w-5xl bg-linear-to-b from-teal-50 via-white to-white dark:from-[#0f2a2a] dark:via-[#0a2020] dark:to-[#0a2020] border border-teal-500/20 dark:border-teal-400/25 shadow-lg dark:shadow-teal-950/40 rounded-xl overflow-hidden p-0"
+          className="w-[95vw] h-[90vh] sm:w-[90vw] sm:h-auto sm:max-w-2xl md:max-w-3xl lg:max-w-5xl bg-teal-50 dark:bg-linear-to-b dark:from-[#0f2a2a] dark:via-[#0a2020] dark:to-[#0a2020] border border-teal-500/20 dark:border-teal-400/25 shadow-lg dark:shadow-teal-950/40 rounded-xl overflow-hidden p-0"
           showCloseButton={false}
           onOpenAutoFocus={(e) => e.preventDefault()}
         >

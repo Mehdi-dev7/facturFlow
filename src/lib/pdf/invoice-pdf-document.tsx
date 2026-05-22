@@ -169,13 +169,14 @@ const S = StyleSheet.create({
     borderBottomColor: "#e2e8f0",
   },
   tableRowAlt: {
-    backgroundColor: "#f8fafc",
+    backgroundColor: "#f1f5f9",
   },
   // Totaux
   totalsBox: {
     width: 220,
     borderRadius: 6,
     padding: 10,
+    borderWidth: 1,
   },
   totalsRow: {
     flexDirection: "row",
@@ -196,7 +197,6 @@ const S = StyleSheet.create({
     paddingTop: 6,
     marginTop: 4,
     borderTopWidth: 1,
-    borderTopColor: "#e2e8f0",
   },
   grandTotalLabel: {
     fontFamily: "Helvetica-Bold",
@@ -211,7 +211,7 @@ const S = StyleSheet.create({
   notes: {
     marginTop: 16,
     padding: 10,
-    backgroundColor: "#f8fafc",
+    backgroundColor: "#f1f5f9",
     borderRadius: 4,
   },
   notesTitle: {
@@ -271,7 +271,7 @@ interface LinesTablePdfProps {
 }
 
 function LinesTablePdf({ lines, typeConfig, isForfait, showVatColumn = false, title, themeColor, currency }: LinesTablePdfProps) {
-  const headerBg = hexToRgba(themeColor, 0.1);
+  const headerBg = hexToRgba(themeColor, 0.2);
 
   return (
     <View style={{ marginBottom: 6 }}>
@@ -401,7 +401,10 @@ export default function InvoicePdfDocument({
 
   // Couleurs dérivées
   const headerBg      = themeColor;
-  const totalsBg      = hexToRgba(themeColor, 0.07);
+  const totalsBg      = hexToRgba(themeColor, 0.12);
+  const totalsBorder  = hexToRgba(themeColor, 0.4);
+  const grandTotalBorder = hexToRgba(themeColor, 0.4);
+  const netAPayerBorder  = hexToRgba(themeColor, 0.67);
 
   return (
     <Document>
@@ -503,7 +506,7 @@ export default function InvoicePdfDocument({
 
         {/* ── Totaux ── */}
         <View style={{ alignItems: "flex-end", marginTop: 4 }}>
-          <View style={[S.totalsBox, { backgroundColor: totalsBg }]}>
+          <View style={[S.totalsBox, { backgroundColor: totalsBg, borderColor: totalsBorder }]}>
 
             {/* Sous-total HT */}
             <View style={S.totalsRow}>
@@ -541,7 +544,7 @@ export default function InvoicePdfDocument({
             )}
 
             {/* Total TTC */}
-            <View style={S.grandTotalRow}>
+            <View style={[S.grandTotalRow, { borderTopColor: grandTotalBorder }]}>
               <Text style={S.grandTotalLabel}>Total TTC :</Text>
               <Text style={[S.grandTotalValue, { color: themeColor }]}>{fmtC(invoice.total, invoice.user.currency)}</Text>
             </View>
@@ -553,7 +556,7 @@ export default function InvoicePdfDocument({
                   <Text style={[S.totalLabel, { color: themeColor }]}>Acompte versé :</Text>
                   <Text style={[S.totalValue, { color: "#e11d48" }]}>−{fmtC(deposit, invoice.user.currency)}</Text>
                 </View>
-                <View style={S.grandTotalRow}>
+                <View style={[S.grandTotalRow, { borderTopWidth: 2, borderTopColor: netAPayerBorder }]}>
                   <Text style={S.grandTotalLabel}>NET À PAYER :</Text>
                   <Text style={[S.grandTotalValue, { color: themeColor }]}>{fmtC(netAPayer, invoice.user.currency)}</Text>
                 </View>
@@ -575,7 +578,7 @@ export default function InvoicePdfDocument({
           <View style={[
             S.wireTransferBox,
             {
-              backgroundColor: hexToRgba(themeColor, 0.05),
+              backgroundColor: hexToRgba(themeColor, 0.1),
               borderLeftColor: themeColor,
             },
           ]}>

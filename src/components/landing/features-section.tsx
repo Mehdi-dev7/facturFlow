@@ -141,7 +141,7 @@ function DashboardBadgeDemo() {
     <div className="w-full h-full flex items-center justify-center p-4">
       <div className="w-full max-w-sm bg-white rounded-xl border border-slate-200 shadow-lg overflow-hidden">
         {/* Header tableau */}
-        <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+        <div className="px-4 py-3 border-b border-slate-200 flex items-center justify-between">
           <span className="text-xs font-semibold text-slate-700">Factures récentes</span>
           <div className="flex items-center gap-1.5">
             <div className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
@@ -152,7 +152,7 @@ function DashboardBadgeDemo() {
         {/* Lignes */}
         <div className="divide-y divide-slate-50">
           {rows.map((row) => (
-            <div key={row.num} className="flex items-center justify-between px-4 py-2.5 hover:bg-slate-50/50 transition-colors">
+            <div key={row.num} className="flex items-center justify-between px-4 py-2.5 hover:bg-slate-50 transition-colors">
               <div>
                 <p className="text-[11px] font-semibold text-violet-600">{row.num}</p>
                 <p className="text-[10px] text-slate-400">{row.client}</p>
@@ -175,7 +175,7 @@ function DashboardBadgeDemo() {
         </div>
 
         {/* Mini KPIs */}
-        <div className="grid grid-cols-3 gap-2 px-4 py-3 bg-slate-50 border-t border-slate-100">
+        <div className="grid grid-cols-3 gap-2 px-4 py-3 bg-slate-50 border-t border-slate-200">
           <div className="text-center">
             <p className="text-sm font-bold text-slate-800">24</p>
             <p className="text-[9px] text-slate-400">Factures</p>
@@ -227,7 +227,7 @@ function InvoiceCreationDemo() {
       <div className="w-full max-w-sm bg-white rounded-xl border border-slate-200 shadow-lg overflow-hidden">
 
         {/* Header formulaire */}
-        <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between bg-amber-50/60">
+        <div className="px-4 py-3 border-b border-slate-200 flex items-center justify-between bg-amber-50/60">
           <span className="text-xs font-semibold text-slate-700">Nouvelle facture</span>
           <span className="text-[10px] text-amber-600 font-medium bg-amber-100 px-2 py-0.5 rounded-full">Brouillon</span>
         </div>
@@ -266,7 +266,7 @@ function InvoiceCreationDemo() {
           </div>
 
           {/* Total + bouton */}
-          <div className="pt-1 border-t border-slate-100 flex items-center justify-between">
+          <div className="pt-1 border-t border-slate-200 flex items-center justify-between">
             <div>
               <p className="text-[9px] text-slate-400">Total TTC</p>
               <p className="text-sm font-bold text-slate-900 form-field-3">2 940,00 €</p>

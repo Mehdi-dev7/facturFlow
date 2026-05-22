@@ -91,7 +91,7 @@ function CopyButton({ value }: { value: string }) {
   return (
     <button
       onClick={handleCopy}
-      className="p-1.5 rounded-md text-slate-400 hover:text-primary hover:bg-primary/10 transition-colors"
+      className="p-1.5 rounded-md text-slate-400 hover:text-primary hover:bg-primary/18 transition-colors"
       aria-label="Copier"
     >
       {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
@@ -158,11 +158,11 @@ function ApiKeysSection({
   }, []);
 
   return (
-    <section className="rounded-2xl border border-slate-200 dark:border-violet-500/20 bg-white dark:bg-slate-900 p-3 sm:p-5">
+    <section className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-3 sm:p-5">
       {/* En-tête */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 dark:bg-violet-500/20">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 dark:bg-violet-500/30">
             <KeyRound className="h-5 w-5 text-primary dark:text-violet-400" />
           </div>
           <div>
@@ -250,7 +250,7 @@ function ApiKeysSection({
       {/* Modale de création */}
       <Dialog open={createOpen} onOpenChange={handleCloseCreate}>
         <DialogContent
-          className="sm:max-w-md max-h-[90dvh] overflow-y-auto bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#1e1845] dark:to-[#1a1438] border border-primary/20 dark:border-violet-400/30 shadow-lg dark:shadow-violet-950/50"
+          className="sm:max-w-md max-h-[90dvh] overflow-y-auto bg-violet-50 dark:bg-linear-to-b dark:from-[#2a2254] dark:via-[#1e1845] dark:to-[#1a1438] border border-primary/30 dark:border-slate-600 shadow-lg dark:shadow-violet-950/50"
           onOpenAutoFocus={(e) => e.preventDefault()}
         >
           <DialogHeader>
@@ -338,7 +338,7 @@ function ApiKeysSection({
 
       {/* Confirmation suppression */}
       <AlertDialog open={!!deleteId} onOpenChange={(o) => { if (!o) setDeleteId(null); }}>
-        <AlertDialogContent className="bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#1e1845] dark:to-[#1a1438] border border-primary/20 dark:border-violet-400/30">
+        <AlertDialogContent className="bg-violet-50 dark:bg-linear-to-b dark:from-[#2a2254] dark:via-[#1e1845] dark:to-[#1a1438] border border-primary/30 dark:border-slate-600">
           <AlertDialogHeader>
             <AlertDialogTitle>Supprimer cette clé API ?</AlertDialogTitle>
             <AlertDialogDescription>
@@ -454,11 +454,11 @@ function WebhooksSection({
   }, []);
 
   return (
-    <section className="rounded-2xl border border-slate-200 dark:border-violet-500/20 bg-white dark:bg-slate-900 p-3 sm:p-5">
+    <section className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-3 sm:p-5">
       {/* En-tête */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-100 dark:bg-violet-500/20">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-100 dark:bg-violet-500/30">
             <Zap className="h-5 w-5 text-violet-600 dark:text-violet-400" />
           </div>
           <div>
@@ -505,7 +505,7 @@ function WebhooksSection({
                   <button
                     onClick={() => handleToggle(ep.id, ep.active)}
                     disabled={togglingId === ep.id}
-                    className="p-1.5 rounded-md transition-colors cursor-pointer text-slate-400 hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-500/10"
+                    className="p-1.5 rounded-md transition-colors cursor-pointer text-slate-400 hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-500/30"
                     aria-label={ep.active ? "Désactiver" : "Activer"}
                   >
                     {togglingId === ep.id ? (
@@ -586,7 +586,7 @@ function WebhooksSection({
       {/* Modale création endpoint */}
       <Dialog open={createOpen} onOpenChange={(o) => { if (!o) { setCreateOpen(false); setUrl(""); setSelectedEvents([]); } }}>
         <DialogContent
-          className="sm:max-w-md max-h-[90dvh] overflow-y-auto bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#1e1845] dark:to-[#1a1438] border border-primary/20 dark:border-violet-400/30 shadow-lg dark:shadow-violet-950/50"
+          className="sm:max-w-md max-h-[90dvh] overflow-y-auto bg-violet-50 dark:bg-linear-to-b dark:from-[#2a2254] dark:via-[#1e1845] dark:to-[#1a1438] border border-primary/30 dark:border-slate-600 shadow-lg dark:shadow-violet-950/50"
           onOpenAutoFocus={(e) => e.preventDefault()}
         >
           <DialogHeader>
@@ -655,7 +655,7 @@ function WebhooksSection({
 
       {/* Confirmation suppression */}
       <AlertDialog open={!!deleteId} onOpenChange={(o) => { if (!o) setDeleteId(null); }}>
-        <AlertDialogContent className="bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#1e1845] dark:to-[#1a1438] border border-primary/20 dark:border-violet-400/30">
+        <AlertDialogContent className="bg-violet-50 dark:bg-linear-to-b dark:from-[#2a2254] dark:via-[#1e1845] dark:to-[#1a1438] border border-primary/30 dark:border-slate-600">
           <AlertDialogHeader>
             <AlertDialogTitle>Supprimer cet endpoint ?</AlertDialogTitle>
             <AlertDialogDescription>
@@ -685,7 +685,7 @@ function DeliveryLogsSection({
   deliveries: (SavedDelivery & { endpointUrl: string })[];
 }) {
   return (
-    <section className="rounded-2xl border border-slate-200 dark:border-violet-500/20 bg-white dark:bg-slate-900 p-3 sm:p-5">
+    <section className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-3 sm:p-5">
       <div className="flex items-center gap-3 mb-6">
         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100 dark:bg-blue-500/20">
           <Clock className="h-5 w-5 text-blue-600 dark:text-blue-400" />
@@ -730,7 +730,7 @@ function DeliveryLogsSection({
               {deliveries.map((d) => (
                 <tr
                   key={d.id}
-                  className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
+                  className="border-b border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
                 >
                   <td className="px-3 py-2.5">
                     {d.success ? (
@@ -740,7 +740,7 @@ function DeliveryLogsSection({
                     )}
                   </td>
                   <td className="px-3 py-2.5">
-                    <span className="inline-flex items-center rounded-full bg-violet-50 dark:bg-violet-500/10 px-2 py-0.5 text-[10px] font-medium text-violet-700 dark:text-violet-300 border border-violet-200 dark:border-violet-600">
+                    <span className="inline-flex items-center rounded-full bg-violet-100 dark:bg-violet-500/25 px-2 py-0.5 text-[10px] font-medium text-violet-700 dark:text-violet-300 border border-violet-200 dark:border-violet-600">
                       {d.event}
                     </span>
                   </td>

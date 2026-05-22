@@ -64,7 +64,7 @@ export function CompanyInfoModal({
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="sm:max-w-md max-h-[90dvh] overflow-y-auto p-3 xs:p-3 sm:p-5 bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25 shadow-lg dark:shadow-violet-950/40 rounded-xl">
+			<DialogContent className="sm:max-w-md max-h-[90dvh] overflow-y-auto p-3 xs:p-3 sm:p-5 bg-violet-50 dark:bg-linear-to-b dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/30 dark:border-slate-600 shadow-lg dark:shadow-violet-950/40 rounded-xl">
 				<DialogHeader>
 					<DialogTitle className="text-base xs:text-lg text-slate-900 dark:text-slate-100">
 						Informations de votre entreprise
@@ -87,7 +87,7 @@ export function CompanyInfoModal({
 						<Input
 							id="companyName"
 							{...register("name")}
-							className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-xs xs:text-sm text-slate-900 dark:text-slate-50"
+							className="bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-xl text-xs xs:text-sm text-slate-900 dark:text-slate-50"
 							aria-invalid={!!errors.name}
 						/>
 						{errors.name && (
@@ -105,7 +105,7 @@ export function CompanyInfoModal({
 							placeholder="14 chiffres"
 							maxLength={14}
 							inputMode="numeric"
-							className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-xs xs:text-sm text-slate-900 dark:text-slate-50 font-mono tracking-widest"
+							className="bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-xl text-xs xs:text-sm text-slate-900 dark:text-slate-50 font-mono tracking-widest"
 							aria-invalid={!!errors.siret}
 						/>
 						{errors.siret && (
@@ -120,7 +120,7 @@ export function CompanyInfoModal({
 						<Input
 							id="companyAddress"
 							{...register("address")}
-							className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-xs xs:text-sm text-slate-900 dark:text-slate-50"
+							className="bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-xl text-xs xs:text-sm text-slate-900 dark:text-slate-50"
 							aria-invalid={!!errors.address}
 						/>
 						{errors.address && (
@@ -139,7 +139,7 @@ export function CompanyInfoModal({
 								placeholder="75001"
 								maxLength={5}
 								inputMode="numeric"
-								className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-xs xs:text-sm text-slate-900 dark:text-slate-50"
+								className="bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-xl text-xs xs:text-sm text-slate-900 dark:text-slate-50"
 							/>
 						</div>
 						<div>
@@ -149,7 +149,7 @@ export function CompanyInfoModal({
 							<Input
 								id="companyCity"
 								{...register("city")}
-								className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-xs xs:text-sm text-slate-900 dark:text-slate-50"
+								className="bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-xl text-xs xs:text-sm text-slate-900 dark:text-slate-50"
 								aria-invalid={!!errors.city}
 							/>
 							{errors.city && (
@@ -166,7 +166,7 @@ export function CompanyInfoModal({
 							id="companyEmail"
 							type="email"
 							{...register("email")}
-							className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-xs xs:text-sm text-slate-900 dark:text-slate-50"
+							className="bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-xl text-xs xs:text-sm text-slate-900 dark:text-slate-50"
 							aria-invalid={!!errors.email}
 						/>
 						{errors.email && (
@@ -182,7 +182,7 @@ export function CompanyInfoModal({
 							id="companyPhone"
 							type="tel"
 							{...register("phone")}
-							className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-xs xs:text-sm text-slate-900 dark:text-slate-50"
+							className="bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-xl text-xs xs:text-sm text-slate-900 dark:text-slate-50"
 						/>
 					</div>
 
@@ -193,7 +193,7 @@ export function CompanyInfoModal({
 							type="button"
 							variant="outline"
 							onClick={() => onOpenChange(false)}
-							className="cursor-pointer border-primary/20 dark:border-violet-500/30 hover:bg-violet-50 dark:hover:bg-violet-500/10 dark:text-slate-200 mx-4"
+							className="cursor-pointer border-primary/30 dark:border-slate-700 hover:bg-violet-50 dark:hover:bg-violet-500/30 dark:text-slate-200 mx-4"
 						>
 							Annuler
 						</Button>

@@ -72,7 +72,7 @@ export function ChangePasswordModal({ open, onClose }: ChangePasswordModalProps)
   const strength = getPasswordStrength(newPassword || "");
 
   const inputClass =
-    "text-xs xs:text-sm bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-violet-300/50 pr-10";
+    "text-xs xs:text-sm bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-violet-300/50 pr-10";
 
   // ── Submit ──────────────────────────────────────────────────────────────────
   const onSubmit = async (data: ChangePasswordFormData) => {
@@ -97,7 +97,7 @@ export function ChangePasswordModal({ open, onClose }: ChangePasswordModalProps)
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && handleClose()}>
-      <DialogContent className="max-w-md max-h-[90dvh] overflow-y-auto p-3 xs:p-3 sm:p-5 bg-white dark:bg-slate-900 border-violet-200 dark:border-violet-400/25 rounded-2xl">
+      <DialogContent className="max-w-md max-h-[90dvh] overflow-y-auto p-3 xs:p-3 sm:p-5 bg-white dark:bg-slate-900 border-violet-200 dark:border-slate-600 rounded-2xl">
         <DialogHeader>
           <DialogTitle className="text-base xs:text-lg font-semibold text-slate-900 dark:text-slate-50 flex items-center gap-2">
             <Shield className="size-5 text-violet-600 dark:text-violet-400" />
@@ -206,7 +206,7 @@ export function ChangePasswordModal({ open, onClose }: ChangePasswordModalProps)
               type="button"
               variant="outline"
               onClick={handleClose}
-              className="rounded-xl border-slate-300 dark:border-violet-400/30 cursor-pointer"
+              className="rounded-xl border-slate-300 dark:border-slate-600 cursor-pointer"
             >
               Annuler
             </Button>

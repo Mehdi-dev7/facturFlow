@@ -85,7 +85,7 @@ function InvoicePreviewMini({ themeColor, companyFont, companyName, logo }: Omit
             </thead>
             <tbody>
               {FAKE_LINES.map((l, i) => (
-                <tr key={i} className="border-t border-slate-100">
+                <tr key={i} className="border-t border-slate-200">
                   <td className="p-1.5 text-[8px] text-slate-700 truncate max-w-[120px]">{l.desc}</td>
                   <td className="p-1.5 text-[8px] text-right font-medium" style={{ color: themeColor }}>{l.total}</td>
                 </tr>
@@ -196,7 +196,7 @@ function InvoicePreviewFull({ themeColor, companyFont, companyName, logo }: Omit
             </thead>
             <tbody>
               {FAKE_LINES.map((l, i) => (
-                <tr key={i} className="border-t border-slate-200 bg-slate-50/50">
+                <tr key={i} className="border-t border-slate-200 bg-slate-100">
                   <td className="p-2 text-[10px] text-slate-900">{l.desc}</td>
                   <td className="p-2 text-[10px] text-right text-slate-900">{l.qty}</td>
                   <td className="p-2 text-[10px] text-right text-slate-900">{l.unit}</td>

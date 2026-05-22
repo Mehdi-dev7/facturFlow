@@ -55,10 +55,10 @@ const dividerClass =
   "mx-0 h-px bg-linear-to-r from-transparent via-violet-400/30 to-transparent";
 
 const inputClass =
-  "bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-xs xs:text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-violet-300/50 autofill:shadow-[inset_0_0_0_30px_white] dark:autofill:shadow-[inset_0_0_0_30px_#2a2254] autofill:[-webkit-text-fill-color:theme(--color-slate-900)] dark:autofill:[-webkit-text-fill-color:theme(--color-slate-50)]";
+  "bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-xl text-xs xs:text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-violet-300/50 autofill:shadow-[inset_0_0_0_30px_white] dark:autofill:shadow-[inset_0_0_0_30px_#2a2254] autofill:[-webkit-text-fill-color:theme(--color-slate-900)] dark:autofill:[-webkit-text-fill-color:theme(--color-slate-50)]";
 
 const selectContentClass =
-  "bg-linear-to-b from-violet-100 via-white to-white dark:from-[#2a2254] dark:via-[#1e1845] dark:to-[#1e1845] border border-violet-500/20 dark:border-violet-400/30 rounded-xl shadow-xl dark:shadow-violet-950/50 z-50";
+  "bg-linear-to-b from-violet-100 via-white to-white dark:from-[#2a2254] dark:via-[#1e1845] dark:to-[#1e1845] border border-violet-500/20 dark:border-slate-600 rounded-xl shadow-xl dark:shadow-violet-950/50 z-50";
 
 const selectItemClass =
   "cursor-pointer rounded-lg transition-colors text-xs dark:text-slate-100 hover:bg-violet-200/70 data-[highlighted]:bg-violet-200/70 dark:hover:bg-violet-500/25 dark:data-[highlighted]:bg-violet-500/25 data-[highlighted]:text-violet-900 dark:data-[highlighted]:text-slate-50";
@@ -212,26 +212,26 @@ export function PurchaseOrderForm({
                   variant="ghost"
                   size="xs"
                   onClick={() => setShowCompanyModal(true)}
-                  className="text-slate-400 hover:text-violet-600 hover:bg-violet-50 dark:text-violet-400 dark:hover:text-violet-300 dark:hover:bg-violet-500/10 transition-all duration-300 cursor-pointer"
+                  className="text-slate-400 hover:text-violet-600 hover:bg-violet-50 dark:text-violet-400 dark:hover:text-violet-300 dark:hover:bg-violet-500/30 transition-all duration-300 cursor-pointer"
                 >
                   {companyInfo ? "Modifier" : "Compléter"}
                 </Button>
               </div>
               {companyInfo ? (
-                <div className="rounded-xl border border-violet-200 dark:border-violet-400/25 bg-violet-100/60 dark:bg-[#2a2254] p-2.5 xs:p-3.5 text-[10px] xs:text-xs 2xl:text-sm shadow-sm">
+                <div className="rounded-xl border border-violet-200 dark:border-slate-600 bg-violet-100 dark:bg-[#2a2254] p-2.5 xs:p-3.5 text-[10px] xs:text-xs 2xl:text-sm shadow-sm">
                   <p className="font-semibold text-slate-800 dark:text-slate-100 truncate">
                     {companyInfo.name}
                   </p>
-                  <p className="text-slate-500 text-[10px] xs:text-xs dark:text-violet-300/80 mt-0.5">
+                  <p className="text-slate-500 text-[10px] xs:text-xs dark:text-slate-300 mt-0.5">
                     SIRET : {companyInfo.siret}
                   </p>
-                  <p className="text-slate-500 text-[10px] xs:text-xs dark:text-violet-300/80">
+                  <p className="text-slate-500 text-[10px] xs:text-xs dark:text-slate-300">
                     {companyInfo.address}
                   </p>
-                  <p className="text-slate-500 dark:text-violet-300/80 text-[10px] xs:text-xs">
+                  <p className="text-slate-500 dark:text-slate-300 text-[10px] xs:text-xs">
                     {companyInfo.zipCode} {companyInfo.city}
                   </p>
-                  <p className="text-slate-500 text-[10px] xs:text-xs dark:text-violet-300/80">
+                  <p className="text-slate-500 text-[10px] xs:text-xs dark:text-slate-300">
                     {companyInfo.email}
                     {companyInfo.phone ? ` — ${companyInfo.phone}` : ""}
                   </p>
@@ -423,7 +423,7 @@ export function PurchaseOrderForm({
                   variant="outline"
                   size="xs"
                   onClick={handleAddLine}
-                  className="border-violet-400/20 text-xs xs:text-sm dark:border-violet-400/30 hover:bg-violet-50 dark:hover:bg-violet-500/15 dark:text-slate-100 transition-all duration-300 cursor-pointer"
+                  className="border-violet-400/20 text-xs xs:text-sm dark:border-slate-600 hover:bg-violet-50 dark:hover:bg-violet-500/15 dark:text-slate-100 transition-all duration-300 cursor-pointer"
                 >
                   <Plus className="size-3 xs:size-3.5" />
                   Ajouter
@@ -451,7 +451,7 @@ export function PurchaseOrderForm({
                   return (
                     <div
                       key={field.id}
-                      className="rounded-xl border border-violet-200 dark:border-violet-400/25 p-2 xs:p-3 space-y-2 bg-violet-100/45 dark:bg-[#2a2254] transition-all duration-300 hover:shadow-md hover:border-violet-300 dark:hover:border-violet-400/40 shadow-sm"
+                      className="rounded-xl border border-violet-200 dark:border-slate-600 p-2 xs:p-3 space-y-2 bg-violet-100 dark:bg-[#2a2254] transition-all duration-300 hover:shadow-md hover:border-violet-300 dark:hover:border-violet-400/40 shadow-sm"
                     >
                       {/* Catégorie (artisan uniquement) */}
                       {isArtisan && (
@@ -467,7 +467,7 @@ export function PurchaseOrderForm({
                                   f.onChange(v as "main_oeuvre" | "materiel")
                                 }
                               >
-                                <SelectTrigger className="h-7 w-44 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-lg text-xs xs:text-sm dark:text-slate-50">
+                                <SelectTrigger className="h-7 w-44 bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-lg text-xs xs:text-sm dark:text-slate-50">
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent side="bottom" avoidCollisions={false} className={selectContentClass}>
@@ -592,7 +592,7 @@ export function PurchaseOrderForm({
 
                       {/* Total HT de la ligne */}
                       {visibleStep ? (
-                        <div className="flex items-center justify-between border-t border-violet-100 dark:border-violet-400/20 pt-2 mt-1">
+                        <div className="flex items-center justify-between border-t border-violet-100 dark:border-slate-600 pt-2 mt-1">
                           <span className="text-xs text-slate-500 dark:text-violet-200">Total HT</span>
                           <span className="text-sm font-bold text-violet-700 dark:text-violet-300">
                             {fmt(lineHT)}
@@ -616,7 +616,7 @@ export function PurchaseOrderForm({
                 <Button
                   type="button"
                   variant="outline"
-                  className="w-full border-violet-400/20 dark:border-violet-400/30 hover:bg-violet-50 dark:hover:bg-violet-500/15 dark:text-slate-100 transition-all duration-300 cursor-pointer rounded-xl"
+                  className="w-full border-violet-400/20 dark:border-slate-600 hover:bg-violet-50 dark:hover:bg-violet-500/15 dark:text-slate-100 transition-all duration-300 cursor-pointer rounded-xl"
                   onClick={handleAddLine}
                 >
                   <Plus className="size-4" />
@@ -628,7 +628,7 @@ export function PurchaseOrderForm({
             <div className={dividerClass} />
 
             {/* ── Totaux + TVA + Réduction ──────────────────── */}
-            <section className="rounded-xl border border-violet-200 dark:border-violet-400/25 bg-violet-100/60 dark:bg-[#2a2254] p-3 xs:p-4 space-y-2 shadow-sm">
+            <section className="rounded-xl border border-violet-200 dark:border-slate-600 bg-violet-100 dark:bg-[#2a2254] p-3 xs:p-4 space-y-2 shadow-sm">
 
               {/* Sous-total HT */}
               <div className="flex justify-between text-xs xs:text-sm">
@@ -657,7 +657,7 @@ export function PurchaseOrderForm({
                           }
                         }}
                       >
-                        <SelectTrigger className="h-6 w-24 xs:h-7 xs:w-28 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-lg text-xs text-slate-900 dark:text-slate-50">
+                        <SelectTrigger className="h-6 w-24 xs:h-7 xs:w-28 bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-lg text-xs text-slate-900 dark:text-slate-50">
                           <SelectValue placeholder="Aucune" />
                         </SelectTrigger>
                         <SelectContent side="bottom" avoidCollisions={false} className={selectContentClass}>
@@ -688,7 +688,7 @@ export function PurchaseOrderForm({
                             const v = e.target.value;
                             f.onChange(v === "" ? 0 : Number(v));
                           }}
-                          className="h-6 w-16 xs:h-7 xs:w-20 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-lg text-xs text-slate-900 dark:text-slate-50"
+                          className="h-6 w-16 xs:h-7 xs:w-20 bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-lg text-xs text-slate-900 dark:text-slate-50"
                         />
                       )}
                     />
@@ -701,7 +701,7 @@ export function PurchaseOrderForm({
 
               {/* Net HT si réduction active */}
               {totals.discountAmount > 0 && (
-                <div className="flex justify-between text-xs xs:text-sm border-t border-violet-200 dark:border-violet-400/20 pt-2">
+                <div className="flex justify-between text-xs xs:text-sm border-t border-violet-200 dark:border-slate-600 pt-2">
                   <span className="text-slate-600 dark:text-violet-200 font-medium">Net HT</span>
                   <span className="font-medium text-slate-800 dark:text-slate-100">
                     {fmt(totals.netHT)}
@@ -722,7 +722,7 @@ export function PurchaseOrderForm({
                       })
                     }
                   >
-                    <SelectTrigger className="h-6 w-16 xs:h-7 xs:w-20 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-lg text-xs text-slate-900 dark:text-slate-50">
+                    <SelectTrigger className="h-6 w-16 xs:h-7 xs:w-20 bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-lg text-xs text-slate-900 dark:text-slate-50">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent side="bottom" avoidCollisions={false} className={selectContentClass}>
@@ -751,7 +751,7 @@ export function PurchaseOrderForm({
 
               {/* NET À PAYER si réduction */}
               {totals.discountAmount > 0 && (
-                <div className="flex justify-between items-center pt-2 border-t-2 border-violet-400/40 dark:border-violet-500/30 mt-1">
+                <div className="flex justify-between items-center pt-2 border-t-2 border-violet-400/40 dark:border-slate-700 mt-1">
                   <span className="text-sm font-extrabold text-slate-900 dark:text-slate-50 tracking-tight">
                     NET À PAYER
                   </span>
@@ -778,7 +778,7 @@ export function PurchaseOrderForm({
               <Textarea
                 placeholder="Conditions particulières, mentions légales, notes de commande..."
                 {...register("notes")}
-                className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-xs xs:text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-violet-300/50"
+                className="bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-xl text-xs xs:text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-violet-300/50"
               />
             </section>
           </>

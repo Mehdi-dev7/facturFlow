@@ -109,7 +109,7 @@ export function HowItWorksSection() {
               <Button
                 size="lg"
                 variant="outline"
-                className="w-full sm:w-auto h-12 px-8 border-slate-300 hover:border-primary hover:bg-primary/10 font-semibold font-ui text-base transition-all duration-300 cursor-pointer"
+                className="w-full sm:w-auto h-12 px-8 border-slate-300 hover:border-primary hover:bg-primary/18 font-semibold font-ui text-base transition-all duration-300 cursor-pointer"
               >
                 Voir la démo
               </Button>

@@ -70,16 +70,16 @@ type FormData = z.infer<typeof formSchema>;
 // ─── Classes CSS partagées (identiques aux autres modals du projet) ────────────
 
 const inputClass =
-  "text-xs xs:text-sm bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-violet-300/50";
+  "text-xs xs:text-sm bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-violet-300/50";
 
 const selectTriggerClass =
-  "text-xs xs:text-sm bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50 cursor-pointer";
+  "text-xs xs:text-sm bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-slate-50 cursor-pointer";
 
 const selectContentClass =
-  "bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25";
+  "bg-violet-50 dark:bg-linear-to-b dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/30 dark:border-slate-600";
 
 const selectItemClass =
-  "text-xs xs:text-sm focus:bg-violet-100 dark:focus:bg-violet-500/20 focus:text-slate-900 dark:focus:text-slate-100 cursor-pointer";
+  "text-xs xs:text-sm focus:bg-violet-100 dark:focus:bg-violet-500/30 focus:text-slate-900 dark:focus:text-slate-100 cursor-pointer";
 
 // ─── Composant ────────────────────────────────────────────────────────────────
 
@@ -175,7 +175,7 @@ export function CreditNoteDialog({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent
         onOpenAutoFocus={(e) => e.preventDefault()}
-        className="sm:max-w-md max-h-[90dvh] overflow-y-auto p-3 xs:p-4 sm:p-5 bg-linear-to-b from-rose-50 via-white to-white dark:from-[#2a1c1c] dark:via-[#221c48] dark:to-[#221c48] border border-rose-200/60 dark:border-rose-500/25 shadow-lg dark:shadow-rose-950/40"
+        className="sm:max-w-md max-h-[90dvh] overflow-y-auto p-3 xs:p-4 sm:p-5 bg-rose-50 dark:bg-linear-to-b dark:from-[#2a1c1c] dark:via-[#221c48] dark:to-[#221c48] border border-rose-200/60 dark:border-rose-500/25 shadow-lg dark:shadow-rose-950/40"
       >
         <DialogHeader>
           <DialogTitle className="text-base xs:text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">

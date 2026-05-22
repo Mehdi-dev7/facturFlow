@@ -69,7 +69,7 @@ function SectionCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-2xl border border-slate-200 dark:border-violet-500/20 shadow-lg shadow-slate-200/50 dark:shadow-violet-950/40 bg-white/80 dark:bg-[#1a1438] backdrop-blur-lg p-4 sm:p-5">
+    <div className="rounded-2xl border border-slate-200 dark:border-slate-700 shadow-lg shadow-slate-300/70 dark:shadow-violet-950/40 bg-white dark:bg-[#1a1438] backdrop-blur-lg p-4 sm:p-5">
       <h2 className="text-sm sm:text-base font-semibold text-slate-700 dark:text-slate-200 mb-3 sm:mb-4">
         {title}
       </h2>
@@ -224,7 +224,7 @@ export function StatsPageContent({ plan, effectivePlan }: StatsPageContentProps)
             <SelectTrigger className="w-32 bg-white dark:bg-slate-900 border-slate-200 dark:border-violet-400 dark:text-violet-400">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="bg-linear-to-b from-violet-100 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/30 rounded-xl shadow-xl dark:shadow-violet-950/50 z-50">
+            <SelectContent className="bg-linear-to-b from-violet-100 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/30 dark:border-slate-600 rounded-xl shadow-xl dark:shadow-violet-950/50 z-50">
               {years.map((y) => (
                 <SelectItem
                   key={y}
@@ -253,7 +253,7 @@ export function StatsPageContent({ plan, effectivePlan }: StatsPageContentProps)
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="end"
-                className="min-w-[180px] bg-linear-to-b from-emerald-50 via-white to-white dark:from-[#0f2a1f] dark:via-[#132520] dark:to-[#111c18] border border-emerald-200 dark:border-emerald-500/30 rounded-xl shadow-xl shadow-emerald-100/50 dark:shadow-emerald-950/50 p-1"
+                className="min-w-[180px] bg-linear-to-b from-emerald-50 via-white to-white dark:from-[#0f2a1f] dark:via-[#132520] dark:to-[#111c18] border border-emerald-200 dark:border-emerald-500/60 rounded-xl shadow-xl shadow-emerald-100/50 dark:shadow-emerald-950/50 p-1"
               >
                 {CSV_OPTIONS.map(({ type, label, icon: Icon }) => (
                   <DropdownMenuItem

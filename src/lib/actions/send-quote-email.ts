@@ -95,6 +95,9 @@ export async function sendQuoteEmail(
 		const emitterName =
 			doc.user.companyName || emitterFallback?.companyName || "FacturNow";
 
+		// Couleur thème pour l'email
+		const tc = doc.user.themeColor ?? "#7c3aed";
+
 		// 5. Construire les lignes du devis pour l'email
 		const linesHtml = doc.lineItems
 			.map(
@@ -180,18 +183,18 @@ export async function sendQuoteEmail(
 			to: [doc.client.email],
 			subject: `Devis ${doc.number} – En attente de votre accord`,
 			html: wrapEmail(`
-				${emailHeader("linear-gradient(135deg, #7c3aed, #4f46e5)", "", `Devis ${doc.number}`)}
+				${emailHeader(`linear-gradient(135deg, ${tc}, ${tc}cc)`, "", `Devis ${doc.number}`)}
 
 				<p style="color:#334155;font-size:15px;line-height:1.6;">Bonjour ${clientName},</p>
 				<p style="color:#334155;font-size:15px;line-height:1.6;">
 					Veuillez trouver ci-dessous le devis <strong>n°${doc.number}</strong> d'un montant total de <strong>${amount} €</strong>.
 				</p>
 
-				<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin:20px 0;">
+				<div style="background:#f1f5f9;border:1px solid ${tc}66;border-left:4px solid ${tc};border-radius:8px;padding:16px;margin:20px 0;">
 					<table style="width:100%;font-size:14px;color:#475569;">
 						<tr>
 							<td style="padding:4px 0;">Montant TTC</td>
-							<td style="padding:4px 0;text-align:right;font-weight:600;color:#7c3aed;">${amount} €</td>
+							<td style="padding:4px 0;text-align:right;font-weight:600;color:${tc};">${amount} €</td>
 						</tr>
 						${depositAmount > 0 ? `<tr>
 							<td style="padding:4px 0;">Acompte demandé</td>
@@ -206,11 +209,11 @@ export async function sendQuoteEmail(
 
 				<table style="width:100%;border-collapse:collapse;margin:20px 0;">
 					<thead>
-						<tr style="background:#f1f5f9;">
-							<th style="padding:8px 12px;text-align:left;font-size:12px;color:#64748b;text-transform:uppercase;">Description</th>
-							<th style="padding:8px 12px;text-align:center;font-size:12px;color:#64748b;text-transform:uppercase;">Qté</th>
-							<th style="padding:8px 12px;text-align:right;font-size:12px;color:#64748b;text-transform:uppercase;">P.U.</th>
-							<th style="padding:8px 12px;text-align:right;font-size:12px;color:#64748b;text-transform:uppercase;">Total</th>
+						<tr style="background:${tc}33;">
+							<th style="padding:8px 12px;text-align:left;font-size:12px;color:${tc};text-transform:uppercase;">Description</th>
+							<th style="padding:8px 12px;text-align:center;font-size:12px;color:${tc};text-transform:uppercase;">Qté</th>
+							<th style="padding:8px 12px;text-align:right;font-size:12px;color:${tc};text-transform:uppercase;">P.U.</th>
+							<th style="padding:8px 12px;text-align:right;font-size:12px;color:${tc};text-transform:uppercase;">Total</th>
 						</tr>
 					</thead>
 					<tbody>${linesHtml}</tbody>

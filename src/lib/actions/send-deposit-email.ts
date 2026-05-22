@@ -83,6 +83,7 @@ export async function sendDepositEmail(depositId: string, userId?: string) {
       doc.client.email);
 
     const emitterName = doc.user.companyName ?? "Votre prestataire";
+    const tc = doc.user.themeColor ?? "#7c3aed";
 
     const amount =
       Number(doc.total).toLocaleString("fr-FR", {
@@ -199,14 +200,14 @@ export async function sendDepositEmail(depositId: string, userId?: string) {
 
     // 6. Construire et envoyer l'email
     const html = wrapEmail(`
-      ${emailHeader("linear-gradient(135deg, #7c3aed, #4f46e5)", "", `Demande d'acompte ${doc.number}`)}
+      ${emailHeader(`linear-gradient(135deg, ${tc}, ${tc}cc)`, "", `Demande d'acompte ${doc.number}`)}
 
       <p style="color:#334155;font-size:15px;line-height:1.6;">Bonjour ${clientName},</p>
       <p style="color:#334155;font-size:15px;line-height:1.6;">
         ${emitterName} vous adresse une demande d'acompte d'un montant de <strong>${amount}</strong>${relatedQuoteNumber ? `, suite à l'acceptation du devis <strong>${relatedQuoteNumber}</strong>` : ""}.
       </p>
 
-      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin:20px 0;">
+      <div style="background:#f1f5f9;border:1px solid ${tc}66;border-left:4px solid ${tc};border-radius:8px;padding:16px;margin:20px 0;">
         <table style="width:100%;font-size:14px;color:#475569;">
           <tr>
             <td style="padding:4px 0;">Référence acompte</td>
@@ -218,7 +219,7 @@ export async function sendDepositEmail(depositId: string, userId?: string) {
           </tr>` : ""}
           <tr>
             <td style="padding:4px 0;">Montant TTC</td>
-            <td style="padding:4px 0;text-align:right;font-weight:600;color:#7c3aed;">${amount}</td>
+            <td style="padding:4px 0;text-align:right;font-weight:600;color:${tc};">${amount}</td>
           </tr>
           ${dueDate ? `<tr>
             <td style="padding:4px 0;">Date d'échéance</td>
@@ -262,8 +263,8 @@ export async function sendDepositEmail(depositId: string, userId?: string) {
       ` : ""}
 
       ${doc.user.iban ? `
-      <div style="margin:20px 0;padding:16px;background:#f8f7ff;border-left:4px solid #7c3aed;border-radius:4px;">
-        <p style="margin:0 0 8px;font-weight:600;color:#7c3aed;">Paiement par virement bancaire</p>
+      <div style="margin:20px 0;padding:16px;background:#f1f5f9;border-left:4px solid ${tc};border-radius:4px;">
+        <p style="margin:0 0 8px;font-weight:600;color:${tc};">Paiement par virement bancaire</p>
         <p style="margin:0;font-size:14px;color:#374151;">IBAN : ${doc.user.iban}</p>
         ${doc.user.bic ? `<p style="margin:4px 0 0;font-size:14px;color:#374151;">BIC : ${doc.user.bic}</p>` : ""}
         <p style="margin:4px 0 0;font-size:12px;color:#6b7280;">Référence : ${doc.number}</p>

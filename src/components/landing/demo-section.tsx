@@ -83,7 +83,7 @@ export function DemoSection() {
 									video?.play();
 								}}
 							>
-								<div className="h-20 w-20 rounded-full bg-white/90 flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300">
+								<div className="h-20 w-20 rounded-full bg-white flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300">
 									<Play className="h-8 w-8 text-primary fill-primary ml-1" />
 								</div>
 							</div>

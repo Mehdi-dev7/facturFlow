@@ -120,7 +120,7 @@ export function PwaInstallBanner() {
         fixed z-50 w-[calc(100%-2rem)] max-w-sm
         left-1/2 -translate-x-1/2 bottom-6
         sm:left-auto sm:translate-x-0 sm:right-6 sm:bottom-6 sm:w-80
-        rounded-2xl border border-violet-200 dark:border-violet-400/30
+        rounded-2xl border border-violet-200 dark:border-slate-600
         bg-white dark:bg-[#1e1845]
         shadow-xl dark:shadow-violet-950/50
         p-4

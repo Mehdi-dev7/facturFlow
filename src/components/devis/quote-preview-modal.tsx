@@ -76,7 +76,7 @@ function StaticLinesTable({ title, lines, isForfait, typeConfig, themeColor, cur
       )}
       <div className="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
         <table className="w-full">
-          <thead style={{ backgroundColor: themeColor + "1a" }}>
+          <thead style={{ backgroundColor: themeColor + "66" }}>
             <tr>
               <th className="text-left p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: contentColor }}>
                 {typeConfig.descriptionLabel}
@@ -98,7 +98,7 @@ function StaticLinesTable({ title, lines, isForfait, typeConfig, themeColor, cur
           </thead>
           <tbody>
             {lines.map((line) => (
-              <tr key={line.id} className="border-t border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30">
+              <tr key={line.id} className="border-t border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800/40">
                 <td className="p-2 lg:p-3 text-xs lg:text-sm text-slate-900 dark:text-slate-50">
                   {line.description}
                 </td>
@@ -193,7 +193,7 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
   const contentColor = resolveContentColor(themeColor);
 
   return (
-    <div className="bg-white dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 p-3 md:p-6 space-y-6 shadow-sm">
+    <div className="bg-white dark:bg-[#1e1845] rounded-lg border border-slate-200 dark:border-slate-700 p-3 md:p-6 space-y-6 shadow-sm">
       {/* En-tête 3 colonnes : type+N° | logo+nom centré | dates à droite */}
       <div className="rounded-lg p-4 mb-6" style={{ backgroundColor: themeColor }}>
         <div className="flex items-start gap-4">
@@ -337,7 +337,7 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
         <div className="flex justify-end">
           <div
             className="w-64 space-y-1.5 rounded-lg p-3 border"
-            style={{ backgroundColor: themeColor + "0d", borderColor: themeColor + "33" }}
+            style={{ backgroundColor: themeColor + "1f", borderColor: themeColor + "66" }}
           >
             {/* Sous-total HT */}
             <div className="flex justify-between text-xs lg:text-sm">
@@ -392,14 +392,14 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
 
         {/* Notes */}
         {quote.notes && (
-          <div className="rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 p-3 text-[11px] lg:text-xs text-slate-600 dark:text-slate-300">
+          <div className="rounded-lg bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 p-3 text-[11px] lg:text-xs text-slate-600 dark:text-slate-300">
             <p className="font-medium mb-1 text-xs lg:text-sm" style={{ color: contentColor }}>Notes</p>
             <p className="whitespace-pre-line">{quote.notes}</p>
           </div>
         )}
 
         {/* Footer */}
-        <div className="text-center text-[10px] lg:text-xs text-slate-400 dark:text-slate-500 pt-4 border-t border-slate-100 dark:border-slate-700">
+        <div className="text-center text-[10px] lg:text-xs text-slate-400 dark:text-slate-500 pt-4 border-t border-slate-200 dark:border-slate-700">
           <p>Document généré par FacturNow</p>
         </div>
     </div>
@@ -589,7 +589,7 @@ export function QuotePreviewModal({
     <>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="w-[95vw] h-[90vh] sm:w-[90vw] sm:h-auto sm:max-w-2xl md:max-w-3xl lg:max-w-5xl bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25 shadow-lg dark:shadow-violet-950/40 rounded-xl overflow-hidden p-0"
+        className="w-[95vw] h-[90vh] sm:w-[90vw] sm:h-auto sm:max-w-2xl md:max-w-3xl lg:max-w-5xl bg-violet-50 dark:bg-linear-to-b dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/30 dark:border-slate-600 shadow-lg dark:shadow-violet-950/40 rounded-xl overflow-hidden p-0"
         showCloseButton={false}
       >
         {/* Header du modal : titre + bouton fermer + actions */}

@@ -65,7 +65,7 @@ function InfoRow({ icon, label, value }: InfoRowProps) {
   if (!value) return null;
   return (
     <div className="flex items-start gap-3">
-      <div className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-lg bg-violet-100 dark:bg-violet-500/20">
+      <div className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-lg bg-violet-100 dark:bg-violet-500/30">
         <span className="text-violet-600 dark:text-violet-400">{icon}</span>
       </div>
       <div className="min-w-0">
@@ -138,11 +138,11 @@ export function ClientPreviewModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="w-[95vw] max-w-lg max-h-[90dvh] overflow-hidden flex flex-col bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25 shadow-lg dark:shadow-violet-950/40 rounded-xl p-0"
+        className="w-[95vw] max-w-lg max-h-[90dvh] overflow-hidden flex flex-col bg-violet-50 dark:bg-linear-to-b dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/30 dark:border-slate-600 shadow-lg dark:shadow-violet-950/40 rounded-xl p-0"
         showCloseButton={false}
       >
         {/* ─── Header ─── */}
-        <DialogHeader className="px-4 xs:px-5 pt-4 xs:pt-5 pb-3 border-b border-slate-200 dark:border-violet-500/20 shrink-0">
+        <DialogHeader className="px-4 xs:px-5 pt-4 xs:pt-5 pb-3 border-b border-slate-200 dark:border-slate-600 shrink-0">
           {/* Ligne 1 : avatar + nom + badge type + croix */}
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2.5 min-w-0">
@@ -150,7 +150,7 @@ export function ClientPreviewModal({
               <div
                 className={`flex size-9 shrink-0 items-center justify-center rounded-xl ${
                   isEntreprise
-                    ? "bg-violet-100 dark:bg-violet-500/20"
+                    ? "bg-violet-100 dark:bg-violet-500/30"
                     : "bg-sky-100 dark:bg-sky-500/20"
                 }`}
               >
@@ -194,7 +194,7 @@ export function ClientPreviewModal({
             <button
               onClick={handleEdit}
               disabled={!client}
-              className="flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs xs:text-sm font-medium transition-colors border-violet-300 text-violet-600 hover:bg-violet-50 dark:border-violet-500 dark:text-violet-400 dark:hover:bg-violet-500/10 disabled:opacity-50 cursor-pointer"
+              className="flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs xs:text-sm font-medium transition-colors border-violet-300 text-violet-600 hover:bg-violet-50 dark:border-violet-500 dark:text-violet-400 dark:hover:bg-violet-500/30 disabled:opacity-50 cursor-pointer"
             >
               <Pencil size={14} />
               {/* Sur mobile : icône seule. xs+ : icône + texte */}
@@ -278,7 +278,7 @@ export function ClientPreviewModal({
                   <StatCard
                     label="Total facturé"
                     value={formatEuros(client.totalInvoiced)}
-                    colorClass="border-violet-200 dark:border-violet-500/30 bg-violet-50 dark:bg-violet-500/10 text-violet-600 dark:text-violet-400"
+                    colorClass="border-violet-200 dark:border-slate-700 bg-violet-50 dark:bg-violet-500/25 text-violet-600 dark:text-violet-400"
                   />
                   <StatCard
                     label="Encaissé"
@@ -288,7 +288,7 @@ export function ClientPreviewModal({
                   <StatCard
                     label="Documents"
                     value={String(client.documentCount)}
-                    colorClass="border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-800/50 text-slate-700 dark:text-slate-300"
+                    colorClass="border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300"
                   />
                 </div>
               </section>
@@ -301,7 +301,7 @@ export function ClientPreviewModal({
                     <h3 className="text-[10px] font-semibold text-slate-500 dark:text-violet-300/70 uppercase tracking-wide">
                       Notes internes
                     </h3>
-                    <div className="rounded-xl border border-slate-200 dark:border-violet-500/20 bg-slate-50 dark:bg-[#1a1438] p-3">
+                    <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#1a1438] p-3">
                       <div className="flex gap-2 items-start">
                         <FileText size={13} className="mt-0.5 text-slate-400 dark:text-violet-400/60 shrink-0" />
                         <p className="text-xs xs:text-sm text-slate-600 dark:text-slate-300 whitespace-pre-line">

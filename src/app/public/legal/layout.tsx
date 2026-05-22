@@ -36,7 +36,7 @@ export default function LegalLayout({ children }: { children: React.ReactNode })
               <Link
                 key={href}
                 href={href}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary dark:hover:text-primary transition-colors border border-slate-200 dark:border-slate-700"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-primary/18 hover:text-primary dark:hover:text-primary transition-colors border border-slate-200 dark:border-slate-700"
               >
                 <Icon className="h-3.5 w-3.5" />
                 {label}

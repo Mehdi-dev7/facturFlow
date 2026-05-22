@@ -92,7 +92,7 @@ function ReviewCard({ review }: { review: ReviewItem }) {
         </p>
 
         {/* Auteur */}
-        <div className="flex items-center gap-3 pt-2 border-t border-slate-100">
+        <div className="flex items-center gap-3 pt-2 border-t border-slate-200">
           <div className={`flex h-9 w-9 items-center justify-center rounded-full bg-linear-to-br ${color.bg} text-white text-xs font-bold shrink-0 shadow-sm`}>
             {getInitials(review.displayName)}
           </div>

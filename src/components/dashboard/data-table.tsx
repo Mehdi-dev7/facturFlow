@@ -109,7 +109,7 @@ export function DataTable<T>({
   if (data.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 px-4">
-        <div className="h-12 w-12 rounded-full bg-slate-100 dark:bg-violet-500/10 flex items-center justify-center mb-4">
+        <div className="h-12 w-12 rounded-full bg-slate-100 dark:bg-violet-500/20 flex items-center justify-center mb-4">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-slate-400 dark:text-violet-400">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
             <polyline points="14 2 14 8 20 8" />

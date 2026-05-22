@@ -110,7 +110,7 @@ const S = StyleSheet.create({
   // ── Tableau ───
   table: { marginBottom: 16 },
   tableHeader: { flexDirection: "row", padding: 8, borderBottomWidth: 1, borderBottomColor: "#e2e8f0" },
-  tableRow: { flexDirection: "row", padding: 8, borderBottomWidth: 1, borderBottomColor: "#f1f5f9" },
+  tableRow: { flexDirection: "row", padding: 8, borderBottomWidth: 1, borderBottomColor: "#e2e8f0" },
   tableColDescription: { flex: 3 },
   tableColQuantity: { flex: 1, textAlign: "center" },
   tableColPrice: { flex: 1, textAlign: "right" },
@@ -133,7 +133,6 @@ const S = StyleSheet.create({
     marginTop: 6,
     paddingTop: 6,
     borderTopWidth: 1,
-    borderTopColor: "#e2e8f0",
   },
   totalFinalLabel: { fontSize: 12, fontFamily: "Helvetica-Bold" },
   totalFinalValue: { fontSize: 12, fontFamily: "Helvetica-Bold" },
@@ -141,7 +140,7 @@ const S = StyleSheet.create({
   notesBox: {
     marginBottom: 16,
     padding: 12,
-    backgroundColor: "#f8fafc",
+    backgroundColor: "#f1f5f9",
     borderRadius: 4,
   },
   notesText: { fontSize: 9, color: "#64748b", lineHeight: 1.5 },
@@ -178,11 +177,15 @@ export default function QuotePdfDocument({ quote }: QuotePdfDocumentProps) {
   // Couleurs dynamiques (inline car react-pdf ne supporte pas les classes dynamiques)
   const headerBg = { backgroundColor: themeColor };
   const sectionTitleColor = { color: themeColor };
-  const tableHeaderBg = { backgroundColor: hexToRgba(themeColor, 0.1) };
+  const tableHeaderBg = { backgroundColor: hexToRgba(themeColor, 0.2) };
   const tableHeaderTextColor = { color: themeColor };
   const totalBoxStyle = {
-    backgroundColor: hexToRgba(themeColor, 0.07),
+    backgroundColor: hexToRgba(themeColor, 0.12),
+    borderWidth: 1,
+    borderColor: hexToRgba(themeColor, 0.4),
+    borderRadius: 6,
   };
+  const grandTotalBorderColor = hexToRgba(themeColor, 0.4);
   const totalFinalColor = { color: themeColor };
   const totalHtColor = { color: themeColor };
 
@@ -311,7 +314,7 @@ export default function QuotePdfDocument({ quote }: QuotePdfDocumentProps) {
               <Text style={S.totalLabel}>TVA :</Text>
               <Text style={S.totalValue}>{fmtC(quote.taxTotal, quote.user.currency)}</Text>
             </View>
-            <View style={S.totalFinalRow}>
+            <View style={[S.totalFinalRow, { borderTopColor: grandTotalBorderColor }]}>
               <Text style={[S.totalFinalLabel, totalFinalColor]}>Total TTC :</Text>
               <Text style={[S.totalFinalValue, totalFinalColor]}>{fmtC(quote.total, quote.user.currency)}</Text>
             </View>

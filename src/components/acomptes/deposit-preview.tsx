@@ -98,7 +98,7 @@ export function DepositPreview({
 
 		return (
 			<div className="space-y-3 text-sm">
-				<div className="flex flex-wrap justify-between items-center gap-2 text-xs text-slate-500 dark:text-violet-400 border-b border-slate-100 dark:border-violet-500/20 pb-2">
+				<div className="flex flex-wrap justify-between items-center gap-2 text-xs text-slate-500 dark:text-violet-400 border-b border-slate-200 dark:border-slate-600 pb-2">
 					<span className="font-medium text-slate-700 dark:text-slate-300">N° {depositNumber}</span>
 					<div className="flex gap-3 flex-wrap">
 						<span>Émission : {fmtDate(formData.date)}</span>
@@ -142,7 +142,7 @@ export function DepositPreview({
 					)}
 				</div>
 
-				<div className="rounded-lg bg-slate-50 dark:bg-[#251e4d]/40 border border-slate-100 dark:border-violet-500/20 p-2.5">
+				<div className="rounded-lg bg-slate-50 dark:bg-[#251e4d] border border-slate-200 dark:border-slate-700 p-2.5">
 					<p className="text-[10px] uppercase tracking-wide mb-1" style={{ color: contentColor }}>Description</p>
 					<p className="text-xs font-medium text-slate-900 dark:text-slate-100">
 						{formData.description || "—"}
@@ -151,7 +151,7 @@ export function DepositPreview({
 
 				<div
 					className="rounded-lg border p-2.5 space-y-1"
-					style={{ backgroundColor: themeColor + "0d", borderColor: themeColor + "33" }}
+					style={{ backgroundColor: themeColor + "1f", borderColor: themeColor + "66" }}
 				>
 					<div className="flex justify-between text-xs text-slate-600">
 						<span>Sous-total HT</span>
@@ -197,7 +197,7 @@ export function DepositPreview({
 		: formData.clientId ? "Chargement..." : null;
 
 	return (
-		<div className="rounded-2xl border border-slate-300/80 dark:border-violet-500/20 shadow-lg shadow-slate-200/50 dark:shadow-violet-950/40 bg-white/75 dark:bg-[#1a1438] backdrop-blur-lg overflow-hidden">
+		<div className="rounded-2xl border border-slate-300 dark:border-slate-700 shadow-lg shadow-slate-300/70 dark:shadow-violet-950/40 bg-white dark:bg-[#1a1438] backdrop-blur-lg overflow-hidden">
 			{/* Bandeau "Aperçu temps réel" */}
 			<div className="p-3 px-4" style={{ backgroundColor: themeColor }}>
 				<p className="text-xs font-semibold uppercase tracking-wide" style={{ color: resolvedTextColor, opacity: 0.9 }}>Aperçu temps réel</p>
@@ -299,7 +299,7 @@ export function DepositPreview({
 						</h3>
 						<div className="border border-slate-200 rounded-lg overflow-hidden">
 							<table className="w-full table-fixed">
-								<thead style={{ backgroundColor: themeColor + "1a" }}>
+								<thead style={{ backgroundColor: themeColor + "66" }}>
 									<tr>
 										<th className="text-left p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: contentColor }}>
 											Description
@@ -316,7 +316,7 @@ export function DepositPreview({
 									</tr>
 								</thead>
 								<tbody>
-									<tr className="border-t border-slate-200 bg-slate-50/50">
+									<tr className="border-t border-slate-200 bg-slate-100">
 										<td className="p-2 lg:p-3 text-xs lg:text-sm text-slate-900 break-words overflow-hidden">
 											{formData.description || "Description de l'acompte"}
 										</td>
@@ -339,7 +339,7 @@ export function DepositPreview({
 					<div className="flex justify-end">
 						<div
 							className="w-64 space-y-1.5 rounded-lg p-4 border"
-							style={{ backgroundColor: themeColor + "0d", borderColor: themeColor + "33" }}
+							style={{ backgroundColor: themeColor + "1f", borderColor: themeColor + "66" }}
 						>
 							<div className="flex justify-between text-xs lg:text-sm">
 								<span style={{ color: contentColor }}>Sous-total HT :</span>
@@ -361,7 +361,7 @@ export function DepositPreview({
 
 					{/* Notes */}
 					{formData.notes && formData.notes.trim() && (
-						<div className="rounded-lg bg-slate-50 border border-slate-100 p-3">
+						<div className="rounded-lg bg-slate-100 border border-slate-200 p-3">
 							<p className="font-medium mb-1 text-xs lg:text-sm" style={{ color: contentColor }}>Notes</p>
 							<p className="text-[11px] lg:text-xs text-slate-600 whitespace-pre-line">
 								{formData.notes}
@@ -400,7 +400,7 @@ export function DepositPreview({
 					</div>
 
 					{/* Footer */}
-					<div className="text-center text-[10px] lg:text-xs text-slate-400 pt-4 border-t border-slate-100">
+					<div className="text-center text-[10px] lg:text-xs text-slate-400 pt-4 border-t border-slate-200">
 						<p>Document généré par FacturNow</p>
 					</div>
 				</div>

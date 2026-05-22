@@ -111,7 +111,7 @@ const S = StyleSheet.create({
   depositBox: {
     marginBottom: 16,
     padding: 16,
-    backgroundColor: "#f8fafc",
+    backgroundColor: "#f1f5f9",
     borderRadius: 6,
     borderWidth: 1,
     borderColor: "#e2e8f0",
@@ -135,7 +135,6 @@ const S = StyleSheet.create({
     marginTop: 6,
     paddingTop: 8,
     borderTopWidth: 1,
-    borderTopColor: "#e2e8f0",
   },
   totalFinalLabel: { fontSize: 12, fontFamily: "Helvetica-Bold" },
   totalFinalValue: { fontSize: 12, fontFamily: "Helvetica-Bold" },
@@ -143,7 +142,7 @@ const S = StyleSheet.create({
   notesBox: {
     marginBottom: 16,
     padding: 12,
-    backgroundColor: "#f8fafc",
+    backgroundColor: "#f1f5f9",
     borderRadius: 4,
   },
   notesText: { fontSize: 9, color: "#64748b", lineHeight: 1.5 },
@@ -182,8 +181,12 @@ export default function DepositPdfDocument({ deposit }: DepositPdfDocumentProps)
   const sectionTitleColor = { color: themeColor };
   const depositTitleColor = { color: themeColor };
   const totalBoxStyle = {
-    backgroundColor: hexToRgba(themeColor, 0.07),
+    backgroundColor: hexToRgba(themeColor, 0.12),
+    borderWidth: 1,
+    borderColor: hexToRgba(themeColor, 0.4),
+    borderRadius: 6,
   };
+  const grandTotalBorderColor = hexToRgba(themeColor, 0.4);
   const totalFinalColor = { color: themeColor };
 
   return (
@@ -290,7 +293,7 @@ export default function DepositPdfDocument({ deposit }: DepositPdfDocumentProps)
                 <Text style={S.totalLabel}>TVA ({deposit.vatRate}%) :</Text>
                 <Text style={S.totalValue}>{fmtC(deposit.taxTotal, deposit.user.currency)}</Text>
               </View>
-              <View style={S.totalFinalRow}>
+              <View style={[S.totalFinalRow, { borderTopColor: grandTotalBorderColor }]}>
                 <Text style={[S.totalFinalLabel, totalFinalColor]}>Total TTC :</Text>
                 <Text style={[S.totalFinalValue, totalFinalColor]}>{fmtC(deposit.total, deposit.user.currency)}</Text>
               </View>

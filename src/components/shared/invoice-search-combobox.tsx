@@ -175,14 +175,14 @@ export function InvoiceSearchCombobox({
       style={dropdownStyle}
       role="listbox"
       aria-label="Sélectionner une facture"
-      className="rounded-xl border border-primary/20 dark:border-violet-400/30
-        bg-linear-to-b from-violet-50 via-white to-white
+      className="rounded-xl border border-primary/30 dark:border-slate-600
+        bg-violet-50 dark:bg-linear-to-b
         dark:from-[#2a2254] dark:via-[#1e1845] dark:to-[#1a1438]
         shadow-xl dark:shadow-violet-950/60
         overflow-hidden"
     >
       {/* Input de recherche */}
-      <div className="sticky top-0 px-2.5 pt-2.5 pb-1.5 bg-violet-50 dark:bg-[#2a2254] border-b border-slate-200/60 dark:border-violet-500/20">
+      <div className="sticky top-0 px-2.5 pt-2.5 pb-1.5 bg-violet-50 dark:bg-[#2a2254] border-b border-slate-200/60 dark:border-slate-700">
         <div className="relative">
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-slate-400 dark:text-violet-400/60 pointer-events-none" />
           <input
@@ -192,7 +192,7 @@ export function InvoiceSearchCombobox({
             onChange={(e) => setQuery(e.target.value)}
             placeholder="N° facture, client ou montant (chiffres)..."
             className="w-full pl-8 pr-3 py-1.5
-              rounded-lg border border-slate-200 dark:border-violet-400/20
+              rounded-lg border border-slate-200 dark:border-slate-600
               bg-white dark:bg-[#1e1845]
               text-[11px] xs:text-xs sm:text-sm
               text-slate-900 dark:text-violet-100
@@ -233,7 +233,7 @@ export function InvoiceSearchCombobox({
                   text-left transition-colors cursor-pointer
                   ${isSelected
                     ? "bg-violet-100 dark:bg-violet-500/25"
-                    : "hover:bg-violet-50 dark:hover:bg-violet-500/10"
+                    : "hover:bg-violet-50 dark:hover:bg-violet-500/30"
                   }`}
               >
                 <span className="font-bold text-[11px] xs:text-xs sm:text-sm text-violet-700 dark:text-violet-300 shrink-0 tabular-nums">
@@ -258,7 +258,7 @@ export function InvoiceSearchCombobox({
 
       {/* Compteur quand recherche active */}
       {query && filtered.length > 0 && (
-        <div className="border-t border-slate-200/60 dark:border-violet-500/20 px-3 py-1.5">
+        <div className="border-t border-slate-200/60 dark:border-slate-700 px-3 py-1.5">
           <p className="text-[10px] xs:text-[11px] text-slate-400 dark:text-violet-400/50">
             {filtered.length} résultat{filtered.length > 1 ? "s" : ""} sur {invoices.length}
           </p>
@@ -278,8 +278,8 @@ export function InvoiceSearchCombobox({
         aria-expanded={open}
         aria-haspopup="listbox"
         className="w-full flex items-center gap-2 h-auto min-h-9 px-3 py-1.5
-          bg-white/90 dark:bg-[#2a2254]/80
-          border border-slate-300 dark:border-violet-400/30
+          bg-white dark:bg-[#2a2254]/80
+          border border-slate-300 dark:border-slate-600
           rounded-xl text-left
           text-[11px] xs:text-xs sm:text-sm
           text-slate-900 dark:text-violet-100

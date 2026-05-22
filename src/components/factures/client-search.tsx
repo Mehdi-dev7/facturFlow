@@ -124,7 +124,7 @@ export function ClientSearch({
 	// Client sélectionné — affichage
 	if (selectedClientId && selectedClient) {
 		return (
-			<div className="flex items-center gap-3 rounded-xl border border-violet-200 dark:border-violet-400/25 bg-violet-50/80 dark:bg-[#251e4d] p-3 transition-all duration-300 shadow-sm">
+			<div className="flex items-center gap-3 rounded-xl border border-violet-300 dark:border-slate-600 bg-violet-50 dark:bg-[#251e4d] p-3 transition-all duration-300 shadow-sm">
 				<div className="flex size-9 items-center justify-center rounded-xl bg-violet-100 dark:bg-violet-900/40 shadow-sm">
 					{selectedClient.type === "entreprise" ? (
 						<Building2 className="size-4 text-violet-600 dark:text-violet-400" />
@@ -141,7 +141,7 @@ export function ClientSearch({
 							</span>
 						)}
 					</p>
-					<p className="text-xs text-slate-500 dark:text-violet-300/80 truncate">
+					<p className="text-xs text-slate-500 dark:text-slate-400 truncate">
 						{selectedClient.email} — {selectedClient.city ?? ""}
 					</p>
 				</div>
@@ -160,7 +160,7 @@ export function ClientSearch({
 	// Nouveau client créé (__new__)
 	if (selectedClientId && selectedClientId === "__new__") {
 		return (
-			<div className="flex items-center gap-3 rounded-xl border border-violet-200 dark:border-violet-400/25 bg-violet-50/80 dark:bg-[#251e4d] p-3 transition-all duration-300 shadow-sm">
+			<div className="flex items-center gap-3 rounded-xl border border-violet-300 dark:border-slate-600 bg-violet-50 dark:bg-[#251e4d] p-3 transition-all duration-300 shadow-sm">
 				<div className="flex size-9 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/40 shadow-sm">
 					<User className="size-4 text-emerald-600 dark:text-emerald-400" />
 				</div>
@@ -194,13 +194,13 @@ export function ClientSearch({
 						setIsOpen(true);
 					}}
 					onFocus={() => setIsOpen(true)}
-					className="pl-9 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-xs xs:text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-violet-300/50"
+					className="pl-9 bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-xl text-xs xs:text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-violet-300/50"
 					aria-invalid={!!error}
 				/>
 
 				{/* Dropdown */}
 				{isOpen && (
-					<div className="absolute z-20 mt-1.5 w-full rounded-xl border border-primary/20 dark:border-violet-500/20 bg-gradient-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] shadow-lg dark:shadow-violet-950/40 max-h-60 overflow-y-auto">
+					<div className="absolute z-20 mt-1.5 w-full rounded-xl border border-primary/30 dark:border-slate-700 bg-violet-50 dark:bg-linear-to-b dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] shadow-lg dark:shadow-violet-950/40 max-h-60 overflow-y-auto">
 						{isLoading ? (
 							<div className="flex items-center justify-center px-3 py-4 gap-2">
 								<Loader2 className="size-4 animate-spin text-violet-500" />
@@ -213,7 +213,7 @@ export function ClientSearch({
 								<button
 									key={client.id}
 									type="button"
-									className="w-full flex items-center gap-3 px-1.5 md:px-3 py-2 md:py-2.5 hover:bg-violet-200/30 dark:hover:bg-violet-500/10 transition-colors text-left cursor-pointer"
+									className="w-full flex items-center gap-3 px-1.5 md:px-3 py-2 md:py-2.5 hover:bg-violet-200/60 dark:hover:bg-violet-500/40 transition-colors text-left cursor-pointer"
 									onClick={() => handleSelect(client)}
 								>
 									<div className="flex size-8 items-center justify-center rounded-xl bg-slate-100 dark:bg-violet-900/30">
@@ -232,7 +232,7 @@ export function ClientSearch({
 												</span>
 											)}
 										</p>
-										<p className="text-xs text-slate-500 dark:text-violet-300/80 truncate">
+										<p className="text-xs text-slate-500 dark:text-slate-400 truncate">
 											{client.email} — {client.city ?? ""}
 										</p>
 									</div>
@@ -243,10 +243,10 @@ export function ClientSearch({
 								Aucun client trouvé
 							</p>
 						)}
-						<div className="border-t border-slate-200 dark:border-violet-500/20">
+						<div className="border-t border-slate-200 dark:border-slate-600">
 							<button
 								type="button"
-								className="w-full text-xs flex items-center gap-2 px-3 py-2.5 xs:text-sm font-medium text-violet-600 dark:text-violet-400 hover:bg-violet-200/30 dark:hover:bg-violet-500/10 transition-colors cursor-pointer"
+								className="w-full text-xs flex items-center gap-2 px-3 py-2.5 xs:text-sm font-medium text-violet-600 dark:text-violet-400 hover:bg-violet-200/60 dark:hover:bg-violet-500/40 transition-colors cursor-pointer"
 								onClick={() => {
 									setShowNewForm(true);
 									setIsOpen(false);
@@ -270,7 +270,7 @@ export function ClientSearch({
 					type="button"
 					variant="outline"
 					size="sm"
-					className="w-full border-primary/20 dark:border-violet-400/50 hover:bg-violet-50 dark:hover:bg-violet-500/10 dark:text-slate-200 transition-all duration-300 cursor-pointer rounded-xl"
+					className="w-full border-primary/30 dark:border-violet-400/50 hover:bg-violet-50 dark:hover:bg-violet-500/20 dark:text-slate-200 transition-all duration-300 cursor-pointer rounded-xl"
 					onClick={() => setShowNewForm(true)}
 				>
 					<Plus className="size-4" />
@@ -280,7 +280,7 @@ export function ClientSearch({
 
 			{/* Mini-form nouveau client */}
 			{showNewForm && (
-				<div className="rounded-xl border border-primary/20 dark:border-violet-500/20 p-3 xs:p-4 space-y-3 bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] shadow-lg dark:shadow-violet-950/40">
+				<div className="rounded-xl border border-primary/30 dark:border-slate-700 p-3 xs:p-4 space-y-3 bg-violet-100 dark:bg-linear-to-b dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] shadow-lg dark:shadow-violet-950/40">
 					<div className="flex items-center justify-between">
 						<h4 className="text-xs xs:text-sm font-semibold text-slate-800 dark:text-slate-200">
 							Nouveau client
@@ -310,7 +310,7 @@ export function ClientSearch({
 							<Input
 								id="newClientName"
 								{...registerNew("name")}
-								className="text-xs xs:text-sm bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50"
+								className="text-xs xs:text-sm bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-slate-50"
 								aria-invalid={!!newErrors.name}
 							/>
 							{newErrors.name && (
@@ -330,7 +330,7 @@ export function ClientSearch({
 								id="newClientEmail"
 								type="email"
 								{...registerNew("email")}
-								className="text-xs xs:text-sm bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50"
+								className="text-xs xs:text-sm bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-slate-50"
 								aria-invalid={!!newErrors.email}
 							/>
 							{newErrors.email && (
@@ -349,7 +349,7 @@ export function ClientSearch({
 							<Input
 								id="newClientAddress"
 								{...registerNew("address")}
-								className="text-xs xs:text-sm bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50"
+								className="text-xs xs:text-sm bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-slate-50"
 								aria-invalid={!!newErrors.address}
 							/>
 							{newErrors.address && (
@@ -373,7 +373,7 @@ export function ClientSearch({
 									placeholder="75001"
 									maxLength={5}
 									inputMode="numeric"
-									className="bg-white/90 text-xs xs:text-sm dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50"
+									className="bg-white text-xs xs:text-sm dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-slate-50"
 								/>
 							</div>
 							<div>
@@ -386,7 +386,7 @@ export function ClientSearch({
 								<Input
 									id="newClientCity"
 									{...registerNew("city")}
-									className="bg-white/90 text-xs xs:text-sm dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50"
+									className="bg-white text-xs xs:text-sm dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-slate-50"
 									aria-invalid={!!newErrors.city}
 								/>
 								{newErrors.city && (

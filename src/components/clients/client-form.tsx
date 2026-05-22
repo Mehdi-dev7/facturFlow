@@ -57,7 +57,7 @@ export function ClientForm() {
 	);
 
 	const inputClass =
-		"text-xs xs:text-sm bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-violet-300/50";
+		"text-xs xs:text-sm bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-violet-300/50";
 
 	const labelClass = "text-xs xs:text-sm font-medium text-slate-700 dark:text-violet-200";
 
@@ -86,13 +86,13 @@ export function ClientForm() {
 						onClick={() => setValue("type", "entreprise")}
 						className={`flex items-center gap-3 rounded-xl border p-3.5 transition-all duration-200 cursor-pointer text-left ${
 							clientType === "entreprise"
-								? "border-primary bg-violet-100/70 dark:border-violet-400 dark:bg-violet-500/20"
-								: "border-slate-200 dark:border-violet-400/20 hover:border-primary/50 dark:hover:border-violet-400/50"
+								? "border-primary bg-violet-100 dark:border-violet-400 dark:bg-violet-500/30"
+								: "border-slate-200 dark:border-slate-600 hover:border-primary/50 dark:hover:border-violet-400/50"
 						}`}
 					>
 						<div className={`flex size-8 items-center justify-center rounded-lg ${
 							clientType === "entreprise"
-								? "bg-primary/10 dark:bg-violet-500/20"
+								? "bg-primary/10 dark:bg-violet-500/30"
 								: "bg-slate-100 dark:bg-violet-900/20"
 						}`}>
 							<Building2 className={`size-4 ${
@@ -115,13 +115,13 @@ export function ClientForm() {
 						onClick={() => setValue("type", "particulier")}
 						className={`flex items-center gap-3 rounded-xl border p-3.5 transition-all duration-200 cursor-pointer text-left ${
 							clientType === "particulier"
-								? "border-primary bg-violet-100/70 dark:border-violet-400 dark:bg-violet-500/20"
-								: "border-slate-200 dark:border-violet-400/20 hover:border-primary/50 dark:hover:border-violet-400/50"
+								? "border-primary bg-violet-100 dark:border-violet-400 dark:bg-violet-500/30"
+								: "border-slate-200 dark:border-slate-600 hover:border-primary/50 dark:hover:border-violet-400/50"
 						}`}
 					>
 						<div className={`flex size-8 items-center justify-center rounded-lg ${
 							clientType === "particulier"
-								? "bg-primary/10 dark:bg-violet-500/20"
+								? "bg-primary/10 dark:bg-violet-500/30"
 								: "bg-slate-100 dark:bg-violet-900/20"
 						}`}>
 							<User className={`size-4 ${
@@ -290,7 +290,7 @@ export function ClientForm() {
 					type="button"
 					variant="outline"
 					onClick={() => router.push("/dashboard/clients")}
-					className="gap-2 border-primary/20 dark:border-violet-400/30 hover:bg-violet-50 dark:hover:bg-violet-500/10 dark:text-slate-200 cursor-pointer rounded-xl"
+					className="gap-2 border-primary/30 dark:border-slate-600 hover:bg-violet-50 dark:hover:bg-violet-500/20 dark:text-slate-200 cursor-pointer rounded-xl"
 				>
 					<ArrowLeft className="size-4" />
 					Retour

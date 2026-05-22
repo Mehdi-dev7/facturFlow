@@ -122,7 +122,7 @@ export function UpgradeModal({ open, onClose, feature }: UpgradeModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
-      <DialogContent className="sm:max-w-md p-3 xs:p-3 sm:p-5 bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#1e1845] dark:to-[#1a1438] border border-primary/20 dark:border-violet-400/30 shadow-xl dark:shadow-violet-950/50 rounded-2xl">
+      <DialogContent className="sm:max-w-md p-3 xs:p-3 sm:p-5 bg-violet-50 dark:bg-linear-to-b dark:from-[#2a2254] dark:via-[#1e1845] dark:to-[#1a1438] border border-primary/30 dark:border-slate-600 shadow-xl dark:shadow-violet-950/50 rounded-2xl">
         {/* Icône */}
         <div className="flex justify-center pt-2">
           <div className={`flex items-center justify-center w-14 h-14 rounded-2xl ${isPro ? "bg-violet-100 dark:bg-violet-900/40" : "bg-amber-100 dark:bg-amber-900/30"}`}>

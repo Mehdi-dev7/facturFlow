@@ -275,7 +275,7 @@ function ResetPasswordContent() {
 					</Button>
 				</form>
 
-				<div className="text-center pt-2 border-t border-slate-100">
+				<div className="text-center pt-2 border-t border-slate-200">
 					<Link href="/login" className="text-sm text-slate-500 hover:text-primary transition-colors">
 						Retour à la connexion
 					</Link>

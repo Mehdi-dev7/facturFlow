@@ -31,7 +31,7 @@ function CustomTooltip({
   if (!active || !payload?.length) return null;
   const item = payload[0];
   return (
-    <div className="rounded-xl border border-slate-200 dark:border-violet-500/30 bg-white dark:bg-[#1e1845] shadow-lg px-3 py-2 text-xs">
+    <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#1e1845] shadow-lg px-3 py-2 text-xs">
       <p style={{ color: item.payload.color }} className="font-semibold">{item.name}</p>
       <p className="text-slate-600 dark:text-slate-300">{item.value} facture{item.value > 1 ? "s" : ""}</p>
     </div>

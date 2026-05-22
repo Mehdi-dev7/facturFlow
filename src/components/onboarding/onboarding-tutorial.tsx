@@ -303,7 +303,7 @@ export function OnboardingTutorial({ initialCompleted }: Props) {
             aria-modal="true"
             aria-label="Tutoriel de démarrage"
           >
-            <div className="rounded-2xl border border-violet-200 dark:border-violet-500/30 bg-white dark:bg-slate-900 shadow-2xl shadow-violet-500/20 overflow-hidden">
+            <div className="rounded-2xl border border-violet-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-2xl shadow-violet-500/20 overflow-hidden">
 
               {/* Header */}
               <GradientHeader>
@@ -434,7 +434,7 @@ export function OnboardingTutorial({ initialCompleted }: Props) {
               role="dialog"
               aria-label="Avancement onboarding"
             >
-              <div className="rounded-2xl border border-violet-200 dark:border-violet-500/30 bg-white dark:bg-slate-900 shadow-xl shadow-violet-500/20 overflow-hidden select-none">
+              <div className="rounded-2xl border border-violet-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-xl shadow-violet-500/20 overflow-hidden select-none">
 
                 {/* Header compact — zone de drag principale */}
                 <div className="bg-linear-to-r from-violet-600 to-indigo-600 px-4 py-3 flex items-center justify-between gap-2">
@@ -512,7 +512,7 @@ function CenteredCard({ children, maxWidth = "max-w-sm" }: { children: React.Rea
       animate={{ opacity: 1, scale: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95, y: 10 }}
       transition={{ type: "spring", stiffness: 320, damping: 28 }}
-      className={`w-full ${maxWidth} rounded-2xl border border-violet-200 dark:border-violet-500/30 bg-white dark:bg-slate-900 shadow-2xl shadow-violet-500/30 overflow-hidden`}
+      className={`w-full ${maxWidth} rounded-2xl border border-violet-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-2xl shadow-violet-500/30 overflow-hidden`}
       role="dialog"
       aria-modal="true"
     >

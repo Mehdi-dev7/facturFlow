@@ -42,19 +42,19 @@ export function MonthSelector({ value, onChange }: MonthSelectorProps) {
         <DropdownMenuTrigger asChild>
           <Button
             variant="outline"
-            className="h-9 px-3 gap-2 text-sm font-medium capitalize border-slate-300 dark:border-violet-500/30 bg-white/80 dark:bg-violet-950/30 hover:bg-violet-50 dark:hover:bg-violet-500/10 text-slate-700 dark:text-slate-100 cursor-pointer"
+            className="h-9 px-3 gap-2 text-sm font-medium capitalize border-slate-300 dark:border-slate-700 bg-white/80 dark:bg-violet-950/30 hover:bg-violet-50 dark:hover:bg-violet-500/30 text-slate-700 dark:text-slate-100 cursor-pointer"
           >
             <Calendar className="h-4 w-4 text-violet-500" />
             {currentLabel}
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="center" className="w-44 bg-linear-to-b from-violet-50 via-white to-white dark:from-[#1e1b4b] dark:via-[#1a1438] dark:to-[#1a1438] border border-primary/20 dark:border-violet-500/20 shadow-lg dark:shadow-violet-950/40 rounded-xl p-1 overflow-hidden">
+        <DropdownMenuContent align="center" className="w-44 bg-violet-50 dark:bg-linear-to-b dark:from-[#1e1b4b] dark:via-[#1a1438] dark:to-[#1a1438] border border-primary/30 dark:border-slate-700 shadow-lg dark:shadow-violet-950/40 rounded-xl p-1 overflow-hidden">
           {months.map((m) => (
             <DropdownMenuItem
               key={m.label}
               className={`capitalize cursor-pointer rounded-lg text-slate-700 dark:text-slate-200 focus:bg-violet-100 focus:text-violet-700 dark:focus:bg-violet-500/15 dark:focus:text-violet-300 ${
                 m.date.getMonth() === value.getMonth()
-                  ? "bg-violet-100 dark:bg-violet-500/20 text-violet-700 dark:text-violet-300 font-semibold"
+                  ? "bg-violet-100 dark:bg-violet-500/30 text-violet-700 dark:text-violet-300 font-semibold"
                   : ""
               }`}
               onClick={() => {

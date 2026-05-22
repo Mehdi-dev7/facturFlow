@@ -133,7 +133,7 @@ export function RecurringModal({ open, onOpenChange }: RecurringModalProps) {
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent
         onOpenAutoFocus={(e) => e.preventDefault()}
-        className="sm:max-w-2xl max-h-[90dvh] overflow-y-auto p-3 xs:p-3 sm:p-5 bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25 shadow-lg dark:shadow-violet-950/40 rounded-2xl"
+        className="sm:max-w-2xl max-h-[90dvh] overflow-y-auto p-3 xs:p-3 sm:p-5 bg-violet-50 dark:bg-linear-to-b dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/30 dark:border-slate-600 shadow-lg dark:shadow-violet-950/40 rounded-2xl"
       >
         <DialogHeader>
           <DialogTitle className="text-base xs:text-lg font-bold text-slate-900 dark:text-slate-100">
@@ -204,7 +204,7 @@ export function RecurringModal({ open, onOpenChange }: RecurringModalProps) {
                   id="recurring-label"
                   placeholder="Ex: Maintenance mensuelle"
                   {...form.register("label")}
-                  className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-xs xs:text-sm"
+                  className="bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-xl text-xs xs:text-sm"
                 />
                 {form.formState.errors.label && (
                   <p className="text-xs text-red-500 dark:text-red-400 mt-1">
@@ -228,7 +228,7 @@ export function RecurringModal({ open, onOpenChange }: RecurringModalProps) {
               {fields.map((field, index) => (
                 <div
                   key={field.id}
-                  className="rounded-xl border border-slate-200 dark:border-violet-400/20 p-3 space-y-3 bg-slate-50/50 dark:bg-[#221c48]/50"
+                  className="rounded-xl border border-slate-200 dark:border-slate-600 p-3 space-y-3 bg-slate-50 dark:bg-[#221c48]/50"
                 >
                   {/* Description */}
                   <div>
@@ -236,7 +236,7 @@ export function RecurringModal({ open, onOpenChange }: RecurringModalProps) {
                     <Input
                       placeholder="Description de la prestation"
                       {...form.register(`lines.${index}.description`)}
-                      className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-xs xs:text-sm"
+                      className="bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-xl text-xs xs:text-sm"
                     />
                     {form.formState.errors.lines?.[index]?.description && (
                       <p className="text-xs text-red-500 mt-1">
@@ -254,7 +254,7 @@ export function RecurringModal({ open, onOpenChange }: RecurringModalProps) {
                         step="0.01"
                         min="0.01"
                         {...form.register(`lines.${index}.quantity`, { valueAsNumber: true })}
-                        className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-xs xs:text-sm"
+                        className="bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-xl text-xs xs:text-sm"
                       />
                     </div>
                     <div>
@@ -264,7 +264,7 @@ export function RecurringModal({ open, onOpenChange }: RecurringModalProps) {
                         step="0.01"
                         min="0"
                         {...form.register(`lines.${index}.unitPrice`, { valueAsNumber: true })}
-                        className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-xs xs:text-sm"
+                        className="bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-xl text-xs xs:text-sm"
                       />
                     </div>
                     <div>
@@ -277,10 +277,10 @@ export function RecurringModal({ open, onOpenChange }: RecurringModalProps) {
                             value={String(vatField.value)}
                             onValueChange={(val) => vatField.onChange(Number(val))}
                           >
-                            <SelectTrigger className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-xs xs:text-sm">
+                            <SelectTrigger className="bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-xl text-xs xs:text-sm">
                               <SelectValue />
                             </SelectTrigger>
-                            <SelectContent className="bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#1e1845] dark:to-[#1a1438] border border-primary/20 dark:border-violet-400/30 rounded-xl">
+                            <SelectContent className="bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#1e1845] dark:to-[#1a1438] border border-primary/30 dark:border-slate-600 rounded-xl">
                               <SelectItem value="0">0%</SelectItem>
                               <SelectItem value="5.5">5,5%</SelectItem>
                               <SelectItem value="10">10%</SelectItem>
@@ -313,7 +313,7 @@ export function RecurringModal({ open, onOpenChange }: RecurringModalProps) {
                 type="button"
                 variant="outline"
                 size="sm"
-                className="w-full border-primary/20 dark:border-violet-400/50 hover:bg-violet-50 dark:hover:bg-violet-500/10 dark:text-slate-200 transition-all duration-300 cursor-pointer rounded-xl"
+                className="w-full border-primary/30 dark:border-violet-400/50 hover:bg-violet-50 dark:hover:bg-violet-500/20 dark:text-slate-200 transition-all duration-300 cursor-pointer rounded-xl"
                 onClick={() => append({ description: "", quantity: 1, unitPrice: 0, vatRate: 20 })}
               >
                 <Plus className="size-4" />
@@ -351,10 +351,10 @@ export function RecurringModal({ open, onOpenChange }: RecurringModalProps) {
                   name="frequency"
                   render={({ field }) => (
                     <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-xs xs:text-sm">
+                      <SelectTrigger className="bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-xl text-xs xs:text-sm">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent className="bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#1e1845] dark:to-[#1a1438] border border-primary/20 dark:border-violet-400/30 rounded-xl">
+                      <SelectContent className="bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#1e1845] dark:to-[#1a1438] border border-primary/30 dark:border-slate-600 rounded-xl">
                         <SelectItem value="WEEKLY">Hebdomadaire</SelectItem>
                         <SelectItem value="BIWEEKLY">Bi-hebdomadaire</SelectItem>
                         <SelectItem value="MONTHLY">Mensuel</SelectItem>
@@ -375,10 +375,10 @@ export function RecurringModal({ open, onOpenChange }: RecurringModalProps) {
                   name="paymentMethod"
                   render={({ field }) => (
                     <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-xs xs:text-sm">
+                      <SelectTrigger className="bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-xl text-xs xs:text-sm">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent className="bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#1e1845] dark:to-[#1a1438] border border-primary/20 dark:border-violet-400/30 rounded-xl">
+                      <SelectContent className="bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#1e1845] dark:to-[#1a1438] border border-primary/30 dark:border-slate-600 rounded-xl">
                         <SelectItem value="BANK_TRANSFER">Virement bancaire</SelectItem>
                         <SelectItem value="STRIPE">Stripe (CB)</SelectItem>
                         <SelectItem value="PAYPAL">PayPal</SelectItem>
@@ -398,7 +398,7 @@ export function RecurringModal({ open, onOpenChange }: RecurringModalProps) {
                   id="recurring-start"
                   type="date"
                   {...form.register("startDate")}
-                  className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-xs xs:text-sm"
+                  className="bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-xl text-xs xs:text-sm"
                 />
                 {form.formState.errors.startDate && (
                   <p className="text-xs text-red-500 mt-1">
@@ -416,7 +416,7 @@ export function RecurringModal({ open, onOpenChange }: RecurringModalProps) {
                   id="recurring-end"
                   type="date"
                   {...form.register("endDate")}
-                  className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-xs xs:text-sm"
+                  className="bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-xl text-xs xs:text-sm"
                 />
               </div>
 
@@ -430,7 +430,7 @@ export function RecurringModal({ open, onOpenChange }: RecurringModalProps) {
                   placeholder="Notes internes, conditions particulières..."
                   rows={2}
                   {...form.register("notes")}
-                  className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-xs xs:text-sm resize-none"
+                  className="bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-xl text-xs xs:text-sm resize-none"
                 />
               </div>
             </div>
@@ -446,7 +446,7 @@ export function RecurringModal({ open, onOpenChange }: RecurringModalProps) {
                 type="button"
                 variant="outline"
                 onClick={() => handleClose(false)}
-                className="border-slate-200 dark:border-violet-500/30 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-violet-500/10 cursor-pointer rounded-xl"
+                className="border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-violet-500/20 cursor-pointer rounded-xl"
               >
                 Annuler
               </Button>
@@ -455,7 +455,7 @@ export function RecurringModal({ open, onOpenChange }: RecurringModalProps) {
                 type="button"
                 variant="outline"
                 onClick={handleBack}
-                className="border-slate-200 dark:border-violet-500/30 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-violet-500/10 cursor-pointer rounded-xl"
+                className="border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-violet-500/20 cursor-pointer rounded-xl"
               >
                 <ChevronLeft className="size-4" />
                 Retour
@@ -488,7 +488,7 @@ export function RecurringModal({ open, onOpenChange }: RecurringModalProps) {
               type="button"
               variant="outline"
               onClick={() => handleClose(false)}
-              className="border-slate-200 dark:border-violet-500/30 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-violet-500/10 cursor-pointer rounded-xl"
+              className="border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-violet-500/20 cursor-pointer rounded-xl"
             >
               Annuler
             </Button>

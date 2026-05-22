@@ -83,11 +83,11 @@ interface DepositFormProps {
 const dividerClass =
 	"mx-0 h-px bg-linear-to-r from-transparent via-primary/30 dark:via-violet-300/30 to-transparent";
 const inputClass =
-	"bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-xs xs:text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-violet-300/50";
+	"bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-xl text-xs xs:text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-violet-300/50";
 
 // Styles Select communs
 const selectContentClass =
-	"bg-linear-to-b from-violet-100 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/30 rounded-xl shadow-xl dark:shadow-violet-950/50 z-50";
+	"bg-linear-to-b from-violet-100 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/30 dark:border-slate-600 rounded-xl shadow-xl dark:shadow-violet-950/50 z-50";
 const selectItemClass =
 	"cursor-pointer rounded-lg transition-colors text-xs xs:text-sm dark:text-slate-100 hover:bg-violet-200/70 data-highlighted:bg-violet-200/70 dark:hover:bg-violet-500/25 dark:data-highlighted:bg-violet-500/25 data-highlighted:text-violet-900 dark:data-highlighted:text-slate-50";
 
@@ -219,20 +219,20 @@ export function DepositForm({
 								</Button>
 							</div>
 							{companyInfo ? (
-								<div className="rounded-xl border border-violet-200 dark:border-violet-400/25 bg-violet-100/60 dark:bg-[#251e4d] p-3.5 shadow-sm">
+								<div className="rounded-xl border border-violet-200 dark:border-slate-600 bg-violet-100 dark:bg-[#251e4d] p-3.5 shadow-sm">
 									<p className="font-semibold text-[10px] xs:text-xs 2xl:text-sm  text-slate-800 dark:text-slate-100">
 										{companyInfo.name}
 									</p>
-									<p className="text-[10px] xs:text-xs text-slate-500 dark:text-violet-300/80">
+									<p className="text-[10px] xs:text-xs text-slate-500 dark:text-slate-300">
 										{companyInfo.address}
 									</p>
-                  <p className="text-slate-500 dark:text-violet-300/80 text-[10px] xs:text-xs">
+                  <p className="text-slate-500 dark:text-slate-300 text-[10px] xs:text-xs">
 										{companyInfo.zipCode} {companyInfo.city}
 									</p>
-									<p className="text-[10px] xs:text-xs text-slate-500 dark:text-violet-300/80 mt-0.5">
+									<p className="text-[10px] xs:text-xs text-slate-500 dark:text-slate-300 mt-0.5">
 										SIRET : {companyInfo.siret}
 									</p>
-									<p className="text-[10px] xs:text-xs text-slate-500 dark:text-violet-300/80">
+									<p className="text-[10px] xs:text-xs text-slate-500 dark:text-slate-300">
 										{companyInfo.email}
 										{companyInfo.phone ? ` — ${companyInfo.phone}` : ""}
 									</p>
@@ -294,7 +294,7 @@ export function DepositForm({
 												{...field}
 												value={field.value ?? ""}
 												placeholder={depositNumber || "Ex: DEP-2025-0001"}
-												className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-xs xs:text-sm text-slate-900 dark:text-slate-50 pr-8 font-mono"
+												className="bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-xl text-xs xs:text-sm text-slate-900 dark:text-slate-50 pr-8 font-mono"
 											/>
 										)}
 									/>
@@ -342,7 +342,7 @@ export function DepositForm({
 							<div className="space-y-2">
 								<Label htmlFor="deliveryDate" className="text-xs font-medium text-slate-700 dark:text-slate-300">
 									Date de livraison{" "}
-									<span className="font-normal text-slate-400 dark:text-violet-400/50">(optionnel)</span>
+									<span className="font-normal text-slate-400 dark:text-violet-400">(optionnel)</span>
 								</Label>
 								<Input
 									id="deliveryDate"
@@ -434,7 +434,7 @@ export function DepositForm({
 												value={field.value.toString()}
 												onValueChange={(v) => field.onChange(Number(v))}
 											>
-												<SelectTrigger className="h-10 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-lg text-xs xs:text-sm text-slate-900 dark:text-slate-50">
+												<SelectTrigger className="h-10 bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-lg text-xs xs:text-sm text-slate-900 dark:text-slate-50">
 													<SelectValue />
 												</SelectTrigger>
 												<SelectContent
@@ -457,7 +457,7 @@ export function DepositForm({
 									<Label className="text-xs font-medium text-slate-700 dark:text-slate-300">
 										Récapitulatif
 									</Label>
-									<div className="rounded-xl border bg-linear-to-br from-violet-50 to-purple-50 dark:from-violet-950/50 dark:to-purple-950/50 border-violet-200/50 dark:border-violet-500/20 p-3 space-y-1 text-xs xs:text-sm">
+									<div className="rounded-xl border bg-linear-to-br from-violet-50 to-purple-50 dark:from-violet-900/60 dark:to-purple-900/60 border-violet-200 dark:border-slate-700 p-3 space-y-1 text-xs xs:text-sm">
 										<div className="flex justify-between">
 											<span className="text-slate-600 dark:text-slate-300">Montant HT :</span>
 											<span className="font-medium text-slate-900 dark:text-slate-50">
@@ -489,7 +489,7 @@ export function DepositForm({
 								Liens de paiement
 							</h3>
 							{/* Tip email */}
-							<div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-violet-50 dark:bg-violet-500/10 border border-violet-200 dark:border-violet-400/20 text-xs text-violet-600 dark:text-violet-300">
+							<div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-violet-50 dark:bg-violet-500/20 border border-violet-200 dark:border-slate-600 text-xs text-violet-600 dark:text-violet-300">
 								<span className="shrink-0">💳</span>
 								<span>Ces boutons apparaîtront dans l&apos;email envoyé au client pour un paiement rapide.</span>
 							</div>
@@ -503,7 +503,7 @@ export function DepositForm({
 											className={`flex items-center gap-2 px-3 xs:px-4 py-2 xs:py-2.5 rounded-xl border-2 transition-all duration-300 cursor-pointer text-xs xs:text-sm font-semibold ${
 												activePayments.stripe
 													? "border-[#635BFF]/40 bg-linear-to-r from-[#635BFF]/10 to-[#7C3AED]/10 text-[#635BFF] dark:text-violet-300 shadow-sm"
-													: "border-dashed border-slate-300 dark:border-violet-400/20 text-slate-400 dark:text-violet-400/50 hover:border-[#635BFF]/40 hover:text-[#635BFF] dark:hover:border-violet-400/40"
+													: "border-dashed border-slate-300 dark:border-slate-600 text-slate-400 dark:text-violet-400 hover:border-[#635BFF]/40 hover:text-[#635BFF] dark:hover:border-violet-400/40"
 											}`}
 										>
 											<SiStripe className="size-3.5 xs:size-4" />
@@ -539,7 +539,7 @@ export function DepositForm({
 											className={`flex items-center gap-2 px-3 xs:px-4 py-2 xs:py-2.5 rounded-xl border-2 transition-all duration-300 cursor-pointer text-xs xs:text-sm font-semibold ${
 												activePayments.paypal
 													? "border-[#003087]/30 bg-linear-to-r from-[#003087]/10 to-[#009CDE]/10 text-[#003087] dark:text-blue-300 shadow-sm"
-													: "border-dashed border-slate-300 dark:border-violet-400/20 text-slate-400 dark:text-violet-400/50 hover:border-[#003087]/30 hover:text-[#003087] dark:hover:border-blue-400/40"
+													: "border-dashed border-slate-300 dark:border-slate-600 text-slate-400 dark:text-violet-400 hover:border-[#003087]/30 hover:text-[#003087] dark:hover:border-blue-400/40"
 											}`}
 										>
 											<SiPaypal className="size-3.5 xs:size-4" />
@@ -575,7 +575,7 @@ export function DepositForm({
 											className={`flex items-center gap-2 px-3 xs:px-4 py-2 xs:py-2.5 rounded-xl border-2 transition-all duration-300 cursor-pointer text-xs xs:text-sm font-semibold ${
 												activePayments.gocardless
 													? "border-[#0F766E]/30 bg-linear-to-r from-[#0F766E]/10 to-[#059669]/10 text-[#0F766E] dark:text-emerald-300 shadow-sm"
-													: "border-dashed border-slate-300 dark:border-violet-400/20 text-slate-400 dark:text-violet-400/50 hover:border-[#0F766E]/30 hover:text-[#0F766E] dark:hover:border-emerald-400/40"
+													: "border-dashed border-slate-300 dark:border-slate-600 text-slate-400 dark:text-violet-400 hover:border-[#0F766E]/30 hover:text-[#0F766E] dark:hover:border-emerald-400/40"
 											}`}
 										>
 											<span className="size-3.5 xs:size-4 flex items-center justify-center font-black text-[10px]">GC</span>

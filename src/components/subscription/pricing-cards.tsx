@@ -156,7 +156,7 @@ export function PricingCards({ currentPlan, effectivePlan, stripeSubId, pendingC
     <Dialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
       <DialogContent
         onOpenAutoFocus={(e) => e.preventDefault()}
-        className="max-w-md bg-linear-to-b from-red-50 via-white to-white dark:from-[#2d1212] dark:via-[#1e1212] dark:to-[#1a1010] border border-red-300 dark:border-red-900/60 shadow-xl dark:shadow-red-950/50 rounded-2xl"
+        className="max-w-md bg-red-50 dark:bg-linear-to-b dark:from-[#2d1212] dark:via-[#1e1212] dark:to-[#1a1010] border border-red-300 dark:border-red-900/60 shadow-xl dark:shadow-red-950/50 rounded-2xl"
       >
         <DialogHeader>
           <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-red-100 dark:bg-red-900/40 mx-auto mb-2">

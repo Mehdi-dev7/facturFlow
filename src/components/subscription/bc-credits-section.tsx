@@ -49,7 +49,7 @@ export function BcCreditsSection({ bcPagesUsedThisMonth, bcPagesCredit, recharge
   };
 
   return (
-    <div className="rounded-2xl border border-violet-200 dark:border-violet-500/30 bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#1e1845] dark:to-[#1a1438] p-6 space-y-5">
+    <div className="rounded-2xl border border-violet-200 dark:border-slate-700 bg-violet-50 dark:bg-linear-to-b dark:from-[#2a2254] dark:via-[#1e1845] dark:to-[#1a1438] p-6 space-y-5">
       {/* Header */}
       <div className="flex items-center gap-3">
         <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-violet-100 dark:bg-violet-900/40 shrink-0">

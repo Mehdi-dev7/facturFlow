@@ -25,9 +25,9 @@ function Section({
   num: string; title: string; icon: React.ElementType; children: React.ReactNode;
 }) {
   return (
-    <div className="flex gap-5 py-7 border-b border-slate-100 dark:border-slate-800 last:border-0">
+    <div className="flex gap-5 py-7 border-b border-slate-200 dark:border-slate-800 last:border-0">
       <div className="flex flex-col items-center gap-2 shrink-0">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 dark:bg-primary/20 border border-primary/20 dark:border-primary/30">
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 dark:bg-primary/20 border border-primary/30 dark:border-primary/30">
           <Icon className="h-4 w-4 text-primary" />
         </div>
         <span className="text-xs font-bold text-slate-300 dark:text-slate-700">{num}</span>
@@ -48,7 +48,7 @@ export default function CgvPage() {
   return (
     <>
       {/* En-tête */}
-      <div className="px-8 pt-8 pb-6 border-b border-slate-100 dark:border-slate-800">
+      <div className="px-8 pt-8 pb-6 border-b border-slate-200 dark:border-slate-800">
         <div className="flex items-center gap-2 text-xs font-medium text-primary mb-2 uppercase tracking-wider">
           <ScrollText className="h-3.5 w-3.5" />
           Conditions générales
@@ -130,7 +130,7 @@ export default function CgvPage() {
             </div>
 
             {/* Business */}
-            <div className="p-4 rounded-xl border border-violet-300/40 dark:border-violet-400/20 bg-linear-to-br from-violet-50 to-indigo-50 dark:from-violet-950/30 dark:to-indigo-950/20">
+            <div className="p-4 rounded-xl border border-violet-300/40 dark:border-slate-600 bg-linear-to-br from-violet-50 to-indigo-50 dark:from-violet-950/30 dark:to-indigo-950/20">
               <div className="flex items-center justify-between mb-1">
                 <span className="font-bold text-slate-800 dark:text-slate-200">Plan Business</span>
                 <div className="flex items-center gap-2">
@@ -248,7 +248,7 @@ export default function CgvPage() {
         </Section>
       </div>
 
-      <div className="px-8 py-5 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 rounded-b-2xl">
+      <div className="px-8 py-5 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-800 rounded-b-2xl">
         <p className="text-xs text-slate-400 dark:text-slate-500 text-center">
           Des questions sur ces conditions ?{" "}
           <a href="mailto:contact@facturnow.fr" className="text-primary hover:underline">

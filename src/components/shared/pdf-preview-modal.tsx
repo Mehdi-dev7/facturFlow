@@ -118,7 +118,7 @@ export function PdfPreviewModal({
 
         {/* Header fixe */}
         <div
-          className="shrink-0 flex items-center justify-between gap-3 px-4 border-b border-slate-200 dark:border-violet-500/20 bg-white dark:bg-[#1a1438]"
+          className="shrink-0 flex items-center justify-between gap-3 px-4 border-b border-slate-200 dark:border-slate-600 bg-white dark:bg-[#1a1438]"
           style={{ height: HEADER_HEIGHT }}
         >
           <p className="font-semibold text-sm text-slate-800 dark:text-slate-100 truncate">

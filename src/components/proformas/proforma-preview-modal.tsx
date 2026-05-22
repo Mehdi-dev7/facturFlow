@@ -264,7 +264,7 @@ function ProformaPreviewStatic({ proforma }: { proforma: SavedProforma }) {
 							<col style={{ width: "18%" }} />
 							{!isForfait && <col style={{ width: "18%" }} />}
 						</colgroup>
-					<thead style={{ backgroundColor: themeColor + "1a" }}>
+					<thead style={{ backgroundColor: themeColor + "66" }}>
 						<tr>
 							<th
 								className="text-left p-2 lg:p-3 text-xs font-medium uppercase tracking-wide"
@@ -300,7 +300,7 @@ function ProformaPreviewStatic({ proforma }: { proforma: SavedProforma }) {
 						{sortedLines.map((line) => (
 							<tr
 								key={line.id}
-								className="border-t border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30"
+								className="border-t border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800/40"
 							>
 								<td className="p-2 lg:p-3 text-xs lg:text-sm text-slate-900 dark:text-slate-50 break-all">
 									{line.description}
@@ -344,8 +344,8 @@ function ProformaPreviewStatic({ proforma }: { proforma: SavedProforma }) {
 				<div
 					className="w-64 space-y-1.5 rounded-lg p-3 border"
 					style={{
-						backgroundColor: themeColor + "0d",
-						borderColor: themeColor + "33",
+						backgroundColor: themeColor + "1f",
+						borderColor: themeColor + "66",
 					}}
 				>
 					<div className="flex justify-between text-xs lg:text-sm">
@@ -388,7 +388,7 @@ function ProformaPreviewStatic({ proforma }: { proforma: SavedProforma }) {
 
 			{/* Notes */}
 			{proforma.notes && (
-				<div className="rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 p-3 text-[11px] lg:text-xs text-slate-600 dark:text-slate-300">
+				<div className="rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 p-3 text-[11px] lg:text-xs text-slate-600 dark:text-slate-300">
 					<p
 						className="font-medium mb-1 text-xs lg:text-sm"
 						style={{ color: contentColor }}
@@ -411,7 +411,7 @@ function ProformaPreviewStatic({ proforma }: { proforma: SavedProforma }) {
 			)}
 
 			{/* Footer */}
-			<div className="text-center text-[10px] lg:text-xs text-slate-400 dark:text-slate-500 pt-4 border-t border-slate-100 dark:border-slate-700">
+			<div className="text-center text-[10px] lg:text-xs text-slate-400 dark:text-slate-500 pt-4 border-t border-slate-200 dark:border-slate-700">
 				<p>Document généré par FacturNow</p>
 			</div>
 		</div>
@@ -541,10 +541,10 @@ export function ProformaPreviewModal({
 		<>
 			<Dialog open={open} onOpenChange={onOpenChange}>
 				<DialogContent
-					className="w-[95vw] h-[90vh] sm:w-[90vw] sm:h-auto sm:max-w-2xl md:max-w-3xl lg:max-w-5xl bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25 shadow-lg dark:shadow-violet-950/40 rounded-xl overflow-hidden p-0"
+					className="w-[95vw] h-[90vh] sm:w-[90vw] sm:h-auto sm:max-w-2xl md:max-w-3xl lg:max-w-5xl bg-violet-50 dark:bg-linear-to-b dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/30 dark:border-slate-600 shadow-lg dark:shadow-violet-950/40 rounded-xl overflow-hidden p-0"
 					showCloseButton={false}
 				>
-					<DialogHeader className="px-2 sm:px-4 md:px-6 pt-2 sm:pt-3 md:pt-5 pb-2 sm:pb-3 md:pb-4 border-b border-slate-200 dark:border-violet-500/20">
+					<DialogHeader className="px-2 sm:px-4 md:px-6 pt-2 sm:pt-3 md:pt-5 pb-2 sm:pb-3 md:pb-4 border-b border-slate-200 dark:border-slate-600">
 						{/* Titre + croix */}
 						<div className="flex items-center justify-between">
 							<DialogTitle className="text-slate-900 dark:text-slate-100 text-base font-semibold mx-2 md:mx-0">

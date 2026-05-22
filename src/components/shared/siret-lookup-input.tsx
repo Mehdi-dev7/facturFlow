@@ -62,7 +62,7 @@ export function SiretLookupInput({ onFound }: SiretLookupInputProps) {
 	const isReady = len === 9 || len === 14;
 
 	return (
-		<div className="rounded-xl border border-dashed border-violet-300 dark:border-violet-500/30 p-3 space-y-2 bg-violet-100/50 dark:bg-violet-900/20">
+		<div className="rounded-xl border border-dashed border-violet-300 dark:border-slate-700 p-3 space-y-2 bg-violet-100/50 dark:bg-violet-900/20">
 			<p className="text-xs font-medium text-violet-700 dark:text-violet-400">
 				Remplir automatiquement via SIRET ou SIREN
 			</p>
@@ -81,7 +81,7 @@ export function SiretLookupInput({ onFound }: SiretLookupInputProps) {
 						onKeyDown={handleKeyDown}
 						maxLength={14}
 						inputMode="numeric"
-						className="pl-9 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-500 dark:text-slate-400 font-mono text-xs xs:text-sm tracking-widest h-9"
+						className="pl-9 bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-xl text-slate-500 dark:text-slate-400 font-mono text-xs xs:text-sm tracking-widest h-9"
 						aria-label="SIRET ou SIREN"
 					/>
 				</div>
@@ -92,7 +92,7 @@ export function SiretLookupInput({ onFound }: SiretLookupInputProps) {
 					size="sm"
 					onClick={handleSearch}
 					disabled={loading || !isReady}
-					className="w-full xs:w-auto shrink-0 h-9 border-violet-300 dark:border-violet-400/30 hover:bg-violet-100 dark:hover:bg-violet-500/10 dark:text-slate-200 cursor-pointer rounded-xl transition-all duration-300"
+					className="w-full xs:w-auto shrink-0 h-9 border-violet-300 dark:border-slate-600 hover:bg-violet-100 dark:hover:bg-violet-500/20 dark:text-slate-200 cursor-pointer rounded-xl transition-all duration-300"
 					aria-busy={loading}
 				>
 					{loading ? <Loader2 className="size-4 animate-spin" /> : "Chercher"}

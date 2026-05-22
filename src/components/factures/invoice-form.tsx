@@ -55,11 +55,11 @@ import { useAppearance } from "@/hooks/use-appearance";
 // ─── Styles partagés ─────────────────────────────────────────────────────────
 
 const dividerClass =
-	"mx-0 h-px bg-linear-to-r from-transparent via-primary/30 dark:via-violet-300/30 to-transparent";
+	"mx-0 h-px bg-linear-to-r from-transparent via-primary/50 dark:via-violet-400/60 to-transparent";
 const inputClass =
-	"bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-xs xs:text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-violet-300/50 autofill:shadow-[inset_0_0_0_30px_white] dark:autofill:shadow-[inset_0_0_0_30px_#2a2254] autofill:[-webkit-text-fill-color:theme(--color-slate-900)] dark:autofill:[-webkit-text-fill-color:theme(--color-slate-50)]";
+	"bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-xl text-xs xs:text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-violet-300/50 autofill:shadow-[inset_0_0_0_30px_white] dark:autofill:shadow-[inset_0_0_0_30px_#2a2254] autofill:[-webkit-text-fill-color:theme(--color-slate-900)] dark:autofill:[-webkit-text-fill-color:theme(--color-slate-50)]";
 const selectContentClass =
-	"bg-linear-to-b from-violet-100 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/30 rounded-xl shadow-xl dark:shadow-violet-950/50 z-50";
+	"bg-linear-to-b from-violet-100 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/30 dark:border-slate-600 rounded-xl shadow-xl dark:shadow-violet-950/50 z-50";
 const selectItemClass =
 	"cursor-pointer rounded-lg transition-colors text-xs dark:text-slate-100 hover:bg-violet-200/70 data-[highlighted]:bg-violet-200/70 dark:hover:bg-violet-500/25 dark:data-[highlighted]:bg-violet-500/25 data-[highlighted]:text-violet-900 dark:data-[highlighted]:text-slate-50";
 
@@ -342,20 +342,20 @@ export function InvoiceForm({
 								</Button>
 							</div>
 							{companyInfo ? (
-								<div className="rounded-xl border border-violet-200 dark:border-violet-400/25 bg-violet-100/60 dark:bg-[#251e4d] p-2.5 xs:p-3.5 text-[10px] xs:text-xs 2xl:text-sm shadow-sm">
+								<div className="rounded-xl border border-violet-300 dark:border-slate-600 bg-violet-100 dark:bg-[#251e4d] p-2.5 xs:p-3.5 text-[10px] xs:text-xs 2xl:text-sm shadow-sm">
 									<p className="font-semibold text-slate-800 dark:text-slate-100 truncate">
 										{companyInfo.name}
 									</p>
-									<p className="text-slate-500 text-[10px] xs:text-xs dark:text-violet-300/80 mt-0.5">
+									<p className="text-slate-500 text-[10px] xs:text-xs dark:text-slate-300 mt-0.5">
 										SIRET : {companyInfo.siret}
 									</p>
-									<p className="text-slate-500 text-[10px] xs:text-xs dark:text-violet-300/80">
+									<p className="text-slate-500 text-[10px] xs:text-xs dark:text-slate-300">
 										{companyInfo.address}
 									</p>
-									<p className="text-slate-500 dark:text-violet-300/80 text-[10px] xs:text-xs">
+									<p className="text-slate-500 dark:text-slate-300 text-[10px] xs:text-xs">
 										{companyInfo.zipCode} {companyInfo.city}
 									</p>
-									<p className="text-slate-500 text-[10px] xs:text-xs dark:text-violet-300/80">
+									<p className="text-slate-500 text-[10px] xs:text-xs dark:text-slate-300">
 										{companyInfo.email}
 										{companyInfo.phone ? ` — ${companyInfo.phone}` : ""}
 									</p>
@@ -462,7 +462,7 @@ export function InvoiceForm({
 								<div>
 									<Label className="text-xs text-slate-600 dark:text-violet-200">
 										Date de livraison{" "}
-										<span className="font-normal text-slate-400 dark:text-violet-400/50">(optionnel)</span>
+										<span className="font-normal text-slate-400 dark:text-violet-300/70">(optionnel)</span>
 									</Label>
 									<Controller
 										name="deliveryDate"
@@ -535,7 +535,7 @@ export function InvoiceForm({
 									variant="outline"
 									size="xs"
 									onClick={handleAddLine}
-									className="border-primary/20 text-xs xs:text-sm dark:border-violet-400/30 hover:bg-violet-50 dark:hover:bg-violet-500/15 dark:text-slate-100 transition-all duration-300 cursor-pointer"
+									className="border-primary/30 text-xs xs:text-sm dark:border-slate-600 hover:bg-violet-50 dark:hover:bg-violet-500/15 dark:text-slate-100 transition-all duration-300 cursor-pointer"
 								>
 									<Plus className="size-3 xs:size-3.5" />
 									Ajouter
@@ -560,7 +560,7 @@ export function InvoiceForm({
 									return (
 										<div
 											key={field.id}
-											className="rounded-xl border border-violet-200 dark:border-violet-400/25 p-2 xs:p-3 space-y-2 bg-violet-100/45 dark:bg-[#251e4d] transition-all duration-300 hover:shadow-md hover:border-violet-300 dark:hover:border-violet-400/40 shadow-sm"
+											className="rounded-xl border border-violet-200 dark:border-slate-600 p-2 xs:p-3 space-y-2 bg-violet-100 dark:bg-[#251e4d] transition-all duration-300 hover:shadow-md hover:border-violet-300 dark:hover:border-violet-400/40 shadow-sm"
 										>
 											{/* Catégorie artisan */}
 											{typeConfig.showCategory && (
@@ -574,7 +574,7 @@ export function InvoiceForm({
 																value={f.value ?? "main_oeuvre"}
 																onValueChange={f.onChange}
 															>
-																<SelectTrigger className="h-7 w-44 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-lg text-xs xs:text-sm text-slate-900 dark:text-slate-50">
+																<SelectTrigger className="h-7 w-44 bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-lg text-xs xs:text-sm text-slate-900 dark:text-slate-50">
 																	<SelectValue />
 																</SelectTrigger>
 																<SelectContent side="bottom" avoidCollisions={false} className={selectContentClass}>
@@ -748,7 +748,7 @@ export function InvoiceForm({
 											</div>
 											{/* Total HT en mode stepper — en dessous du grid */}
 											{visibleStep && (
-												<div className="flex items-center justify-between border-t border-violet-100 dark:border-violet-400/20 pt-2 mt-1">
+												<div className="flex items-center justify-between border-t border-violet-100 dark:border-slate-600 pt-2 mt-1">
 													<span className="text-xs text-slate-500 dark:text-violet-200">Total HT</span>
 													<span className="text-sm font-bold text-violet-700 dark:text-violet-300">
 														{formatCurrency(lineHT, currency)}
@@ -764,7 +764,7 @@ export function InvoiceForm({
 								<Button
 									type="button"
 									variant="outline"
-									className="w-full border-primary/20 dark:border-violet-400/30 hover:bg-violet-50 dark:hover:bg-violet-500/15 dark:text-slate-100 transition-all duration-300 cursor-pointer rounded-xl"
+									className="w-full border-primary/30 dark:border-slate-600 hover:bg-violet-50 dark:hover:bg-violet-500/15 dark:text-slate-100 transition-all duration-300 cursor-pointer rounded-xl"
 									onClick={handleAddLine}
 								>
 									<Plus className="size-4" />
@@ -776,7 +776,7 @@ export function InvoiceForm({
 						<div className={dividerClass} />
 
 						{/* ── Totaux ────────────────────────────────────── */}
-						<section className="rounded-xl border border-violet-200 dark:border-violet-400/25 bg-violet-100/60 dark:bg-[#251e4d] p-3 xs:p-4 space-y-2 shadow-sm">
+						<section className="rounded-xl border border-violet-300 dark:border-slate-600 bg-violet-100 dark:bg-[#251e4d] p-3 xs:p-4 space-y-2 shadow-sm">
 							{/* Sous-total HT */}
 							<div className="flex justify-between text-xs xs:text-sm">
 								<span className="text-slate-500 dark:text-violet-200">Sous-total HT</span>
@@ -799,7 +799,7 @@ export function InvoiceForm({
 													field.onChange(v === "none" ? undefined : v)
 												}
 											>
-												<SelectTrigger className="h-6 w-24 xs:h-7 xs:w-28 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-lg text-xs text-slate-900 dark:text-slate-50">
+												<SelectTrigger className="h-6 w-24 xs:h-7 xs:w-28 bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-lg text-xs text-slate-900 dark:text-slate-50">
 													<SelectValue placeholder="Aucune" />
 												</SelectTrigger>
 												<SelectContent side="bottom" avoidCollisions={false} className={selectContentClass}>
@@ -830,7 +830,7 @@ export function InvoiceForm({
 														const v = e.target.value;
 														f.onChange(v === "" ? 0 : Number(v));
 													}}
-													className="h-6 w-16 xs:h-7 xs:w-20 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-lg text-xs text-slate-900 dark:text-slate-50"
+													className="h-6 w-16 xs:h-7 xs:w-20 bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-lg text-xs text-slate-900 dark:text-slate-50"
 												/>
 											)}
 										/>
@@ -843,7 +843,7 @@ export function InvoiceForm({
 
 							{/* Net HT */}
 							{totals.discountAmount > 0 && (
-								<div className="flex justify-between text-xs xs:text-sm border-t border-violet-200 dark:border-violet-400/20 pt-2">
+								<div className="flex justify-between text-xs xs:text-sm border-t border-violet-200 dark:border-slate-600 pt-2">
 									<span className="text-slate-600 dark:text-violet-200 font-medium">Net HT</span>
 									<span className="font-medium text-slate-800 dark:text-slate-100">
 										{fmt(totals.netHT)}
@@ -856,18 +856,18 @@ export function InvoiceForm({
 								{/* Toggle mode TVA */}
 								<div className="flex items-center justify-between gap-2">
 									<span className="text-xs text-slate-500 dark:text-violet-200">TVA</span>
-									<div className="flex rounded-lg overflow-hidden border border-violet-200 dark:border-violet-400/30 text-xs">
+									<div className="flex rounded-lg overflow-hidden border border-violet-200 dark:border-slate-600 text-xs">
 										<button
 											type="button"
 											onClick={() => setValue("vatMode", "global", { shouldDirty: true })}
-											className={`px-2.5 py-1 cursor-pointer transition-colors ${!isPerLine ? "bg-violet-600 text-white font-medium" : "bg-white/90 dark:bg-[#2a2254] text-slate-500 dark:text-violet-300 hover:bg-violet-50 dark:hover:bg-violet-500/15"}`}
+											className={`px-2.5 py-1 cursor-pointer transition-colors ${!isPerLine ? "bg-violet-600 text-white font-medium" : "bg-white dark:bg-[#2a2254] text-slate-500 dark:text-violet-300 hover:bg-violet-50 dark:hover:bg-violet-500/15"}`}
 										>
 											Globale
 										</button>
 										<button
 											type="button"
 											onClick={() => setValue("vatMode", "per_line", { shouldDirty: true })}
-											className={`px-2.5 py-1 cursor-pointer transition-colors ${isPerLine ? "bg-violet-600 text-white font-medium" : "bg-white/90 dark:bg-[#2a2254] text-slate-500 dark:text-violet-300 hover:bg-violet-50 dark:hover:bg-violet-500/15"}`}
+											className={`px-2.5 py-1 cursor-pointer transition-colors ${isPerLine ? "bg-violet-600 text-white font-medium" : "bg-white dark:bg-[#2a2254] text-slate-500 dark:text-violet-300 hover:bg-violet-50 dark:hover:bg-violet-500/15"}`}
 										>
 											Par ligne
 										</button>
@@ -878,7 +878,7 @@ export function InvoiceForm({
 								{!isPerLine && (
 									<div className="flex items-center justify-between text-xs xs:text-sm">
 										<div className="flex items-center gap-2">
-											<span className="text-slate-500 dark:text-violet-200/60 text-xs">Taux</span>
+											<span className="text-slate-500 dark:text-violet-200 text-xs">Taux</span>
 											<Select
 												value={String(vatRate ?? 20)}
 												onValueChange={(v) =>
@@ -888,7 +888,7 @@ export function InvoiceForm({
 													})
 												}
 											>
-												<SelectTrigger className="h-6 w-16 xs:h-7 xs:w-20 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-lg text-xs text-slate-900 dark:text-slate-50">
+												<SelectTrigger className="h-6 w-16 xs:h-7 xs:w-20 bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-lg text-xs text-slate-900 dark:text-slate-50">
 													<SelectValue />
 												</SelectTrigger>
 												<SelectContent side="bottom" avoidCollisions={false} className={selectContentClass}>
@@ -916,7 +916,7 @@ export function InvoiceForm({
 							</div>
 
 							{/* Séparateur */}
-							<div className="h-px bg-linear-to-r from-transparent via-primary/30 dark:via-violet-300/30 to-transparent" />
+							<div className="h-px bg-linear-to-r from-transparent via-primary/50 dark:via-violet-400/60 to-transparent" />
 
 							{/* Total TTC */}
 							<div className="flex justify-between text-xs xs:text-sm font-bold">
@@ -942,7 +942,7 @@ export function InvoiceForm({
 													const v = e.target.value;
 													f.onChange(v === "" ? 0 : Number(v));
 												}}
-												className="h-6 w-20 xs:h-7 xs:w-24 bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-lg text-xs text-slate-900 dark:text-slate-50"
+												className="h-6 w-20 xs:h-7 xs:w-24 bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-lg text-xs text-slate-900 dark:text-slate-50"
 											/>
 										)}
 									/>
@@ -953,7 +953,7 @@ export function InvoiceForm({
 							</div>
 
 							{/* NET À PAYER */}
-							<div className="flex justify-between items-center pt-2 border-t-2 border-violet-300 dark:border-violet-400/40 mt-1">
+							<div className="flex justify-between items-center pt-2 border-t-2 border-violet-400 dark:border-violet-500/60 mt-1">
 								<span className="text-base font-bold text-slate-900 dark:text-slate-50 tracking-tight">
 									NET À PAYER
 								</span>
@@ -981,7 +981,7 @@ export function InvoiceForm({
 							<Textarea
 								placeholder="Conditions de paiement, mentions particulières..."
 								{...register("notes")}
-								className="bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-violet-300/50"
+								className="bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-xl text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-violet-300/50"
 							/>
 						</section>
 
@@ -991,7 +991,7 @@ export function InvoiceForm({
 								Liens de paiement
 							</h3>
 							{/* Tip email */}
-							<div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-violet-50 dark:bg-violet-500/10 border border-violet-200 dark:border-violet-400/20 text-xs text-violet-600 dark:text-violet-300">
+							<div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-violet-50 dark:bg-violet-500/20 border border-violet-200 dark:border-slate-600 text-xs text-violet-600 dark:text-violet-300">
 								<span className="shrink-0">💳</span>
 								<span>Ces boutons apparaîtront dans l&apos;email envoyé au client pour un paiement rapide.</span>
 							</div>
@@ -1005,7 +1005,7 @@ export function InvoiceForm({
 											className={`flex items-center gap-2 px-3 xs:px-4 py-2 xs:py-2.5 rounded-xl border-2 transition-all duration-300 cursor-pointer text-xs xs:text-sm font-semibold ${
 												activePayments.stripe
 													? "border-[#635BFF]/40 bg-linear-to-r from-[#635BFF]/10 to-[#7C3AED]/10 text-[#635BFF] dark:text-violet-300 shadow-sm"
-													: "border-dashed border-slate-300 dark:border-violet-400/20 text-slate-400 dark:text-violet-400/50 hover:border-[#635BFF]/40 hover:text-[#635BFF] dark:hover:border-violet-400/40"
+													: "border-dashed border-slate-300 dark:border-slate-600 text-slate-400 dark:text-violet-300 hover:border-[#635BFF]/40 hover:text-[#635BFF] dark:hover:border-violet-400/40"
 											}`}
 										>
 											<SiStripe className="size-3.5 xs:size-4" />
@@ -1050,7 +1050,7 @@ export function InvoiceForm({
 											className={`flex items-center gap-2 px-3 xs:px-4 py-2 xs:py-2.5 rounded-xl border-2 transition-all duration-300 cursor-pointer text-xs xs:text-sm font-semibold ${
 												activePayments.paypal
 													? "border-[#003087]/30 bg-linear-to-r from-[#003087]/10 to-[#009CDE]/10 text-[#003087] dark:text-blue-300 shadow-sm"
-													: "border-dashed border-slate-300 dark:border-violet-400/20 text-slate-400 dark:text-violet-400/50 hover:border-[#003087]/30 hover:text-[#003087] dark:hover:border-blue-400/40"
+													: "border-dashed border-slate-300 dark:border-slate-600 text-slate-400 dark:text-violet-300 hover:border-[#003087]/30 hover:text-[#003087] dark:hover:border-blue-400/40"
 											}`}
 										>
 											<SiPaypal className="size-3.5 xs:size-4" />
@@ -1095,7 +1095,7 @@ export function InvoiceForm({
 											className={`flex items-center gap-2 px-3 xs:px-4 py-2 xs:py-2.5 rounded-xl border-2 transition-all duration-300 cursor-pointer text-xs xs:text-sm font-semibold ${
 												activePayments.gocardless
 													? "border-[#0F766E]/30 bg-linear-to-r from-[#0F766E]/10 to-[#059669]/10 text-[#0F766E] dark:text-emerald-300 shadow-sm"
-													: "border-dashed border-slate-300 dark:border-violet-400/20 text-slate-400 dark:text-violet-400/50 hover:border-[#0F766E]/30 hover:text-[#0F766E] dark:hover:border-emerald-400/40"
+													: "border-dashed border-slate-300 dark:border-slate-600 text-slate-400 dark:text-violet-300 hover:border-[#0F766E]/30 hover:text-[#0F766E] dark:hover:border-emerald-400/40"
 											}`}
 										>
 											<span className="size-3.5 xs:size-4 flex items-center justify-center font-black text-[10px]">GC</span>

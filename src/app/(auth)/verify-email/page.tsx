@@ -131,7 +131,7 @@ function VerifyEmailContent() {
 					</Button>
 				</form>
 
-				<div className="text-center text-sm pt-4 border-t border-slate-100">
+				<div className="text-center text-sm pt-4 border-t border-slate-200">
 					<span className="text-slate-600">
 						Vous n&apos;avez pas reçu de code ?{" "}
 					</span>

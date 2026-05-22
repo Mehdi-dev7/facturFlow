@@ -59,7 +59,7 @@ export function CheckoutSuccessContent() {
   }, [content.title]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-linear-to-b from-violet-50 via-white to-white dark:from-[#1e1b4b] dark:via-slate-950 dark:to-slate-950 px-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-violet-50 dark:bg-linear-to-b dark:from-[#1e1b4b] dark:via-slate-950 dark:to-slate-950 px-4">
       <motion.div
         initial={{ opacity: 0, y: 30, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -109,7 +109,7 @@ export function CheckoutSuccessContent() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1, duration: 0.4 }}
-          className="bg-violet-50 dark:bg-violet-950/40 rounded-2xl p-4 space-y-2 text-left"
+          className="bg-violet-50 dark:bg-violet-900/60 rounded-2xl p-4 space-y-2 text-left"
         >
           {content.features.map((item) => (
             <div key={item} className="flex items-center gap-2 text-sm text-violet-700 dark:text-violet-300">

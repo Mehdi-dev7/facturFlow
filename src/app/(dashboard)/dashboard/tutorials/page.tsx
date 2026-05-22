@@ -58,7 +58,7 @@ export default function TutorialsPage() {
 			{/* Categories */}
 			<div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
 				{tutorialCategories.map((category) => (
-					<Card key={category.title} className="shadow-lg border-primary/20">
+					<Card key={category.title} className="shadow-lg border-primary/30">
 						<CardHeader>
 							<div className="flex items-center gap-3">
 								<div className={`flex h-10 w-10 items-center justify-center rounded-lg ${category.bgColor}`}>
@@ -100,7 +100,7 @@ export default function TutorialsPage() {
 									<Link
 										key={idx}
 										href={tutorial.href!}
-										className="group flex items-start gap-3 p-3 rounded-lg border border-primary/30 bg-primary/5 hover:bg-primary/10 hover:border-primary/50 transition-all"
+										className="group flex items-start gap-3 p-3 rounded-lg border border-primary/30 bg-primary/5 hover:bg-primary/18 hover:border-primary/50 transition-all"
 									>
 										{inner}
 									</Link>
@@ -120,7 +120,7 @@ export default function TutorialsPage() {
 
 			{/* Démo vidéo — présentation complète de l'app */}
 			<div className="max-w-[1200px] mx-auto">
-			<Card className="shadow-lg border-primary/30 bg-linear-to-br from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#1e1845] dark:to-[#1a1438]">
+			<Card className="shadow-lg border-primary/30 bg-violet-50 dark:bg-linear-to-b dark:from-[#2a2254] dark:via-[#1e1845] dark:to-[#1a1438]">
 				<CardContent className="p-4 sm:p-6">
 					<div className="flex items-center gap-3 mb-4">
 						<div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 shrink-0">
@@ -139,7 +139,7 @@ export default function TutorialsPage() {
 					{/* Lecteur vidéo */}
 					<div className="max-w-[1200px] mx-auto">
 					<div
-						className="relative rounded-xl overflow-hidden bg-black border border-primary/20 shadow-lg"
+						className="relative rounded-xl overflow-hidden bg-black border border-primary/30 shadow-lg"
 						style={{ aspectRatio: "16/9" }}
 					>
 						<video
@@ -159,7 +159,7 @@ export default function TutorialsPage() {
 
 
 			{/* Info */}
-			<Card className="border-primary/20">
+			<Card className="border-primary/30">
 				<CardContent className="flex items-center gap-3 p-4">
 					<div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 shrink-0">
 						<ExternalLink className="h-5 w-5 text-primary" />

@@ -253,7 +253,7 @@ export default function Home() {
           <div className="text-center">
             <Link
               href="/blog"
-              className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-colors bg-white border border-primary/20 rounded-full px-6 py-2.5 hover:shadow-md"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-colors bg-white border border-primary/30 rounded-full px-6 py-2.5 hover:shadow-md"
             >
               <BookOpen className="h-4 w-4" />
               Lire nos articles de blog

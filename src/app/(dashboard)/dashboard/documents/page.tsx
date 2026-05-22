@@ -163,7 +163,7 @@ function DocCard({ doc }: { doc: DocCard }) {
 
         {/* CTA */}
         {doc.available && (
-          <div className="flex items-center gap-1 text-xs xs:text-sm font-semibold text-primary group-hover:gap-2 transition-all duration-200 mt-auto pt-2 border-t border-slate-100 dark:border-slate-800">
+          <div className="flex items-center gap-1 text-xs xs:text-sm font-semibold text-primary group-hover:gap-2 transition-all duration-200 mt-auto pt-2 border-t border-slate-200 dark:border-slate-800">
             Accéder
             <ArrowRight className="h-3.5 w-3.5" />
           </div>

@@ -117,7 +117,7 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent
         onOpenAutoFocus={(e) => e.preventDefault()}
-        className="w-[95vw] sm:max-w-lg max-h-[90dvh] overflow-y-auto p-3 xs:p-3 sm:p-5 bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25 shadow-lg dark:shadow-violet-950/40"
+        className="w-[95vw] sm:max-w-lg max-h-[90dvh] overflow-y-auto p-3 xs:p-3 sm:p-5 bg-violet-50 dark:bg-linear-to-b dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/30 dark:border-slate-600 shadow-lg dark:shadow-violet-950/40"
       >
         <DialogHeader>
           <DialogTitle className="text-base xs:text-lg font-bold text-slate-900 dark:text-slate-100">
@@ -150,7 +150,7 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
                 min="0.01"
                 placeholder="0.00"
                 {...register("amount", { valueAsNumber: true })}
-                className="pr-8 text-xs xs:text-sm bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50"
+                className="pr-8 text-xs xs:text-sm bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-slate-50"
                 aria-invalid={!!errors.amount}
               />
               <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-400 dark:text-violet-400/60">
@@ -173,10 +173,10 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
                   value={String(field.value)}
                   onValueChange={(v) => field.onChange(Number(v))}
                 >
-                  <SelectTrigger className="text-xs xs:text-sm bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50">
+                  <SelectTrigger className="text-xs xs:text-sm bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-slate-50">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/20 dark:border-violet-400/25">
+                  <SelectContent className="bg-violet-50 dark:bg-linear-to-b dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/30 dark:border-slate-600">
                     <SelectItem value="0">0%</SelectItem>
                     <SelectItem value="5.5">5,5%</SelectItem>
                     <SelectItem value="10">10%</SelectItem>
@@ -188,7 +188,7 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
           </div>
 
           {/* Total TTC en live */}
-          <div className="flex items-center justify-between rounded-xl border border-violet-200 dark:border-violet-400/25 bg-violet-50/80 dark:bg-[#251e4d] px-4 py-3">
+          <div className="flex items-center justify-between rounded-xl border border-violet-200 dark:border-slate-600 bg-violet-50 dark:bg-[#251e4d] px-4 py-3">
             <span className="text-sm font-medium text-slate-700 dark:text-violet-200">
               Total TTC
             </span>
@@ -206,7 +206,7 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
               id="deposit-due-date"
               type="date"
               {...register("dueDate")}
-              className="text-xs xs:text-sm bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50"
+              className="text-xs xs:text-sm bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-slate-50"
               aria-invalid={!!errors.dueDate}
             />
             {errors.dueDate && (
@@ -224,7 +224,7 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
               rows={3}
               placeholder="Notes optionnelles..."
               {...register("notes")}
-              className="text-xs xs:text-sm bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-slate-900 dark:text-slate-50 resize-none"
+              className="text-xs xs:text-sm bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-slate-50 resize-none"
             />
           </div>
 

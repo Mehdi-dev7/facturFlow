@@ -105,7 +105,7 @@ function BcPreviewDialog({ open, extracted, onClose, onRestart }: PreviewDialogP
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent
-        className="w-[calc(100%-2rem)] sm:max-w-2xl lg:max-w-4xl max-h-[90dvh] overflow-y-auto bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#1e1845] dark:to-[#1a1438] border border-primary/20 dark:border-violet-400/30 shadow-lg dark:shadow-violet-950/50 rounded-xl"
+        className="w-[calc(100%-2rem)] sm:max-w-2xl lg:max-w-4xl max-h-[90dvh] overflow-y-auto bg-violet-50 dark:bg-linear-to-b dark:from-[#2a2254] dark:via-[#1e1845] dark:to-[#1a1438] border border-primary/30 dark:border-slate-600 shadow-lg dark:shadow-violet-950/50 rounded-xl"
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <DialogHeader>
@@ -118,7 +118,7 @@ function BcPreviewDialog({ open, extracted, onClose, onRestart }: PreviewDialogP
           </DialogDescription>
         </DialogHeader>
 
-        <Separator className="my-2 dark:bg-violet-500/20" />
+        <Separator className="my-2 dark:bg-violet-500/30" />
 
         <div className="space-y-4">
           {/* Badge succès */}
@@ -128,7 +128,7 @@ function BcPreviewDialog({ open, extracted, onClose, onRestart }: PreviewDialogP
           </div>
 
           {/* Infos générales */}
-          <div className="rounded-xl border border-slate-200 dark:border-violet-500/20 bg-white/60 dark:bg-violet-950/20 divide-y divide-slate-100 dark:divide-violet-500/10">
+          <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white/60 dark:bg-violet-950/20 divide-y divide-slate-100 dark:divide-slate-600">
             {extracted.bcReference && (
               <div className="flex items-center gap-3 px-4 py-3">
                 <Hash className="h-4 w-4 text-violet-500 shrink-0" />
@@ -187,7 +187,7 @@ function BcPreviewDialog({ open, extracted, onClose, onRestart }: PreviewDialogP
               <p className="text-xs font-semibold uppercase tracking-widest text-slate-400">
                 {extracted.lines.length} ligne{extracted.lines.length > 1 ? "s" : ""} détectée{extracted.lines.length > 1 ? "s" : ""}
               </p>
-              <div className="rounded-xl border border-slate-200 dark:border-violet-500/20 divide-y divide-slate-100 dark:divide-violet-500/10">
+              <div className="rounded-xl border border-slate-200 dark:border-slate-700 divide-y divide-slate-100 dark:divide-slate-600">
                 {extracted.lines.map((line, i) => (
                   <div key={i} className="flex items-start gap-3 px-4 py-3">
                     <div className="flex-1 min-w-0">
@@ -444,7 +444,7 @@ export function BcImportDialog({ open, onOpenChange }: Props) {
       {/* ── Dialog 1 : Upload / Loading / Upgrade ── */}
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent
-          className="w-[calc(100%-2rem)] sm:max-w-lg max-h-[90dvh] overflow-y-auto bg-linear-to-b from-violet-50 via-white to-white dark:from-[#2a2254] dark:via-[#1e1845] dark:to-[#1a1438] border border-primary/20 dark:border-violet-400/30 shadow-lg dark:shadow-violet-950/50 rounded-xl"
+          className="w-[calc(100%-2rem)] sm:max-w-lg max-h-[90dvh] overflow-y-auto bg-violet-50 dark:bg-linear-to-b dark:from-[#2a2254] dark:via-[#1e1845] dark:to-[#1a1438] border border-primary/30 dark:border-slate-600 shadow-lg dark:shadow-violet-950/50 rounded-xl"
           onOpenAutoFocus={(e) => e.preventDefault()}
           onInteractOutside={(e) => { if (step === "loading") e.preventDefault(); }}
           onEscapeKeyDown={(e) => { if (step === "loading") e.preventDefault(); }}
@@ -460,7 +460,7 @@ export function BcImportDialog({ open, onOpenChange }: Props) {
             </DialogDescription>
           </DialogHeader>
 
-          <Separator className="my-2 dark:bg-violet-500/20" />
+          <Separator className="my-2 dark:bg-violet-500/30" />
 
           {/* Upload */}
           {step === "upload" && (
@@ -470,7 +470,7 @@ export function BcImportDialog({ open, onOpenChange }: Props) {
                 className={`flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-8 cursor-pointer transition-colors ${
                   isDragging
                     ? "border-violet-500 bg-violet-50 dark:bg-violet-950/30"
-                    : "border-slate-300 dark:border-violet-500/30 hover:border-violet-400 dark:hover:border-violet-400 hover:bg-violet-50/50 dark:hover:bg-violet-950/20"
+                    : "border-slate-300 dark:border-slate-700 hover:border-violet-400 dark:hover:border-violet-400 hover:bg-violet-50/50 dark:hover:bg-violet-950/20"
                 }`}
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}

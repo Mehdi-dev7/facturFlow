@@ -437,9 +437,9 @@ function ReceiptsPageContent() {
       </div>
 
       {/* Générateur de reçu depuis une facture payée */}
-      <div className="rounded-2xl border border-slate-300/80 dark:border-violet-500/20 shadow-md shadow-slate-200/50 dark:shadow-violet-950/30 bg-white/75 dark:bg-[#1a1438] backdrop-blur-lg p-2.5 lg:p-3 mb-6">
+      <div className="rounded-2xl border border-slate-300 dark:border-slate-700 shadow-md shadow-slate-300/70 dark:shadow-violet-950/30 bg-white dark:bg-[#1a1438] backdrop-blur-lg p-2.5 lg:p-3 mb-6">
         <div className="flex items-center gap-2 mb-4">
-          <div className="p-1.5 rounded-lg bg-violet-100 dark:bg-violet-500/20">
+          <div className="p-1.5 rounded-lg bg-violet-100 dark:bg-violet-500/30">
             <FileCheck className="size-4 text-violet-600 dark:text-violet-400" />
           </div>
           <div>
@@ -463,8 +463,8 @@ function ReceiptsPageContent() {
       </div>
 
       {/* Table des reçus manuels */}
-      <div className="rounded-2xl border border-slate-300/80 dark:border-violet-500/20 shadow-lg shadow-slate-200/50 dark:shadow-violet-950/40 bg-white/75 dark:bg-[#1a1438] backdrop-blur-lg overflow-hidden">
-        <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-200 dark:border-violet-500/20">
+      <div className="rounded-2xl border border-slate-300 dark:border-slate-700 shadow-lg shadow-slate-300/70 dark:shadow-violet-950/40 bg-white dark:bg-[#1a1438] backdrop-blur-lg overflow-hidden">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-200 dark:border-slate-600">
           <div>
             <h2 className="text-base sm:text-lg lg:text-2xl font-bold text-slate-900 dark:text-slate-100">
               Reçus manuels

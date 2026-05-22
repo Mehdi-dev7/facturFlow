@@ -134,7 +134,7 @@ export function InvoicePreview({
 	if (compact) {
 		return (
 			<div className="space-y-3 text-xs">
-				<div className="flex items-center justify-between text-[10px] text-slate-400 dark:text-violet-400/70 border-b border-slate-100 dark:border-violet-500/20 pb-2">
+				<div className="flex items-center justify-between text-[10px] text-slate-400 dark:text-violet-400/70 border-b border-slate-200 dark:border-slate-600 pb-2">
 					<span className="font-semibold" style={{ color: contentColor }}>{invoiceNumber}</span>
 					<span>{formatDate(date)} · éch. {formatDate(dueDate)}</span>
 				</div>
@@ -175,7 +175,7 @@ export function InvoicePreview({
 					)}
 				</div>
 
-				<div className="h-px bg-slate-100 dark:bg-violet-500/20" />
+				<div className="h-px bg-slate-200 dark:bg-slate-700" />
 
 				<div className="space-y-1">
 					{safeLines.length === 0 ? (
@@ -194,7 +194,7 @@ export function InvoicePreview({
 					})}
 				</div>
 
-				<div className="h-px bg-slate-100 dark:bg-violet-500/20" />
+				<div className="h-px bg-slate-200 dark:bg-slate-700" />
 
 				<div className="space-y-1">
 					<div className="flex justify-between text-slate-500 dark:text-slate-400">
@@ -226,7 +226,7 @@ export function InvoicePreview({
 							<span>{fmtC(totals.taxTotal)}</span>
 						</div>
 					)}
-					<div className="flex justify-between font-bold text-slate-800 dark:text-slate-100 pt-1 border-t border-slate-200 dark:border-violet-500/20">
+					<div className="flex justify-between font-bold text-slate-800 dark:text-slate-100 pt-1 border-t border-slate-200 dark:border-slate-600">
 						<span>Total TTC</span>
 						<span className="truncate ml-2" style={{ color: contentColor }}>{fmtC(totals.totalTTC)}</span>
 					</div>
@@ -237,7 +237,7 @@ export function InvoicePreview({
 						</div>
 					)}
 					{(totals.depositAmount > 0 || totals.discountAmount > 0) && (
-						<div className="flex justify-between font-extrabold text-slate-900 dark:text-slate-50 pt-1 border-t-2 border-slate-200 dark:border-violet-400/40">
+						<div className="flex justify-between font-extrabold text-slate-900 dark:text-slate-50 pt-1 border-t-2 border-slate-200 dark:border-slate-600">
 							<span>NET À PAYER</span>
 							<span style={{ color: contentColor }}>{fmtC(totals.netAPayer)}</span>
 						</div>
@@ -245,7 +245,7 @@ export function InvoicePreview({
 				</div>
 
 				{notes && (
-					<p className="text-[10px] text-slate-500 dark:text-slate-400 italic border-t border-slate-100 dark:border-violet-500/20 pt-2">
+					<p className="text-[10px] text-slate-500 dark:text-slate-400 italic border-t border-slate-200 dark:border-slate-600 pt-2">
 						{notes}
 					</p>
 				)}
@@ -255,7 +255,7 @@ export function InvoicePreview({
 
 	// ── Mode normal (desktop preview A4) ──────────────────────────────────
 	return (
-		<div className="rounded-2xl border border-slate-300/80 dark:border-violet-500/20 shadow-lg shadow-slate-200/50 dark:shadow-violet-950/40 bg-white/75 dark:bg-[#1a1438] backdrop-blur-lg overflow-hidden">
+		<div className="rounded-2xl border border-slate-300 dark:border-slate-700 shadow-lg shadow-slate-300/70 dark:shadow-violet-950/40 bg-white dark:bg-[#1a1438] backdrop-blur-lg overflow-hidden">
 			{/* Bandeau "Aperçu temps réel" */}
 			<div className="p-3 px-4" style={{ backgroundColor: themeColor }}>
 				<p className="text-xs font-semibold uppercase tracking-wide" style={{ color: resolvedTextColor, opacity: 0.9 }}>Aperçu temps réel</p>
@@ -365,7 +365,7 @@ export function InvoicePreview({
 				<div className="flex justify-end">
 					<div
 						className="w-64 space-y-1.5 rounded-lg p-3 border"
-						style={{ backgroundColor: themeColor + "0d", borderColor: themeColor + "33" }}
+						style={{ backgroundColor: themeColor + "1f", borderColor: themeColor + "66" }}
 					>
 						<div className="flex justify-between text-sm">
 							<span className="shrink-0" style={{ color: contentColor }}>Sous-total HT</span>
@@ -421,7 +421,7 @@ export function InvoicePreview({
 						)}
 
 						{(totals.depositAmount > 0 || totals.discountAmount > 0) && (
-							<div className="flex justify-between items-center pt-2 mt-1" style={{ borderTop: `2px solid ${themeColor}66` }}>
+							<div className="flex justify-between items-center pt-2 mt-1" style={{ borderTop: `2px solid ${themeColor}aa` }}>
 								<span className="text-sm font-extrabold text-slate-900 tracking-tight shrink-0">NET À PAYER</span>
 								<span className="text-base font-extrabold truncate ml-2" style={{ color: contentColor }}>
 									{fmtC(totals.netAPayer)}
@@ -433,7 +433,7 @@ export function InvoicePreview({
 
 				{/* Notes */}
 				{notes && (
-					<div className="rounded-lg bg-slate-50 border border-slate-100 p-3 text-xs text-slate-600">
+					<div className="rounded-lg bg-slate-50 border border-slate-200 p-3 text-xs text-slate-600">
 						<p className="font-medium mb-1" style={{ color: contentColor }}>Notes</p>
 						<p className="whitespace-pre-line text-slate-700">{notes}</p>
 					</div>
@@ -467,7 +467,7 @@ export function InvoicePreview({
 				)}
 
 				{/* Footer */}
-				<div className="text-center text-[10px] text-slate-400 pt-4 border-t border-slate-100">
+				<div className="text-center text-[10px] text-slate-400 pt-4 border-t border-slate-200">
 					<p className="whitespace-pre-line">{invoiceFooter || "Document généré par FacturNow"}</p>
 				</div>
 			</div>{/* end inner white card */}
@@ -508,7 +508,7 @@ function LinesTable({ title, lines, isForfait, showVatColumn = false, globalVatR
 						{showVatColumn && <col style={{ width: "8%" }} />}
 						{!isForfait && <col style={{ width: "18%" }} />}
 					</colgroup>
-					<thead style={{ backgroundColor: themeColor + "1a" }}>
+					<thead style={{ backgroundColor: themeColor + "66" }}>
 						<tr>
 							<th className="text-left p-2 lg:p-3 text-xs font-medium uppercase tracking-wide" style={{ color: contentColor }}>
 								{typeConfig.descriptionLabel}
@@ -538,7 +538,7 @@ function LinesTable({ title, lines, isForfait, showVatColumn = false, globalVatR
 							const qty = isForfait ? 1 : line.quantity || 0;
 							const ht = qty * (line.unitPrice || 0);
 							return (
-								<tr key={i} className="border-t border-slate-100 bg-slate-50/50">
+								<tr key={i} className="border-t border-slate-200 bg-slate-100">
 									<td className="p-2 lg:p-3 text-xs lg:text-sm text-slate-700 break-all">
 										{line.description || <span className="text-slate-300 italic">Ligne {i + 1}</span>}
 									</td>

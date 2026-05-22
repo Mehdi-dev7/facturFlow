@@ -104,7 +104,7 @@ export default function NewRecurringPage() {
       <div className="hidden lg:grid lg:grid-cols-2 lg:gap-6">
         {/* Form dans une card */}
         <div>
-          <div className="rounded-2xl border border-slate-300/80 dark:border-violet-500/20 shadow-lg shadow-slate-200/50 dark:shadow-violet-950/40 bg-white/75 dark:bg-[#1a1438] backdrop-blur-lg p-6">
+          <div className="rounded-2xl border border-slate-300 dark:border-slate-700 shadow-lg shadow-slate-300/70 dark:shadow-violet-950/40 bg-white dark:bg-[#1a1438] backdrop-blur-lg p-6">
             <RecurringForm
               form={form}
               onSubmit={onSubmit}
@@ -129,7 +129,7 @@ export default function NewRecurringPage() {
       </div>
 
       {/* ─── Mobile : form full-width avec stepper intégré ───────────────── */}
-      <div className="lg:hidden rounded-2xl border border-slate-300/80 dark:border-violet-500/20 bg-white/75 dark:bg-[#1a1438] backdrop-blur-lg shadow-lg shadow-slate-200/50 dark:shadow-violet-950/40 min-h-[70vh] p-4 xs:p-5">
+      <div className="lg:hidden rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#1a1438] backdrop-blur-lg shadow-lg shadow-slate-300/70 dark:shadow-violet-950/40 min-h-[70vh] p-4 xs:p-5">
         <RecurringForm
           form={form}
           onSubmit={onSubmit}

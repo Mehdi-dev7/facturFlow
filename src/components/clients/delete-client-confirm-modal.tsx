@@ -90,7 +90,7 @@ export function DeleteClientConfirmModal({
           {/* Annuler */}
           <AlertDialogCancel
             disabled={isDeleting}
-            className="w-full sm:w-auto border-slate-200 dark:border-violet-500/30 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-violet-500/10 cursor-pointer"
+            className="w-full sm:w-auto border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-violet-500/30 cursor-pointer"
           >
             Annuler
           </AlertDialogCancel>

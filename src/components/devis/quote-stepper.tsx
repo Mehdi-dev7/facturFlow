@@ -88,7 +88,7 @@ export function QuoteStepper({
 								className={`flex items-center justify-center size-7 rounded-full text-xs font-semibold transition-all duration-300 ${
 									step >= s.id
 										? "bg-emerald-600 text-white shadow-lg"
-										: "bg-slate-200 dark:bg-violet-950/40 text-slate-500 dark:text-violet-400/60"
+										: "bg-slate-200 dark:bg-violet-900/60 text-slate-500 dark:text-violet-400/60"
 								}`}
 							>
 								{step > s.id ? <Check className="size-3.5" /> : s.id}
@@ -109,7 +109,7 @@ export function QuoteStepper({
 									className={`flex-1 h-0.5 rounded-full transition-colors duration-300 ${
 										step > s.id
 											? "bg-emerald-600"
-											: "bg-slate-200 dark:bg-violet-950/40"
+											: "bg-slate-200 dark:bg-violet-900/60"
 									}`}
 								/>
 							)}
@@ -117,7 +117,7 @@ export function QuoteStepper({
 					))}
 				</div>
 				{/* Barre de progression globale */}
-				<div className="h-1 bg-slate-200 dark:bg-violet-950/40 rounded-full overflow-hidden">
+				<div className="h-1 bg-slate-200 dark:bg-violet-900/60 rounded-full overflow-hidden">
 					<div
 						className="h-full bg-linear-to-r from-emerald-600 to-teal-600 rounded-full transition-all duration-500 ease-out"
 						style={{ width: `${progress}%` }}
@@ -159,7 +159,7 @@ export function QuoteStepper({
 			</div>
 
 			{/* Navigation bas de page */}
-			<div className="border-t border-slate-200 dark:border-violet-500/20 px-4 pt-3 pb-2 bg-white/50 dark:bg-[#1a1438]/50 backdrop-blur-sm space-y-2">
+			<div className="border-t border-slate-200 dark:border-slate-600 px-4 pt-3 pb-2 bg-white/50 dark:bg-[#1a1438]/50 backdrop-blur-sm space-y-2">
 				{/* Ligne 1 : Précédent + Suivant/Créer */}
 				<div className="flex items-center justify-between gap-3">
 					<Button
@@ -168,7 +168,7 @@ export function QuoteStepper({
 						size="sm"
 						onClick={handlePrev}
 						disabled={step === 1}
-						className="border-primary/20 dark:border-violet-500/30 hover:bg-violet-50 dark:hover:bg-violet-500/10 dark:text-slate-200 transition-all duration-300 cursor-pointer"
+						className="border-primary/30 dark:border-slate-700 hover:bg-violet-50 dark:hover:bg-violet-500/30 dark:text-slate-200 transition-all duration-300 cursor-pointer"
 					>
 						Précédent
 					</Button>
@@ -200,7 +200,7 @@ export function QuoteStepper({
 								type="button"
 								variant="ghost"
 								size="sm"
-								className="text-slate-400 hover:text-primary hover:bg-primary/20 dark:text-violet-400 dark:hover:text-violet-300 dark:hover:bg-primary/80 transition-all duration-300 cursor-pointer text-xs border border-slate-200 dark:border-violet-500/30"
+								className="text-slate-400 hover:text-primary hover:bg-primary/20 dark:text-violet-400 dark:hover:text-violet-300 dark:hover:bg-primary/80 transition-all duration-300 cursor-pointer text-xs border border-slate-200 dark:border-slate-700"
 							>
 								<Eye className="size-3.5" />
 								Aperçu

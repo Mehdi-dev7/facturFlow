@@ -701,7 +701,7 @@ export default function DashboardShell({
 									<ChevronDown className="h-4 w-4 text-slate-500 dark:text-slate-200 dark:hover:text-white" />
 								</button>
 							</DropdownMenuTrigger>
-							<DropdownMenuContent align="end" className="w-64 bg-linear-to-b from-violet-50 via-white to-white dark:from-[#1e1b4b] dark:via-[#1a1438] dark:to-[#1a1438] border border-primary/20 dark:border-violet-500/20 shadow-lg dark:shadow-violet-950/40 rounded-xl p-0 overflow-hidden">
+							<DropdownMenuContent align="end" className="w-64 bg-violet-50 dark:bg-linear-to-b dark:from-[#1e1b4b] dark:via-[#1a1438] dark:to-[#1a1438] border border-primary/20 dark:border-violet-500/20 shadow-lg dark:shadow-violet-950/40 rounded-xl p-0 overflow-hidden">
 								{/* User info */}
 								<div className="px-4 py-3">
 									<p className="text-sm font-semibold text-slate-900 dark:text-slate-100">

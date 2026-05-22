@@ -29,7 +29,7 @@ export function ActionMenuMobile({ onEdit, onDelete }: ActionMenuProps) {
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className="w-40 bg-linear-to-b from-violet-50 via-white to-white dark:from-[#1e1b4b] dark:via-[#1a1438] dark:to-[#1a1438] border border-primary/20 dark:border-violet-500/20 shadow-lg dark:shadow-violet-950/40 rounded-xl p-1 overflow-hidden"
+        className="w-40 bg-violet-50 dark:bg-linear-to-b dark:from-[#1e1b4b] dark:via-[#1a1438] dark:to-[#1a1438] border border-primary/30 dark:border-slate-700 shadow-lg dark:shadow-violet-950/40 rounded-xl p-1 overflow-hidden"
       >
         {onEdit && (
           <DropdownMenuItem

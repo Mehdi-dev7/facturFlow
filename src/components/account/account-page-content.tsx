@@ -101,7 +101,7 @@ export function AccountPageContent({ user, hasCredentials, oauthProviders }: Acc
 
   // ── Styles partages ─────────────────────────────────────────────────────────
   const inputClass =
-    "bg-white/90 dark:bg-[#2a2254] border-slate-300 dark:border-violet-400/30 rounded-xl text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-violet-300/50";
+    "bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-xl text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-violet-300/50";
 
   return (
     <div className="p-2 xs:p-4 sm:p-6 max-w-2xl mx-auto space-y-8">
@@ -119,7 +119,7 @@ export function AccountPageContent({ user, hasCredentials, oauthProviders }: Acc
       {/* ── Card principale ────────────────────────────────────────────────── */}
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="bg-white dark:bg-slate-900/50 rounded-2xl border border-violet-200 dark:border-violet-400/25 shadow-lg dark:shadow-violet-900/20 p-3 xs:p-4 sm:p-6 space-y-6"
+        className="bg-white dark:bg-slate-900/50 rounded-2xl border border-violet-200 dark:border-slate-600 shadow-lg dark:shadow-violet-900/20 p-3 xs:p-4 sm:p-6 space-y-6"
       >
         {/* ── Section Avatar + Infos ─────────────────────────────────────── */}
         <section className="space-y-5">
@@ -246,7 +246,7 @@ export function AccountPageContent({ user, hasCredentials, oauthProviders }: Acc
           </h3>
 
           {hasCredentials ? (
-            <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-800/50 rounded-xl p-3 xs:p-4">
+            <div className="flex items-center justify-between bg-slate-100 dark:bg-slate-800/60 rounded-xl p-3 xs:p-4">
               <div>
                 <p className="text-sm font-medium text-slate-700 dark:text-slate-200">
                   Mot de passe
@@ -259,7 +259,7 @@ export function AccountPageContent({ user, hasCredentials, oauthProviders }: Acc
                 type="button"
                 variant="outline"
                 onClick={() => setShowPasswordModal(true)}
-                className="rounded-xl border-violet-300 dark:border-violet-400/30 text-violet-600 dark:text-violet-300 hover:bg-violet-50 dark:hover:bg-violet-900/30 gap-2 text-xs xs:text-sm cursor-pointer"
+                className="rounded-xl border-violet-300 dark:border-slate-600 text-violet-600 dark:text-violet-300 hover:bg-violet-50 dark:hover:bg-violet-900/30 gap-2 text-xs xs:text-sm cursor-pointer"
               >
                 <Shield className="size-4" />
                 Changer

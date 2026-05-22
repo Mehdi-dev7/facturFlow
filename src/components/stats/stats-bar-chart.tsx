@@ -47,7 +47,7 @@ function CustomTooltip({
   if (!active || !payload?.length) return null;
 
   return (
-    <div className="rounded-xl border border-slate-200 dark:border-violet-500/30 bg-white dark:bg-[#1e1845] shadow-lg px-3 py-2 text-xs">
+    <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#1e1845] shadow-lg px-3 py-2 text-xs">
       <p className="font-semibold text-slate-700 dark:text-slate-200 mb-1">{label}</p>
       {payload.map((entry) => (
         <p key={entry.name} style={{ color: entry.color }} className="flex justify-between gap-3">
