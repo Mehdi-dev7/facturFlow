@@ -322,7 +322,7 @@ export function PricingCards({ currentPlan, effectivePlan, stripeSubId, pendingC
                 : "border-primary/50 dark:border-primary/70 ring-2 ring-primary/20 dark:ring-primary/30"
             }`}
           >
-            <div className="bg-linear-to-br from-primary/10 via-violet-50 to-primary/5 dark:from-primary/20 dark:via-[#1e1845] dark:to-primary/10 p-6 space-y-5 flex flex-col flex-1">
+            <div className="bg-linear-to-br from-violet-100 via-violet-50 to-violet-50 dark:from-primary/20 dark:via-[#1e1845] dark:to-primary/10 p-6 space-y-5 flex flex-col flex-1">
               {/* Header */}
               <div className="text-center space-y-1">
                 <div className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-primary/20 dark:bg-primary/30 mb-2">
@@ -382,7 +382,7 @@ export function PricingCards({ currentPlan, effectivePlan, stripeSubId, pendingC
                 : "border-amber-300 dark:border-amber-700"
             }`}
           >
-            <div className="bg-linear-to-br from-amber-50 via-white to-blue-50 dark:from-amber-950/20 dark:via-slate-900 dark:to-blue-950/20 p-6 space-y-5 flex flex-col flex-1">
+            <div className="bg-linear-to-br from-amber-50 via-amber-50/40 to-blue-50 dark:from-amber-900/30 dark:via-[#1a1438] dark:to-blue-900/25 p-6 space-y-5 flex flex-col flex-1">
               {/* Header */}
               <div className="text-center space-y-1">
                 <div className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-amber-100 dark:bg-amber-900/30 mb-2">

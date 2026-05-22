@@ -62,7 +62,7 @@ export function SiretLookupInput({ onFound }: SiretLookupInputProps) {
 	const isReady = len === 9 || len === 14;
 
 	return (
-		<div className="rounded-xl border border-dashed border-violet-300 dark:border-slate-700 p-3 space-y-2 bg-violet-100/50 dark:bg-violet-900/20">
+		<div className="rounded-xl border border-dashed border-violet-300 dark:border-violet-600/50 p-3 space-y-2 bg-violet-100 dark:bg-violet-900/30">
 			<p className="text-xs font-medium text-violet-700 dark:text-violet-400">
 				Remplir automatiquement via SIRET ou SIREN
 			</p>
@@ -104,7 +104,7 @@ export function SiretLookupInput({ onFound }: SiretLookupInputProps) {
 			)}
 
 			{found && !error && (
-				<div className="rounded-lg border border-emerald-300 dark:border-emerald-400/30 bg-emerald-50/80 dark:bg-emerald-900/15 p-3 space-y-1">
+				<div className="rounded-lg border border-emerald-300 dark:border-emerald-400/50 bg-emerald-50 dark:bg-emerald-900/25 p-3 space-y-1">
 					<p className="text-xs text-emerald-700 dark:text-emerald-300 flex items-center gap-1.5 font-medium">
 						<CheckCircle2 className="size-3.5 shrink-0" />
 						Entreprise trouvée — champs pré-remplis automatiquement

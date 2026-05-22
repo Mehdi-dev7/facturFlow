@@ -69,7 +69,7 @@ function ProviderCard({
   children,
 }: ProviderCardProps) {
   return (
-    <div className="relative bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+    <div className="relative bg-white dark:bg-[#1a1438] rounded-2xl border border-slate-300 dark:border-slate-600 overflow-hidden shadow-sm dark:shadow-violet-950/40">
       {/* Bande de couleur en haut */}
       <div className="h-1 w-full" style={{ backgroundColor: accent }} />
 
@@ -77,7 +77,7 @@ function ProviderCard({
         {/* Header : logo + nom + statut */}
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3 xl:gap-4">
-            <div className="flex items-center justify-center w-8 h-8 xl:w-10 xl:h-10 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
+            <div className="flex items-center justify-center w-8 h-8 xl:w-10 xl:h-10 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600">
               {logo}
             </div>
             <div>
@@ -136,7 +136,7 @@ function ProviderCard({
 
         {/* Formulaire de connexion (dépliable) */}
         {formOpen && !connected && (
-          <div className="pt-3 border-t border-slate-200 dark:border-slate-800 space-y-4">
+          <div className="pt-3 border-t border-slate-200 dark:border-slate-700 space-y-4">
             {children}
           </div>
         )}

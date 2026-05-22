@@ -151,7 +151,7 @@ export function DepositPreview({
 
 				<div
 					className="rounded-lg border p-2.5 space-y-1"
-					style={{ backgroundColor: themeColor + "1f", borderColor: themeColor + "66" }}
+					style={{ backgroundColor: themeColor + "40", borderColor: themeColor + "66" }}
 				>
 					<div className="flex justify-between text-xs text-slate-600">
 						<span>Sous-total HT</span>
@@ -339,7 +339,7 @@ export function DepositPreview({
 					<div className="flex justify-end">
 						<div
 							className="w-64 space-y-1.5 rounded-lg p-4 border"
-							style={{ backgroundColor: themeColor + "1f", borderColor: themeColor + "66" }}
+							style={{ backgroundColor: themeColor + "40", borderColor: themeColor + "66" }}
 						>
 							<div className="flex justify-between text-xs lg:text-sm">
 								<span style={{ color: contentColor }}>Sous-total HT :</span>

@@ -67,7 +67,7 @@ export function BcCreditsSection({ bcPagesUsedThisMonth, bcPagesCredit, recharge
 
       {/* Bannière succès recharge */}
       {rechargeDone && (
-        <div className="flex items-center gap-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-700/40 px-3 py-2 text-sm text-emerald-700 dark:text-emerald-300">
+        <div className="flex items-center gap-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-300 dark:border-emerald-700/40 px-3 py-2 text-sm text-emerald-700 dark:text-emerald-300">
           <Zap className="h-4 w-4 shrink-0" />
           Pages créditées avec succès sur votre compte !
         </div>
@@ -77,8 +77,8 @@ export function BcCreditsSection({ bcPagesUsedThisMonth, bcPagesCredit, recharge
       {(isExhausted || isWarning) && (
         <div className={`flex items-start gap-2 rounded-lg px-3 py-2 text-sm border ${
           isExhausted
-            ? "bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-700/40 text-red-700 dark:text-red-300"
-            : "bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-700/40 text-amber-700 dark:text-amber-300"
+            ? "bg-red-50 dark:bg-red-950/30 border-red-300 dark:border-red-700/40 text-red-700 dark:text-red-300"
+            : "bg-amber-50 dark:bg-amber-950/30 border-amber-300 dark:border-amber-700/40 text-amber-700 dark:text-amber-300"
         }`}>
           <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
           {isExhausted
@@ -99,7 +99,7 @@ export function BcCreditsSection({ bcPagesUsedThisMonth, bcPagesCredit, recharge
           </span>
         </div>
         {/* Barre de progression */}
-        <div className="h-2 rounded-full bg-slate-100 dark:bg-violet-900/30 overflow-hidden">
+        <div className="h-2 rounded-full bg-slate-200 dark:bg-violet-900/30 overflow-hidden">
           <div
             className={`h-full rounded-full transition-all duration-500 ${
               progressPercent >= 100
@@ -121,7 +121,7 @@ export function BcCreditsSection({ bcPagesUsedThisMonth, bcPagesCredit, recharge
 
       {/* Crédit acheté */}
       {bcPagesCredit > 0 && (
-        <div className="flex items-center justify-between rounded-lg bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-700/30 px-3 py-2">
+        <div className="flex items-center justify-between rounded-lg bg-violet-100 dark:bg-violet-900/30 border border-violet-300 dark:border-violet-600/40 px-3 py-2">
           <span className="text-sm text-violet-700 dark:text-violet-300">
             Crédit supplémentaire
           </span>
@@ -143,7 +143,7 @@ export function BcCreditsSection({ bcPagesUsedThisMonth, bcPagesCredit, recharge
               variant="outline"
               size="sm"
               disabled={loadingPack !== null}
-              className="cursor-pointer flex flex-col h-auto py-3 border-violet-200 dark:border-violet-500/40 hover:bg-violet-50 dark:hover:bg-violet-900/30 hover:border-violet-400 dark:text-slate-200"
+              className="cursor-pointer flex flex-col h-auto py-3 border-violet-300 dark:border-violet-500/40 hover:bg-violet-100 dark:hover:bg-violet-900/30 hover:border-violet-400 dark:text-slate-200"
               onClick={() => handleRecharge(pack.pages as BcPackPages)}
             >
               {loadingPack === pack.pages ? (

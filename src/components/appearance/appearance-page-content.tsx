@@ -67,7 +67,7 @@ export function AppearancePageContent({ initial }: AppearancePageContentProps) {
       </div>
 
       {/* ── Mobile : mini preview sticky ── */}
-      <div className="lg:hidden sticky top-0 z-20 -mx-4 px-4 pt-2 pb-3 bg-white/80 dark:bg-[#0f0c1e]/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-600 mb-6">
+      <div className="lg:hidden sticky top-0 z-20 -mx-4 px-4 pt-2 pb-3 bg-white/80 dark:bg-[#0f0c1e]/80 backdrop-blur-md border-b border-slate-300 dark:border-slate-600 mb-6">
         <p className="text-[10px] text-slate-400 dark:text-slate-500 mb-2 text-center uppercase tracking-wide font-medium">
           Aperçu en temps réel
         </p>
@@ -87,12 +87,12 @@ export function AppearancePageContent({ initial }: AppearancePageContentProps) {
         <div className="w-full lg:flex-1 space-y-7">
 
           {/* Couleur du thème */}
-          <section className="bg-white dark:bg-[#1a1438] rounded-2xl border border-slate-200 dark:border-slate-700 p-3 sm:p-5 shadow-sm">
+          <section className="bg-white dark:bg-[#1a1438] rounded-2xl border border-slate-300 dark:border-slate-600 p-3 sm:p-5 shadow-sm">
             <ThemePicker value={themeColor} onChange={setThemeColor} />
           </section>
 
           {/* Nom de l'entreprise */}
-          <section className="bg-white dark:bg-[#1a1438] rounded-2xl border border-slate-200 dark:border-slate-700 p-3 sm:p-5 shadow-sm space-y-3">
+          <section className="bg-white dark:bg-[#1a1438] rounded-2xl border border-slate-300 dark:border-slate-600 p-3 sm:p-5 shadow-sm space-y-3">
             <label className="text-sm font-semibold text-slate-800 dark:text-slate-200 block">
               Nom affiché sur les documents
             </label>
@@ -102,7 +102,7 @@ export function AppearancePageContent({ initial }: AppearancePageContentProps) {
               onChange={(e) => setCompanyName(e.target.value)}
               placeholder="Votre Entreprise"
               maxLength={60}
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#2a2254]/50 text-slate-900 dark:text-slate-100 text-xs sm:text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500/40 transition"
+              className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-[#2a2254] text-slate-900 dark:text-slate-100 text-xs sm:text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500/40 transition"
             />
             <p className="text-[10px] text-slate-400">
               S&apos;affiche dans le header de toutes vos factures, devis et acomptes.
@@ -110,17 +110,17 @@ export function AppearancePageContent({ initial }: AppearancePageContentProps) {
           </section>
 
           {/* Logo */}
-          <section className="bg-white dark:bg-[#1a1438] rounded-2xl border border-slate-200 dark:border-slate-700 p-3 sm:p-5 shadow-sm">
+          <section className="bg-white dark:bg-[#1a1438] rounded-2xl border border-slate-300 dark:border-slate-600 p-3 sm:p-5 shadow-sm">
             <LogoUpload value={logo} onChange={setLogo} />
           </section>
 
           {/* Police */}
-          <section className="bg-white dark:bg-[#1a1438] rounded-2xl border border-slate-200 dark:border-slate-700 p-3 sm:p-5 shadow-sm">
+          <section className="bg-white dark:bg-[#1a1438] rounded-2xl border border-slate-300 dark:border-slate-600 p-3 sm:p-5 shadow-sm">
             <FontPicker value={companyFont} companyName={companyName} onChange={setCompanyFont} />
           </section>
 
           {/* Footer PDF */}
-          <section className="bg-white dark:bg-[#1a1438] rounded-2xl border border-slate-200 dark:border-slate-700 p-3 sm:p-5 shadow-sm space-y-3">
+          <section className="bg-white dark:bg-[#1a1438] rounded-2xl border border-slate-300 dark:border-slate-600 p-3 sm:p-5 shadow-sm space-y-3">
             <div>
               <label className="text-sm font-semibold text-slate-800 dark:text-slate-200 block mb-0.5">
                 Footer de vos PDF
@@ -159,7 +159,7 @@ export function AppearancePageContent({ initial }: AppearancePageContentProps) {
               placeholder={"Ex : TVA non applicable, art. 293 B du CGI — IBAN : FR76 3000 1234 5678 — Merci de votre confiance !"}
               maxLength={300}
               rows={3}
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#2a2254]/50 text-slate-900 dark:text-slate-100 text-xs sm:text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500/40 transition resize-none"
+              className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-[#2a2254] text-slate-900 dark:text-slate-100 text-xs sm:text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500/40 transition resize-none"
             />
             <p className="text-[10px] text-slate-400 text-right">{invoiceFooter.length}/300</p>
           </section>

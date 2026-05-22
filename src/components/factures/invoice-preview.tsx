@@ -365,7 +365,7 @@ export function InvoicePreview({
 				<div className="flex justify-end">
 					<div
 						className="w-64 space-y-1.5 rounded-lg p-3 border"
-						style={{ backgroundColor: themeColor + "1f", borderColor: themeColor + "66" }}
+						style={{ backgroundColor: themeColor + "40", borderColor: themeColor + "66" }}
 					>
 						<div className="flex justify-between text-sm">
 							<span className="shrink-0" style={{ color: contentColor }}>Sous-total HT</span>

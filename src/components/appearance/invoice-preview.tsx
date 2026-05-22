@@ -40,14 +40,14 @@ function InvoicePreviewMini({ themeColor, companyFont, companyName, logo }: Omit
   const fontWeight  = getFontWeight(companyFont);
   const textColor   = resolveHeaderTextColor(themeColor, "auto");
   const displayName = companyName.trim() || "Votre Entreprise";
-  const bgTint      = hexAlpha(themeColor, "12"); // ~7%
-  const borderTint  = hexAlpha(themeColor, "33"); // ~20%
+  const bgTint      = hexAlpha(themeColor, "40"); // ~25%
+  const borderTint  = hexAlpha(themeColor, "66"); // ~40%
 
   return (
     <div className="bg-white rounded-xl shadow-md overflow-hidden border border-slate-200 w-full">
 
       {/* Header */}
-      <div style={{ background: gradient }} className="p-2.5">
+      <div style={{ backgroundColor: themeColor }} className="p-2.5">
         <div className="flex items-center gap-2">
           {/* Gauche : type + numéro */}
           <div className="flex-1">
@@ -75,7 +75,7 @@ function InvoicePreviewMini({ themeColor, companyFont, companyName, logo }: Omit
       {/* Corps */}
       <div className="p-2 space-y-2">
         {/* Tableau réduit */}
-        <div className="border border-slate-200 rounded-lg overflow-hidden">
+        <div className="border border-slate-300 rounded-lg overflow-hidden">
           <table className="w-full">
             <thead>
               <tr style={{ backgroundColor: bgTint }}>
@@ -120,15 +120,15 @@ function InvoicePreviewFull({ themeColor, companyFont, companyName, logo }: Omit
   const fontWeight  = getFontWeight(companyFont);
   const textColor   = resolveHeaderTextColor(themeColor, "auto");
   const displayName = companyName.trim() || "Votre Entreprise";
-  const bgTint      = hexAlpha(themeColor, "12"); // ~7%
-  const bgTint2     = hexAlpha(themeColor, "1a"); // ~10%
-  const borderTint  = hexAlpha(themeColor, "33"); // ~20%
+  const bgTint      = hexAlpha(themeColor, "40"); // ~25% — totaux
+  const bgTint2     = hexAlpha(themeColor, "40"); // ~25% — thead
+  const borderTint  = hexAlpha(themeColor, "66"); // ~40%
 
   return (
-    <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-6 2xl:p-10 space-y-7 2xl:space-y-10">
+    <div className="bg-white rounded-2xl border border-slate-300 shadow-lg shadow-slate-300/60 p-6 2xl:p-10 space-y-7 2xl:space-y-10">
 
       {/* ── Header gradient ── */}
-      <div style={{ background: gradient }} className="rounded-lg p-5 2xl:p-7">
+      <div style={{ backgroundColor: themeColor }} className="rounded-lg p-5 2xl:p-7">
         <div className="flex items-start gap-4">
           {/* Gauche : type + numéro */}
           <div className="flex-1">
@@ -184,7 +184,7 @@ function InvoicePreviewFull({ themeColor, companyFont, companyName, logo }: Omit
         <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: themeColor }}>
           Détails
         </h3>
-        <div className="border border-slate-200 rounded-lg overflow-hidden">
+        <div className="border border-slate-300 rounded-lg overflow-hidden">
           <table className="w-full">
             <thead style={{ backgroundColor: bgTint2 }}>
               <tr>

@@ -239,7 +239,7 @@ export function RecurringPreview({
         {/* ─── Planification ────────────────────────────────────────────── */}
         <div
           className="rounded-lg p-3 grid grid-cols-2 gap-2"
-          style={{ backgroundColor: themeColor + "1f" }}
+          style={{ backgroundColor: themeColor + "40" }}
         >
           <div>
             <p className="text-[10px] text-slate-500 dark:text-slate-400">Début</p>
@@ -306,22 +306,24 @@ export function RecurringPreview({
         </div>
 
         {/* ─── Totaux ───────────────────────────────────────────────────── */}
-        <div
-          className="rounded-lg p-3 space-y-1.5"
-          style={{ backgroundColor: themeColor + "1f" }}
-        >
-          <div className="flex justify-between text-xs text-slate-600 dark:text-slate-400">
-            <span>Sous-total HT</span>
-            <span>{formatEuro(subtotalHT)}</span>
-          </div>
-          <div className="flex justify-between text-xs text-slate-600 dark:text-slate-400">
-            <span>TVA</span>
-            <span>{formatEuro(taxTotal)}</span>
-          </div>
-          <div className="h-px bg-slate-200 dark:bg-violet-400/20 my-1" />
-          <div className="flex justify-between text-sm font-bold">
-            <span style={{ color: themeColor }}>Total TTC / échéance</span>
-            <span style={{ color: themeColor }}>{formatEuro(totalTTC)}</span>
+        <div className="flex justify-end">
+          <div
+            className="w-48 rounded-lg p-3 space-y-1.5"
+            style={{ backgroundColor: themeColor + "40" }}
+          >
+            <div className="flex justify-between text-xs text-slate-600 dark:text-slate-400">
+              <span>Sous-total HT</span>
+              <span>{formatEuro(subtotalHT)}</span>
+            </div>
+            <div className="flex justify-between text-xs text-slate-600 dark:text-slate-400">
+              <span>TVA</span>
+              <span>{formatEuro(taxTotal)}</span>
+            </div>
+            <div className="h-px bg-slate-200 dark:bg-violet-400/20 my-1" />
+            <div className="flex justify-between text-xs font-bold">
+              <span style={{ color: themeColor }}>Total TTC</span>
+              <span style={{ color: themeColor }}>{formatEuro(totalTTC)}</span>
+            </div>
           </div>
         </div>
 

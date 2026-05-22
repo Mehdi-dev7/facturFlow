@@ -95,7 +95,7 @@ function ExportCard({
   children?: React.ReactNode;
 }) {
   return (
-    <div className="rounded-2xl border border-slate-200 dark:border-slate-700 shadow-lg shadow-slate-300/70 dark:shadow-violet-950/40 bg-white dark:bg-[#1a1438] backdrop-blur-lg p-3 sm:p-5">
+    <div className="rounded-2xl border border-emerald-200 dark:border-slate-600 shadow-lg shadow-slate-300/70 dark:shadow-violet-950/40 bg-white dark:bg-[#1a1438] backdrop-blur-lg p-3 sm:p-5">
       <div className="flex items-start gap-4">
         {/* Icône */}
         <div className={`flex items-center justify-center w-11 h-11 rounded-xl ${iconBg} shrink-0`}>
@@ -272,7 +272,7 @@ export function ComptaPageContent({
           value={String(year)}
           onValueChange={(v) => setYear(Number(v))}
         >
-          <SelectTrigger className="w-28 xs:w-32 text-xs xs:text-sm bg-white dark:bg-slate-900 border-slate-200 dark:border-violet-400 dark:text-violet-400">
+          <SelectTrigger className="w-28 xs:w-32 text-xs xs:text-sm bg-white dark:bg-[#2a2254] border-emerald-200 dark:border-slate-600 dark:text-violet-300">
             <SelectValue />
           </SelectTrigger>
           <SelectContent className="bg-linear-to-b from-violet-100 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/30 dark:border-slate-600 rounded-xl shadow-xl dark:shadow-violet-950/50 z-50">
@@ -345,7 +345,7 @@ export function ComptaPageContent({
               value={String(month)}
               onValueChange={(v) => setMonth(Number(v))}
             >
-              <SelectTrigger className="w-36 xs:w-44 text-xs xs:text-sm bg-white dark:bg-slate-900 border-slate-200 dark:border-violet-400 dark:text-violet-400">
+              <SelectTrigger className="w-36 xs:w-44 text-xs xs:text-sm bg-white dark:bg-[#2a2254] border-emerald-200 dark:border-slate-600 dark:text-violet-300">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-linear-to-b from-violet-100 via-white to-white dark:from-[#2a2254] dark:via-[#221c48] dark:to-[#221c48] border border-primary/30 dark:border-slate-600 rounded-xl shadow-xl dark:shadow-violet-950/50 z-50">
@@ -366,7 +366,7 @@ export function ComptaPageContent({
 
       {/* Section email comptable */}
       <FeatureGate feature="monthly_accounting_report" effectivePlan={effectivePlan} plan={plan}>
-        <div className="rounded-2xl border border-slate-200 dark:border-slate-700 shadow-lg shadow-slate-300/70 dark:shadow-violet-950/40 bg-white dark:bg-[#1a1438] backdrop-blur-lg p-3 sm:p-5">
+        <div className="rounded-2xl border border-emerald-200 dark:border-slate-600 shadow-lg shadow-slate-300/70 dark:shadow-violet-950/40 bg-white dark:bg-[#1a1438] backdrop-blur-lg p-3 sm:p-5">
           <div className="flex items-start gap-4">
             <div className="flex items-center justify-center w-11 h-11 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 shrink-0">
               <Mail className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
@@ -385,7 +385,7 @@ export function ComptaPageContent({
                   placeholder="comptable@cabinet.fr"
                   value={accountantEmail}
                   onChange={(e) => setAccountantEmail(e.target.value)}
-                  className="w-full sm:w-72 text-xs xs:text-sm bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-600 rounded-xl"
+                  className="w-full sm:w-72 text-xs xs:text-sm bg-white dark:bg-[#2a2254] border-emerald-200 dark:border-slate-600 rounded-xl"
                 />
                 <Button
                   variant="outline"

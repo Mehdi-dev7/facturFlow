@@ -73,7 +73,7 @@ export default function ContactForm({ defaultName, defaultEmail }: ContactFormPr
   // ── Succès ─────────────────────────────────────────────────────────────────
   if (sent) {
     return (
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+      <div className="bg-white dark:bg-[#1a1438] rounded-2xl border border-slate-300 dark:border-slate-600 overflow-hidden shadow-sm">
         {/* Bande verte en haut */}
         <div className="h-1 w-full bg-emerald-500" />
         <div className="flex flex-col items-center text-center gap-5 py-14 px-8">
@@ -93,7 +93,7 @@ export default function ContactForm({ defaultName, defaultEmail }: ContactFormPr
           <Button
             variant="outline"
             onClick={() => setSent(false)}
-            className="mt-1 border-slate-200 dark:border-slate-700"
+            className="mt-1 border-slate-300 dark:border-slate-600"
           >
             Envoyer un autre message
           </Button>
@@ -104,7 +104,7 @@ export default function ContactForm({ defaultName, defaultEmail }: ContactFormPr
 
   // ── Formulaire ─────────────────────────────────────────────────────────────
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+    <div className="bg-white dark:bg-[#1a1438] rounded-2xl border border-slate-300 dark:border-slate-600 overflow-hidden shadow-sm">
       {/* Bande de couleur en haut */}
       <div className="h-1 w-full bg-gradient-primary" />
 
@@ -134,7 +134,7 @@ export default function ContactForm({ defaultName, defaultEmail }: ContactFormPr
               <Input
                 id="name"
                 placeholder="Votre nom"
-                className="bg-slate-50 dark:bg-slate-800 text-sm text-slate-500 border-slate-200 dark:border-slate-700 focus:border-primary/50"
+                className="bg-slate-50 dark:bg-[#2a2254] text-sm text-slate-500 border-slate-300 dark:border-slate-600 focus:border-primary/50"
                 {...register("name")}
               />
               {errors.name && <p className="text-xs text-red-500">{errors.name.message}</p>}
@@ -148,7 +148,7 @@ export default function ContactForm({ defaultName, defaultEmail }: ContactFormPr
                 id="email"
                 type="email"
                 placeholder="votre@email.fr"
-                className="bg-slate-50 dark:bg-slate-800 text-sm text-slate-500 border-slate-200 dark:border-slate-700 focus:border-primary/50"
+                className="bg-slate-50 dark:bg-[#2a2254] text-sm text-slate-500 border-slate-300 dark:border-slate-600 focus:border-primary/50"
                 {...register("email")}
               />
               {errors.email && <p className="text-xs text-red-500">{errors.email.message}</p>}
@@ -167,7 +167,7 @@ export default function ContactForm({ defaultName, defaultEmail }: ContactFormPr
             >
               <SelectTrigger
                 id="subject"
-                className="bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-sm"
+                className="bg-slate-50 dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 text-sm"
               >
                 <SelectValue placeholder="Choisir un sujet..." />
               </SelectTrigger>
@@ -210,7 +210,7 @@ export default function ContactForm({ defaultName, defaultEmail }: ContactFormPr
           </div>
 
           {/* Footer du form */}
-          <div className="pt-2 border-t border-slate-200 dark:border-slate-800">
+          <div className="pt-2 border-t border-slate-300 dark:border-slate-600">
             <Button type="submit" disabled={isSubmitting} className="gap-2 shadow-sm cursor-pointer hover:scale-102 transition-all duration-300">
               {isSubmitting ? (
                 <>

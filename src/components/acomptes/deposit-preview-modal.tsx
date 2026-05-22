@@ -460,7 +460,7 @@ export function DepositPreviewModal({
             <div className="flex justify-end">
               <div
                 className="w-64 space-y-2 rounded-lg p-3 border"
-                style={{ backgroundColor: themeColor + "1f", borderColor: themeColor + "66" }}
+                style={{ backgroundColor: themeColor + "40", borderColor: themeColor + "66" }}
               >
                 <div className="flex justify-between text-xs lg:text-sm">
                   <span className="text-slate-500 dark:text-slate-400">Sous-total HT :</span>

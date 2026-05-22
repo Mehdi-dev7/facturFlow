@@ -120,7 +120,7 @@ export function ClientModal({ open, onOpenChange, editClient, onSuccess }: Clien
   const isPending = createMutation.isPending || updateMutation.isPending;
 
   const inputClass =
-    "text-xs xs:text-sm bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-violet-300/50";
+    "text-xs xs:text-sm bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-violet-300/60";
 
   const labelClass = "text-xs xs:text-sm font-medium text-slate-700 dark:text-violet-200";
 
@@ -142,7 +142,7 @@ export function ClientModal({ open, onOpenChange, editClient, onSuccess }: Clien
             <SiretLookupInput onFound={handleSiretFound} />
           </section>
 
-          <div className="h-px bg-linear-to-r from-transparent via-primary/20 dark:via-violet-200/20 to-transparent" />
+          <div className="h-px bg-linear-to-r from-transparent via-primary/30 dark:via-violet-200/30 to-transparent" />
 
           {/* ─── Type de client ─── */}
           <section className="space-y-2">
@@ -161,8 +161,8 @@ export function ClientModal({ open, onOpenChange, editClient, onSuccess }: Clien
               >
                 <div className={`flex size-7 items-center justify-center rounded-lg ${
                   clientType === "entreprise"
-                    ? "bg-primary/10 dark:bg-violet-500/30"
-                    : "bg-slate-100 dark:bg-violet-900/20"
+                    ? "bg-primary/20 dark:bg-violet-500/30"
+                    : "bg-slate-100 dark:bg-violet-900/30"
                 }`}>
                   <Building2 className={`size-3.5 ${
                     clientType === "entreprise"
@@ -172,7 +172,7 @@ export function ClientModal({ open, onOpenChange, editClient, onSuccess }: Clien
                 </div>
                 <div>
                   <p className="text-xs xs:text-sm font-medium text-slate-900 dark:text-slate-100">Entreprise</p>
-                  <p className="text-[11px] text-slate-500 dark:text-violet-400/70">B2B</p>
+                  <p className="text-[11px] text-slate-500 dark:text-violet-400">B2B</p>
                 </div>
               </button>
 
@@ -187,8 +187,8 @@ export function ClientModal({ open, onOpenChange, editClient, onSuccess }: Clien
               >
                 <div className={`flex size-7 items-center justify-center rounded-lg ${
                   clientType === "particulier"
-                    ? "bg-primary/10 dark:bg-violet-500/30"
-                    : "bg-slate-100 dark:bg-violet-900/20"
+                    ? "bg-primary/20 dark:bg-violet-500/30"
+                    : "bg-slate-100 dark:bg-violet-900/30"
                 }`}>
                   <User className={`size-3.5 ${
                     clientType === "particulier"
@@ -198,13 +198,13 @@ export function ClientModal({ open, onOpenChange, editClient, onSuccess }: Clien
                 </div>
                 <div>
                   <p className="text-xs xs:text-sm font-medium text-slate-900 dark:text-slate-100">PME & Freelance</p>
-                  <p className="text-[11px] text-slate-500 dark:text-violet-400/70">Auto-entrepreneur</p>
+                  <p className="text-[11px] text-slate-500 dark:text-violet-400">Auto-entrepreneur</p>
                 </div>
               </button>
             </div>
           </section>
 
-          <div className="h-px bg-linear-to-r from-transparent via-primary/20 dark:via-violet-200/20 to-transparent" />
+          <div className="h-px bg-linear-to-r from-transparent via-primary/30 dark:via-violet-200/30 to-transparent" />
 
           {/* ─── Informations principales ─── */}
           <section className="space-y-3">
@@ -295,7 +295,7 @@ export function ClientModal({ open, onOpenChange, editClient, onSuccess }: Clien
             </div>
           </section>
 
-          <div className="h-px bg-linear-to-r from-transparent via-primary/20 dark:via-violet-200/20 to-transparent" />
+          <div className="h-px bg-linear-to-r from-transparent via-primary/30 dark:via-violet-200/30 to-transparent" />
 
           {/* ─── Adresse ─── */}
           <section className="space-y-3">
@@ -345,7 +345,7 @@ export function ClientModal({ open, onOpenChange, editClient, onSuccess }: Clien
             </div>
           </section>
 
-          <div className="h-px bg-linear-to-r from-transparent via-primary/20 dark:via-violet-200/20 to-transparent" />
+          <div className="h-px bg-linear-to-r from-transparent via-primary/30 dark:via-violet-200/30 to-transparent" />
 
           {/* ─── Notes ─── */}
           <section className="space-y-2">
@@ -367,7 +367,7 @@ export function ClientModal({ open, onOpenChange, editClient, onSuccess }: Clien
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={isPending}
-              className="border-primary/30 dark:border-slate-600 hover:bg-violet-50 dark:hover:bg-violet-500/20 dark:text-slate-200 cursor-pointer rounded-xl"
+              className="border-primary/30 dark:border-slate-600 hover:bg-violet-100 dark:hover:bg-violet-500/20 dark:text-slate-200 cursor-pointer rounded-xl"
             >
               Annuler
             </Button>

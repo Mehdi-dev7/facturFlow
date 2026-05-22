@@ -323,10 +323,10 @@ export function RecurringModal({ open, onOpenChange }: RecurringModalProps) {
               {/* Récap TTC */}
               <div className="h-px bg-linear-to-r from-transparent via-primary/30 dark:via-violet-300/30 to-transparent" />
               <div className="flex justify-between items-center px-1">
-                <span className="text-sm font-medium text-slate-600 dark:text-slate-300">
+                <span className="text-xs font-medium text-slate-600 dark:text-slate-300">
                   Total TTC par échéance
                 </span>
-                <span className="text-lg font-bold text-violet-600 dark:text-violet-400">
+                <span className="text-xs font-bold text-violet-600 dark:text-violet-400">
                   {formatCurrency(totalTTC, currency)}
                 </span>
               </div>

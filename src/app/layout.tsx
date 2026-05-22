@@ -1,8 +1,8 @@
+import "./globals.css";
 import type { Metadata } from "next";
 import { Inter, Golos_Text, Kanit, Merriweather } from "next/font/google";
 import { Toaster } from "sonner";
 import { Providers } from "@/components/providers";
-import "./globals.css";
 
 // Inter pour le texte principal
 const inter = Inter({

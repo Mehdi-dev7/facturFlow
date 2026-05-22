@@ -130,7 +130,7 @@ export function DataTable<T>({
           return (
             <div
               key={id}
-              className={`flex items-center px-4 py-2 hover:bg-violet-200/70 dark:hover:bg-violet-500/25 transition-colors ${getRowClassName?.(item) ?? ""}`}
+              className={`flex items-center px-4 py-2 hover:bg-violet-100 dark:hover:bg-violet-500/15 transition-colors ${getRowClassName?.(item) ?? ""}`}
             >
               <div
                 className="flex-1 min-w-0 cursor-pointer"
@@ -242,7 +242,7 @@ export function DataTable<T>({
           </thead>
           <tbody>
             {visibleData.map((item) => (
-              <tr key={getRowId(item)} className={`border-b border-slate-300 dark:border-slate-600 hover:bg-violet-200/70 dark:hover:bg-violet-500/25 transition-colors cursor-pointer group ${getRowClassName?.(item) ?? ""}`}>
+              <tr key={getRowId(item)} className={`border-b border-slate-300 dark:border-slate-600 hover:bg-violet-100 dark:hover:bg-violet-500/15 transition-colors cursor-pointer group ${getRowClassName?.(item) ?? ""}`}>
                 {columns.map((col, i) => (
                   <td
                     key={col.key}

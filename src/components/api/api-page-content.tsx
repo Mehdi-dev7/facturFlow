@@ -91,7 +91,7 @@ function CopyButton({ value }: { value: string }) {
   return (
     <button
       onClick={handleCopy}
-      className="p-1.5 rounded-md text-slate-400 hover:text-primary hover:bg-primary/18 transition-colors"
+      className="p-1.5 rounded-md text-slate-400 hover:text-primary hover:bg-primary/20 transition-colors"
       aria-label="Copier"
     >
       {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
@@ -158,11 +158,11 @@ function ApiKeysSection({
   }, []);
 
   return (
-    <section className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-3 sm:p-5">
+    <section className="rounded-2xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-[#1a1438] shadow-sm dark:shadow-violet-950/40 p-3 sm:p-5">
       {/* En-tête */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 dark:bg-violet-500/30">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/15 dark:bg-violet-500/30">
             <KeyRound className="h-5 w-5 text-primary dark:text-violet-400" />
           </div>
           <div>
@@ -185,7 +185,7 @@ function ApiKeysSection({
       </div>
 
       {/* Documentation rapide */}
-      <div className="mb-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 p-3 sm-p-4">
+      <div className="mb-4 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-300 dark:border-slate-600 p-3 sm-p-4">
         <div className="flex items-start gap-2">
           <Code2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
           <div className="text-xs text-slate-600 dark:text-slate-400">
@@ -215,7 +215,7 @@ function ApiKeysSection({
           {apiKeys.map((key) => (
             <div
               key={key.id}
-              className="flex items-center justify-between gap-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 px-4 py-3"
+              className="flex items-center justify-between gap-4 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800/40 px-4 py-3"
             >
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-slate-800 dark:text-slate-200 truncate">
@@ -307,7 +307,7 @@ function ApiKeysSection({
               </div>
 
               {/* Token + toggle visibilité + bouton copier */}
-              <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-3">
+              <div className="rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800/40 p-3">
                 <div className="flex items-center gap-2">
                   <code className="flex-1 break-all text-[11px] font-mono text-slate-800 dark:text-slate-200">
                     {showToken ? createdToken : createdToken.slice(0, 12) + "••••••••••••••••••••••••••••••••"}
@@ -454,7 +454,7 @@ function WebhooksSection({
   }, []);
 
   return (
-    <section className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-3 sm:p-5">
+    <section className="rounded-2xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-[#1a1438] shadow-sm dark:shadow-violet-950/40 p-3 sm:p-5">
       {/* En-tête */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
@@ -490,7 +490,7 @@ function WebhooksSection({
           {endpoints.map((ep) => (
             <div
               key={ep.id}
-              className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-4"
+              className="rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800/40 p-4"
             >
               {/* URL + actions */}
               <div className="flex items-start justify-between gap-3 mb-3">
@@ -550,7 +550,7 @@ function WebhooksSection({
               </div>
 
               {/* Secret HMAC */}
-              <div className="flex items-center gap-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-3 py-2">
+              <div className="flex items-center gap-2 rounded-lg bg-white dark:bg-slate-800/60 border border-slate-300 dark:border-slate-600 px-3 py-2">
                 <span className="text-[11px] text-slate-500 shrink-0">Secret :</span>
                 <code className="flex-1 text-[11px] font-mono text-slate-700 dark:text-slate-300 truncate">
                   {revealedSecrets.has(ep.id)
@@ -616,7 +616,7 @@ function WebhooksSection({
                 {WEBHOOK_EVENTS.map((event) => (
                   <label
                     key={event}
-                    className="flex items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-700 px-3 py-2 cursor-pointer hover:bg-primary/5 transition-colors"
+                    className="flex items-center gap-2 rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2 cursor-pointer hover:bg-primary/10 transition-colors"
                   >
                     <input
                       type="checkbox"
@@ -685,7 +685,7 @@ function DeliveryLogsSection({
   deliveries: (SavedDelivery & { endpointUrl: string })[];
 }) {
   return (
-    <section className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-3 sm:p-5">
+    <section className="rounded-2xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-[#1a1438] shadow-sm dark:shadow-violet-950/40 p-3 sm:p-5">
       <div className="flex items-center gap-3 mb-6">
         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100 dark:bg-blue-500/20">
           <Clock className="h-5 w-5 text-blue-600 dark:text-blue-400" />
@@ -708,7 +708,7 @@ function DeliveryLogsSection({
         <div className="overflow-x-auto -mx-2">
           <table className="w-full text-xs">
             <thead>
-              <tr className="border-b border-slate-200 dark:border-slate-700">
+              <tr className="border-b border-slate-300 dark:border-slate-600">
                 <th className="px-3 py-2 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-400">
                   Statut
                 </th>
@@ -730,7 +730,7 @@ function DeliveryLogsSection({
               {deliveries.map((d) => (
                 <tr
                   key={d.id}
-                  className="border-b border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
+                  className="border-b border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
                 >
                   <td className="px-3 py-2.5">
                     {d.success ? (
@@ -740,7 +740,7 @@ function DeliveryLogsSection({
                     )}
                   </td>
                   <td className="px-3 py-2.5">
-                    <span className="inline-flex items-center rounded-full bg-violet-100 dark:bg-violet-500/25 px-2 py-0.5 text-[10px] font-medium text-violet-700 dark:text-violet-300 border border-violet-200 dark:border-violet-600">
+                    <span className="inline-flex items-center rounded-full bg-violet-100 dark:bg-violet-500/25 px-2 py-0.5 text-[10px] font-medium text-violet-700 dark:text-violet-300 border border-violet-300 dark:border-violet-600">
                       {d.event}
                     </span>
                   </td>

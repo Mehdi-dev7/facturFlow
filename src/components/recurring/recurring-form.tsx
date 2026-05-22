@@ -454,7 +454,7 @@ export function RecurringForm({
           type="submit"
           label="Créer la récurrence"
           disabled={isSubmitting}
-          className="w-full"
+          size="sm"
         />
       </div>
     </form>

@@ -145,8 +145,8 @@ export default function CompanyPage() {
   };
 
   // Styles partagés comme dans invoice-form
-  const dividerClass = "mx-0 h-px bg-gradient-to-r from-transparent via-primary/30 dark:via-violet-300/30 to-transparent";
-  const inputClass = "bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-xl text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-violet-300/50";
+  const dividerClass = "mx-0 h-px bg-linear-to-r from-transparent via-primary/30 dark:via-violet-300/30 to-transparent";
+  const inputClass = "bg-white dark:bg-[#2a2254] border-slate-300 dark:border-slate-600 rounded-xl text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-violet-300/60";
 
   if (isLoading) {
     return (
@@ -172,7 +172,7 @@ export default function CompanyPage() {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 bg-white dark:bg-slate-900/50 rounded-2xl border border-violet-200 dark:border-slate-600 shadow-lg dark:shadow-violet-900/20 p-3 xs:-p-4 sm:p-6">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 bg-white dark:bg-[#1a1438] rounded-2xl border border-violet-200 dark:border-slate-600 shadow-lg dark:shadow-violet-950/40 p-3 xs:-p-4 sm:p-6">
         {/* ── Recherche SIRET ────────────────────────────────────── */}
         <section className="space-y-3">
           <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-2">
@@ -185,7 +185,7 @@ export default function CompanyPage() {
         <div className={dividerClass} />
 
         {/* ── Alerte SIREN obligatoire ─────────────────────────────── */}
-        <section className="rounded-xl border border-amber-300 dark:border-amber-400/30 bg-amber-50/80 dark:bg-amber-900/15 p-2 sm:p-4">
+        <section className="rounded-xl border border-amber-300 dark:border-amber-400/50 bg-amber-50 dark:bg-amber-900/20 p-2 sm:p-4">
           <div className="flex items-start gap-3">
             <AlertCircle className="size-5 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
             <div>
@@ -453,7 +453,7 @@ export default function CompanyPage() {
                 className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-medium transition-all cursor-pointer ${
                   selectedCurrency === code
                     ? "border-violet-500 bg-violet-50 text-violet-700 dark:bg-violet-500/30 dark:text-violet-300 dark:border-violet-400"
-                    : "border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-500 hover:border-violet-300 hover:bg-violet-50/50 dark:hover:bg-violet-900/30"
+                    : "border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-400 hover:border-violet-300 hover:bg-violet-50 dark:hover:bg-violet-900/30"
                 }`}
               >
                 <span className="text-sm">{flag}</span>

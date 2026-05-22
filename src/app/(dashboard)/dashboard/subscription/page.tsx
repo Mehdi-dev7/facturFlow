@@ -137,15 +137,15 @@ export default async function SubscriptionPage({
 
       {/* ── Séparateur ── */}
       <div className="flex items-center gap-4">
-        <div className="flex-1 h-px bg-slate-200 dark:bg-slate-800" />
+        <div className="flex-1 h-px bg-slate-300 dark:bg-slate-600" />
         <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
           Choisir un plan
         </span>
-        <div className="flex-1 h-px bg-slate-200 dark:bg-slate-800" />
+        <div className="flex-1 h-px bg-slate-300 dark:bg-slate-600" />
       </div>
 
       {/* ── Bandeau sécurité + branding FacturNow ── */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/60 rounded-2xl px-5 py-4">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-slate-50 dark:bg-slate-900/60 border border-slate-300 dark:border-slate-700 rounded-2xl px-5 py-4">
         {/* Logo FacturNow */}
         <div className="flex items-center gap-2 shrink-0">
           <Image src="/logo/icon.svg" alt="FacturNow" width={28} height={28} />
@@ -154,7 +154,7 @@ export default async function SubscriptionPage({
         </div>
 
         {/* Séparateur vertical */}
-        <div className="hidden sm:block h-6 w-px bg-slate-200 dark:bg-slate-700" />
+        <div className="hidden sm:block h-6 w-px bg-slate-300 dark:bg-slate-600" />
 
         {/* Badges sécurité */}
         <div className="flex flex-wrap items-center justify-center gap-4">
@@ -184,11 +184,11 @@ export default async function SubscriptionPage({
 
       {/* ── Section crédits BC — visible pour tous, verrouillée si pas Business ── */}
       <div className="flex items-center gap-4">
-        <div className="flex-1 h-px bg-slate-200 dark:bg-slate-800" />
+        <div className="flex-1 h-px bg-slate-300 dark:bg-slate-600" />
         <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
           Options complémentaires
         </span>
-        <div className="flex-1 h-px bg-slate-200 dark:bg-slate-800" />
+        <div className="flex-1 h-px bg-slate-300 dark:bg-slate-600" />
       </div>
       <FeatureGate feature="bc_import" plan={plan} effectivePlan={effectivePlan}>
         <BcCreditsSection

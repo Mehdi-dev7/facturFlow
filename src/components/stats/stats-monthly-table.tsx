@@ -57,7 +57,7 @@ export function StatsMonthlyTable({ data }: StatsMonthlyTableProps) {
             return (
               <tr
                 key={row.month}
-                className={`border-b border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors ${
+                className={`border-b border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-violet-900/20 transition-colors ${
                   hasData ? "" : "opacity-40"
                 }`}
               >
@@ -82,7 +82,7 @@ export function StatsMonthlyTable({ data }: StatsMonthlyTableProps) {
         </tbody>
         {/* Ligne totaux */}
         <tfoot>
-          <tr className="border-t-2 border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-800/60">
+          <tr className="border-t-2 border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-800">
             <td className="p-2 sm:p-3 font-bold text-slate-800 dark:text-slate-100">
               Total
             </td>

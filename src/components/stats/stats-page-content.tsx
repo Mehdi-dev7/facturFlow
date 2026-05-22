@@ -343,20 +343,20 @@ export function StatsPageContent({ plan, effectivePlan }: StatsPageContentProps)
                 {
                   label: "Factures",
                   count: data!.kpis.nbFactures,
-                  color: "text-violet-600 dark:text-violet-400",
-                  bg: "bg-violet-50 dark:bg-violet-900/20",
+                  color: "text-violet-700 dark:text-violet-300",
+                  bg: "bg-violet-100 dark:bg-violet-800/40",
                 },
                 {
                   label: "Devis",
                   count: data!.kpis.nbDevis,
-                  color: "text-blue-600 dark:text-blue-400",
-                  bg: "bg-blue-50 dark:bg-blue-900/20",
+                  color: "text-blue-700 dark:text-blue-300",
+                  bg: "bg-blue-100 dark:bg-blue-800/40",
                 },
                 {
                   label: "Acomptes",
                   count: data!.kpis.nbAcomptes,
-                  color: "text-emerald-600 dark:text-emerald-400",
-                  bg: "bg-emerald-50 dark:bg-emerald-900/20",
+                  color: "text-emerald-700 dark:text-emerald-300",
+                  bg: "bg-emerald-100 dark:bg-emerald-800/40",
                 },
               ].map(({ label, count, color, bg }) => (
                 <div

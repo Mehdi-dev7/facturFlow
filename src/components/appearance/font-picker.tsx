@@ -34,7 +34,7 @@ export function FontPicker({ value, companyName, onChange }: FontPickerProps) {
               className={`w-full flex items-center justify-between px-2.5 py-1.5 md:px-3 md:py-2.5 lg:px-4 rounded-xl border-2 transition-all cursor-pointer text-left ${
                 isActive
                   ? "border-violet-500 dark:border-violet-400 bg-violet-50 dark:bg-violet-500/20"
-                  : "border-slate-200 dark:border-slate-700 hover:border-violet-300 dark:hover:border-violet-500/40 bg-white dark:bg-[#1a1438]"
+                  : "border-slate-300 dark:border-slate-600 hover:border-violet-300 dark:hover:border-violet-500/40 bg-white dark:bg-[#1a1438]"
               }`}
             >
               {/* Aperçu du nom avec la police */}

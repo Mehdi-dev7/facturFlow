@@ -89,7 +89,7 @@ const navSections: NavSection[] = [
 	{
 		title: "Facturation",
 		color: "text-violet-500 dark:text-violet-400",
-		activeColor: "border-violet-500 bg-violet-500/20 text-violet-700 dark:text-violet-300",
+		activeColor: "border-primary bg-primary/20 text-primary dark:text-violet-300",
 		hoverClass: "hover:bg-primary/20 hover:text-primary dark:hover:bg-primary/20 dark:hover:text-violet-300",
 		items: [
 			{ label: "Factures", href: "/dashboard/invoices", icon: FileText },
@@ -284,7 +284,7 @@ function SidebarNav({
 						<div key={section.title} className="flex flex-col gap-1">
 							{/* Section header / divider */}
 							{collapsed ? (
-								<div className={`mx-auto my-2 h-px w-6 bg-slate-200 dark:bg-slate-700 ${sectionIndex === 0 ? "mt-3" : ""}`} />
+								<div className={`mx-auto my-2 h-px w-6 bg-slate-300 dark:bg-slate-600 ${sectionIndex === 0 ? "mt-3" : ""}`} />
 							) : (
 								<p className={`mt-4 mb-1 px-3 text-[11px] font-semibold uppercase tracking-wider ${section.color}`}>
 									{section.title}
@@ -503,7 +503,7 @@ export default function DashboardShell({
 			<TopProgressBar loading={routeLoading} />
 			{/* Desktop Sidebar */}
 			<aside
-				className={`hidden shrink-0 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 md:flex transition-all duration-300 ${
+				className={`hidden shrink-0 flex-col border-r border-slate-300 bg-white dark:border-slate-600 dark:bg-slate-900 md:flex transition-all duration-300 ${
 					collapsed ? "w-18" : "w-70"
 				} ${
 					// Élever la sidebar au-dessus de l'overlay d'onboarding (z-40)
@@ -535,7 +535,7 @@ export default function DashboardShell({
 					</button>
 				</div>
 
-				<div className="mx-4 h-px bg-linear-to-r from-transparent via-primary/30 dark:via-violet-400/30 to-transparent" />
+				<div className="mx-4 h-px bg-linear-to-r from-transparent via-primary/50 dark:via-violet-400/50 to-transparent" />
 
 				{/* Navigation */}
 				<div className="flex-1 overflow-y-auto sidebar-scroll py-4">
@@ -543,11 +543,11 @@ export default function DashboardShell({
 				</div>
 
 				{/* Aide section (sticky en bas avec espacement) */}
-				<div className="mt-auto mb-15 border-t border-slate-200 dark:border-slate-800 py-4">
+				<div className="mt-auto mb-15 border-t border-slate-300 dark:border-slate-600 py-4">
 					<TooltipProvider delayDuration={100}>
 						<div className="flex flex-col gap-1 px-3">
 							{collapsed ? (
-								<div className="mx-auto mb-2 h-px w-6 bg-slate-200 dark:bg-slate-700" />
+								<div className="mx-auto mb-2 h-px w-6 bg-slate-300 dark:bg-slate-600" />
 							) : (
 								<p className={`mb-1 px-3 text-[11px] font-semibold uppercase tracking-wider ${helpSection.color}`}>
 									{helpSection.title}
@@ -589,7 +589,7 @@ export default function DashboardShell({
 			{/* Main Area */}
 			<div className="flex flex-1 flex-col overflow-hidden">
 				{/* Header */}
-				<header className="flex h-16 shrink-0 items-center justify-between border-b border-slate-200 bg-white px-4 dark:border-slate-800 dark:bg-slate-900 md:px-6">
+				<header className="flex h-16 shrink-0 items-center justify-between border-b border-slate-300 bg-white px-4 dark:border-slate-600 dark:bg-slate-900 md:px-6">
 					{/* Left: Mobile menu + Page title */}
 					<div className="flex items-center gap-3">
 						{/* Mobile menu — rendu client uniquement pour éviter le mismatch d'IDs Radix */}
@@ -605,7 +605,7 @@ export default function DashboardShell({
 								</SheetTrigger>
 								<SheetContent
 									side="left"
-									className="w-78 p-0 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800"
+									className="w-78 p-0 bg-white dark:bg-slate-900 border-r border-slate-300 dark:border-slate-600"
 								>
 									<SheetTitle className="sr-only">
 										Menu de navigation
@@ -627,7 +627,7 @@ export default function DashboardShell({
 									</div>
 
 									{/* Aide section (mobile - sticky en bas) */}
-									<div className="border-t border-slate-200 dark:border-slate-800 py-4">
+									<div className="border-t border-slate-300 dark:border-slate-600 py-4">
 										<TooltipProvider delayDuration={100}>
 											<div className="flex flex-col gap-1 px-3">
 												<p className={`mb-1 px-3 text-[11px] font-semibold uppercase tracking-wider ${helpSection.color}`}>
