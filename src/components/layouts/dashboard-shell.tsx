@@ -75,6 +75,7 @@ interface NavSection {
 	title: string;
 	color: string;
 	activeColor: string;
+	hoverClass: string;
 	items: NavItem[];
 }
 
@@ -89,6 +90,7 @@ const navSections: NavSection[] = [
 		title: "Facturation",
 		color: "text-violet-500 dark:text-violet-400",
 		activeColor: "border-violet-500 bg-violet-500/20 text-violet-700 dark:text-violet-300",
+		hoverClass: "hover:bg-primary/20 hover:text-primary dark:hover:bg-primary/20 dark:hover:text-violet-300",
 		items: [
 			{ label: "Factures", href: "/dashboard/invoices", icon: FileText },
 			{ label: "Devis", href: "/dashboard/quotes", icon: FileCheck },
@@ -102,6 +104,7 @@ const navSections: NavSection[] = [
 		title: "Gestion",
 		color: "text-accent dark:text-accent",
 		activeColor: "border-accent bg-accent/20 text-accent",
+		hoverClass: "hover:bg-accent/20 hover:text-accent dark:hover:bg-accent/20 dark:hover:text-accent",
 		items: [
 			{ label: "Clients", href: "/dashboard/clients", icon: Users },
 			{ label: "Statistiques", href: "/dashboard/stats", icon: BarChart3 },
@@ -113,6 +116,7 @@ const navSections: NavSection[] = [
 		title: "Mon Compte",
 		color: "text-quinary dark:text-quinary",
 		activeColor: "border-quinary bg-quinary/20 text-quinary",
+		hoverClass: "hover:bg-quinary/20 hover:text-quinary dark:hover:bg-quinary/20 dark:hover:text-quinary",
 		items: [
 			{ label: "Mon profil", href: "/dashboard/account", icon: UserCircle2 },
 			{ label: "Mon entreprise", href: "/dashboard/company", icon: Building2 },
@@ -124,6 +128,7 @@ const navSections: NavSection[] = [
 		title: "Personnalisation",
 		color: "text-tertiary dark:text-tertiary",
 		activeColor: "border-tertiary bg-tertiary/20 text-tertiary",
+		hoverClass: "hover:bg-tertiary/20 hover:text-tertiary dark:hover:bg-tertiary/20 dark:hover:text-tertiary",
 		items: [
 			{ label: "Apparence", href: "/dashboard/appearance", icon: Paintbrush },
 		],
@@ -134,6 +139,7 @@ const helpSection: NavSection = {
 	title: "Aide",
 	color: "text-blue-500 dark:text-blue-400",
 	activeColor: "border-blue-500 bg-blue-500/20 text-blue-700 dark:text-blue-300",
+	hoverClass: "hover:bg-blue-500/20 hover:text-blue-600 dark:hover:bg-blue-400/20 dark:hover:text-blue-400",
 	items: [
 		{ label: "Contact", href: "/dashboard/contact", icon: Mail },
 		{ label: "Tutoriels", href: "/dashboard/tutorials", icon: BookOpen },
@@ -170,6 +176,7 @@ function NavLink({
 	onNavigate,
 	isActive,
 	activeClassName,
+	hoverClassName = "hover:bg-primary/20 hover:text-primary dark:hover:bg-primary/20 dark:hover:text-violet-300",
 	isDimmed = false,
 	isSpotlit = false,
 }: {
@@ -178,6 +185,7 @@ function NavLink({
 	onNavigate?: () => void;
 	isActive: boolean;
 	activeClassName: string;
+	hoverClassName?: string;
 	/** Atténué pendant le spotlight : opacity réduite + non cliquable */
 	isDimmed?: boolean;
 	/** Mis en évidence pendant le spotlight : ring + pleine visibilité */
@@ -201,7 +209,7 @@ function NavLink({
 			} ${
 				isActive
 					? `border-l-4 font-semibold ${activeClassName}`
-					: "border-l-4 border-transparent text-slate-600 hover:bg-primary/18 hover:text-primary dark:text-slate-400 dark:hover:text-white"
+					: `border-l-4 border-transparent text-slate-600 dark:text-slate-400 ${hoverClassName}`
 			}`}
 		>
 			<item.icon className="h-5 w-5 shrink-0" />
@@ -298,6 +306,7 @@ function SidebarNav({
 										onNavigate={onNavigate}
 										isActive={isItemActive(item.href, pathname)}
 										activeClassName={section.activeColor}
+										hoverClassName={section.hoverClass}
 										isDimmed={!!spotlitHref && spotlitHref !== item.href}
 										isSpotlit={spotlitHref === item.href}
 									/>
@@ -551,6 +560,7 @@ export default function DashboardShell({
 									collapsed={collapsed}
 									isActive={isItemActive(item.href, pathname)}
 									activeClassName={helpSection.activeColor}
+									hoverClassName={helpSection.hoverClass}
 									isDimmed={isSpotlightMode}
 								/>
 							))}
@@ -631,6 +641,7 @@ export default function DashboardShell({
 														onNavigate={() => setSidebarOpen(false)}
 														isActive={isItemActive(item.href, pathname)}
 														activeClassName={helpSection.activeColor}
+														hoverClassName={helpSection.hoverClass}
 													/>
 												))}
 

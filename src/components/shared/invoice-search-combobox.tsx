@@ -230,20 +230,32 @@ export function InvoiceSearchCombobox({
                 aria-selected={isSelected}
                 onClick={() => handleSelect(inv.id)}
                 className={`w-full flex items-center gap-2 xs:gap-3 px-3 py-2.5
-                  text-left transition-colors cursor-pointer
+                  text-left transition-colors cursor-pointer group
                   ${isSelected
-                    ? "bg-violet-100 dark:bg-violet-500/25"
-                    : "hover:bg-violet-50 dark:hover:bg-violet-500/30"
+                    ? "bg-violet-100 dark:bg-violet-500/30"
+                    : "hover:bg-violet-100 dark:hover:bg-violet-500/20"
                   }`}
               >
-                <span className="font-bold text-[11px] xs:text-xs sm:text-sm text-violet-700 dark:text-violet-300 shrink-0 tabular-nums">
+                <span className={`font-bold text-[11px] xs:text-xs sm:text-sm shrink-0 tabular-nums transition-colors
+                  ${isSelected
+                    ? "text-violet-700 dark:text-violet-200"
+                    : "text-violet-600 dark:text-violet-400 group-hover:text-violet-700 dark:group-hover:text-violet-200"
+                  }`}>
                   {inv.number}
                 </span>
-                <span className="flex-1 text-[10px] xs:text-[11px] sm:text-xs text-slate-500 dark:text-violet-400/80 truncate">
+                <span className={`flex-1 text-[10px] xs:text-[11px] sm:text-xs truncate transition-colors
+                  ${isSelected
+                    ? "text-slate-600 dark:text-violet-300"
+                    : "text-slate-500 dark:text-violet-400/80 group-hover:text-slate-700 dark:group-hover:text-violet-300"
+                  }`}>
                   {getClientName(inv.client)}
                 </span>
                 <span className="flex items-center gap-1.5 shrink-0">
-                  <span className="text-[11px] xs:text-xs sm:text-sm font-semibold text-slate-700 dark:text-violet-200 tabular-nums">
+                  <span className={`text-[11px] xs:text-xs sm:text-sm font-semibold tabular-nums transition-colors
+                    ${isSelected
+                      ? "text-slate-800 dark:text-violet-100"
+                      : "text-slate-600 dark:text-violet-300 group-hover:text-slate-800 dark:group-hover:text-violet-100"
+                    }`}>
                     {formatAmount(inv.total)}
                   </span>
                   {isSelected && (

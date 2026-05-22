@@ -179,15 +179,13 @@ export default function NewProformaPage() {
 					</p>
 				</div>
 				{/* Bouton aperçu PDF — masqué sur mobile */}
-				<Button
-					variant="outline"
-					size="sm"
+				<button
 					onClick={() => setIsPdfPreviewOpen(true)}
-					className="gap-1.5 text-xs cursor-pointer hidden sm:flex"
+					className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors gap-1.5 items-center border-sky-300 text-sky-600 hover:bg-sky-50 dark:border-sky-500/50 dark:text-sky-400 dark:hover:bg-sky-950/50 cursor-pointer shrink-0 hidden sm:flex"
 				>
 					<Eye size={14} />
 					Aperçu PDF
-				</Button>
+				</button>
 			</div>
 
 			{/* Desktop : split screen */}

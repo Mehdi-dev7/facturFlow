@@ -163,12 +163,11 @@ export function DepositsPageContent() {
   const previewId = searchParams.get("preview");
   const previewOpenedRef = useRef(false);
 
-  // Filtre mois → format "YYYY-MM" (pour usage futur)
-  // const monthFilter = useMemo(() => {
-  //   const y = selectedMonth.getFullYear();
-  //   const m = String(selectedMonth.getMonth() + 1).padStart(2, "0");
-  //   return `${y}-${m}`;
-  // }, [selectedMonth]);
+  // Clé du mois sélectionné au format "YYYY-MM"
+  const selectedMonthKey = useMemo(() => {
+    const m = String(selectedMonth.getMonth() + 1).padStart(2, "0");
+    return `${selectedMonth.getFullYear()}-${m}`;
+  }, [selectedMonth]);
 
   // ─── Hooks pour les données réelles ─────────────────────────────────────────
   const { currency } = useAppearance();
@@ -196,22 +195,34 @@ export function DepositsPageContent() {
   }, [deposits]);
   const deleteDepositMutation = useDeleteDeposit();
 
-  // Mapper en DepositRow
+  // Toutes les lignes
   const rows: DepositRow[] = useMemo(() => deposits.map((d) => toRow(d, currency)), [deposits, currency]);
 
-  // ─── KPIs dynamiques ──────────────────────────────────────────────────────
-  const kpis: KpiData[] = useMemo(() => {
-    const total = rows.length;
-    const paid = rows.filter((r) => r.dbStatus === "PAID").length;
-    const sent = rows.filter((r) => r.dbStatus === "SENT").length;
-    const overdue = rows.filter((r) => r.dbStatus === "OVERDUE").length;
+  // Filtrage par mois sélectionné
+  const monthRows = useMemo(
+    () => rows.filter((row) => {
+      const d = row._raw.date;
+      if (!d) return false;
+      const date = new Date(d);
+      const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+      return key === selectedMonthKey;
+    }),
+    [rows, selectedMonthKey],
+  );
 
-    const sentAmount = deposits
-      .filter((d) => d.status === "SENT")
-      .reduce((acc, d) => acc + d.total, 0);
-    const overdueAmount = deposits
-      .filter((d) => d.status === "OVERDUE")
-      .reduce((acc, d) => acc + d.total, 0);
+  // ─── KPIs dynamiques (calculés sur le mois sélectionné) ─────────────────
+  const kpis: KpiData[] = useMemo(() => {
+    const total = monthRows.length;
+    const paid = monthRows.filter((r) => r.dbStatus === "PAID").length;
+    const sent = monthRows.filter((r) => r.dbStatus === "SENT").length;
+    const overdue = monthRows.filter((r) => r.dbStatus === "OVERDUE").length;
+
+    const sentAmount = monthRows
+      .filter((r) => r.dbStatus === "SENT")
+      .reduce((acc, r) => acc + r._raw.total, 0);
+    const overdueAmount = monthRows
+      .filter((r) => r.dbStatus === "OVERDUE")
+      .reduce((acc, r) => acc + r._raw.total, 0);
 
     return [
       {
@@ -267,11 +278,11 @@ export function DepositsPageContent() {
         darkGradientTo: "#7f1d1d",
       },
     ] satisfies KpiData[];
-  }, [rows, deposits, currency]);
+  }, [monthRows, currency]);
 
-  // ─── Filtrage + tri ────────────────────────────────────────────────────────
+  // ─── Filtrage + tri (depuis les lignes du mois) ───────────────────────────
   const filteredRows = useMemo(() => {
-    let filtered = rows;
+    let filtered = monthRows;
 
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
@@ -290,7 +301,7 @@ export function DepositsPageContent() {
       // Si même statut, trier par date décroissante
       return new Date(b._raw.date).getTime() - new Date(a._raw.date).getTime();
     });
-  }, [rows, searchQuery, selectedStatuses]);
+  }, [monthRows, searchQuery, selectedStatuses]);
 
   // ─── Archive ─────────────────────────────────────────────────────────────────
   const archiveData = useMemo(() => {
