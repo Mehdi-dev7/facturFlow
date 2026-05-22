@@ -88,7 +88,7 @@ const navSections: NavSection[] = [
 	{
 		title: "Facturation",
 		color: "text-violet-500 dark:text-violet-400",
-		activeColor: "border-violet-500 bg-violet-500/10 text-violet-700 dark:text-violet-300",
+		activeColor: "border-violet-500 bg-violet-500/20 text-violet-700 dark:text-violet-300",
 		items: [
 			{ label: "Factures", href: "/dashboard/invoices", icon: FileText },
 			{ label: "Devis", href: "/dashboard/quotes", icon: FileCheck },
@@ -101,7 +101,7 @@ const navSections: NavSection[] = [
 	{
 		title: "Gestion",
 		color: "text-accent dark:text-accent",
-		activeColor: "border-accent bg-accent/10 text-accent",
+		activeColor: "border-accent bg-accent/20 text-accent",
 		items: [
 			{ label: "Clients", href: "/dashboard/clients", icon: Users },
 			{ label: "Statistiques", href: "/dashboard/stats", icon: BarChart3 },
@@ -112,7 +112,7 @@ const navSections: NavSection[] = [
 	{
 		title: "Mon Compte",
 		color: "text-quinary dark:text-quinary",
-		activeColor: "border-quinary bg-quinary/10 text-quinary",
+		activeColor: "border-quinary bg-quinary/20 text-quinary",
 		items: [
 			{ label: "Mon profil", href: "/dashboard/account", icon: UserCircle2 },
 			{ label: "Mon entreprise", href: "/dashboard/company", icon: Building2 },
@@ -123,7 +123,7 @@ const navSections: NavSection[] = [
 	{
 		title: "Personnalisation",
 		color: "text-tertiary dark:text-tertiary",
-		activeColor: "border-tertiary bg-tertiary/10 text-tertiary",
+		activeColor: "border-tertiary bg-tertiary/20 text-tertiary",
 		items: [
 			{ label: "Apparence", href: "/dashboard/appearance", icon: Paintbrush },
 		],
@@ -133,7 +133,7 @@ const navSections: NavSection[] = [
 const helpSection: NavSection = {
 	title: "Aide",
 	color: "text-blue-500 dark:text-blue-400",
-	activeColor: "border-blue-500 bg-blue-500/10 text-blue-700 dark:text-blue-300",
+	activeColor: "border-blue-500 bg-blue-500/20 text-blue-700 dark:text-blue-300",
 	items: [
 		{ label: "Contact", href: "/dashboard/contact", icon: Mail },
 		{ label: "Tutoriels", href: "/dashboard/tutorials", icon: BookOpen },
@@ -201,7 +201,7 @@ function NavLink({
 			} ${
 				isActive
 					? `border-l-4 font-semibold ${activeClassName}`
-					: "border-l-4 border-transparent text-slate-600 hover:bg-primary/10 hover:text-primary dark:text-slate-400 dark:hover:text-white"
+					: "border-l-4 border-transparent text-slate-600 hover:bg-primary/18 hover:text-primary dark:text-slate-400 dark:hover:text-white"
 			}`}
 		>
 			<item.icon className="h-5 w-5 shrink-0" />
@@ -256,7 +256,7 @@ function SidebarNav({
 					collapsed={collapsed}
 					onNavigate={onNavigate}
 					isActive={isDashboardActive}
-					activeClassName="border-primary bg-primary/10 text-primary"
+					activeClassName="border-primary bg-primary/20 text-primary"
 					isDimmed={!!spotlitHref && spotlitHref !== dashboardItem.href}
 					isSpotlit={spotlitHref === dashboardItem.href}
 				/>
@@ -567,7 +567,7 @@ export default function DashboardShell({
 									collapsed={collapsed}
 									onNavigate={handleDismissAdmin}
 									isActive={isItemActive("/admin", pathname)}
-									activeClassName="border-violet-600 bg-violet-600/10 text-violet-600 dark:text-violet-300"
+									activeClassName="border-violet-600 bg-violet-600/20 text-violet-600 dark:text-violet-300"
 									isDimmed={isSpotlightMode}
 								/>
 							)}
@@ -646,7 +646,7 @@ export default function DashboardShell({
 														collapsed={false}
 														onNavigate={() => { setSidebarOpen(false); handleDismissAdmin(); }}
 														isActive={isItemActive("/admin", pathname)}
-														activeClassName="border-violet-600 bg-violet-600/10 text-violet-600 dark:text-violet-300"
+														activeClassName="border-violet-600 bg-violet-600/20 text-violet-600 dark:text-violet-300"
 													/>
 												)}
 											</div>

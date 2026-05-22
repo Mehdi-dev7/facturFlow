@@ -124,13 +124,13 @@ export function DataTable<T>({
   return (
     <>
       {/* ── Mobile : carte à 2 lignes ── */}
-      <div className="md:hidden divide-y divide-slate-200 dark:divide-violet-500/20">
+      <div className="md:hidden divide-y divide-slate-300 dark:divide-slate-600">
         {visibleData.map((item) => {
           const id = getRowId(item);
           return (
             <div
               key={id}
-              className={`flex items-center px-4 py-2 hover:bg-violet-200/30 dark:hover:bg-violet-500/10 transition-colors ${getRowClassName?.(item) ?? ""}`}
+              className={`flex items-center px-4 py-2 hover:bg-violet-200/70 dark:hover:bg-violet-500/25 transition-colors ${getRowClassName?.(item) ?? ""}`}
             >
               <div
                 className="flex-1 min-w-0 cursor-pointer"
@@ -199,7 +199,7 @@ export function DataTable<T>({
 
       {/* ── Bouton Voir tout (mobile) ── */}
       {hasMore && (
-        <div className="md:hidden px-4 py-3 border-t border-slate-200 dark:border-violet-500/20 flex items-center justify-between">
+        <div className="md:hidden px-4 py-3 border-t border-slate-300 dark:border-slate-600 flex items-center justify-between">
           <span className="text-xs text-slate-400 dark:text-slate-500">{sortedData.length - limit!} de plus</span>
           <button
             onClick={() => setShowAll(true)}
@@ -214,12 +214,12 @@ export function DataTable<T>({
       <div className="hidden md:block overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="border-b border-slate-200 dark:border-violet-500/20 bg-violet-200/90 dark:bg-violet-950/50">
+            <tr className="border-b border-slate-300 dark:border-slate-600 bg-violet-200/90 dark:bg-violet-950/50">
               {columns.map((col, i) => (
                 <th
                   key={col.key}
                   className={`px-3 lg:px-6 py-3 text-[10px] lg:text-xs font-semibold text-slate-500 dark:text-violet-300 uppercase tracking-wider ${
-                    i < columns.length - 1 ? "border-r border-slate-200 dark:border-violet-500/20" : ""
+                    i < columns.length - 1 ? "border-r border-slate-300 dark:border-slate-600" : ""
                   } ${col.align === "right" ? "text-right" : col.align === "center" ? "text-center" : "text-left"} ${col.headerClassName ?? ""}`}
                 >
                   {col.sortable ? (
@@ -242,13 +242,13 @@ export function DataTable<T>({
           </thead>
           <tbody>
             {visibleData.map((item) => (
-              <tr key={getRowId(item)} className={`border-b border-slate-200 dark:border-violet-500/20 hover:bg-violet-200/30 dark:hover:bg-violet-500/10 transition-colors cursor-pointer group ${getRowClassName?.(item) ?? ""}`}>
+              <tr key={getRowId(item)} className={`border-b border-slate-300 dark:border-slate-600 hover:bg-violet-200/70 dark:hover:bg-violet-500/25 transition-colors cursor-pointer group ${getRowClassName?.(item) ?? ""}`}>
                 {columns.map((col, i) => (
                   <td
                     key={col.key}
                     onClick={() => onRowClick?.(item)}
                     className={`px-3 lg:px-6 py-3.5 ${
-                      i < columns.length - 1 || actions ? "border-r border-slate-200 dark:border-violet-500/15" : ""
+                      i < columns.length - 1 || actions ? "border-r border-slate-300 dark:border-slate-600" : ""
                     } ${col.align === "right" ? "text-right" : col.align === "center" ? "text-center" : ""} ${col.cellClassName ?? ""}`}
                   >
                     {col.render ? col.render(item) : (
@@ -271,11 +271,11 @@ export function DataTable<T>({
 
       {/* ── Bouton Voir tout (desktop) ── */}
       {hasMore && (
-        <div className="hidden md:flex items-center justify-between px-6 py-3 border-t border-slate-200 dark:border-violet-500/20 bg-slate-50/50 dark:bg-violet-950/20">
+        <div className="hidden md:flex items-center justify-between px-6 py-3 border-t border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-violet-950/20">
           <span className="text-xs text-slate-400 dark:text-slate-500">{sortedData.length - limit!} éléments masqués</span>
           <button
             onClick={() => setShowAll(true)}
-            className="text-xs font-semibold text-violet-600 dark:text-violet-300 hover:text-violet-800 transition-colors px-3 py-1.5 rounded-lg hover:bg-violet-500/10 cursor-pointer"
+            className="text-xs font-semibold text-violet-600 dark:text-violet-300 hover:text-violet-800 transition-colors px-3 py-1.5 rounded-lg hover:bg-violet-500/25 cursor-pointer"
           >
             Voir tout ({sortedData.length})
           </button>
