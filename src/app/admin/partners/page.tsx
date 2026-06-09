@@ -2,6 +2,8 @@
 // Page admin — gestion du système d'affiliation / partenaires.
 // Server Component : récupère les données et les passe au Client Component.
 
+export const dynamic = "force-dynamic";
+
 import { getPartners } from "@/lib/actions/partners";
 import PartnersClient from "./partners-client";
 import { Users2, Euro, Clock, CheckCircle2 } from "lucide-react";
