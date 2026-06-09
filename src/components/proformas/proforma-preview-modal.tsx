@@ -63,7 +63,7 @@ function formatDate(dateStr: string | null) {
 	if (!dateStr) return "—";
 	return new Date(dateStr).toLocaleDateString("fr-FR", {
 		day: "2-digit",
-		month: "long",
+		month: "2-digit",
 		year: "numeric",
 	});
 }
@@ -166,7 +166,7 @@ function ProformaPreviewStatic({ proforma }: { proforma: SavedProforma }) {
 						)}
 					</div>
 					{/* Droite : dates */}
-					<div className="flex-1 flex flex-col items-end text-right text-xs md:text-sm">
+					<div className="flex-1 flex flex-col items-end text-right text-[10px] md:text-xs">
 						<p style={{ color: textColor, opacity: 0.9 }}>
 							Date : {formatDate(proforma.date)}
 						</p>
@@ -181,7 +181,7 @@ function ProformaPreviewStatic({ proforma }: { proforma: SavedProforma }) {
 
 			{/* Émetteur et destinataire */}
 			<div className="grid grid-cols-2 gap-6">
-				<div>
+				<div className="min-w-0">
 					<h3
 						className="font-semibold mb-2 text-xs uppercase tracking-wide"
 						style={{ color: contentColor }}
@@ -223,7 +223,7 @@ function ProformaPreviewStatic({ proforma }: { proforma: SavedProforma }) {
 					)}
 				</div>
 
-				<div>
+				<div className="min-w-0">
 					<h3
 						className="font-semibold mb-2 text-xs uppercase tracking-wide"
 						style={{ color: contentColor }}

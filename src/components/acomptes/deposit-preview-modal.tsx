@@ -359,7 +359,7 @@ export function DepositPreviewModal({
                   )}
                 </div>
                 {/* Droite : dates */}
-                <div className="flex-1 flex flex-col items-end text-right text-xs md:text-sm">
+                <div className="flex-1 flex flex-col items-end text-right text-[10px] md:text-xs">
                   <p style={{ color: textColor, opacity: 0.9 }}>Date : {formatDateShort(deposit.date)}</p>
                   {deposit.dueDate && (
                     <p style={{ color: textColor, opacity: 0.9 }}>Échéance : {formatDateShort(deposit.dueDate)}</p>
@@ -371,7 +371,7 @@ export function DepositPreviewModal({
             {/* Émetteur et destinataire */}
             <div className="grid grid-cols-2 gap-6">
               {/* Émetteur */}
-              <div>
+              <div className="min-w-0">
                 <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: contentColor }}>
                   Émetteur
                 </h3>
@@ -388,7 +388,7 @@ export function DepositPreviewModal({
                     </p>
                   )}
                   {deposit.user.companyEmail && (
-                    <p className="text-slate-600 dark:text-slate-400 text-[11px] lg:text-xs">{deposit.user.companyEmail}</p>
+                    <p className="text-slate-600 dark:text-slate-400 text-[11px] lg:text-xs break-all">{deposit.user.companyEmail}</p>
                   )}
                   {deposit.user.companyPhone && (
                     <p className="text-slate-600 dark:text-slate-400 text-[11px] lg:text-xs">{deposit.user.companyPhone}</p>
@@ -402,7 +402,7 @@ export function DepositPreviewModal({
               </div>
 
               {/* Destinataire */}
-              <div>
+              <div className="min-w-0">
                 <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: contentColor }}>
                   Destinataire
                 </h3>
@@ -412,7 +412,7 @@ export function DepositPreviewModal({
                     <p className="text-slate-600 dark:text-slate-400 text-[11px] lg:text-xs">{clientAddress}</p>
                   )}
                   {deposit.client.email && (
-                    <p className="text-slate-600 dark:text-slate-400 text-[11px] lg:text-xs">{deposit.client.email}</p>
+                    <p className="text-slate-600 dark:text-slate-400 text-[11px] lg:text-xs break-all">{deposit.client.email}</p>
                   )}
                   {deposit.client.phone && (
                     <p className="text-slate-600 dark:text-slate-400 text-[11px] lg:text-xs">{deposit.client.phone}</p>

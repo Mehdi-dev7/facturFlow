@@ -52,13 +52,15 @@ function getClientName(client: SavedInvoice["client"]) {
   return parts.join(" ") || client.email;
 }
 
-/** Hex 6 chiffres → rgba(r,g,b,a) pour react-pdf */
-function hexToRgba(hex: string, alpha: number): string {
-  const h = hex.replace("#", "");
-  const r = parseInt(h.substring(0, 2), 16);
-  const g = parseInt(h.substring(2, 4), 16);
-  const b = parseInt(h.substring(4, 6), 16);
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+/** Mélange une couleur hex avec le blanc pour simuler une transparence — react-pdf ne supporte pas rgba() sur backgroundColor/borderColor */
+function hexBlend(hex: string, alpha: number, bg = "#ffffff"): string {
+  const parse = (h: string) => { const c = h.replace("#",""); return [parseInt(c.slice(0,2),16), parseInt(c.slice(2,4),16), parseInt(c.slice(4,6),16)]; };
+  const [r,g,b] = parse(hex);
+  const [br,bg2,bb] = parse(bg);
+  const R = Math.round(br*(1-alpha)+r*alpha);
+  const G = Math.round(bg2*(1-alpha)+g*alpha);
+  const B = Math.round(bb*(1-alpha)+b*alpha);
+  return `#${R.toString(16).padStart(2,"0")}${G.toString(16).padStart(2,"0")}${B.toString(16).padStart(2,"0")}`;
 }
 
 // ─── Styles statiques (indépendants de la couleur) ───────────────────────────
@@ -88,12 +90,12 @@ const S = StyleSheet.create({
   },
   headerNumber: {
     fontSize: 10,
-    color: "rgba(255,255,255,0.85)",
+    color: "#ffffff",
     marginBottom: 2,
   },
   headerDate: {
     fontSize: 8.5,
-    color: "rgba(255,255,255,0.75)",
+    color: "#ffffff",
     marginBottom: 1,
   },
   headerCenter: {
@@ -271,7 +273,7 @@ interface LinesTablePdfProps {
 }
 
 function LinesTablePdf({ lines, typeConfig, isForfait, showVatColumn = false, title, themeColor, currency }: LinesTablePdfProps) {
-  const headerBg = hexToRgba(themeColor, 0.2);
+  const headerBg = hexBlend(themeColor, 0.2);
 
   return (
     <View style={{ marginBottom: 6 }}>
@@ -401,10 +403,10 @@ export default function InvoicePdfDocument({
 
   // Couleurs dérivées
   const headerBg      = themeColor;
-  const totalsBg      = hexToRgba(themeColor, 0.12);
-  const totalsBorder  = hexToRgba(themeColor, 0.4);
-  const grandTotalBorder = hexToRgba(themeColor, 0.4);
-  const netAPayerBorder  = hexToRgba(themeColor, 0.67);
+  const totalsBg      = hexBlend(themeColor, 0.12);
+  const totalsBorder  = hexBlend(themeColor, 0.4);
+  const grandTotalBorder = hexBlend(themeColor, 0.4);
+  const netAPayerBorder  = hexBlend(themeColor, 0.67);
 
   return (
     <Document>
@@ -578,7 +580,7 @@ export default function InvoicePdfDocument({
           <View style={[
             S.wireTransferBox,
             {
-              backgroundColor: hexToRgba(themeColor, 0.1),
+              backgroundColor: hexBlend(themeColor, 0.1),
               borderLeftColor: themeColor,
             },
           ]}>

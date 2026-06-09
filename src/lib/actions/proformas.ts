@@ -118,6 +118,7 @@ function mapToSavedProforma(doc: PrismaProformaWithRelations): SavedProforma {
 		discount: doc.discount ? doc.discount.toNumber() : null,
 		depositAmount: doc.depositAmount ? doc.depositAmount.toNumber() : null,
 		notes: doc.notes,
+		deliveryDate: meta != null ? (meta.deliveryDate as string | null) ?? null : null,
 		einvoiceRef: doc.einvoiceRef,
 		einvoiceStatus: doc.einvoiceStatus,
 		einvoiceSentAt: doc.einvoiceSentAt?.toISOString() ?? null,

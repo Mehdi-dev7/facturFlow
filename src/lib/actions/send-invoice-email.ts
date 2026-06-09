@@ -86,6 +86,9 @@ export async function sendInvoiceEmail(
       discount: doc.discount?.toNumber() ?? null,
       depositAmount: doc.depositAmount?.toNumber() ?? null,
       notes: doc.notes,
+      deliveryDate: doc.businessMetadata != null
+        ? ((doc.businessMetadata as Record<string, unknown>).deliveryDate as string | null) ?? null
+        : null,
       businessMetadata: doc.businessMetadata as Record<string, unknown> | null,
       einvoiceRef: doc.einvoiceRef ?? null,
       einvoiceStatus: doc.einvoiceStatus ?? null,

@@ -231,7 +231,7 @@ export function PurchaseOrderPreview({
                   {[companyInfo.zipCode, companyInfo.city].filter(Boolean).join(" ")}
                 </p>
               )}
-              <p className="text-slate-500 dark:text-slate-400">{companyInfo.email}</p>
+              <p className="text-slate-500 dark:text-slate-400 break-all">{companyInfo.email}</p>
             </div>
           ) : (
             <p className="text-xs text-slate-400 italic">Non renseigné</p>
@@ -250,7 +250,7 @@ export function PurchaseOrderPreview({
                   {[client.postalCode, client.city].filter(Boolean).join(" ")}
                 </p>
               )}
-              {client.email && <p className="text-slate-500 dark:text-slate-400">{client.email}</p>}
+              {client.email && <p className="text-slate-500 dark:text-slate-400 break-all">{client.email}</p>}
             </div>
           ) : (
             <p className="text-xs text-slate-400 italic">Aucun client sélectionné</p>
@@ -361,7 +361,7 @@ export function PurchaseOrderPreview({
 
           {/* Émetteur & Destinataire */}
           <div className="grid grid-cols-2 gap-6">
-            <div>
+            <div className="min-w-0">
               <p className="text-[10px] uppercase tracking-wider mb-1 font-semibold" style={{ color: contentColor }}>
                 Émetteur
               </p>
@@ -375,14 +375,14 @@ export function PurchaseOrderPreview({
                     </p>
                   )}
                   <p className="text-slate-500 text-[11px]">SIRET : {companyInfo.siret}</p>
-                  <p className="text-slate-500">{companyInfo.email}</p>
+                  <p className="text-slate-500 break-all">{companyInfo.email}</p>
                   {companyInfo.phone && <p className="text-slate-500 text-[11px]">{companyInfo.phone}</p>}
                 </div>
               ) : (
                 <p className="text-xs text-slate-400 italic">Non renseigné</p>
               )}
             </div>
-            <div>
+            <div className="min-w-0">
               <p className="text-[10px] uppercase tracking-wider mb-1 font-semibold" style={{ color: contentColor }}>
                 Destinataire
               </p>
@@ -394,7 +394,7 @@ export function PurchaseOrderPreview({
                     <p className="text-slate-500 text-[11px]">{[client.postalCode, client.city].filter(Boolean).join(" ")}</p>
                   )}
                   {client.siret && <p className="text-slate-500 text-[11px]">SIRET : {client.siret}</p>}
-                  {client.email && <p className="text-slate-500">{client.email}</p>}
+                  {client.email && <p className="text-slate-500 break-all">{client.email}</p>}
                 </div>
               ) : (
                 <p className="text-xs text-slate-400 italic">Aucun client sélectionné</p>

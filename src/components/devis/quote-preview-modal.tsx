@@ -43,7 +43,7 @@ function formatDate(dateStr: string | null) {
   if (!dateStr) return "—";
   return new Date(dateStr).toLocaleDateString("fr-FR", {
     day: "2-digit",
-    month: "long",
+    month: "2-digit",
     year: "numeric",
   });
 }
@@ -219,7 +219,7 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
             )}
           </div>
           {/* Droite : dates */}
-          <div className="flex-1 flex flex-col items-end text-right text-xs md:text-sm">
+          <div className="flex-1 flex flex-col items-end text-right text-[10px] md:text-xs">
             <p style={{ color: textColor, opacity: 0.9 }}>Date : {formatDate(quote.date)}</p>
             <p style={{ color: textColor, opacity: 0.9 }}>Validité : {formatDate(quote.validUntil)}</p>
           </div>
@@ -229,7 +229,7 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
       {/* Émetteur et destinataire */}
       <div className="grid grid-cols-2 gap-6">
           {/* Émetteur */}
-          <div>
+          <div className="min-w-0">
             <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: contentColor }}>
               Émetteur
             </h3>
@@ -256,7 +256,7 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
                   </p>
                 )}
                 {emitter.companyEmail && (
-                  <p className="text-slate-600 dark:text-slate-400 text-[11px] lg:text-xs">
+                  <p className="text-slate-600 dark:text-slate-400 text-[11px] lg:text-xs break-all">
                     {emitter.companyEmail}
                   </p>
                 )}
@@ -269,7 +269,7 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
           </div>
 
           {/* Destinataire */}
-          <div>
+          <div className="min-w-0">
             <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: contentColor }}>
               Destinataire
             </h3>
@@ -277,7 +277,7 @@ function QuotePreviewStatic({ quote }: { quote: SavedQuote }) {
               <p className="font-medium text-slate-900 dark:text-slate-50 text-xs lg:text-sm">
                 {getClientName(quote.client)}
               </p>
-              <p className="text-slate-600 dark:text-slate-400 text-[11px] lg:text-xs">
+              <p className="text-slate-600 dark:text-slate-400 text-[11px] lg:text-xs break-all">
                 {quote.client.email}
               </p>
               {quote.client.address && (

@@ -43,12 +43,12 @@ function fmt(n: number, currency?: string | null) {
   return formatCurrency(n, currency);
 }
 
-/** Formate une date ISO en "15 janvier 2025" */
+/** Formate une date ISO en "15/01/2025" (compact pour mobile) */
 function formatDate(dateStr: string | null) {
   if (!dateStr) return "—";
   return new Date(dateStr).toLocaleDateString("fr-FR", {
     day: "2-digit",
-    month: "long",
+    month: "2-digit",
     year: "numeric",
   });
 }
@@ -208,11 +208,11 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
     <div className="bg-white dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 p-2 xs:p-3 md:p-5 space-y-6 shadow-sm">
       {/* En-tête 3 colonnes : type+N° | logo+nom centré | dates à droite */}
       <div className="rounded-lg p-4 mb-6" style={{ backgroundColor: themeColor }}>
-        <div className="flex items-start gap-4">
+        <div className="flex items-start gap-2 md:gap-4">
           {/* Gauche : FACTURE + N° */}
-          <div className="flex-1">
-            <h1 className="text-lg md:text-xl font-bold mb-1" style={{ color: textColor }}>FACTURE</h1>
-            <p className="text-xs md:text-sm" style={{ color: textColor, opacity: 0.9 }}>N° {invoice.number}</p>
+          <div className="flex-1 min-w-0">
+            <h1 className="text-sm md:text-lg font-bold mb-0.5" style={{ color: textColor }}>FACTURE</h1>
+            <p className="text-[10px] md:text-xs" style={{ color: textColor, opacity: 0.9 }}>N° {invoice.number}</p>
             {invoiceType !== "basic" && (
               <span className="inline-block mt-1.5 text-[10px] bg-white/20 px-2 py-0.5 rounded-full font-medium tracking-wide">
                 {INVOICE_TYPE_LABELS[invoiceType]}
@@ -220,20 +220,23 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
             )}
           </div>
           {/* Centre : logo circulaire + nom entreprise */}
-          <div className="flex-1 flex flex-col items-center gap-1.5">
+          <div className="flex-1 flex flex-col items-center gap-1 min-w-0">
             {logo && (
-              <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-white/30 shrink-0">
+              <div className="relative w-8 h-8 md:w-12 md:h-12 rounded-full overflow-hidden border-2 border-white/30 shrink-0">
                 <img src={logo} alt="Logo" className="w-full h-full object-cover" />
               </div>
             )}
             {displayName && (
-              <p className="text-sm font-bold text-center" style={{ fontFamily, fontWeight, color: textColor }}>{displayName}</p>
+              <p className="text-xs md:text-sm font-bold text-center truncate w-full" style={{ fontFamily, fontWeight, color: textColor }}>{displayName}</p>
             )}
           </div>
           {/* Droite : dates */}
-          <div className="flex-1 flex flex-col items-end text-right text-xs md:text-sm">
+          <div className="flex-1 flex flex-col items-end text-right text-[10px] md:text-xs">
             <p style={{ color: textColor, opacity: 0.9 }}>Date : {formatDate(invoice.date)}</p>
             <p style={{ color: textColor, opacity: 0.9 }}>Échéance : {formatDate(invoice.dueDate)}</p>
+            {invoice.deliveryDate && (
+              <p style={{ color: textColor, opacity: 0.9 }}>Livraison : {formatDate(invoice.deliveryDate)}</p>
+            )}
           </div>
         </div>
       </div>
@@ -241,7 +244,7 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
       {/* Émetteur et destinataire */}
       <div className="grid grid-cols-2 gap-6">
         {/* Émetteur */}
-        <div>
+        <div className="min-w-0">
           <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: contentColor }}>
             Émetteur
           </h3>
@@ -268,7 +271,7 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
                 </p>
               )}
               {emitter.companyEmail && (
-                <p className="text-slate-600 dark:text-slate-400 text-[11px] lg:text-xs">
+                <p className="text-slate-600 dark:text-slate-400 text-[11px] lg:text-xs break-all">
                   {emitter.companyEmail}
                 </p>
               )}
@@ -279,7 +282,7 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
         </div>
 
         {/* Destinataire */}
-        <div>
+        <div className="min-w-0">
           <h3 className="font-semibold mb-2 text-xs uppercase tracking-wide" style={{ color: contentColor }}>
             Destinataire
           </h3>
@@ -304,7 +307,7 @@ function InvoicePreviewStatic({ invoice }: { invoice: SavedInvoice }) {
                 SIRET : {invoice.client.companySiret}
               </p>
             )}
-            <p className="text-slate-600 dark:text-slate-400 text-[11px] lg:text-xs">
+            <p className="text-slate-600 dark:text-slate-400 text-[11px] lg:text-xs break-all">
               {invoice.client.email}
             </p>
           </div>

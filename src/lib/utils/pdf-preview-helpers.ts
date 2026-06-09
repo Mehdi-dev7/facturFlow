@@ -155,6 +155,7 @@ export function buildPreviewInvoice(
     discount: values.discountValue ?? null,
     depositAmount: values.depositAmount ?? null,
     notes: values.notes ?? null,
+    deliveryDate: values.deliveryDate ?? null,
     businessMetadata: { vatRate, vatMode, deliveryDate: values.deliveryDate ?? null },
     einvoiceRef: null,
     einvoiceStatus: null,

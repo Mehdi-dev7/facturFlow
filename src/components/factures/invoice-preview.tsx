@@ -127,7 +127,7 @@ export function InvoicePreview({
 
 	const formatDate = (dateStr: string) => {
 		if (!dateStr) return "—";
-		return new Date(dateStr).toLocaleDateString("fr-FR", { day: "2-digit", month: "long", year: "numeric" });
+		return new Date(dateStr).toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric" });
 	};
 
 	// ── Mode compact (récapitulatif stepper) ───────────────────────────────
@@ -150,7 +150,7 @@ export function InvoicePreview({
 									{[companyInfo.zipCode, companyInfo.city].filter(Boolean).join(" ")}
 								</p>
 							)}
-							<p className="text-slate-500 dark:text-slate-400">{companyInfo.email}</p>
+							<p className="text-slate-500 dark:text-slate-400 break-all">{companyInfo.email}</p>
 						</div>
 					) : (
 						<p className="text-xs text-slate-400 italic">Non renseigné</p>
@@ -168,7 +168,7 @@ export function InvoicePreview({
 									{[client.postalCode, client.city].filter(Boolean).join(" ")}
 								</p>
 							)}
-							{client.email && <p className="text-slate-500 dark:text-slate-400">{client.email}</p>}
+							{client.email && <p className="text-slate-500 dark:text-slate-400 break-all">{client.email}</p>}
 						</div>
 					) : (
 						<p className="text-xs text-slate-400 italic">Aucun client sélectionné</p>
@@ -292,7 +292,7 @@ export function InvoicePreview({
 						)}
 					</div>
 					{/* Droite : dates */}
-					<div className="flex-1 text-right text-xs">
+					<div className="flex-1 text-right text-[10px] md:text-xs">
 						<p style={{ color: resolvedTextColor, opacity: 0.9 }}>Date : {formatDate(date)}</p>
 						<p style={{ color: resolvedTextColor, opacity: 0.9 }}>Échéance : {formatDate(dueDate)}</p>
 						{deliveryDate && <p style={{ color: resolvedTextColor, opacity: 0.9 }}>Livraison : {formatDate(deliveryDate)}</p>}
@@ -302,7 +302,7 @@ export function InvoicePreview({
 
 			{/* Émetteur & Destinataire */}
 				<div className="grid grid-cols-2 gap-6">
-					<div>
+					<div className="min-w-0">
 						<p className="text-[10px] uppercase tracking-wider mb-1 font-semibold" style={{ color: contentColor }}>
 							Émetteur
 						</p>
@@ -316,14 +316,14 @@ export function InvoicePreview({
 									</p>
 								)}
 								<p className="text-slate-500 text-[11px]">SIRET : {companyInfo.siret}</p>
-								<p className="text-slate-500">{companyInfo.email}</p>
+								<p className="text-slate-500 break-all">{companyInfo.email}</p>
 								{companyInfo.phone && <p className="text-slate-500">{companyInfo.phone}</p>}
 							</div>
 						) : (
 							<p className="text-xs text-slate-400 italic">Non renseigné</p>
 						)}
 					</div>
-					<div>
+					<div className="min-w-0">
 						<p className="text-[10px] uppercase tracking-wider mb-1 font-semibold" style={{ color: contentColor }}>
 							Destinataire
 						</p>
@@ -337,7 +337,7 @@ export function InvoicePreview({
 									</p>
 								)}
 								{client.siret && <p className="text-slate-500 text-[11px]">SIRET : {client.siret}</p>}
-								{client.email && <p className="text-slate-500">{client.email}</p>}
+								{client.email && <p className="text-slate-500 break-all">{client.email}</p>}
 							</div>
 						) : (
 							<p className="text-xs text-slate-400 italic">Aucun client sélectionné</p>

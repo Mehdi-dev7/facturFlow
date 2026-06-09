@@ -27,6 +27,7 @@ export interface SavedInvoice {
   discount: number | null;
   depositAmount: number | null;
   notes: string | null;
+  deliveryDate: string | null;
   businessMetadata: Record<string, unknown> | null;
   // Facture électronique SuperPDP
   einvoiceRef: string | null;
@@ -288,6 +289,9 @@ function mapToSavedInvoice(doc: PrismaDocumentWithRelations): SavedInvoice {
       doc.businessMetadata != null
         ? (doc.businessMetadata as Record<string, unknown>)
         : null,
+    deliveryDate: doc.businessMetadata != null
+      ? ((doc.businessMetadata as Record<string, unknown>).deliveryDate as string | null) ?? null
+      : null,
     updatedAt: doc.updatedAt.toISOString(),
     einvoiceRef: doc.einvoiceRef,
     einvoiceStatus: doc.einvoiceStatus,
@@ -349,7 +353,43 @@ const documentInclude = {
   },
 } as const;
 
-// ─── Action : prochain numéro de facture ─────────────────────────────────────
+// ─── Helper : numéro de facture garanti unique ───────────────────────────────
+// Calcule max(compteur_stocké, dernier_numéro_en_DB + 1) pour éviter les doublons
+// même après des suppressions ou manipulations du compteur.
+
+async function resolveNextInvoiceNumber(userId: string): Promise<string> {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { invoicePrefix: true, nextInvoiceNumber: true },
+  });
+  if (!user) throw new Error("Utilisateur introuvable");
+
+  const year = new Date().getFullYear();
+  const prefix = user.invoicePrefix;
+
+  // Trouver le plus grand numéro de séquence déjà utilisé cette année
+  const existing = await prisma.document.findMany({
+    where: { userId, type: "INVOICE", number: { startsWith: `${prefix}-${year}-` } },
+    select: { number: true },
+  });
+  const maxUsed = existing.reduce((max, doc) => {
+    const seq = parseInt(doc.number.split("-").pop() ?? "0", 10);
+    return isNaN(seq) ? max : Math.max(max, seq);
+  }, 0);
+
+  // Le prochain sûr = max entre le compteur stocké et le plus grand utilisé + 1
+  const safeNext = Math.max(user.nextInvoiceNumber, maxUsed + 1);
+
+  // Mettre à jour le compteur pour la prochaine fois
+  await prisma.user.update({
+    where: { id: userId },
+    data: { nextInvoiceNumber: safeNext + 1 },
+  });
+
+  return `${prefix}-${year}-${String(safeNext).padStart(4, "0")}`;
+}
+
+// ─── Action : prochain numéro de facture (lecture seule, pour l'affichage) ───
 
 export async function getNextInvoiceNumber() {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -358,8 +398,9 @@ export async function getNextInvoiceNumber() {
   }
 
   try {
+    const userId = session.user.id;
     const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
+      where: { id: userId },
       select: { invoicePrefix: true, nextInvoiceNumber: true },
     });
 
@@ -368,8 +409,20 @@ export async function getNextInvoiceNumber() {
     }
 
     const year = new Date().getFullYear();
-    const padded = String(user.nextInvoiceNumber).padStart(4, "0");
-    const number = `${user.invoicePrefix}-${year}-${padded}`;
+    const prefix = user.invoicePrefix;
+
+    // Même calcul que resolveNextInvoiceNumber mais sans écriture en DB
+    const existing = await prisma.document.findMany({
+      where: { userId, type: "INVOICE", number: { startsWith: `${prefix}-${year}-` } },
+      select: { number: true },
+    });
+    const maxUsed = existing.reduce((max, doc) => {
+      const seq = parseInt(doc.number.split("-").pop() ?? "0", 10);
+      return isNaN(seq) ? max : Math.max(max, seq);
+    }, 0);
+
+    const safeNext = Math.max(user.nextInvoiceNumber, maxUsed + 1);
+    const number = `${prefix}-${year}-${String(safeNext).padStart(4, "0")}`;
 
     return { success: true, data: { number } } as const;
   } catch (error) {
@@ -539,15 +592,8 @@ export async function createInvoice(data: InvoiceFormData, draftId?: string) {
       }
       invoiceNumber = customNum;
     } else {
-      // Auto-générer : incrémenter le compteur
-      const updatedUser = await prisma.user.update({
-        where: { id: userId },
-        data: { nextInvoiceNumber: { increment: 1 } },
-        select: { nextInvoiceNumber: true, invoicePrefix: true },
-      });
-      const year = new Date().getFullYear();
-      const usedNumber = updatedUser.nextInvoiceNumber - 1;
-      invoiceNumber = `${updatedUser.invoicePrefix}-${year}-${String(usedNumber).padStart(4, "0")}`;
+      // Auto-générer : numéro garanti unique
+      invoiceNumber = await resolveNextInvoiceNumber(userId);
     }
 
     const docData = {
@@ -662,14 +708,7 @@ export async function updateInvoice(id: string, data: InvoiceFormData) {
     // n'a pas saisi de vrai numéro custom → générer un vrai numéro (FAC-AAAA-XXXX)
     let finalizedNumber: string | undefined;
     if (existing.number.startsWith("BROUILLON-") && !customNumber) {
-      const updatedUser = await prisma.user.update({
-        where: { id: userId },
-        data: { nextInvoiceNumber: { increment: 1 } },
-        select: { nextInvoiceNumber: true, invoicePrefix: true },
-      });
-      const year = new Date().getFullYear();
-      const usedNumber = updatedUser.nextInvoiceNumber - 1;
-      finalizedNumber = `${updatedUser.invoicePrefix}-${year}-${String(usedNumber).padStart(4, "0")}`;
+      finalizedNumber = await resolveNextInvoiceNumber(userId);
     }
 
     // Résoudre le client
@@ -779,16 +818,8 @@ export async function duplicateInvoice(id: string) {
       return { success: false, error: "Facture introuvable" } as const;
     }
 
-    // Incrémenter le compteur et générer un numéro officiel pour le duplicata
-    const updatedUser = await prisma.user.update({
-      where: { id: userId },
-      data: { nextInvoiceNumber: { increment: 1 } },
-      select: { nextInvoiceNumber: true, invoicePrefix: true },
-    });
-
-    const year = new Date().getFullYear();
-    const usedNumber = updatedUser.nextInvoiceNumber - 1;
-    const newNumber = `${updatedUser.invoicePrefix}-${year}-${String(usedNumber).padStart(4, "0")}`;
+    // Générer un numéro officiel garanti unique pour le duplicata
+    const newNumber = await resolveNextInvoiceNumber(userId);
 
     // Créer le duplicata en DRAFT
     const newDoc = await prisma.document.create({
@@ -993,16 +1024,8 @@ export async function createInvoiceFromQuote(quoteId: string) {
       return { success: false, error: "Devis introuvable" } as const;
     }
 
-    // Générer le numéro de facture
-    const updatedUser = await prisma.user.update({
-      where: { id: userId },
-      data: { nextInvoiceNumber: { increment: 1 } },
-      select: { nextInvoiceNumber: true, invoicePrefix: true },
-    });
-
-    const year = new Date().getFullYear();
-    const usedNumber = updatedUser.nextInvoiceNumber - 1;
-    const invoiceNumber = `${updatedUser.invoicePrefix}-${year}-${String(usedNumber).padStart(4, "0")}`;
+    // Générer le numéro de facture garanti unique
+    const invoiceNumber = await resolveNextInvoiceNumber(userId);
 
     // Date = aujourd'hui, échéance = +30 jours
     const today = new Date();

@@ -38,12 +38,14 @@ function getReasonLabel(value: string) {
 }
 
 /** Convertit hex 6 chiffres + alpha 0-1 en rgba() pour react-pdf */
-function hexToRgba(hex: string, alpha: number): string {
-  const h = hex.replace("#", "");
-  const r = parseInt(h.substring(0, 2), 16);
-  const g = parseInt(h.substring(2, 4), 16);
-  const b = parseInt(h.substring(4, 6), 16);
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+function hexBlend(hex: string, alpha: number, bg = "#ffffff"): string {
+  const parse = (h: string) => { const c = h.replace("#",""); return [parseInt(c.slice(0,2),16), parseInt(c.slice(2,4),16), parseInt(c.slice(4,6),16)]; };
+  const [r,g,b] = parse(hex);
+  const [br,bg2,bb] = parse(bg);
+  const R = Math.round(br*(1-alpha)+r*alpha);
+  const G = Math.round(bg2*(1-alpha)+g*alpha);
+  const B = Math.round(bb*(1-alpha)+b*alpha);
+  return `#${R.toString(16).padStart(2,"0")}${G.toString(16).padStart(2,"0")}${B.toString(16).padStart(2,"0")}`;
 }
 
 // ─── Styles statiques ─────────────────────────────────────────────────────────
@@ -177,8 +179,8 @@ export function CreditNotePdfDocument({ creditNote }: { creditNote: SavedCreditN
   const headerBg = { backgroundColor: themeColor };
   const partyLabelColor = { color: themeColor };
   const partyBorderColor = { borderLeft: `2px solid ${themeColor}` };
-  const summaryBg = { backgroundColor: hexToRgba(themeColor, 0.07) };
-  const totalBorder = { borderTop: `1px solid ${hexToRgba(themeColor, 0.3)}` };
+  const summaryBg = { backgroundColor: hexBlend(themeColor, 0.07) };
+  const totalBorder = { borderTop: `1px solid ${hexBlend(themeColor, 0.3)}` };
   const totalLabelColor = { color: themeColor };
   const sectionTitleColor = { color: themeColor };
 
