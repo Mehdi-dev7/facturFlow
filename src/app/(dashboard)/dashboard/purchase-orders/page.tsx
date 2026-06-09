@@ -18,6 +18,7 @@ import type { KpiData, Column } from "@/components/dashboard";
 import dynamic from "next/dynamic";
 import { SkeletonTable } from "@/components/ui/skeleton-table";
 import type { SavedPurchaseOrder } from "@/lib/pdf/purchase-order-pdf-document";
+import { triggerRouteLoading } from "@/components/ui/page-loader";
 import { useAppearance } from "@/hooks/use-appearance";
 import { formatCurrency } from "@/lib/utils/calculs-facture";
 
@@ -389,6 +390,7 @@ function PurchaseOrdersPageContent() {
 
   const handleEdit = useCallback(
     (row: PurchaseOrderRow) => {
+      triggerRouteLoading();
       router.push(`/dashboard/purchase-orders/${row.id}/edit`);
     },
     [router],

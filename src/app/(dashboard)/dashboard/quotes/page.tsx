@@ -27,6 +27,7 @@ const QuotePreviewModal = dynamic(
 import { useQuotes, useDeleteQuote, type SavedQuote } from "@/hooks/use-quotes";
 import { StatusDropdownQuote } from "@/components/dashboard/status-dropdown-quote";
 import { SkeletonTable } from "@/components/ui/skeleton-table";
+import { triggerRouteLoading } from "@/components/ui/page-loader";
 import { useAppearance } from "@/hooks/use-appearance";
 import { formatCurrency } from "@/lib/utils/calculs-facture";
 
@@ -379,6 +380,7 @@ function QuotesPageContent() {
 
     // Si c'est un vrai brouillon (numéro temporaire), aller vers l'édition
     if (row.dbStatus === "DRAFT" && q.number.startsWith("BROUILLON-")) {
+      triggerRouteLoading();
       router.push(`/dashboard/quotes/${row.id}/edit`);
       return;
     }
@@ -390,14 +392,16 @@ function QuotesPageContent() {
 
   // Édition directe (toujours vers la page d'édition)
   const handleEdit = useCallback((row: QuoteRow) => {
+    triggerRouteLoading();
     router.push(`/dashboard/quotes/${row.id}/edit`);
   }, [router]);
 
   // Supprimer avec confirmation
   const handleDeleteConfirm = useCallback(() => {
     if (!deleteTargetId) return;
-    deleteMutation.mutate(deleteTargetId);
-    setDeleteTargetId(null);
+    deleteMutation.mutate(deleteTargetId, {
+      onSettled: () => setDeleteTargetId(null),
+    });
   }, [deleteTargetId, deleteMutation]);
 
   return (

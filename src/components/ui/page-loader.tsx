@@ -88,10 +88,20 @@ export function Spinner({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
   );
 }
 
+// ─── triggerRouteLoading ──────────────────────────────────────────────────────
+// Appeler avant router.push() pour déclencher la barre de progression.
+// Le hook useRouteLoader écoute cet événement en plus des clics sur <a>.
+export function triggerRouteLoading() {
+  if (typeof document !== "undefined") {
+    document.dispatchEvent(new CustomEvent("route-loading-start"));
+  }
+}
+
 // ─── Hook : détecte les navigations pour afficher le loader ──────────────────
 // Stratégie :
 //   1. Écoute les clics sur les liens internes → démarre le loader AU CLIC
-//   2. usePathname change (page chargée) → arrête le loader
+//   2. Écoute l'événement "route-loading-start" → pour router.push() programmatique
+//   3. usePathname change (page chargée) → arrête le loader
 export function useRouteLoader() {
   const pathname = usePathname();
   const [loading, setLoading] = useState(false);
@@ -108,8 +118,15 @@ export function useRouteLoader() {
       setLoading(true);
     };
 
+    // Déclenché par triggerRouteLoading() avant router.push()
+    const handleCustom = () => setLoading(true);
+
     document.addEventListener("click", handleClick);
-    return () => document.removeEventListener("click", handleClick);
+    document.addEventListener("route-loading-start", handleCustom);
+    return () => {
+      document.removeEventListener("click", handleClick);
+      document.removeEventListener("route-loading-start", handleCustom);
+    };
   }, [pathname]);
 
   // Arrête le loader quand la nouvelle page est montée (pathname a changé)

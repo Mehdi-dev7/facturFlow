@@ -17,6 +17,7 @@ import type { InvoiceStatus } from "@/components/dashboard/status-badge";
 import { StatusDropdown } from "@/components/dashboard/status-dropdown";
 import { useInvoices, type SavedInvoice } from "@/hooks/use-invoices";
 import { SkeletonTable } from "@/components/ui/skeleton-table";
+import { triggerRouteLoading } from "@/components/ui/page-loader";
 import { useAppearance } from "@/hooks/use-appearance";
 import { formatCurrency } from "@/lib/utils/calculs-facture";
 // Lazy load : chargé seulement au premier clic sur une ligne de facture
@@ -111,6 +112,7 @@ export default function DashboardPage() {
     const full = invoiceMap.get(inv.id);
     if (!full) return;
     if (inv.dbStatus === "DRAFT" && full.number.startsWith("BROUILLON-")) {
+      triggerRouteLoading();
       router.push(`/dashboard/invoices/${inv.id}/edit`);
       return;
     }

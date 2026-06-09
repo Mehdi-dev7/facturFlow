@@ -18,6 +18,7 @@ import type { InvoiceStatus } from "@/components/dashboard/status-badge";
 import { DeleteConfirmModal } from "@/components/shared/delete-confirm-modal";
 import { useDeposits, useDeleteDeposit, type SavedDeposit } from "@/hooks/use-deposits";
 import { SkeletonTable } from "@/components/ui/skeleton-table";
+import { triggerRouteLoading } from "@/components/ui/page-loader";
 import { DepositPreviewModal } from "@/components/acomptes/deposit-preview-modal";
 import { useAppearance } from "@/hooks/use-appearance";
 import { formatCurrency } from "@/lib/utils/calculs-facture";
@@ -362,6 +363,7 @@ export function DepositsPageContent() {
     (row: DepositRow) => {
       // Si c'est un vrai brouillon (numéro temporaire), aller vers l'édition
       if (row.dbStatus === "DRAFT" && row.number.startsWith("BROUILLON-")) {
+        triggerRouteLoading();
         router.push(`/dashboard/deposits/${row.id}/edit`);
         return;
       }
@@ -373,9 +375,9 @@ export function DepositsPageContent() {
     [router],
   );
 
-
   const handleEdit = useCallback(
     (row: DepositRow) => {
+      triggerRouteLoading();
       router.push(`/dashboard/deposits/${row.id}/edit`);
     },
     [router],
@@ -383,8 +385,11 @@ export function DepositsPageContent() {
 
   const handleDelete = useCallback(async () => {
     if (!deleteTargetId) return;
-    await deleteDepositMutation.mutateAsync(deleteTargetId);
-    setDeleteTargetId(null);
+    try {
+      await deleteDepositMutation.mutateAsync(deleteTargetId);
+    } finally {
+      setDeleteTargetId(null);
+    }
   }, [deleteTargetId, deleteDepositMutation]);
 
   // Ouvrir la preview via URL (?preview=id)
@@ -424,7 +429,7 @@ export function DepositsPageContent() {
         subtitle="Gérez vos demandes d'acomptes clients"
         ctaLabel="Nouvel acompte"
         ctaIcon={<Plus className="size-4" />}
-        onCtaClick={() => router.push("/dashboard/deposits/new")}
+        onCtaClick={() => { triggerRouteLoading(); router.push("/dashboard/deposits/new"); }}
       />
 
       {/* KPI Cards */}

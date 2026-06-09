@@ -38,6 +38,7 @@ import {
 	type SavedProforma,
 } from "@/hooks/use-proformas";
 import { SkeletonTable } from "@/components/ui/skeleton-table";
+import { triggerRouteLoading } from "@/components/ui/page-loader";
 import { useAppearance } from "@/hooks/use-appearance";
 import { formatCurrency } from "@/lib/utils/calculs-facture";
 
@@ -347,6 +348,7 @@ function ProformasPageContent() {
 						<button
 							onClick={(e) => {
 								e.stopPropagation();
+								triggerRouteLoading();
 								router.push(
 									`/dashboard/invoices?preview=${row.convertedInvoiceId}`,
 								);
@@ -445,6 +447,7 @@ function ProformasPageContent() {
 
 			// Brouillon temporaire → édition
 			if (row.dbStatus === "DRAFT" && p.number.startsWith("BROUILLON-")) {
+				triggerRouteLoading();
 				router.push(`/dashboard/proformas/${row.id}/edit`);
 				return;
 			}
@@ -457,6 +460,7 @@ function ProformasPageContent() {
 
 	const handleEdit = useCallback(
 		(row: ProformaRow) => {
+			triggerRouteLoading();
 			router.push(`/dashboard/proformas/${row.id}/edit`);
 		},
 		[router],
@@ -464,8 +468,9 @@ function ProformasPageContent() {
 
 	const handleDeleteConfirm = useCallback(() => {
 		if (!deleteTargetId) return;
-		deleteMutation.mutate(deleteTargetId);
-		setDeleteTargetId(null);
+		deleteMutation.mutate(deleteTargetId, {
+			onSettled: () => setDeleteTargetId(null),
+		});
 	}, [deleteTargetId, deleteMutation]);
 
 	// Skeleton — affiché tant que les données ne sont pas chargées (après tous les hooks)

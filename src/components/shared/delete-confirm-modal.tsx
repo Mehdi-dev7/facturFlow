@@ -85,9 +85,9 @@ export function DeleteConfirmModal({
           {/* Confirmer */}
           <AlertDialogAction
             onClick={(e) => {
-              // Empêche AlertDialog de se fermer pendant la suppression
-              if (isDeleting) e.preventDefault();
-              else onConfirm();
+              // On prend toujours le contrôle de la fermeture — le parent ferme via onSettled
+              e.preventDefault();
+              if (!isDeleting) onConfirm();
             }}
             disabled={isDeleting}
             className="w-full sm:w-auto bg-red-600 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700 text-white border-0 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"

@@ -36,6 +36,7 @@ const BcImportDialog = dynamic(
 );
 import { useInvoices, useDeleteInvoice, type SavedInvoice } from "@/hooks/use-invoices";
 import { SkeletonTable } from "@/components/ui/skeleton-table";
+import { triggerRouteLoading } from "@/components/ui/page-loader";
 import { StatusDropdown } from "@/components/dashboard/status-dropdown";
 import { useAppearance } from "@/hooks/use-appearance";
 import { formatCurrency } from "@/lib/utils/calculs-facture";
@@ -431,13 +432,14 @@ function InvoicesPageContent() {
   const handleRowClick = useCallback((row: InvoiceRow) => {
     const inv = invoiceMap.get(row.id);
     if (!inv) return;
-    
+
     // Si c'est un vrai brouillon (numéro temporaire), aller vers l'édition
     if (row.dbStatus === "DRAFT" && inv.number.startsWith("BROUILLON-")) {
+      triggerRouteLoading();
       router.push(`/dashboard/invoices/${row.id}/edit`);
       return;
     }
-    
+
     // Sinon, ouvrir la modal de prévisualisation
     setPreviewInvoice(inv);
     setPreviewOpen(true);
@@ -445,14 +447,16 @@ function InvoicesPageContent() {
 
   // Toujours aller vers le formulaire d'édition (pour le bouton "Éditer")
   const handleEdit = useCallback((row: InvoiceRow) => {
+    triggerRouteLoading();
     router.push(`/dashboard/invoices/${row.id}/edit`);
   }, [router]);
 
   // Supprimer avec confirmation
   const handleDeleteConfirm = useCallback(() => {
     if (!deleteTargetId) return;
-    deleteMutation.mutate(deleteTargetId);
-    setDeleteTargetId(null);
+    deleteMutation.mutate(deleteTargetId, {
+      onSettled: () => setDeleteTargetId(null),
+    });
   }, [deleteTargetId, deleteMutation]);
 
   // Skeleton pendant le premier chargement (tous les hooks sont déjà déclarés)
