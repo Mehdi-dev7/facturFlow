@@ -9,7 +9,7 @@
 
 import { NextRequest } from "next/server"
 import { prisma } from "@/lib/prisma"
-import { testEInvoiceConversion } from "@/lib/actions/send-einvoice"
+import { testEInvoiceConversionAdmin } from "@/lib/actions/send-einvoice"
 import { getTestInvoice, sendInvoiceXml, convertInvoiceToXml } from "@/lib/superpdp"
 
 export async function GET(request: NextRequest) {
@@ -61,6 +61,6 @@ export async function GET(request: NextRequest) {
     invoiceId = doc.id
   }
 
-  const result = await testEInvoiceConversion(invoiceId!)
+  const result = await testEInvoiceConversionAdmin(invoiceId!)
   return Response.json(result)
 }

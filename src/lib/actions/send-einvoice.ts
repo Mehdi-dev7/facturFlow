@@ -474,6 +474,53 @@ export async function testEInvoiceConversion(invoiceId: string) {
 	}
 }
 
+// ─── Version admin : pas de vérif auth (appelée depuis /api/test-einvoice protégée par CRON_SECRET) ─
+
+export async function testEInvoiceConversionAdmin(invoiceId: string) {
+	try {
+		const invoice = await prisma.document.findFirst({
+			where: { id: invoiceId, type: "INVOICE" },
+			select: {
+				id: true, number: true, date: true, dueDate: true, notes: true,
+				subtotal: true, taxTotal: true, total: true, depositAmount: true,
+				businessMetadata: true, einvoiceRef: true,
+				lineItems: {
+					select: { description: true, quantity: true, unitPrice: true, vatRate: true, subtotal: true },
+					orderBy: { order: "asc" },
+				},
+				client: {
+					select: {
+						companyName: true, firstName: true, lastName: true,
+						companySiren: true, companySiret: true, companyVatNumber: true,
+						email: true, address: true, postalCode: true, city: true, country: true, phone: true,
+					},
+				},
+				user: {
+					select: {
+						companyName: true, companySiren: true, companySiret: true,
+						companyVatNumber: true, companyAddress: true, companyPostalCode: true,
+						companyCity: true, companyEmail: true, companyPhone: true, iban: true, bic: true,
+					},
+				},
+			},
+		});
+
+		if (!invoice) return { success: false, error: "Facture introuvable", xml: null } as const;
+		const clientSirenCheck = invoice.client.companySiren ?? invoice.client.companySiret?.slice(0, 9) ?? null;
+		const userSirenCheck   = invoice.user.companySiren   ?? invoice.user.companySiret?.slice(0, 9)   ?? null;
+		if (!clientSirenCheck) return { success: false, error: "SIREN/SIRET client manquant", xml: null } as const;
+		if (!userSirenCheck) return { success: false, error: "SIREN/SIRET vendeur manquant", xml: null } as const;
+
+		const en16931 = removeEmptyProperties(buildEN16931(invoice as unknown as InvoiceWithFullData)) as EN16931Invoice;
+		const xml = await convertInvoiceToXml(en16931);
+
+		return { success: true, xml, en16931 } as const;
+	} catch (error) {
+		const message = error instanceof Error ? error.message : "Erreur inconnue";
+		return { success: false, error: message, xml: null } as const;
+	}
+}
+
 // ─── Action : récupérer le statut e-invoice d'une facture ────────────────────
 
 export async function getEInvoiceStatus(invoiceId: string) {
