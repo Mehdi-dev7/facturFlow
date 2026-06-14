@@ -38,7 +38,7 @@ const PLAN_FEATURES = {
     { label: "10 documents par mois", included: true },
     { label: "5 clients maximum", included: true },
     { label: "Virement bancaire uniquement", included: true },
-    { label: "5 factures électroniques/mois", included: true, soon: true },
+    { label: "5 factures électroniques/mois", included: true },
     { label: "Essai Pro 7 jours inclus", included: true },
     { label: "Paiements en ligne (Stripe/PayPal)", included: false },
     { label: "Relances automatiques", included: false },
@@ -62,7 +62,7 @@ const PLAN_FEATURES = {
     { label: "Import IA de bons de commande externes (150 pages/mois)", included: true },
     { label: "API & Webhooks", included: true },
     { label: "Support prioritaire", included: true },
-    { label: "Factures électroniques illimitées", included: true, soon: true },
+    { label: "Factures électroniques illimitées", included: true },
   ],
 };
 
