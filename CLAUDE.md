@@ -677,7 +677,7 @@ Utilise les agents quand :
 - [x] Pages légales (mentions, RGPD, CGU/CGV) + Formulaire contact/support
 
 ### Bugs connus
-- [ ] **Bug SuperPDP** : envoi e-invoicing échoue dans certains cas — en attente accès prod SuperPDP
+- [ ] **E-invoicing Peppol** : envoi complet à tester avec une grande entreprise enregistrée dans l'annuaire Peppol — obligatoire septembre 2026 (receiver must be in Peppol directory)
 
 ### Pricing (validé 02/03/2026)
 
@@ -697,7 +697,8 @@ Utilise les agents quand :
 ### Reste à faire — App (30/03/2026)
 
 - [x] Tout le reste est fait ✅
-- [ ] **SuperPDP prod** : en attente accès production SuperPDP — dernière étape avant lancement officiel
+- [x] **SuperPDP prod** : clés prod branchées (09/06/2026), conversion EN16931→CII XML validée, bouton UI activé — envoi Peppol bloqué par destinataire non inscrit (normal avant sept 2026)
+- [ ] **Test envoi e-invoicing Peppol** : tester avec grande entreprise enregistrée sur Peppol — septembre 2026 (e-invoicing obligatoire grandes entreprises). Vérifier sur directory.peppol.eu avant de tester.
 - [ ] **Templates métiers factures** : 9 templates visuels par secteur (Web Dev, Design, Consultant, BTP, Photo, Rédacteur, Coach, E-commerce, Services) — pas urgent
 - [ ] **Discount client partenaire** : 5-10% sur 3 premiers mois via Stripe coupon — à activer ~juillet 2026 (voir `STRIPE_PARTNER_TODO.md`)
 - [ ] **Workflow n8n marketing auto** : publication automatique d'articles + pubs sur Reddit, auto-entrepreneur.com et autres plateformes partenaires — déclenché sur schedule ou événement (nouvelle inscription, etc.)

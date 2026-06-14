@@ -1,10 +1,10 @@
 // Server Component — pas de hooks ni event handlers
-import { Calendar, AlertCircle, ArrowRight, CheckCircle2, Clock } from "lucide-react"
+import { Calendar, AlertCircle, ArrowRight, CheckCircle2, Building2, Zap, ShieldCheck } from "lucide-react"
 import Link from "next/link"
 
 // ─── Section Facturation Électronique 2026 ────────────────────────────────────
 // Cible les mots-clés : "facturation électronique obligatoire 2026",
-// "facture électronique freelance", "conformité Factur-X France"
+// "facture électronique grandes entreprises", "conformité Factur-X France"
 
 export function EInvoicingSection() {
   return (
@@ -17,41 +17,45 @@ export function EInvoicingSection() {
             {/* ── Colonne gauche — explication ──────────────────────────────── */}
             <div className="px-4 sm:px-[8%] xl:px-[12%] py-10 xl:py-20">
 
-              {/* Badge "bientôt dispo" */}
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-100 border border-violet-200 mb-6">
-                <Clock className="h-4 w-4 text-violet-600 shrink-0" />
-                <span className="text-xs font-bold text-violet-700 uppercase tracking-wide">Disponible très prochainement</span>
+              {/* Badge "disponible maintenant" */}
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-100 border border-emerald-200 mb-6">
+                <ShieldCheck className="h-4 w-4 text-emerald-600 shrink-0" />
+                <span className="text-xs font-bold text-emerald-700 uppercase tracking-wide">Disponible maintenant</span>
               </div>
 
               {/* H2 optimisé SEO */}
               <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
                 Facturation électronique :{" "}
-                <span className="text-gradient">FacturNow vous prépare dès maintenant</span>
+                <span className="text-gradient">FacturNow est déjà conforme</span>
               </h2>
 
-              <p className="text-slate-600 mb-8 leading-relaxed">
+              <p className="text-slate-600 mb-4 leading-relaxed">
                 À partir de <strong>septembre 2026</strong>, toutes les entreprises françaises B2B
-                devront émettre et recevoir des <strong>factures électroniques conformes Factur-X</strong> via
-                une plateforme agréée. Cette fonctionnalité est en cours de finalisation — elle sera
-                intégrée via <strong>SuperPDP</strong>, partenaire certifié par la DGFiP, bien avant la date limite.
+                doivent émettre des <strong>factures électroniques conformes</strong> via
+                une plateforme agréée. FacturNow est déjà opérationnel via{" "}
+                <strong>SuperPDP</strong>, partenaire certifié DGFiP, sur le réseau <strong>Peppol</strong>.
               </p>
 
-              {/* Checklist conformité */}
+              {/* Callout grandes entreprises */}
+              <div className="flex items-start gap-3 p-3.5 rounded-xl bg-red-50 border border-red-200 mb-6">
+                <AlertCircle className="h-5 w-5 text-red-500 mt-0.5 shrink-0" />
+                <p className="text-sm text-red-700">
+                  <strong>Grandes entreprises & ETI :</strong> l&apos;obligation est dans{" "}
+                  <strong>3 mois</strong>. FacturNow envoie vos factures via Peppol dès aujourd&apos;hui.
+                </p>
+              </div>
+
+              {/* Checklist conformité — tout coché */}
               <ul className="space-y-3 mb-8">
                 {[
-                  { label: "Format Factur-X / EN 16931 conforme DGFiP", done: true },
-                  { label: "Transmission via réseau Peppol (SuperPDP certifié)", done: true },
-                  { label: "Inclus dès le plan Pro — sans surcoût", done: true },
-                  { label: "Déploiement en cours — disponible avant l'été 2026", done: false },
-                ].map((item, i) => (
+                  "Format EN 16931 / CII conforme DGFiP",
+                  "Transmission via réseau Peppol (SuperPDP certifié)",
+                  "Inclus dès le plan Pro — sans surcoût",
+                  "Opérationnel en production depuis juin 2026",
+                ].map((label, i) => (
                   <li key={i} className="flex items-center gap-2.5">
-                    {item.done
-                      ? <CheckCircle2 className="h-5 w-5 text-violet-600 shrink-0" />
-                      : <Clock className="h-5 w-5 text-amber-500 shrink-0" />
-                    }
-                    <span className={`text-sm ${item.done ? "text-slate-700" : "text-amber-700 font-medium"}`}>
-                      {item.label}
-                    </span>
+                    <CheckCircle2 className="h-5 w-5 text-violet-600 shrink-0" />
+                    <span className="text-sm text-slate-700">{label}</span>
                   </li>
                 ))}
               </ul>
@@ -60,7 +64,7 @@ export function EInvoicingSection() {
                 href="/signup"
                 className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition-colors cursor-pointer"
               >
-                Être notifié à la sortie
+                Commencer gratuitement
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
@@ -77,7 +81,7 @@ export function EInvoicingSection() {
 
               <div className="space-y-0">
 
-                {/* Étape 1 — 2026 */}
+                {/* Étape 1 — Sept. 2026 Grandes entreprises */}
                 <div className="flex gap-4">
                   <div className="flex flex-col items-center">
                     <div className="h-10 w-10 rounded-full bg-red-500/20 border border-red-500/40 flex items-center justify-center shrink-0">
@@ -87,16 +91,16 @@ export function EInvoicingSection() {
                   </div>
                   <div className="pt-1 pb-8">
                     <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-500/20 mb-2">
-                      <span className="text-xs font-bold text-red-400">Sept. 2026 — Urgent</span>
+                      <span className="text-xs font-bold text-red-400">Sept. 2026 — Dans 3 mois</span>
                     </div>
-                    <p className="text-white font-semibold text-sm">Entreprises & PME</p>
+                    <p className="text-white font-semibold text-sm">Grandes entreprises & PME</p>
                     <p className="text-slate-400 text-xs mt-0.5">
-                      Obligation d&apos;émettre et de recevoir des factures électroniques B2B
+                      Obligation d&apos;émettre et recevoir des factures B2B électroniques
                     </p>
                   </div>
                 </div>
 
-                {/* Étape 2 — 2027 */}
+                {/* Étape 2 — Sept. 2027 Freelances */}
                 <div className="flex gap-4">
                   <div className="flex flex-col items-center">
                     <div className="h-10 w-10 rounded-full bg-orange-500/20 border border-orange-500/40 flex items-center justify-center shrink-0">
@@ -115,18 +119,31 @@ export function EInvoicingSection() {
                   </div>
                 </div>
 
-                {/* Badge transition en cours */}
-                <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center gap-3">
-                  <Clock className="h-8 w-8 text-amber-400 shrink-0" />
+                {/* Badge "déjà opérationnel" — vert */}
+                <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-3">
+                  <Zap className="h-8 w-8 text-emerald-400 shrink-0" />
                   <div>
-                    <p className="text-white font-semibold text-sm">Transition en douceur — bientôt disponible</p>
+                    <p className="text-white font-semibold text-sm">FacturNow est déjà opérationnel</p>
                     <p className="text-slate-400 text-xs mt-0.5">
-                      Intégration SuperPDP en cours de finalisation, bien avant l&apos;échéance légale
+                      Envoi via Peppol / SuperPDP actif depuis juin 2026 — prenez de l&apos;avance
                     </p>
                   </div>
                 </div>
 
               </div>
+
+              {/* Bloc "Pour les grandes entreprises" */}
+              <div className="mt-6 p-4 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-start gap-3">
+                <Building2 className="h-5 w-5 text-violet-400 mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-white font-semibold text-sm mb-1">Vous êtes une grande entreprise ?</p>
+                  <p className="text-slate-400 text-xs leading-relaxed">
+                    Vos fournisseurs freelances et PME doivent pouvoir vous envoyer des factures électroniques.
+                    Avec FacturNow, ils sont conformes Peppol en quelques minutes.
+                  </p>
+                </div>
+              </div>
+
             </div>
 
           </div>
