@@ -1,7 +1,7 @@
 "use server";
 
 // Server Action : envoie le message de contact via Resend
-// → 1 email à support@facturnow.fr avec le message du user
+// → 1 email à contact@facturnow.fr avec le message du user
 // → 1 email de confirmation au user
 
 import { z } from "zod";
@@ -50,7 +50,7 @@ export async function sendContactEmail(data: ContactFormData) {
   try {
     // ── Email interne → support FacturNow ──────────────────────────────────
     await resend.emails.send({
-      from: "FacturNow Support <support@facturnow.fr>",
+      from: "FacturNow Support <contact@facturnow.fr>",
       to: [process.env.RESEND_SUPPORT_EMAIL ?? "contact@facturnow.fr"],
       replyTo: email,
       subject: `[Support] ${subjectLabel} — ${name}`,
@@ -89,7 +89,7 @@ export async function sendContactEmail(data: ContactFormData) {
 
     // ── Email de confirmation → utilisateur ──────────────────────────────────
     await resend.emails.send({
-      from: "FacturNow Support <support@facturnow.fr>",
+      from: "FacturNow Support <contact@facturnow.fr>",
       to: [email],
       subject: "Votre message a bien été reçu — FacturNow",
       html: `
@@ -110,7 +110,7 @@ export async function sendContactEmail(data: ContactFormData) {
 
           <p style="font-size: 13px; color: #9ca3af;">
             Si votre question est urgente, vous pouvez aussi nous écrire directement à
-            <a href="mailto:support@facturnow.fr" style="color: #7c3aed;">support@facturnow.fr</a>.
+            <a href="mailto:contact@facturnow.fr" style="color: #7c3aed;">contact@facturnow.fr</a>.
           </p>
         </div>
       `,

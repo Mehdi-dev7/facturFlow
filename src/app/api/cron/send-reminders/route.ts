@@ -11,12 +11,16 @@ export async function runSendReminders() {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://facturnow.fr"
   const fromEmail = process.env.RESEND_FROM_EMAIL ?? "FacturNow <noreply@facturnow.fr>"
 
-  // Récupérer tous les reminders prêts à être envoyés
+  // Récupérer tous les reminders prêts à être envoyés.
+  // Liste POSITIVE des statuts : on ne relance QUE les factures réellement
+  // en attente de paiement. Un brouillon (DRAFT), une facture payée, annulée,
+  // partiellement payée ou en cours de prélèvement SEPA ne doit jamais être relancé.
+  // (Cas réel : une facture envoyée puis remise en brouillon gardait ses relances.)
   const pendingReminders = await prisma.reminder.findMany({
     where: {
       sent: false,
       scheduledFor: { lte: now },
-      document: { status: { notIn: ["PAID", "CANCELLED"] } },
+      document: { status: { in: ["SENT", "VIEWED", "OVERDUE", "REMINDED"] } },
     },
     include: {
       document: {

@@ -13,6 +13,7 @@ import type { SavedInvoice } from "@/lib/actions/invoices";
 import { wrapEmail, emailHeader, EMAIL_FOOTER } from "@/lib/email/email-base";
 import { getStripeCredential } from "@/lib/actions/payments";
 import { getStripeClient } from "@/lib/stripe";
+import { resolveNextInvoiceNumber } from "@/lib/invoice-number";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -68,6 +69,18 @@ export async function sendInvoiceEmail(
 
     if (!doc) {
       return { success: false, error: "Facture introuvable" };
+    }
+
+    // 2.bis Finaliser le numéro si la facture est encore un brouillon.
+    // Sans ça, une facture envoyée directement depuis l'état brouillon partirait
+    // (et serait relancée) avec un numéro "BROUILLON-…" — ce qui n'est pas conforme.
+    if (doc.number.startsWith("BROUILLON-")) {
+      const finalNumber = await resolveNextInvoiceNumber(session.user.id);
+      await prisma.document.update({
+        where: { id: invoiceId },
+        data: { number: finalNumber },
+      });
+      doc.number = finalNumber; // utilisé ensuite pour le PDF, le sujet et la pièce jointe
     }
 
     // 3. Construire l'objet SavedInvoice pour le template PDF

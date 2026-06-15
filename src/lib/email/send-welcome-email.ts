@@ -16,7 +16,7 @@ export interface SendWelcomeEmailParams {
 export async function sendWelcomeEmail({ to, name }: SendWelcomeEmailParams): Promise<void> {
   const firstName = name.split(" ")[0]
   const dashboardUrl = `${BASE_URL}/dashboard`
-  const feedbackEmail = "mehdi@facturnow.fr"
+  const feedbackEmail = "contact@facturnow.fr"
 
   const html = wrapEmail(`
     <!-- ── Header avec rocket ──────────────────────────────────────────── -->
@@ -33,32 +33,20 @@ export async function sendWelcomeEmail({ to, name }: SendWelcomeEmailParams): Pr
     <!-- ── Message d'intro ──────────────────────────────────────────────── -->
     <p style="font-size:15px;color:#374151;line-height:1.7;margin:0 0 20px;">
       Hey ${firstName} 👋<br/><br/>
-      Je suis Mehdi, le créateur de FacturNow. Merci d'avoir créé votre compte —
-      vous faites partie des tout premiers utilisateurs de l'app et ça compte beaucoup pour moi.
+      Toute l'équipe FacturNow est ravie de vous accueillir ! Merci d'avoir créé votre compte —
+      vous faites partie de nos tout premiers utilisateurs, et ça compte énormément pour nous.
     </p>
-
-    <!-- ── Bloc "app fraîche" ─────────────────────────────────────────── -->
-    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:18px 20px;margin-bottom:20px;">
-      <p style="font-size:14px;font-weight:700;color:#15803d;margin:0 0 6px;">
-        🌱 FacturNow est tout frais !
-      </p>
-      <p style="font-size:13px;color:#166534;line-height:1.6;margin:0;">
-        L'app est récente, elle fonctionnel et pleinement opérationnelle — mais comme tout produit
-        en démarrage, elle peut avoir quelques aspérités. Vous avez une vision unique
-        pour m'aider à l'améliorer.
-      </p>
-    </div>
 
     <!-- ── Appel aux beta-testeurs ───────────────────────────────────────── -->
     <div style="background:linear-gradient(135deg,#faf5ff,#ede9fe);border:1px solid #c4b5fd;border-radius:10px;padding:20px;margin-bottom:20px;">
       <p style="font-size:14px;font-weight:700;color:#5b21b6;margin:0 0 10px;">
-        🐛 Vous trouvez un bug ? Dites-le moi directement
+        🐛 Vous trouvez un bug ? Dites-le nous directement
       </p>
       <p style="font-size:13px;color:#6b21a8;line-height:1.6;margin:0 0 14px;">
-        Pas de formulaire compliqué — envoyez-moi un email, une capture d'écran, ou même
-        juste deux lignes. Chaque retour est précieux et je réponds personnellement.
+        Pas de formulaire compliqué — écrivez-nous un email, une capture d'écran, ou même
+        juste deux lignes. On lit tout, chaque retour est précieux et on répond personnellement.
       </p>
-      <a href="mailto:${feedbackEmail}?subject=Bug%20FacturNow&body=Bonjour%20Mehdi%2C%0A%0AJ'ai%20remarqu%C3%A9%20un%20probl%C3%A8me%20..."
+      <a href="mailto:${feedbackEmail}?subject=Bug%20FacturNow&body=Bonjour%2C%0A%0AJ'ai%20remarqu%C3%A9%20un%20probl%C3%A8me%20..."
          style="display:inline-block;background:#7c3aed;color:#ffffff;font-size:13px;font-weight:600;text-decoration:none;padding:10px 20px;border-radius:8px;">
         Signaler un bug ou une idée →
       </a>
@@ -77,7 +65,12 @@ export async function sendWelcomeEmail({ to, name }: SendWelcomeEmailParams): Pr
       </p>
       <p style="font-size:13px;color:#78350f;line-height:1.5;margin:0 0 14px;">
         En tant qu'early adopter, vous pouvez bénéficier du tarif Fondateur à <strong>6,99€/mois à vie</strong>
-        au lieu de 9,99€/mois. C'est ma façon de remercier ceux qui font confiance au projet dès le début.
+        au lieu de 9,99€/mois. C'est notre façon de remercier ceux qui font confiance au projet dès le début.
+      </p>
+      <p style="font-size:13px;color:#78350f;line-height:1.5;margin:0 0 14px;">
+        En tant que Fondateur, votre voix pèse plus que n'importe quelle autre. Partagez-nous vos idées,
+        vos besoins, ou le moindre bug que vous croisez : ce sont ces retours qui façonnent FacturNow
+        jour après jour. On construit cette app <strong>avec</strong> vous, pas seulement pour vous. 💜
       </p>
       <a href="${BASE_URL}/dashboard/subscription?coupon=FONDATEUR"
          style="display:inline-block;background:linear-gradient(135deg,#f59e0b,#d97706);color:#ffffff;font-size:13px;font-weight:600;text-decoration:none;padding:10px 20px;border-radius:8px;">
@@ -120,8 +113,8 @@ export async function sendWelcomeEmail({ to, name }: SendWelcomeEmailParams): Pr
     <!-- ── Signature ─────────────────────────────────────────────────── -->
     <p style="font-size:14px;color:#6b7280;line-height:1.6;margin:0;">
       À très vite,<br/>
-      <strong style="color:#374151;">Mehdi</strong><br/>
-      <span style="font-size:12px;color:#9ca3af;">Créateur de FacturNow</span>
+      <strong style="color:#374151;">Mehdi & toute l'équipe FacturNow</strong><br/>
+      <span style="font-size:12px;color:#9ca3af;">À votre écoute, chaque jour</span>
     </p>
 
     ${EMAIL_FOOTER}

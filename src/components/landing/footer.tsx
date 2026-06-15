@@ -39,8 +39,8 @@ export function Footer() {
           </h3>
           <ul className="flex flex-col space-y-2">
             <Link href="#faq"                        className="text-slate-300 text-sm lg:text-base transition-all duration-300 hover:text-secondary hover:ml-2">Questions fréquentes</Link>
-            <Link href="mailto:support@facturnow.fr" className="text-slate-300 text-sm lg:text-base transition-all duration-300 hover:text-secondary hover:ml-2">Nous contacter</Link>
-            <Link href="mailto:support@facturnow.fr" className="text-slate-300 text-sm lg:text-base transition-all duration-300 hover:text-secondary hover:ml-2">support@facturnow.fr</Link>
+            <Link href="mailto:contact@facturnow.fr" className="text-slate-300 text-sm lg:text-base transition-all duration-300 hover:text-secondary hover:ml-2">Nous contacter</Link>
+            <Link href="mailto:contact@facturnow.fr" className="text-slate-300 text-sm lg:text-base transition-all duration-300 hover:text-secondary hover:ml-2">contact@facturnow.fr</Link>
           </ul>
         </div>
 

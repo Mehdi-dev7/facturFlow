@@ -74,7 +74,7 @@ export async function sendFounderEmail({ to, name, founderNumber }: SendFounderE
 
     <p style="font-size:13px;color:#9ca3af;text-align:center;margin:0;">
       Merci de votre confiance. Une question ?
-      <a href="mailto:support@facturnow.fr" style="color:#7c3aed;">support@facturnow.fr</a>
+      <a href="mailto:contact@facturnow.fr" style="color:#7c3aed;">contact@facturnow.fr</a>
     </p>
   `);
 

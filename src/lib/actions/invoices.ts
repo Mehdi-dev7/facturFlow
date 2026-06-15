@@ -8,6 +8,7 @@ import { auth } from "@/lib/auth";
 import { calcInvoiceTotals } from "@/lib/utils/calculs-facture";
 import { canCreateDocument } from "@/lib/feature-gate";
 import { dispatchWebhook } from "@/lib/webhook-dispatcher";
+import { resolveNextInvoiceNumber } from "@/lib/invoice-number";
 import type { InvoiceFormData, VatRate } from "@/lib/validations/invoice";
 
 // ─── Type exporté (utilisé par les hooks et les modals) ──────────────────────
@@ -353,41 +354,8 @@ const documentInclude = {
   },
 } as const;
 
-// ─── Helper : numéro de facture garanti unique ───────────────────────────────
-// Calcule max(compteur_stocké, dernier_numéro_en_DB + 1) pour éviter les doublons
-// même après des suppressions ou manipulations du compteur.
-
-async function resolveNextInvoiceNumber(userId: string): Promise<string> {
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { invoicePrefix: true, nextInvoiceNumber: true },
-  });
-  if (!user) throw new Error("Utilisateur introuvable");
-
-  const year = new Date().getFullYear();
-  const prefix = user.invoicePrefix;
-
-  // Trouver le plus grand numéro de séquence déjà utilisé cette année
-  const existing = await prisma.document.findMany({
-    where: { userId, type: "INVOICE", number: { startsWith: `${prefix}-${year}-` } },
-    select: { number: true },
-  });
-  const maxUsed = existing.reduce((max, doc) => {
-    const seq = parseInt(doc.number.split("-").pop() ?? "0", 10);
-    return isNaN(seq) ? max : Math.max(max, seq);
-  }, 0);
-
-  // Le prochain sûr = max entre le compteur stocké et le plus grand utilisé + 1
-  const safeNext = Math.max(user.nextInvoiceNumber, maxUsed + 1);
-
-  // Mettre à jour le compteur pour la prochaine fois
-  await prisma.user.update({
-    where: { id: userId },
-    data: { nextInvoiceNumber: safeNext + 1 },
-  });
-
-  return `${prefix}-${year}-${String(safeNext).padStart(4, "0")}`;
-}
+// Le helper resolveNextInvoiceNumber a été déplacé dans @/lib/invoice-number
+// (réutilisé aussi par l'envoi d'email pour finaliser un numéro BROUILLON-).
 
 // ─── Action : prochain numéro de facture (lecture seule, pour l'affichage) ───
 
@@ -928,7 +896,7 @@ export async function updateInvoiceStatus(id: string, newStatus: string) {
     // Récupérer la facture (vérification ownership incluse)
     const doc = await prisma.document.findFirst({
       where: { id, userId: session.user.id, type: "INVOICE" },
-      select: { status: true },
+      select: { status: true, number: true },
     });
 
     if (!doc) {
@@ -944,9 +912,18 @@ export async function updateInvoiceStatus(id: string, newStatus: string) {
       } as const;
     }
 
+    // Finaliser le numéro si on sort de l'état brouillon (numéro encore "BROUILLON-")
+    const finalNumber =
+      newStatus === "SENT" && doc.number.startsWith("BROUILLON-")
+        ? await resolveNextInvoiceNumber(session.user.id)
+        : undefined;
+
     await prisma.document.update({
       where: { id },
-      data: { status: newStatus as "DRAFT" | "SENT" | "PAID" | "OVERDUE" | "REMINDED" },
+      data: {
+        status: newStatus as "DRAFT" | "SENT" | "PAID" | "OVERDUE" | "REMINDED",
+        ...(finalNumber ? { number: finalNumber } : {}),
+      },
     });
 
     revalidatePath("/dashboard/invoices");

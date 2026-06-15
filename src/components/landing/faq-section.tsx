@@ -45,7 +45,7 @@ export function FaqSection() {
       },
       {
         question: "Comment importer mes factures depuis un autre logiciel ?",
-        answer: "📥 Import facile en 3 étapes :\n\n1️⃣ Exportez vos données depuis votre ancien logiciel (Excel, CSV)\n2️⃣ Dashboard FacturNow → Paramètres → Import de données\n3️⃣ Uploadez votre fichier → Notre système détecte automatiquement les colonnes\n\n✅ Import pris en charge :\n→ Clients (nom, email, SIRET, adresse)\n→ Produits/Services (nom, prix, TVA)\n→ Factures (numéro, date, montant, statut)\n\n⚠️ Besoin d'aide ? Notre support vous accompagne gratuitement (email support@facturnow.fr)."
+        answer: "📥 Import facile en 3 étapes :\n\n1️⃣ Exportez vos données depuis votre ancien logiciel (Excel, CSV)\n2️⃣ Dashboard FacturNow → Paramètres → Import de données\n3️⃣ Uploadez votre fichier → Notre système détecte automatiquement les colonnes\n\n✅ Import pris en charge :\n→ Clients (nom, email, SIRET, adresse)\n→ Produits/Services (nom, prix, TVA)\n→ Factures (numéro, date, montant, statut)\n\n⚠️ Besoin d'aide ? Notre support vous accompagne gratuitement (email contact@facturnow.fr)."
       },
       {
         question: "Puis-je annuler mon abonnement à tout moment ?",
@@ -57,7 +57,7 @@ export function FaqSection() {
       },
       {
         question: "Le support client est-il inclus ? Dans quelle langue ?",
-        answer: "✅ Support inclus dans TOUS les plans :\n\n📧 Plan Free & Pro : Support email en français\n→ Réponse sous 24h (jours ouvrés)\n→ Base de connaissances complète\n\n⚡ Plan Business : Support prioritaire\n→ Réponse sous 12h (jours ouvrés)\n🇫🇷 Équipe 100% française basée à Paris\n📩 Contact : support@facturnow.fr\n\n💡  documentation complète disponibles 24/7 dans le dashboard."
+        answer: "✅ Support inclus dans TOUS les plans :\n\n📧 Plan Free & Pro : Support email en français\n→ Réponse sous 24h (jours ouvrés)\n→ Base de connaissances complète\n\n⚡ Plan Business : Support prioritaire\n→ Réponse sous 12h (jours ouvrés)\n🇫🇷 Équipe 100% française basée à Paris\n📩 Contact : contact@facturnow.fr\n\n💡  documentation complète disponibles 24/7 dans le dashboard."
       }
     
   ]
@@ -157,7 +157,7 @@ export function FaqSection() {
             Notre équipe support française est là pour vous aider !
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="mailto:support@facturnow.fr">
+            <Link href="mailto:contact@facturnow.fr">
               <Button variant="gradient" size="lg" className="w-full sm:w-auto h-12 px-8 font-ui text-base transition-all duration-300 cursor-pointer">
                 Contacter le support
               </Button>
